@@ -1,0 +1,23 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Roaa.Rosas.Domain.Entities.Identity;
+
+namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
+{
+    public class IdentityUserConfiguration : IEntityTypeConfiguration<User>
+    {
+        #region Configure 
+        public void Configure(EntityTypeBuilder<User> builder)
+        {
+            builder.ToTable("Identity_Users");
+            builder.HasQueryFilter(p => !p.IsDeleted);
+            builder.Property(r => r.IsDeleted).HasDefaultValue(false).IsRequired();
+            builder.Property(r => r.IsActive).HasDefaultValue(true).IsRequired();
+            builder.Property(r => r.Locale).HasMaxLength(2);
+            builder.Property(r => r.Created).IsRequired();
+            builder.Property(r => r.Edited).IsRequired();
+            builder.Ignore(r => r.DomainEvents);
+        }
+        #endregion
+    }
+}

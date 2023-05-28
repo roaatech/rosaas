@@ -15,7 +15,13 @@
 
 
 	<ItemGroup>
+		<ProjectReference Include="..\Roaa.Rosas.Authorization\Roaa.Rosas.Authorization.csproj" />
 		<ProjectReference Include="..\Roaa.Rosas.Domain\Roaa.Rosas.Domain.csproj" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Folder Include="InternalDomainEventsHandlers\" />
 	</ItemGroup>
 
 

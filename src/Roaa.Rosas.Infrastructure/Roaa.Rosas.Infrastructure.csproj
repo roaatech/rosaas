@@ -24,6 +24,13 @@
  <ItemGroup>
    <ProjectReference Include="..\Roaa.Rosas.Application\Roaa.Rosas.Application.csproj" />
  </ItemGroup>
+ 
+ <ItemGroup>
+   <Folder Include="Persistence\Migrations\IdentityServerConfiguration\" />
+   <Folder Include="Persistence\Migrations\IdentityServerGrants\" />
+   <Folder Include="Persistence\Migrations\Identity\" />
+   <Folder Include="Persistence\SQLScripts\" />
+ </ItemGroup>
 
 
 
