@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Application.SystemMessages
 
 
         [Localization(
-            En = "The account already exist",
+            En = "The account is already existed",
             Ar = "الحساب موجود مسبقا")]
         AccountAlreadyExist = 2002,
 
@@ -50,5 +50,12 @@ namespace Roaa.Rosas.Application.SystemMessages
            En = "You have already confirmed your email account",
            Ar = "لقد قمت بتوثيق حساب بريدك الإلكتروني مسبقأ")]
         UserAlreadyConfirmedEmailAccount = 2008,
+
+
+        [Localization(
+        En = "The name is already used",
+        Ar = "الاسم مستخدم مسبقاً")]
+        NameAlreadyUsed = 3001,
+
     }
 }

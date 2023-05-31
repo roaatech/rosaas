@@ -19,7 +19,7 @@ namespace Roaa.Rosas.Framework.Configurations
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
             })
-            .AddEntityFrameworkStores<RosasIdentityDbContext>()
+            .AddEntityFrameworkStores<RosasDbContext>()
             .AddDefaultTokenProviders();
         }
 

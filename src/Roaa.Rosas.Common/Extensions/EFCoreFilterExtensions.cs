@@ -5,7 +5,7 @@ namespace Roaa.Rosas.Common.Extensions
 {
     public static class EFCoreFilterExtensions
     {
-        public static Expression<Func<TEntity, bool>> BuildWhereExpression<TEntity>(string propertyName, object value, FilterOperator @operator = FilterOperator.Equal)
+        private static Expression<Func<TEntity, bool>> BuildWhereExpression<TEntity>(string propertyName, object value, FilterOperator @operator = FilterOperator.Equal)
         {
             var parameter = Expression.Parameter(typeof(TEntity), "x");
             var property = Expression.Property(parameter, propertyName);
@@ -49,7 +49,7 @@ namespace Roaa.Rosas.Common.Extensions
             }
             return Expression.Lambda<Func<TEntity, bool>>(body, parameter);
         }
-        public static Expression<Func<TEntity, bool>> BuildWhereExpression<TEntity>(string[] propertyNames, string value)
+        private static Expression<Func<TEntity, bool>> BuildWhereExpression<TEntity>(string[] propertyNames, string value)
         {
 
 
@@ -93,59 +93,66 @@ namespace Roaa.Rosas.Common.Extensions
 
         public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, List<FilterItem> filters, string[] filterColumns, string betweenDateFilter = null)
         {
-            if (filters is not null)
+            try
             {
-                foreach (var filter in filters)
+                if (filters is not null)
                 {
-                    if (!string.IsNullOrWhiteSpace(filter.Field) && !string.IsNullOrWhiteSpace(filter.Value))
+                    foreach (var filter in filters)
                     {
-                        string propertyName = filter.Field;
-
-                        switch (filter.Field.ToLower())
+                        if (!string.IsNullOrWhiteSpace(filter.Field) && !string.IsNullOrWhiteSpace(filter.Value))
                         {
+                            string propertyName = filter.Field;
 
-                            case "fromdate":
-                                {
-                                    if (string.IsNullOrWhiteSpace(betweenDateFilter))
-                                        break;
-                                    propertyName = betweenDateFilter;
-                                    break;
-                                }
-                            case "todate":
-                                {
-                                    if (string.IsNullOrWhiteSpace(betweenDateFilter))
-                                        break;
-                                    propertyName = betweenDateFilter;
-                                    break;
-                                }
-                            case "searchterm":
-                                {
-                                    if (filterColumns.Any(x => x.StartsWith('_')))
+                            switch (filter.Field.ToLower())
+                            {
+
+                                case "fromdate":
                                     {
-                                        propertyName = string.Empty;
-                                    }
-                                    break;
-                                }
-                            default:
-                                {
-                                    if (!filterColumns.Any(column => filter.Field.Equals(column.TrimStart('_'), StringComparison.OrdinalIgnoreCase)))
+                                        if (string.IsNullOrWhiteSpace(betweenDateFilter))
+                                            break;
+                                        propertyName = betweenDateFilter;
                                         break;
-                                    propertyName = filterColumns.First(column => filter.Field.Equals(column.TrimStart('_'), StringComparison.OrdinalIgnoreCase));
-                                    break;
-                                }
-                        }
+                                    }
+                                case "todate":
+                                    {
+                                        if (string.IsNullOrWhiteSpace(betweenDateFilter))
+                                            break;
+                                        propertyName = betweenDateFilter;
+                                        break;
+                                    }
+                                case "searchterm":
+                                    {
+                                        if (filterColumns.Any(x => x.StartsWith('_')))
+                                        {
+                                            propertyName = string.Empty;
+                                        }
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        if (!filterColumns.Any(column => filter.Field.Equals(column.TrimStart('_'), StringComparison.OrdinalIgnoreCase)))
+                                            break;
+                                        propertyName = filterColumns.First(column => filter.Field.Equals(column.TrimStart('_'), StringComparison.OrdinalIgnoreCase));
+                                        break;
+                                    }
+                            }
 
-                        // filter by search-term
-                        if (string.IsNullOrWhiteSpace(propertyName))
-                        {
-                            source = source.Where(BuildWhereExpression<TSource>(filterColumns.Where(x => x.StartsWith('_')).Select(x => x.TrimStart('_')).ToArray(), filter.Value));
-                        }
-                        else
-                        {
-                            source = source.Where(BuildWhereExpression<TSource>(propertyName.TrimStart('_'), filter.Value, filter.TryGetOptimizeOperator()));
+                            // filter by search-term
+                            if (string.IsNullOrWhiteSpace(propertyName))
+                            {
+                                source = source.Where(BuildWhereExpression<TSource>(filterColumns.Where(x => x.StartsWith('_')).Select(x => x.TrimStart('_')).ToArray(), filter.Value));
+                            }
+                            else
+                            {
+                                source = source.Where(BuildWhereExpression<TSource>(propertyName.TrimStart('_'), filter.Value, filter.TryGetOptimizeOperator()));
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+
             }
             return source;
         }

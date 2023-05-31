@@ -4,19 +4,20 @@ using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Domain.Common;
 using Roaa.Rosas.Domain.Entities.Identity;
+using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Infrastructure.Common;
 using Roaa.Rosas.Infrastructure.Persistence.Interceptors;
 using System.Reflection;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
 {
-    public class RosasIdentityDbContext : IdentityDbContext<User,
+    public class RosasDbContext : IdentityDbContext<User,
                                                          Role, Guid,
                                                          UserClaim,
                                                          UserRole,
                                                          UserLogin,
                                                          RoleClaim,
-                                                         UserToken>, IRosasIdentityDbContext
+                                                         UserToken>, IRosasDbContext
     {
 
         #region Props   
@@ -25,7 +26,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         #endregion
 
         #region Ctors     
-        public RosasIdentityDbContext(DbContextOptions<RosasIdentityDbContext> options,
+        public RosasDbContext(DbContextOptions<RosasDbContext> options,
                                  AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor,
                                  IMediator mediator)
             : base(options)
@@ -44,6 +45,10 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public override DbSet<RoleClaim> RoleClaims { get; set; }
 
 
+
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Tenant> Tenants { get; set; }
         #endregion
 
 

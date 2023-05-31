@@ -9,14 +9,14 @@ namespace Roaa.Rosas.Application.Services.Identity.Accounts
     public class AccountService : IAccountService
     {
         #region Props  
-        private readonly IRosasIdentityDbContext _dbContext;
+        private readonly IRosasDbContext _dbContext;
         private readonly IIdentityContextService _identityContextService;
         #endregion
 
 
         #region Corts
         public AccountService(
-            IRosasIdentityDbContext dbContext,
+            IRosasDbContext dbContext,
             IIdentityContextService identityContextService)
         {
             _dbContext = dbContext;

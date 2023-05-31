@@ -7,6 +7,7 @@ using Roaa.Rosas.Common.HealthChecks.UI;
 using Roaa.Rosas.Framework.Configurations;
 using Roaa.Rosas.Infrastructure.Persistence.SeedData.Identity;
 using Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4;
+using Roaa.Rosas.Infrastructure.Persistence.SeedData.Management;
 using Roaa.StarsKnight.Education.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,10 +82,13 @@ using (var scope = app.Services.CreateScope())
 {
     var idS4initialiserI = scope.ServiceProvider.GetRequiredService<IdentityServerConfigurationDbInitialiser>();
     var identityInitialiser = scope.ServiceProvider.GetRequiredService<IdentityDbInitialiser>();
+    var managementDbInitialiser = scope.ServiceProvider.GetRequiredService<ManagementDbInitialiser>();
     await identityInitialiser.MigrateAsync();
     await identityInitialiser.SeedAsync();
     await idS4initialiserI.MigrateAsync();
     await idS4initialiserI.SeedAsync();
+    await managementDbInitialiser.MigrateAsync();
+    await managementDbInitialiser.SeedAsync();
 }
 
 app.Run();

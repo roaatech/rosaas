@@ -21,7 +21,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         #region Props
         private readonly UserManager<User> _userManager;
         private readonly ILogger<AuthService> _logger;
-        private readonly IRosasIdentityDbContext _dbContext;
+        private readonly IRosasDbContext _dbContext;
         private readonly IWebHostEnvironment _environment;
         private readonly IIdentityContextService _identityContextService;
         private readonly IAuthTokenService _tokenService;
@@ -33,7 +33,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         public AuthService(
         UserManager<User> userManager,
             ILogger<AuthService> logger,
-            IRosasIdentityDbContext dbContext,
+            IRosasDbContext dbContext,
             IWebHostEnvironment environment,
             IIdentityContextService identityContextService,
             IAuthTokenService tokenService)

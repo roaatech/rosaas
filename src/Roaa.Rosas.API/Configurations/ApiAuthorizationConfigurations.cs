@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Framework.Configurations
                 #region  SuperAdmin  
                 configure.AddPolicy(AuthPolicy.SuperAdmin, builder =>
                 {
-                    builder.RequireScope("Identity.SuperAdminScope");
+                    builder.RequireScope("SuperAdminScope");
                 });
                 #endregion
             });

@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Roaa.Rosas.Domain.Common;
 using Roaa.Rosas.Domain.Entities.Identity;
+using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Interfaces.DbContexts
 {
-    public interface IRosasIdentityDbContext
+    public interface IRosasDbContext
     {
         #region DbSets      
         public DbSet<User> Users { get; }
@@ -14,6 +15,14 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<UserRole> UserRoles { get; }
         public DbSet<Role> Roles { get; }
         public DbSet<RoleClaim> RoleClaims { get; }
+
+
+
+
+
+        public DbSet<Client> Clients { get; }
+        public DbSet<Product> Products { get; }
+        public DbSet<Tenant> Tenants { get; }
 
         #endregion
 

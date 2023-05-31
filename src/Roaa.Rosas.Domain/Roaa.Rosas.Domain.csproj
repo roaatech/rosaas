@@ -16,12 +16,5 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Roaa.Rosas.Common\Roaa.Rosas.Common.csproj" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <Folder Include="Events\" />
-	</ItemGroup>
-	
-
+	</ItemGroup> 
 </Project>

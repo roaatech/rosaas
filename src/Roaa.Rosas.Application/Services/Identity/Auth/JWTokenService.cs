@@ -30,7 +30,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         private readonly IClientStore _clientStore;
         private readonly IIdentityServerPersistedGrantDbContext _identityServerPersistedGrantDbContext;
         private readonly IIdentityServerConfigurationDbContext _identityServerConfigurationDbContext;
-        private readonly IRosasIdentityDbContext _identityDbContext;
+        private readonly IRosasDbContext _identityDbContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IdentityServerTools _identityServerTools;
         private readonly IRefreshTokenService _refreshTokenService;
@@ -40,7 +40,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         public JWTokenService(UserManager<User> userManager,
                                SignInManager<User> signInManager,
                                IClientStore clientStore,
-                               IRosasIdentityDbContext identityDbContext,
+                               IRosasDbContext identityDbContext,
                               IIdentityServerPersistedGrantDbContext identityServerPersistedGrantDbContext,
                                IIdentityServerConfigurationDbContext identityServerConfigurationDbContext,
                                IHttpContextAccessor httpContextAccessor,

@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Framework.Configurations
                                                            IWebHostEnvironment environment,
                                                            RootOptions rootOptions)
         {
-            services.AddDbContext<RosasIdentityDbContext>(options =>
+            services.AddDbContext<RosasDbContext>(options =>
                 options.UseMySql(rootOptions.ConnectionStrings.IdentityDb, new MySqlServerVersion(new Version())));
         }
 

@@ -7,7 +7,7 @@ namespace Roaa.Rosas.Framework.Controllers.Common
 {
     [Route(SuperAdminIdentityApiRout)]
     [Authorize(Policy = AuthPolicy.SuperAdmin)]
-    public abstract class BaseAdminIdentityApiController : BaseRosasApiController
+    public abstract class BaseSuperAdminIdentityApiController : BaseRosasApiController
     {
         protected const UserType Usertype = UserType.SuperAdmin;
     }

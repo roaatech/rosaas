@@ -14,14 +14,14 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Identity
     public class IdentityDbInitialiser
     {
         #region Props   
-        private readonly IRosasIdentityDbContext _identityDbContext;
+        private readonly IRosasDbContext _identityDbContext;
         private readonly ILogger<IdentityDbInitialiser> _logger;
         private readonly IWebHostEnvironment _environment;
         private readonly GeneralOptions _settings;
         #endregion
 
         #region Ctors     
-        public IdentityDbInitialiser(IRosasIdentityDbContext identityDbContext,
+        public IdentityDbInitialiser(IRosasDbContext identityDbContext,
                                      IWebHostEnvironment environmen,
                                      IApiConfigurationService<GeneralOptions> settings,
                                      ILogger<IdentityDbInitialiser> logger)

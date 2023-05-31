@@ -32,6 +32,6 @@ namespace Roaa.Rosas.API.Configurations
 
 
 
-//dotnet ef migrations add "InitIdentityDbMigration" --context RosasIdentityDbContext --project src\Roaa.Rosas.Infrastructure --startup-project src\Roaa.Rosas.API --output-dir Persistence\Migrations\Identity
+//dotnet ef migrations add "InitIdentityDbMigration" --context RosasDbContext --project src\Roaa.Rosas.Infrastructure --startup-project src\Roaa.Rosas.API --output-dir Persistence\Migrations\Identity
 //dotnet ef migrations add "InitIdentityServerConfigurationDbMigration" --context IdentityServerConfigurationDbContext --project src\Roaa.Rosas.Infrastructure --startup-project src\Roaa.Rosas.API --output-dir Persistence\Migrations\IdentityServerConfiguration
 //dotnet ef migrations add "InitIdentityServerPersistedGrantDbMigration" --context IdentityServerPersistedGrantDbContext --project src\Roaa.Rosas.Infrastructure --startup-project src\Roaa.Rosas.API --output-dir Persistence\Migrations\IdentityServerGrants
