@@ -8,7 +8,7 @@
 
     public enum SortDirection
     {
-        Asc = 0,
-        Desc = 1
+        Asc = 1,
+        Desc = 2,
     }
 }

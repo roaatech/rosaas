@@ -13,8 +13,8 @@
     {
         Equal = 1,
         Contains = 2,
-        GreaterThanOrEqual,
-        LessThanOrEqual
+        GreaterThanOrEqual = 3,
+        LessThanOrEqual = 4,
     }
 
 }
