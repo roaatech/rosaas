@@ -29,28 +29,28 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
         #region Actions   
 
-        [HttpGet("GetPaginatedList")]
+        [HttpGet()]
         public async Task<IActionResult> GetTenantsPaginatedListAsync([FromQuery] PaginationMetaData pagination, [FromQuery] List<FilterItem> filters, [FromQuery] SortItem sort, CancellationToken cancellationToken)
         {
             return PaginatedResult(await _tenantService.GetTenantsPaginatedListAsync(pagination, filters, sort));
         }
 
 
-        [HttpGet("GetById")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetTenantByIdAsync([FromQuery] Guid id, CancellationToken cancellationToken)
         {
             return ItemResult(await _tenantService.GetTenantByIdAsync(id));
         }
 
 
-        [HttpPost("Create")]
+        [HttpPost()]
         public async Task<IActionResult> CreateTenantAsync([FromBody] CreateTenantModel model, CancellationToken cancellationToken)
         {
             return ItemResult(await _tenantService.CreateTenantAsync(model));
         }
 
 
-        [HttpPut("Update")]
+        [HttpPut()]
         public async Task<IActionResult> UpdateTenantAsync([FromBody] UpdateTenantModel model, CancellationToken cancellationToken)
         {
             return EmptyResult(await _tenantService.UpdateTenantAsync(model));
