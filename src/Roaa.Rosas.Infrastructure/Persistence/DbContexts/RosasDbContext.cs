@@ -49,6 +49,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<Client> Clients { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
+        public DbSet<ProductTenant> ProductTenants { get; set; }
         #endregion
 
 

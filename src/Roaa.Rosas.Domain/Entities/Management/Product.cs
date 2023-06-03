@@ -8,6 +8,6 @@
         public string Url { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
         public virtual Client? Client { get; set; }
-        public virtual ICollection<Tenant>? Tenants { get; set; }
+        public virtual ICollection<ProductTenant>? Tenants { get; set; }
     }
 }

@@ -1,11 +1,10 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System.Reflection;
 
 namespace Roaa.Rosas.Common.Extensions
 {
     public static class CommonExtension
-    { 
+    {
 
         public static bool IsDerivedFrom(this Type derived, Type @base)
         {
@@ -17,8 +16,13 @@ namespace Roaa.Rosas.Common.Extensions
         {
             if (self is not null)
             {
-                var serialized = JsonConvert.SerializeObject(self);
+                var serialized = JsonConvert.SerializeObject(self, Formatting.None,
+                        new JsonSerializerSettings()
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        });
                 return JsonConvert.DeserializeObject<T>(serialized);
+
             }
             return self;
         }

@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Validators
     {
         public CreateTenantValidator(IIdentityContextService identityContextService)
         {
-            RuleFor(x => x.ProductId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+            // RuleFor(x => x.ProductId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
             RuleFor(x => x.UniqueName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
         }

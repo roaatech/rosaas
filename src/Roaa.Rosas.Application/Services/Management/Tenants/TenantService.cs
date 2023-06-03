@@ -45,16 +45,17 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
         public async Task<PaginatedResult<TenantListItemDto>> GetTenantsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default)
         {
             var query = _dbContext.Tenants.AsNoTracking()
+                                          .Include(x => x.Products)
+                                          .ThenInclude(x => x.Product)
                                           .Select(tenant => new TenantListItemDto
                                           {
                                               Id = tenant.Id,
                                               UniqueName = tenant.UniqueName,
                                               Title = tenant.Title,
-                                              ProductId = tenant.ProductId,
+                                              Products = tenant.Products.Select(x => new LookupItemDto<Guid>(x.ProductId, x.Product.UniqueName)),
                                               Status = tenant.Status,
                                               CreatedDate = tenant.Created,
                                               EditedDate = tenant.Edited,
-                                              ProductName = tenant.Product.Title,
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "UniqueName", "Title", "ProductId" }, "EditedDate", SortDirection.Desc);
@@ -71,18 +72,18 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
         public async Task<Result<TenantDto>> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var tenant = await _dbContext.Tenants.AsNoTracking()
-                                                   .Include(x => x.Product)
+                                                  .Include(x => x.Products)
+                                                  .ThenInclude(x => x.Product)
                                                    .Where(x => x.Id == id)
                                                    .Select(tenant => new TenantDto
                                                    {
                                                        Id = tenant.Id,
                                                        UniqueName = tenant.UniqueName,
                                                        Title = tenant.Title,
-                                                       ProductId = tenant.ProductId,
+                                                       Products = tenant.Products.Select(x => new LookupItemDto<Guid>(x.ProductId, x.Product.UniqueName)),
                                                        Status = tenant.Status,
                                                        CreatedDate = tenant.Created,
                                                        EditedDate = tenant.Edited,
-                                                       ProductName = tenant.Product.Title,
                                                    })
                                                    .SingleOrDefaultAsync(cancellationToken);
 
@@ -98,7 +99,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueNameAsync(model.ProductId, model.UniqueName))
+            if (!await EnsureUniqueNameAsync(model.ProductsIds, model.UniqueName))
             {
                 return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.UniqueName));
             }
@@ -107,10 +108,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
 
             var date = DateTime.UtcNow;
 
+            var id = Guid.NewGuid();
             var tenant = new Tenant
             {
-                Id = Guid.NewGuid(),
-                ProductId = model.ProductId,
+                Id = id,
                 UniqueName = model.UniqueName.ToLower(),
                 Title = model.Title,
                 Status = TenantStatus.Active,
@@ -118,6 +119,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
                 EditedByUserId = _identityContextService.UserId,
                 Created = date,
                 Edited = date,
+                Products = model.ProductsIds.Select(proId => new ProductTenant
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = id,
+                    ProductId = proId,
+
+                }).ToList(),
             };
 
             tenant.AddDomainEvent(new TenantCreatedEvent(tenant));
@@ -138,24 +146,37 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var tenant = await _dbContext.Tenants.Where(x => x.Id == model.Id).SingleOrDefaultAsync();
+            var tenant = await _dbContext.Tenants.Include(x => x.Products).Where(x => x.Id == model.Id).SingleOrDefaultAsync();
             if (tenant is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await EnsureUniqueNameAsync(tenant.ProductId, model.UniqueName, model.Id))
+            var productsIds = await _dbContext.ProductTenants.Where(x => x.TenantId == model.Id).Select(x => x.ProductId).ToListAsync();
+            if (!await EnsureUniqueNameAsync(productsIds, model.UniqueName, model.Id))
             {
                 return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.UniqueName));
             }
-            #endregion
-
+            #endregion 
             Tenant tenantBeforeUpdate = tenant.DeepCopy();
 
             tenant.UniqueName = model.UniqueName.ToLower();
             tenant.Title = model.Title;
             tenant.EditedByUserId = _identityContextService.UserId;
             tenant.Edited = DateTime.UtcNow;
+
+            ////update products
+            //var tenantProducts = await _dbContext.ProductTenants.Where(x => x.TenantId == tenant.Id).ToListAsync();
+            //if (tenantProducts != null && tenantProducts.Any())
+            //{
+            //    _dbContext.ProductTenants.RemoveRange(tenantProducts);
+            //}
+
+            //_dbContext.ProductTenants.AddRange(model.ProductsIds.Select(x => new ProductTenant
+            //{
+            //    ProductId = x,
+            //    TenantId = tenant.Id,
+            //}));
 
             tenant.AddDomainEvent(new TenantUpdatedEvent(tenantBeforeUpdate, tenant));
 
@@ -165,12 +186,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
         }
 
 
-        private async Task<bool> EnsureUniqueNameAsync(Guid productId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
+        private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
         {
-            return !await _dbContext.Tenants.Where(x => x.ProductId == productId &&
-                                                        uniqueName.ToLower().Equals(x.UniqueName) &&
-                                                        x.Id != id)
-                                           .AnyAsync(cancellationToken);
+            return !await _dbContext.ProductTenants
+                                    .Include(x => x.Tenant)
+                                    .Where(x => x.Id != id && x.Tenant != null &&
+                                                productsIds.Contains(x.ProductId) &&
+                                                uniqueName.ToLower().Equals(x.Tenant.UniqueName))
+                                    .AnyAsync(cancellationToken);
         }
 
         #endregion

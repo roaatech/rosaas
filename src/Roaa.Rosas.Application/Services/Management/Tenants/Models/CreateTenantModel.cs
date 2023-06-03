@@ -2,7 +2,7 @@
 {
     public record CreateTenantModel
     {
-        public Guid ProductId { get; set; }
+        public List<Guid> ProductsIds { get; set; } = new();
         public string UniqueName { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
     }

@@ -20,7 +20,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.Created).IsRequired();
             builder.Property(r => r.Edited).IsRequired();
             builder.Ignore(r => r.DomainEvents);
-            builder.HasOne(b => b.Product).WithMany(p => p.Tenants).HasForeignKey(f => f.ProductId).OnDelete(DeleteBehavior.Restrict);
         }
         #endregion
     }
