@@ -14,6 +14,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Validators
             RuleFor(x => x.Id).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
             RuleFor(x => x.UniqueName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+
+            RuleFor(x => x.UniqueName).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+
         }
     }
 }

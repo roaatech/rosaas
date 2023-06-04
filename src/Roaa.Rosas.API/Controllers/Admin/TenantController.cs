@@ -30,30 +30,42 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #region Actions   
 
         [HttpGet()]
-        public async Task<IActionResult> GetTenantsPaginatedListAsync([FromQuery] PaginationMetaData pagination, [FromQuery] List<FilterItem> filters, [FromQuery] SortItem sort, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetTenantsPaginatedListAsync([FromQuery] PaginationMetaData pagination, [FromQuery] List<FilterItem> filters, [FromQuery] SortItem sort, CancellationToken cancellationToken = default)
         {
-            return PaginatedResult(await _tenantService.GetTenantsPaginatedListAsync(pagination, filters, sort));
+            return PaginatedResult(await _tenantService.GetTenantsPaginatedListAsync(pagination, filters, sort, cancellationToken));
         }
 
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTenantByIdAsync([FromQuery] Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetTenantByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _tenantService.GetTenantByIdAsync(id));
+            return ItemResult(await _tenantService.GetTenantByIdAsync(id, cancellationToken));
         }
 
 
         [HttpPost()]
-        public async Task<IActionResult> CreateTenantAsync([FromBody] CreateTenantModel model, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateTenantAsync([FromBody] CreateTenantModel model, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _tenantService.CreateTenantAsync(model));
+            return ItemResult(await _tenantService.CreateTenantAsync(model, cancellationToken));
         }
 
 
         [HttpPut()]
-        public async Task<IActionResult> UpdateTenantAsync([FromBody] UpdateTenantModel model, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateTenantAsync([FromBody] UpdateTenantModel model, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _tenantService.UpdateTenantAsync(model));
+            return EmptyResult(await _tenantService.UpdateTenantAsync(model, cancellationToken));
+        }
+
+        [HttpPut("Status")]
+        public async Task<IActionResult> UpdateTenantStatusAsync([FromBody] UpdateTenantStatusModel model, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _tenantService.UpdateTenantStatusAsync(model, cancellationToken));
+        }
+
+        [HttpDelete()]
+        public async Task<IActionResult> DeleteTenantAsync([FromBody] DeleteResourceModel<Guid> model, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _tenantService.DeleteTenantAsync(model, cancellationToken));
         }
         #endregion
 

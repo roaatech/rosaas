@@ -6,6 +6,7 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Validators;
 using Roaa.Rosas.Application.SystemMessages;
+using Roaa.Rosas.Application.Validators;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
@@ -13,6 +14,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using static Roaa.Rosas.Application.Services.Management.Tenants.Validators.CreateTenantValidator;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants
 {
@@ -40,6 +42,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
         }
 
         #endregion
+
+
         #region Services   
 
         public async Task<PaginatedResult<TenantListItemDto>> GetTenantsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default)
@@ -146,7 +150,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var tenant = await _dbContext.Tenants.Include(x => x.Products).Where(x => x.Id == model.Id).SingleOrDefaultAsync();
+            var tenant = await _dbContext.Tenants.Where(x => x.Id == model.Id).SingleOrDefaultAsync();
             if (tenant is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
@@ -185,11 +189,65 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
             return Result.Successful();
         }
 
+        public async Task<Result> UpdateTenantStatusAsync(UpdateTenantStatusModel model, CancellationToken cancellationToken = default)
+        {
+            #region Validation
+            var fValidation = new UpdateTenantStatusValidator(_identityContextService).Validate(model);
+            if (!fValidation.IsValid)
+            {
+                return Result.New().WithErrors(fValidation.Errors);
+            }
+
+            var tenant = await _dbContext.Tenants.Where(x => x.Id == model.Id).SingleOrDefaultAsync();
+            if (tenant is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+            #endregion
+
+            var statusBeforeUpdate = tenant.Status;
+
+            tenant.Status = model.IsActive ? TenantStatus.Active : TenantStatus.Inactive;
+            tenant.EditedByUserId = _identityContextService.UserId;
+            tenant.Edited = DateTime.UtcNow;
+
+            if (tenant.Status != statusBeforeUpdate)
+            {
+                tenant.AddDomainEvent(new TenantStatusUpdatedEvent(tenant, statusBeforeUpdate));
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return Result.Successful();
+        }
+
+        public async Task<Result> DeleteTenantAsync(DeleteResourceModel<Guid> model, CancellationToken cancellationToken = default)
+        {
+            #region Validation
+            var fValidation = new DeleteResourceValidator<Guid>(_identityContextService).Validate(model);
+            if (!fValidation.IsValid)
+            {
+                return Result.New().WithErrors(fValidation.Errors);
+            }
+
+            var tenant = await _dbContext.Tenants.Include(x => x.Products).Where(x => x.Id == model.Id).SingleOrDefaultAsync();
+            if (tenant is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+            #endregion
+
+            _dbContext.ProductTenants.RemoveRange(tenant.Products);
+            _dbContext.Tenants.Remove(tenant);
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
 
         private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
         {
             return !await _dbContext.ProductTenants
-                                    .Include(x => x.Tenant)
                                     .Where(x => x.Id != id && x.Tenant != null &&
                                                 productsIds.Contains(x.ProductId) &&
                                                 uniqueName.ToLower().Equals(x.Tenant.UniqueName))
