@@ -1,0 +1,68 @@
+version: '3.7'
+
+#create a volume for the my sql container.To ensure Data persists after my sql container is stopped
+volumes:
+  datafiles:
+
+services:
+
+  mysql_db:
+    container_name: 'mysql_ctr'
+    image: mysql/mysql-server
+    environment:
+      # change this for a "real" app!
+      MYSQL_ROOT_PASSWORD: 123456
+     # MYSQL_ROOT_HOST: 172.21.0.1 
+      MYSQL_RANDOM_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: rosas-db
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: 123456 
+    #Specify where the persisted Data should be stored
+    volumes:
+      - datafiles:/var/lib/mysql
+      - "~/sql-scripts/setup.sql:/docker-entrypoint-initdb.d/1.sql"
+    restart: always
+    ports:
+      - "3308:3306"
+     
+      
+  rosas_api: 
+    build:
+      context: .
+      dockerfile: src\Roaa.Rosas.API\Dockerfile 
+    container_name: 'rosas_api_ctr'
+
+     #Map port 5000 in the docker container to port 80 in the Api
+    ports:
+     - "80:80"
+     - "443:443"
+      # - 80
+     # - 443  61314
+    
+    volumes:
+      - ~/.aspnet/https:/https:ro
+
+    #Specify Environment Variables for the Api Service
+    environment:
+       ASPNETCORE_ENVIRONMENT: dev
+       DB_HOST: mysql_db
+       DB_PORT: 3306
+       DB_NAME: rosas-db
+       DB_USER: dbuser
+       DB_PASSWORD: 123456 
+       SERVER_ISSUER: https://localhost
+       SERVER_REQUIREHTTPSMETADATA: "false"
+       SERVER_METADATAADDRESS: https://localhost/.well-known/openid-configuration/
+       ASPNETCORE_HTTPS_PORT: 443
+       ASPNETCORE_URLS: https://+:443;http://+:80
+      # ASPNETCORE_Kestrel__Certificates__Default__Password: P@ssw0rd
+       ASPNETCORE_Kestrel__Certificates__Default__Path: /https/webserver.pfx
+       
+
+    #This Service Depends on the database service specifed above
+    depends_on:
+     - "mysql_db" 
+ 
+  
+
+
