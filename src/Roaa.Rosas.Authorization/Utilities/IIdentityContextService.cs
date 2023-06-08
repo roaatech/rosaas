@@ -13,5 +13,7 @@ namespace Roaa.Rosas.Authorization.Utilities
         LanguageEnum Locale { get; }
 
         string HostUrl { get; }
+
+        string GetClaim(string claimType);
     }
 }

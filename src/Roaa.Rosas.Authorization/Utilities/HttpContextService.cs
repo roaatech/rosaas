@@ -39,7 +39,6 @@ namespace Roaa.Rosas.Authorization.Utilities
             get
             {
                 return CheckIsAuthenticated();
-
             }
         }
 
@@ -61,6 +60,15 @@ namespace Roaa.Rosas.Authorization.Utilities
 
 
         #endregion
+
+        public string GetClaim(string claimType)
+        {
+            var value = HttpContext.User.Identity.GetClaim(claimType);
+
+            return value;
+        }
+
+
 
         #region private Props                                   
         private string? userObjectId;

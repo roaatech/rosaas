@@ -3,5 +3,6 @@
     public enum AuthenticationMethod
     {
         Email = 1,
+        ClientCredentials = 2,
     }
 }
