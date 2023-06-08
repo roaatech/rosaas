@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Application.Services.Identity.Accounts;
 using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -14,7 +13,6 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         private readonly IAuthService _authService;
         private readonly IAccountService _accountService;
         private readonly IWebHostEnvironment _environment;
-        private const string AdminPanelClientId = IdentityServer4Config.AdminPanelClientId;
         #endregion
 
         #region Corts
