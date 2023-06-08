@@ -11,6 +11,11 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["src/Roaa.Rosas.API/Roaa.Rosas.API.csproj", "src/Roaa.Rosas.API/"]
+COPY ["src/Roaa.Rosas.Application/Roaa.Rosas.Application.csproj", "src/Roaa.Rosas.Application/"]
+COPY ["src/Roaa.Rosas.Authorization/Roaa.Rosas.Authorization.csproj", "src/Roaa.Rosas.Authorization/"]
+COPY ["src/Roaa.Rosas.Common/Roaa.Rosas.Common.csproj", "src/Roaa.Rosas.Common/"]
+COPY ["src/Roaa.Rosas.Domain/Roaa.Rosas.Domain.csproj", "src/Roaa.Rosas.Domain/"]
+COPY ["src/Roaa.Rosas.Infrastructure/Roaa.Rosas.Infrastructure.csproj", "src/Roaa.Rosas.Infrastructure/"]
 RUN dotnet restore "src/Roaa.Rosas.API/Roaa.Rosas.API.csproj"
 COPY . .
 WORKDIR "/src/src/Roaa.Rosas.API"
