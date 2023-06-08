@@ -9,7 +9,6 @@
     <DockerServiceName>roaa.rosas.api</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="docker-compose - Copy.yml" />
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
   </ItemGroup>
