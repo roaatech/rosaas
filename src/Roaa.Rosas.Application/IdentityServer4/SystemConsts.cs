@@ -17,7 +17,7 @@
 
         public class Clients
         {
-            public const string AdminPanel = "spa_rosas_admin_panel_client";
+            public const string AdminPanel = "spa_rosas_admin_panel";
             public const string OsosExternalSystem = "roaa_osos_external_system";
 
             public class Claims
