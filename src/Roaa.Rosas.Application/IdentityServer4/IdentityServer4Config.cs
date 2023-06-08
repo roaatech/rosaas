@@ -29,14 +29,15 @@ namespace Roaa.Rosas.Application.IdentityServer4
             // those are also the Audience property in each microservice AddAuthentication().JwtBearer 
             return new ApiResource[]
             {
-                new ApiResource("Rosas.ApiResource","Rosas API Resource")
+                new ApiResource(SystemConsts.Resources.RosasApi,"Rosas API Resource")
                 {
                      Scopes =
                     {
-                        "ApiScope",
-                        "SuperAdminScope",
-                        "ClientAdminScope",
-                        "TenantScope",
+                        SystemConsts.Scopes.Api,
+                        SystemConsts.Scopes.SuperAdmin,
+                        SystemConsts.Scopes.ClientAdmin,
+                        SystemConsts.Scopes.Tenant,
+                        SystemConsts.Scopes.ExternalSystem,
                     }
                 },
             };
@@ -48,10 +49,11 @@ namespace Roaa.Rosas.Application.IdentityServer4
             //This additional user centric authorization is application logic and not covered by OAuth.
             return new ApiScope[]
            {
-                new ApiScope("ApiScope","Rosas API Scope"),
-                new ApiScope("SuperAdminScope","Rosas's Super Admin Scope"),
-                new ApiScope("ClientAdminScope","Rosas Client's Admin Scope"),
-                new ApiScope("TenantScope","Tenant Scope"),
+                new ApiScope(SystemConsts.Scopes.Api,"rosas API Scope"),
+                new ApiScope(SystemConsts.Scopes.SuperAdmin,"Rosas's Super Admin Scope"),
+                new ApiScope(SystemConsts.Scopes.ClientAdmin,"Rosas Client's Admin Scope"),
+                new ApiScope(SystemConsts.Scopes.Tenant,   "tenant Scope"),
+                new ApiScope(SystemConsts.Scopes.ExternalSystem,"External System Scope"),
            };
         }
 
@@ -69,7 +71,6 @@ namespace Roaa.Rosas.Application.IdentityServer4
                                };
         }
 
-        public const string AdminPanelClientId = "SPA.Rosas.Admin.Panel.Client";
         public static IEnumerable<Client> GetClients(string identityServerUrl)
         {
             var uri = new Uri(identityServerUrl);
@@ -78,7 +79,7 @@ namespace Roaa.Rosas.Application.IdentityServer4
             {
                   new Client
                 {
-                    ClientId = AdminPanelClientId,
+                    ClientId = SystemConsts.Clients.AdminPanel,
                     ClientName = "Rosas Admin Panel Client",
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                     ClientSecrets = { new Secret("BSUDEFXZH23JM5N6P0R9WAUCVDWFYGZH3B4M5P7Q8R9TKUCVEXFYG2JK34".Sha256())},
@@ -92,10 +93,12 @@ namespace Roaa.Rosas.Application.IdentityServer4
                             IdentityServerConstants.StandardScopes.OpenId,
                             IdentityServerConstants.StandardScopes.Profile,
                             IdentityServerConstants.StandardScopes.OfflineAccess,
-                            "ApiScope",
-                            "SuperAdminScope",
-                            "ClientAdminScope",
-                            "TenantScope",
+                           SystemConsts.Scopes.Api,
+                           SystemConsts.Scopes.SuperAdmin,
+                           SystemConsts.Scopes.ClientAdmin,
+                           SystemConsts.Scopes.Tenant,
+                           SystemConsts.Scopes.ExternalSystem,
+
                     },
                     AllowPlainTextPkce = true,
                     AllowOfflineAccess = true,
@@ -107,6 +110,35 @@ namespace Roaa.Rosas.Application.IdentityServer4
                     SlidingRefreshTokenLifetime =  2592000, // 30 days
                     AbsoluteRefreshTokenLifetime =  0
                 },
+                  new Client()
+                {
+                    ClientId = SystemConsts.Clients.OsosExternalSystem,
+                    ClientName = "OSOS System",
+                    Description = "OSOS is External System of Roaa Tech client. It's calls the ROSAS API to manage its tenants.",
+
+                    // no interactive user, use the clientid/secret for authentication
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    RequireClientSecret = true,
+                    AllowAccessTokensViaBrowser = false,
+                    AllowedScopes = { SystemConsts.Scopes.ExternalSystem, },
+                    AccessTokenLifetime = 3600, //in seconds = 1hour
+                    AccessTokenType = AccessTokenType.Jwt,
+
+                     // secret for authentication
+                    ClientSecrets =
+                    {
+                        new Secret("EHMcQfTjWnZr4u7ADFJaNdRgUkXp2s5v8yBEHKbPeShVmYq3t6wZH3B4M9".Sha256())
+                    },
+                    Properties = new Dictionary<string, string>
+                    {
+                        {SystemConsts.Clients.Properties.RosasClientId , SystemConsts.Clients.Properties.Vlaue.RosasClientId},
+                        {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.RosasProductId},
+                    },
+                    Claims = new List<ClientClaim>
+                    {
+                        new ClientClaim(SystemConsts.Clients.Claims.ClaimType,SystemConsts.Clients.Claims.ExternalSystem)
+                    }
+                }
         };
 
             return clients;

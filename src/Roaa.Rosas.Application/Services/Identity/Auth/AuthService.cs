@@ -59,7 +59,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             _validationBuilder.AddCommand(() => new SignInAdminByEmailValidator(_identityContextService).Validate(model));
             _validationBuilder.AddCommand(async () => user = await _userManager.FindByEmailAsync(model.Email), ErrorMessage.InvalidLogin);
             _validationBuilder.AddCommand(() => user.UserType == UserType.SuperAdmin, ErrorMessage.InvalidLogin);
-            _validationBuilder.AddCommand(() => user.IsActive, ErrorMessage.UserAccountNotActive);
+            _validationBuilder.AddCommand(() => user.IsActive, ErrorMessage.AccountDeactivated);
             _validationBuilder.AddCommand(async () => await _userManager.CheckPasswordAsync(user, model.Password), ErrorMessage.InvalidLogin);
             var validationResult = await _validationBuilder.ValidateAsync();
             #endregion

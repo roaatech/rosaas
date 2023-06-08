@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.JWT;
 using Roaa.Rosas.Application.Services.Identity.Accounts;
 using Roaa.Rosas.Application.Services.Identity.Auth;
+using Roaa.Rosas.Application.Services.IdentityServer4.Auth;
 using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Domain.Models.Options;
 using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
@@ -39,6 +41,8 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<IIdentityServerConfigurationDbContext, IdentityServerConfigurationDbContext>();
             services.AddScoped<IIdentityServerPersistedGrantDbContext, IdentityServerPersistedGrantDbContext>();
             services.AddScoped<IdentityServerConfigurationDbInitialiser>();
+
+            services.AddScoped<IClientAuthService, ClientAuthService>();
             #endregion
 
 

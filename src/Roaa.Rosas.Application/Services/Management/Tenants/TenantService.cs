@@ -94,7 +94,22 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
             return Result<TenantDto>.Successful(tenant);
         }
 
-        public async Task<Result<CreatedResult<Guid>>> CreateTenantAsync(CreateTenantModel model, CancellationToken cancellationToken = default)
+        public async Task<Result<TenantStatusDto>> GetTenantStatusByIdAsync(TenantStatusModel model, CancellationToken cancellationToken = default)
+        {
+            var tenantStatus = await _dbContext.ProductTenants.AsNoTracking()
+                                                  .Include(x => x.Tenant)
+                                                   .Where(x => x.TenantId == model.Id && x.ProductId == model.ProductId)
+                                                   .Select(x => new TenantStatusDto
+                                                   {
+                                                       Status = x.Tenant.Status,
+                                                       IsActive = x.Tenant.Status == TenantStatus.Active,
+                                                   })
+                                                   .SingleOrDefaultAsync(cancellationToken);
+
+            return Result<TenantStatusDto>.Successful(tenantStatus);
+        }
+
+        public async Task<Result<CreatedResult<Guid>>> CreateTenantAsync(CreateTenantModel model, Guid currentUserId, CancellationToken cancellationToken = default)
         {
             #region Validation
             var fValidation = new CreateTenantValidator(_identityContextService).Validate(model);
@@ -119,8 +134,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
                 UniqueName = model.UniqueName.ToLower(),
                 Title = model.Title,
                 Status = TenantStatus.Active,
-                CreatedByUserId = _identityContextService.UserId,
-                EditedByUserId = _identityContextService.UserId,
+                CreatedByUserId = currentUserId,
+                EditedByUserId = currentUserId,
                 Created = date,
                 Edited = date,
                 Products = model.ProductsIds.Select(proId => new ProductTenant
@@ -170,7 +185,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
             tenant.Edited = DateTime.UtcNow;
 
             ////update products
-            //var tenantProducts = await _dbContext.ProductTenants.Where(x => x.TenantId == tenant.Id).ToListAsync();
+            //var tenantProducts = await _dbContext.ProductTenants.Where(x => x.TenantId == x.Id).ToListAsync();
             //if (tenantProducts != null && tenantProducts.Any())
             //{
             //    _dbContext.ProductTenants.RemoveRange(tenantProducts);
@@ -179,7 +194,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
             //_dbContext.ProductTenants.AddRange(model.ProductsIds.Select(x => new ProductTenant
             //{
             //    ProductId = x,
-            //    TenantId = tenant.Id,
+            //    TenantId = x.Id,
             //}));
 
             tenant.AddDomainEvent(new TenantUpdatedEvent(tenantBeforeUpdate, tenant));

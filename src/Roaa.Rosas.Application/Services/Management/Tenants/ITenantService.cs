@@ -1,7 +1,6 @@
 ﻿using Roaa.Rosas.Application.Services.Management.Tenants.Models;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
-using static Roaa.Rosas.Application.Services.Management.Tenants.TenantService;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants
 {
@@ -11,7 +10,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
 
         Task<Result<TenantDto>> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-        Task<Result<CreatedResult<Guid>>> CreateTenantAsync(CreateTenantModel model, CancellationToken cancellationToken = default);
+        Task<Result<TenantStatusDto>> GetTenantStatusByIdAsync(TenantStatusModel model, CancellationToken cancellationToken = default);
+
+        Task<Result<CreatedResult<Guid>>> CreateTenantAsync(CreateTenantModel model, Guid currentUserId, CancellationToken cancellationToken = default);
 
         Task<Result> UpdateTenantAsync(UpdateTenantModel model, CancellationToken cancellationToken = default);
 

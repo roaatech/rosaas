@@ -10,5 +10,9 @@ namespace Roaa.Rosas.Framework.Controllers.Common
         public const string IdentityApiRout = "api/identity/v1/[controller]";
         public const string SuperAdminIdentityApiRout = "api/identity/management/v1/[controller]";
         public const string SuperAdminMainApiRout = "api/main/management/v1/[controller]";
+
+
+        public const string ExternalSystemIdentityApiRout = "api/identity/sys/v1/[controller]";
+        public const string ExternalSystemMainApiRout = "api/main/sys/v1/[controller]";
     }
 }

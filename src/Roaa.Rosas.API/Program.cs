@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Logging;
 using Roaa.Rosas.API.Configurations;
 using Roaa.Rosas.Authorization;
 using Roaa.Rosas.Common;
@@ -56,12 +57,12 @@ if (!app.Environment.IsProductionEnvironment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    IdentityModelEventSource.ShowPII = true;
 }
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
-
 app.UseCors("CorsPublicPolicy");
 app.UseStaticFiles();
 app.UseAuthentication();

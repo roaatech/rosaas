@@ -14,7 +14,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         private readonly ILogger<AuthController> _logger;
         private readonly IAuthService _authService;
         private readonly IWebHostEnvironment _environment;
-        private const string AdminPanelClientId = IdentityServer4Config.AdminPanelClientId;
+        private const string AdminPanelClientId = SystemConsts.Clients.AdminPanel;
         #endregion
 
         #region Corts
