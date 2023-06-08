@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Reflection;
 
 namespace Roaa.Rosas.Common.Extensions
@@ -25,6 +26,16 @@ namespace Roaa.Rosas.Common.Extensions
 
             }
             return self;
+        }
+
+
+        public static string ToSnakeCaseNamingStrategy(this Enum name)
+        {
+            return name.ToString().ToSnakeCaseNamingStrategy();
+        }
+        public static string ToSnakeCaseNamingStrategy(this string propertName)
+        {
+            return new SnakeCaseNamingStrategy().GetPropertyName(propertName, false);
         }
     }
 }
