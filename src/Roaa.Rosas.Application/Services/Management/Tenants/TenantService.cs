@@ -62,9 +62,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
                                               EditedDate = tenant.Edited,
                                           });
 
-            sort = sort.HandleDefaultSorting(new string[] { "UniqueName", "Title", "ProductId" }, "EditedDate", SortDirection.Desc);
+            sort = sort.HandleDefaultSorting(new string[] { "UniqueName", "Title", "ProductId", "Status", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
 
-            query = query.Where(filters, new string[] { "_UniqueName", "_Title", "ProductId" }, "CreatedDate");
+            query = query.Where(filters, new string[] { "_UniqueName", "_Title", "ProductId", "Status" }, "CreatedDate");
 
             query = query.OrderBy(sort);
 
@@ -263,7 +263,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
         private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
         {
             return !await _dbContext.ProductTenants
-                                    .Where(x => x.Id != id && x.Tenant != null &&
+                                    .Where(x => x.TenantId != id && x.Tenant != null &&
                                                 productsIds.Contains(x.ProductId) &&
                                                 uniqueName.ToLower().Equals(x.Tenant.UniqueName))
                                     .AnyAsync(cancellationToken);
