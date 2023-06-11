@@ -9,6 +9,10 @@
             Title = model.Title;
         }
 
+        public CreateTenantModel()
+        {
+        }
+
         public List<Guid> ProductsIds { get; set; } = new();
         public string UniqueName { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
