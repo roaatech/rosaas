@@ -35,7 +35,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
             var result = await _requestBroker.PostAsync<ExternalSystemResultModel<dynamic>, CreateTenantModel>(request);
 
-            _logger.LogInformation($"sent request to call the external system(TenantId:{model.Data.TenantId}, Url:{request.Uri}) API, with the tenant TenantId({model.Data.TenantId}).");
+            LogInformation(model.Data.TenantId, request.Uri);
 
             return result.GetResult();
         }
@@ -47,6 +47,8 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
             var result = await _requestBroker.PutAsync<ExternalSystemResultModel<dynamic>, ActivateTenantModel>(request);
 
+            LogInformation(model.Data.TenantId, request.Uri);
+
             return result.GetResult();
         }
 
@@ -57,6 +59,8 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
             var result = await _requestBroker.PutAsync<ExternalSystemResultModel<dynamic>, DeactivateTenantModel>(request);
 
+            LogInformation(model.Data.TenantId, request.Uri);
+
             return result.GetResult();
         }
 
@@ -66,6 +70,8 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
             var request = await BuildRequestModelAsync(model, ExternalSystemEndpoints.DeleteTenantEndpoint, model.Data.TenantId, cancellationToken);
 
             var result = await _requestBroker.DeleteAsync<ExternalSystemResultModel<dynamic>, DeleteTenantModel>(request);
+
+            LogInformation(model.Data.TenantId, request.Uri);
 
             return result.GetResult();
         }
@@ -88,6 +94,10 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         {
             string accessToken = "";
             return Result<RequestAuthorizationModel>.Successful(new RequestAuthorizationModel("Bearer", accessToken));
+        }
+        private void LogInformation(Guid tenantId, string uri)
+        {
+            _logger.LogInformation($"sent request to call the external system(Url:{uri}) API, with the tenant TenantId({tenantId}).");
         }
 
     }

@@ -11,13 +11,18 @@ using Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4;
 using Roaa.Rosas.Infrastructure.Persistence.SeedData.Management;
 using Roaa.Rosas.RequestBroker;
 using Roaa.StarsKnight.Education.API.Middlewares;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext()
+                .CreateLogger();
 builder.Logging.ClearProviders();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);
-builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
-
+builder.Logging.AddSerilog(logger);
+builder.Logging.AddDebug();
+builder.Logging.AddConsole();
 
 // TODO : allow ouer origins only
 builder.Services.AddCors(options =>

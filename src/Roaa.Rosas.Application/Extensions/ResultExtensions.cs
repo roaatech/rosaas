@@ -30,6 +30,7 @@ namespace Roaa.Rosas.Application.Extensions
 
         public static Result<T> GetResult<T>(this RequestResult<T> requestResult)
         {
+            return Result<T>.Successful(requestResult.Data);
             if (requestResult.Success)
             {
                 return Result<T>.Successful(requestResult.Data);
