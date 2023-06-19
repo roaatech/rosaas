@@ -14,10 +14,10 @@ using Roaa.Rosas.Framework.Controllers.Common;
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class TenantController : BaseSuperAdminMainApiController
+    public class TenantsController : BaseSuperAdminMainApiController
     {
         #region Props 
-        private readonly ILogger<TenantController> _logger;
+        private readonly ILogger<TenantsController> _logger;
         private readonly ITenantService _tenantService;
         private readonly IIdentityContextService _identityContextService;
         private readonly IWebHostEnvironment _environment;
@@ -25,7 +25,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #endregion
 
         #region Corts
-        public TenantController(ILogger<TenantController> logger,
+        public TenantsController(ILogger<TenantsController> logger,
                                 IWebHostEnvironment environment,
                                 IIdentityContextService identityContextService,
                                 ITenantService tenantService,

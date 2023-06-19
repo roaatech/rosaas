@@ -37,7 +37,7 @@ namespace Roaa.Rosas.Application.Tenants.Service
                     Action = WorkflowAction.Ok,
                     NextStatus = TenantStatus.RecordCreated,
                     Name = "Create Record",
-                    Message = "ROSAS - Super Admin created a tenant record in ROSAS",
+                    Message = "ROSAS - Super Admin created a tenant record in ROSAS's database",
                 },
 
                 new Process()
