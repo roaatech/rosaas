@@ -40,5 +40,23 @@ namespace Roaa.Rosas.Application.SystemMessages
         Ar = "الاسم مستخدم مسبقاً")]
         NameAlreadyUsed = 3001,
 
+
+        [Localization(
+        En = "The Tenant has already been activated.",
+        Ar = "تم التفعيل بالفعل")]
+        TenantaAlreadyActivated = 3002,
+
+
+        [Localization(
+        En = "The Tenant has already been deactivated.",
+        Ar = "تم إلغاء التفعيل بالفعل")]
+        TenantaAlreadyDeactivated = 3003,
+
+
+        [Localization(
+        En = "The Tenant has already been deleted.",
+        Ar = "تم الحذف بالفعل")]
+        TenantaAlreadyDeleted = 3003,
+
     }
 }

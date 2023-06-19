@@ -1,6 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application.Services.Management.Tenants;
-using Roaa.Rosas.Application.Services.Management.Tenants.Models;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Roaa.Rosas.Application.Tenants.Commands.ChangeTenantStatus;
+using Roaa.Rosas.Application.Tenants.Commands.CreateTenant;
+using Roaa.Rosas.Application.Tenants.Commands.DeleteTenant;
+using Roaa.Rosas.Application.Tenants.Commands.UpdateTenant;
+using Roaa.Rosas.Application.Tenants.Queries.GetTenantById;
+using Roaa.Rosas.Application.Tenants.Queries.GetTenantsPaginatedList;
+using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -15,61 +21,64 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         private readonly ITenantService _tenantService;
         private readonly IIdentityContextService _identityContextService;
         private readonly IWebHostEnvironment _environment;
+        private readonly ISender _mediator;
         #endregion
 
         #region Corts
         public TenantController(ILogger<TenantController> logger,
                                 IWebHostEnvironment environment,
                                 IIdentityContextService identityContextService,
-                                ITenantService tenantService)
+                                ITenantService tenantService,
+                                ISender mediator)
         {
             _logger = logger;
             _environment = environment;
-            _tenantService = tenantService;
             _identityContextService = identityContextService;
+            _tenantService = tenantService;
+            _mediator = mediator;
         }
         #endregion
-
 
         #region Actions   
 
         [HttpGet()]
         public async Task<IActionResult> GetTenantsPaginatedListAsync([FromQuery] PaginationMetaData pagination, [FromQuery] List<FilterItem> filters, [FromQuery] SortItem sort, CancellationToken cancellationToken = default)
         {
-            return PaginatedResult(await _tenantService.GetTenantsPaginatedListAsync(pagination, filters, sort));
+            return PaginatedResult(await _mediator.Send(new GetTenantsPaginatedListQuery(pagination, filters, sort), cancellationToken));
         }
 
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTenantByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _tenantService.GetTenantByIdAsync(id));
+            return ItemResult(await _mediator.Send(new GetTenantByIdQuery(id), cancellationToken));
         }
 
 
         [HttpPost()]
-        public async Task<IActionResult> CreateTenantAsync([FromBody] CreateTenantModel model, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CreateTenantAsync([FromBody] CreateTenantCommand command, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _tenantService.CreateTenantAsync(model, _identityContextService.UserId));
+            return ItemResult(await _mediator.Send(command, cancellationToken));
         }
 
 
         [HttpPut()]
-        public async Task<IActionResult> UpdateTenantAsync([FromBody] UpdateTenantModel model, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdateTenantAsync([FromBody] UpdateTenantCommand command, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _tenantService.UpdateTenantAsync(model));
+            return EmptyResult(await _mediator.Send(command, cancellationToken));
         }
 
         [HttpPut("Status")]
-        public async Task<IActionResult> UpdateTenantStatusAsync([FromBody] UpdateTenantStatusModel model, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdateTenantStatusAsync([FromBody] ChangeTenantStatusCommand command, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _tenantService.UpdateTenantStatusAsync(model));
+            var ddd = await _mediator.Send(command, cancellationToken);
+            return ItemResult(ddd);
         }
 
         [HttpDelete()]
         public async Task<IActionResult> DeleteTenantAsync([FromBody] DeleteResourceModel<Guid> model, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _tenantService.DeleteTenantAsync(model, cancellationToken));
+            return EmptyResult(await _mediator.Send(new DeleteTenantCommand(model.Id), cancellationToken));
         }
         #endregion
 

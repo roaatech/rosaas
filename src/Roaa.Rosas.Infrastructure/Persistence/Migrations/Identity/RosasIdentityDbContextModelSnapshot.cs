@@ -386,6 +386,39 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.ToTable("mng_Tenants", (string)null);
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantProcess", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<long>("Created")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("OwnerType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreviousStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("mng_TenantProcesses", (string)null);
+                });
+
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.RoleClaim", b =>
                 {
                     b.HasOne("Roaa.Rosas.Domain.Entities.Identity.Role", null)

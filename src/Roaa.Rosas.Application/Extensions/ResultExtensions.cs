@@ -2,6 +2,7 @@
 using Roaa.Rosas.Common.Localization;
 using Roaa.Rosas.Common.Models.ResponseMessages;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.RequestBroker.Models;
 
 namespace Roaa.Rosas.Application.Extensions
 {
@@ -22,6 +23,21 @@ namespace Roaa.Rosas.Application.Extensions
                                          .ToList();
 
             return Result.Fail(messages);
+        }
+
+
+
+
+        public static Result<T> GetResult<T>(this RequestResult<T> requestResult)
+        {
+            if (requestResult.Success)
+            {
+                return Result<T>.Successful(requestResult.Data);
+            }
+
+            var sss = requestResult.Errors.Select(x => x.Value.Select(val => MessageDetail.Error(val, x.Key))).SelectMany(x => x).ToList();
+
+            return Result<T>.Fail(sss);
         }
     }
 }

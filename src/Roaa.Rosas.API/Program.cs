@@ -9,6 +9,7 @@ using Roaa.Rosas.Framework.Configurations;
 using Roaa.Rosas.Infrastructure.Persistence.SeedData.Identity;
 using Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4;
 using Roaa.Rosas.Infrastructure.Persistence.SeedData.Management;
+using Roaa.Rosas.RequestBroker;
 using Roaa.StarsKnight.Education.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +38,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddCommonConfigurations();
+builder.Services.AddRequestBroker();
 builder.Services.AddRosasServiceConfigurations(builder.Configuration, builder.Environment);
 builder.Services.AddAuthorizationConfigurations(builder.Configuration);
 

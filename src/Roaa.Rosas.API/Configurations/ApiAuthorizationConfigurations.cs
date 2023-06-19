@@ -1,5 +1,4 @@
-﻿using IdentityModel;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Authorization.Utilities;
 
@@ -26,7 +25,6 @@ namespace Roaa.Rosas.Framework.Configurations
                 {
                     builder.RequireScope(SystemConsts.Scopes.ExternalSystem);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimProductId);
-                    builder.RequireClaim(JwtClaimTypes.IdentityProvider);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, SystemConsts.Clients.Claims.ExternalSystem);
                 });
                 #endregion

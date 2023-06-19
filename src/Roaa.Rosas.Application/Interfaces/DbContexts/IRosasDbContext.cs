@@ -23,6 +23,7 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<Client> Clients { get; }
         public DbSet<Product> Products { get; }
         public DbSet<Tenant> Tenants { get; }
+        public DbSet<TenantProcess> TenantProcesses { get; }
         public DbSet<ProductTenant> ProductTenants { get; }
 
         #endregion

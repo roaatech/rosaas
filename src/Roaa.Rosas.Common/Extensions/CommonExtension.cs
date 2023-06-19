@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Globalization;
 using System.Reflection;
 
 namespace Roaa.Rosas.Common.Extensions
@@ -36,6 +37,12 @@ namespace Roaa.Rosas.Common.Extensions
         public static string ToSnakeCaseNamingStrategy(this string propertName)
         {
             return new SnakeCaseNamingStrategy().GetPropertyName(propertName, false);
+        }
+        public static string ToPascalCaseNamingStrategy(this string propertName)
+        {
+            var yourString = propertName.ToLower().Replace("_", " ");
+            TextInfo info = CultureInfo.CurrentCulture.TextInfo;
+            return info.ToTitleCase(yourString).Replace(" ", string.Empty);
         }
     }
 }

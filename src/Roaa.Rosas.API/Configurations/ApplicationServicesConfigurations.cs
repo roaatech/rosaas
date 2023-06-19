@@ -1,11 +1,12 @@
-﻿using MediatR;
+﻿using Roaa.Rosas.Application.ExternalSystemsAPI;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.JWT;
 using Roaa.Rosas.Application.Services.Identity.Accounts;
 using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Application.Services.IdentityServer4.Auth;
-using Roaa.Rosas.Application.Services.Management.Tenants;
+using Roaa.Rosas.Application.Services.Management.Products;
+using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Domain.Models.Options;
 using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 using Roaa.Rosas.Infrastructure.Persistence.Interceptors;
@@ -22,10 +23,6 @@ namespace Roaa.Rosas.Framework.Configurations
                                                                       IWebHostEnvironment environment,
                                                                       RootOptions rootOptions)
         {
-
-            services.AddMediatR(typeof(IInternalDomainEventHandler<>));
-
-
             #region Identity
             services.AddScoped<IRosasDbContext, RosasDbContext>();
             services.AddScoped<AuditableEntitySaveChangesInterceptor>();
@@ -48,13 +45,15 @@ namespace Roaa.Rosas.Framework.Configurations
 
             #region Management 
             services.AddScoped<ITenantService, TenantService>();
+            services.AddScoped<ITenantWorkflow, TenantWorkflow>();
             services.AddScoped<ManagementDbInitialiser>();
             #endregion
 
 
+            services.AddScoped<IExternalSystemAPI, ExternalSystemAPI>();
+            services.AddScoped<IProductService, ProductService>();
 
-
-
+            services.AddMediatRAServices();
 
         }
     }

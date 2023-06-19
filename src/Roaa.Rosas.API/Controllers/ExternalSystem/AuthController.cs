@@ -6,8 +6,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
 {
-
-    public class AuthController : BaseExternalSystemIdentityApiController
+    [Route("api/identity/apps/v1/[controller]")]
+    public class AuthController : BaseExternalSystemApiController
     {
         #region Props 
         private readonly ILogger<AuthController> _logger;

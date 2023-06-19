@@ -3,5 +3,6 @@
     public enum UserType
     {
         SuperAdmin = 1,
+        ExternalSystem = 101,
     }
 }

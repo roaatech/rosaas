@@ -24,7 +24,6 @@
             {
                 public const string ClaimProductId = "pid";
                 public const string ClaimType = "type";
-                public const string ClaimSign = "sign";
                 public const string ClaimAuthenticationMethod = "amth";
                 public const string ExternalSystem = "external_system";
             }

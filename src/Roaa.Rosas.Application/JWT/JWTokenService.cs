@@ -13,12 +13,12 @@ using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain;
 using Roaa.Rosas.Domain.Entities;
 using Roaa.Rosas.Domain.Entities.Identity;
-using Roaa.Rosas.Domain.Enums;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -78,7 +78,7 @@ namespace Roaa.Rosas.Application.JWT
 
             var client = await FindClientByIdAsync(clientId);
 
-            // add Jwt Id 
+            // add Jwt TenantId 
             AddJwtId(out string jwtId);
 
             // add sub 
@@ -87,15 +87,12 @@ namespace Roaa.Rosas.Application.JWT
             // add auth_time
             AddAuthenticationTime();
 
-            // add idp
-            AddIdentityProvider();
-
             // add client_id
             AddClientId(client);
 
             AddAuthMethod(authenticationMethod);
 
-            AddTokenSign(TokenSign.SuperAdminUser);
+            AddType(UserType.SuperAdmin);
 
             TryAddEmail(user.Email);
 
@@ -138,14 +135,11 @@ namespace Roaa.Rosas.Application.JWT
             var Properties = client.Properties.ToList();
             var clientClaims = client.Claims.ToList();
 
-            // add Jwt Id 
+            // add Jwt TenantId 
             AddJwtId(out string jwtId);
 
             // add iat
             AddIssuedAt();
-
-            // add idp
-            AddIdentityProvider();
 
             // add client_id
             AddClientId(client);
@@ -155,12 +149,7 @@ namespace Roaa.Rosas.Application.JWT
 
             AddAuthMethod(AuthenticationMethod.ClientCredentials);
 
-            AddTokenSign(TokenSign.ExternalSystemClient);
-
-            foreach (var claim in clientClaims)
-            {
-                _claims.Add(new Claim($"{claim.Type}", claim.Value));
-            }
+            AddType(UserType.ExternalSystem);
 
             // add audiences
             await AddAudiencesAsync(client);
@@ -292,10 +281,10 @@ namespace Roaa.Rosas.Application.JWT
                 _claims.Add(new Claim(JwtClaimTypes.PhoneNumber, phoneNumber));
             }
         }
-        private void AddTokenSign(TokenSign sign)
+        private void AddType(UserType type)
         {
-            // add client_id
-            _claims.Add(new Claim(SystemConsts.Clients.Claims.ClaimSign, $"{(int)sign}"));
+            // add type
+            _claims.Add(new Claim(SystemConsts.Clients.Claims.ClaimType, type.ToSnakeCaseNamingStrategy()));
         }
         private void AddClientId(Client client)
         {
@@ -319,7 +308,7 @@ namespace Roaa.Rosas.Application.JWT
         }
         private void AddIssuedAt()
         {
-            // add auth_time
+            // add iat
             _claims.Add(new Claim(JwtClaimTypes.IssuedAt, $"{(int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds}"));
         }
         private void AddSubject(Guid sub)
@@ -331,7 +320,7 @@ namespace Roaa.Rosas.Application.JWT
         {
             jwtId = Guid.NewGuid().ToString().Replace("-", "").ToUpper();
 
-            // add Jwt Id 
+            // add Jwt TenantId 
             _claims.Add(new Claim(JwtClaimTypes.JwtId, jwtId));
         }
         private DateTime GetExpiration(Client client)

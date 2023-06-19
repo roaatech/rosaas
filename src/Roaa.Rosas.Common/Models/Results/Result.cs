@@ -5,7 +5,18 @@ namespace Roaa.Rosas.Common.Models.Results
 {
     public class Result<T> : Result
     {
+        public Result(List<MessageDetail> messages)
+        {
+            Messages = messages;
+        }
+        public Result()
+        {
+
+        }
+
         public T Data { get; internal set; } = default(T);
+
+
 
         public new static Result<T> New()
         {
@@ -49,7 +60,13 @@ namespace Roaa.Rosas.Common.Models.Results
         public List<MessageDetail> Messages { get; internal set; } = new List<MessageDetail>();
 
         public bool Success { get; internal set; }
-
+        public Result(List<MessageDetail> messages)
+        {
+            Messages = messages;
+        }
+        public Result()
+        {
+        }
         public static Result New()
         {
             return new Result();

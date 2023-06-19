@@ -33,7 +33,7 @@ namespace Roaa.StarsKnight.Education.API.Middlewares
                 httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                 string text = _environment.IsProductionEnvironment() ?
-                             $"An error occurred while processing your request, Error Id:{errorId}, Please contact your system administrator for more details" :
+                             $"An error occurred while processing your request, Error TenantId:{errorId}, Please contact your system administrator for more details" :
                              JsonConvert.SerializeObject(ex);
 
                 await httpContext.Response.WriteAsync(text);

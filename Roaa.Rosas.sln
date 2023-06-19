@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roaa.Rosas.Authorization", 
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{D16AB2B1-C0A2-406D-BF6B-AB95962CC640}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Roaa.Rosas.RequestBroker", "src\Roaa.Rosas.RequestBroker\Roaa.Rosas.RequestBroker.csproj", "{8B7C6F05-1183-4E86-9B2D-B27609687D88}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{D16AB2B1-C0A2-406D-BF6B-AB95962CC640}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D16AB2B1-C0A2-406D-BF6B-AB95962CC640}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D16AB2B1-C0A2-406D-BF6B-AB95962CC640}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B7C6F05-1183-4E86-9B2D-B27609687D88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B7C6F05-1183-4E86-9B2D-B27609687D88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B7C6F05-1183-4E86-9B2D-B27609687D88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B7C6F05-1183-4E86-9B2D-B27609687D88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +82,7 @@ Global
 		{BDE2EEE8-3192-490B-B031-BD2B5C9FF77E} = {66822D9D-2AAA-4D7B-88C3-50517205EE79}
 		{D2C29C2A-A612-4B4C-954F-D3593A4803B1} = {BDE2EEE8-3192-490B-B031-BD2B5C9FF77E}
 		{D4AB2E77-B15B-432B-BEE1-D0061B3D0072} = {BDE2EEE8-3192-490B-B031-BD2B5C9FF77E}
+		{8B7C6F05-1183-4E86-9B2D-B27609687D88} = {BDE2EEE8-3192-490B-B031-BD2B5C9FF77E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C3F3958A-E884-463B-BAEB-F609EC5B7052}
