@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Auditing.Contexts;
+using Roaa.Rosas.Auditing.Models;
 using Roaa.Rosas.Domain.Common;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -17,7 +19,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
                                                          UserRole,
                                                          UserLogin,
                                                          RoleClaim,
-                                                         UserToken>, IRosasDbContext
+                                                         UserToken>, IRosasDbContext, IAuditDbContext
     {
 
         #region Props   
@@ -51,6 +53,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<TenantProcess> TenantProcesses { get; set; }
         public DbSet<ProductTenant> ProductTenants { get; set; }
+
+        public DbSet<AuditEntity> Audits { get; set; }
         #endregion
 
 

@@ -1,16 +1,17 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Logging;
 using Roaa.Rosas.API.Configurations;
+using Roaa.Rosas.Auditing;
 using Roaa.Rosas.Authorization;
 using Roaa.Rosas.Common;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.HealthChecks.UI;
+using Roaa.Rosas.Education.API.Middlewares;
 using Roaa.Rosas.Framework.Configurations;
 using Roaa.Rosas.Infrastructure.Persistence.SeedData.Identity;
 using Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4;
 using Roaa.Rosas.Infrastructure.Persistence.SeedData.Management;
 using Roaa.Rosas.RequestBroker;
-using Roaa.StarsKnight.Education.API.Middlewares;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,7 +39,7 @@ builder.Services.AddCors(options =>
 
 
 // Add services to the container. 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.AddAudit());
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 

@@ -38,6 +38,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Roaa.Rosas.Application\Roaa.Rosas.Application.csproj" />
+		<ProjectReference Include="..\Roaa.Rosas.Auditing\Roaa.Rosas.Auditing.csproj" />
 		<ProjectReference Include="..\Roaa.Rosas.Infrastructure\Roaa.Rosas.Infrastructure.csproj" />
 	</ItemGroup>
 

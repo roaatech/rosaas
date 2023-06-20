@@ -2,7 +2,7 @@
 using Roaa.Rosas.Common.Extensions;
 using System.Net;
 
-namespace Roaa.StarsKnight.Education.API.Middlewares
+namespace Roaa.Rosas.Education.API.Middlewares
 {
     public class ExceptionHandlerMiddleware
     {

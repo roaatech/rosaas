@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Roaa.Rosas.Auditing;
 using Roaa.Rosas.Framework.Configurations;
 
 namespace Roaa.Rosas.API.Configurations
@@ -21,7 +22,7 @@ namespace Roaa.Rosas.API.Configurations
             services.AddApiAuthorizationPolicies(configuration);
             services.AddApplicationServicesConfigurations(configuration, env, rootOptions);
             services.AddHealthCheckers(configuration, env, rootOptions);
-
+            services.AddAudit(rootOptions.ConnectionStrings.IdentityDb);
             //configure identity tokens expiry life-time
             services.Configure<DataProtectionTokenProviderOptions>(options =>
                 options.TokenLifespan = TimeSpan.FromMinutes(30));
