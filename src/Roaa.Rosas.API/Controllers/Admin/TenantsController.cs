@@ -5,6 +5,7 @@ using Roaa.Rosas.Application.Tenants.Commands.CreateTenant;
 using Roaa.Rosas.Application.Tenants.Commands.DeleteTenant;
 using Roaa.Rosas.Application.Tenants.Commands.UpdateTenant;
 using Roaa.Rosas.Application.Tenants.Queries.GetTenantById;
+using Roaa.Rosas.Application.Tenants.Queries.GetTenantProcessesByTenantId;
 using Roaa.Rosas.Application.Tenants.Queries.GetTenantsPaginatedList;
 using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
@@ -52,6 +53,13 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         public async Task<IActionResult> GetTenantByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
             return ItemResult(await _mediator.Send(new GetTenantByIdQuery(id), cancellationToken));
+        }
+
+
+        [HttpGet("{id}/processes")]
+        public async Task<IActionResult> GetTenantProcessesListByTenantIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _mediator.Send(new GetTenantProcessesByTenantIdQuery(id), cancellationToken));
         }
 
 
