@@ -9,6 +9,8 @@ WORKDIR /src
 COPY ["src/Roaa.Rosas.API/Roaa.Rosas.API.csproj", "src/Roaa.Rosas.API/"]
 COPY ["src/Roaa.Rosas.Application/Roaa.Rosas.Application.csproj", "src/Roaa.Rosas.Application/"]
 COPY ["src/Roaa.Rosas.Authorization/Roaa.Rosas.Authorization.csproj", "src/Roaa.Rosas.Authorization/"]
+COPY ["src/Roaa.Rosas.Auditing/Roaa.Rosas.Auditing.csproj", "src/Roaa.Rosas.Auditing/"]
+COPY ["src/Roaa.Rosas.RequestBroker/Roaa.Rosas.RequestBroker.csproj", "src/Roaa.Rosas.RequestBroker/"]
 COPY ["src/Roaa.Rosas.Common/Roaa.Rosas.Common.csproj", "src/Roaa.Rosas.Common/"]
 COPY ["src/Roaa.Rosas.Domain/Roaa.Rosas.Domain.csproj", "src/Roaa.Rosas.Domain/"]
 COPY ["src/Roaa.Rosas.Infrastructure/Roaa.Rosas.Infrastructure.csproj", "src/Roaa.Rosas.Infrastructure/"]
