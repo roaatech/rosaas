@@ -19,6 +19,7 @@ jobs:
           repository: "rosas/api"
           command: "buildAndPush"
           Dockerfile: "**/Dockerfile"
+          buildContext: .
           tags: "ci-$(Build.BuildNumber)"
           addPipelineData: false
           addBaseImageData: false
