@@ -42,6 +42,7 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantProcessesByTenantId
                                                       Message = x.Message,
                                                       Created = x.Created,
                                                   })
+                                                  .OrderByDescending(x => x.Created)
                                                   .ToListAsync(cancellationToken);
 
             return Result<List<TenantProcessDto>>.Successful(results);
