@@ -20,10 +20,11 @@ var logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
                 .CreateLogger();
-builder.Logging.ClearProviders();
+//builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 builder.Logging.AddDebug();
 builder.Logging.AddConsole();
+
 
 // TODO : allow ouer origins only
 builder.Services.AddCors(options =>
