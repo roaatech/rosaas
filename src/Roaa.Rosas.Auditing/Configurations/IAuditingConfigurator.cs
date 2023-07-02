@@ -8,8 +8,6 @@ public interface IAuditingConfigurator
     IAuditingConfigurator SetTimeStampColumnName(string timeStampColumnName);
     IAuditingConfigurator SetMethodColumnName(string methodColumnName);
     IAuditingConfigurator SetActionColumnName(string actionColumnName);
-    IAuditingConfigurator SetUserIdColumnName(string userIdColumnName);
-    IAuditingConfigurator SetUserTypeColumnName(string userTypeColumnName);
     IAuditingConfigurator SetJsonDataColumnName(string jsonDataColumnName);
 
 }

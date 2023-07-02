@@ -18,6 +18,8 @@ public class AuditEntityConfiguration : IEntityTypeConfiguration<AuditEntity>
         ConfigureUserId(builder);
         ConfigureUserType(builder);
         ConfigureJsonData(builder);
+        ConfigureClient(builder);
+        ConfigureExternalSystem(builder);
     }
 
     public virtual void ConfigureTable(EntityTypeBuilder<AuditEntity> builder)
@@ -49,17 +51,25 @@ public class AuditEntityConfiguration : IEntityTypeConfiguration<AuditEntity>
     {
         builder.Property(r => r.TimeStamp).HasColumnName(AuditConfigurations.Config.TimeStampColumnName);
     }
-    public virtual void ConfigureUserId(EntityTypeBuilder<AuditEntity> builder)
-    {
-        builder.Property(r => r.UserId).HasDefaultValue(Guid.Empty).HasColumnName(AuditConfigurations.Config.UserIdColumnName);
-    }
-    public virtual void ConfigureUserType(EntityTypeBuilder<AuditEntity> builder)
-    {
-        builder.Property(r => r.UserType).HasDefaultValue(0).HasColumnName(AuditConfigurations.Config.UserTypeColumnName);
-    }
     public virtual void ConfigureJsonData(EntityTypeBuilder<AuditEntity> builder)
     {
         builder.Property(r => r.JsonData).HasColumnName(AuditConfigurations.Config.JsonDataColumnName);
+    }
+    public virtual void ConfigureUserId(EntityTypeBuilder<AuditEntity> builder)
+    {
+        builder.Property(r => r.UserId).HasMaxLength(50).HasColumnName(AuditConfigurations.Config.UserIdColumnName);
+    }
+    public virtual void ConfigureUserType(EntityTypeBuilder<AuditEntity> builder)
+    {
+        builder.Property(r => r.UserType).HasMaxLength(50).HasColumnName(AuditConfigurations.Config.UserTypeColumnName);
+    }
+    public virtual void ConfigureClient(EntityTypeBuilder<AuditEntity> builder)
+    {
+        builder.Property(r => r.Client).HasMaxLength(100).HasColumnName(AuditConfigurations.Config.ClientColumnName);
+    }
+    public virtual void ConfigureExternalSystem(EntityTypeBuilder<AuditEntity> builder)
+    {
+        builder.Property(r => r.ExternalSystem).HasMaxLength(50).HasColumnName(AuditConfigurations.Config.ExternalSystemColumnName);
     }
     #endregion
 }

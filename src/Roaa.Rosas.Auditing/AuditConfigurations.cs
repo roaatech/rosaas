@@ -1,9 +1,9 @@
 ﻿using Audit.Core;
 using Audit.WebApi;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Roaa.Rosas.Audit.Net.Custom;
 using Roaa.Rosas.Auditing.Configurations;
 
 namespace Roaa.Rosas.Auditing;
@@ -20,8 +20,8 @@ public static class AuditConfigurations
     {
         AuditingConfigurator auditingConfigurator = new AuditingConfigurator();
         config(auditingConfigurator);
-
-        Configuration.Setup().UseMySql(_config => _config
+        Config = auditingConfigurator;
+        Configuration.Setup().UseCustomMySql(_config => _config
                 .ConnectionString(auditingConfigurator.ConnectionString)
                 .TableName(auditingConfigurator.TableName)
                 .IdColumnName(auditingConfigurator.IdColumnName)
@@ -35,7 +35,8 @@ public static class AuditConfigurations
 
     public static void AddAudit(this IServiceCollection services, string connectionString)
     {
-        services.AddAudit(config => config.SetConnectionString(connectionString));
+        services.AddAudit(config => config.SetConnectionString(connectionString)
+                                          .SetTableName("rosas_audits"));
     }
 
     /// <summary>
@@ -58,14 +59,10 @@ public static class AuditConfigurations
     /// <summary>
     ///     Configures what and how is logged or is not logged, (Configure audit output).
     /// </summary>
-    public static void ConfigureAudit(this IApplicationBuilder app)
+    public static void UseAudit(this IApplicationBuilder app)
     {
-        Configuration.AddCustomAction(ActionType.OnEventSaving, async scope =>
-        {
-            var httpContextAccessor = app.ApplicationServices.GetService<IHttpContextAccessor>();
-            // scope.SetCustomField("AuthUser", BuildAuditAuthUser(httpContextAccessor));
-        });
-        Configuration.IncludeTypeNamespaces = true;
+        app.UseCustomAudit();
+
     }
 
 }

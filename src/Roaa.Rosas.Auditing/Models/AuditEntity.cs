@@ -7,8 +7,11 @@ public class AuditEntity
     public long TimeStamp { get; set; }
     public string? Method { get; set; }
     public string? Action { get; set; }
-    public Guid? UserId { get; set; }
-    public int UserType { get; set; }
+    public string? UserId { get; set; }
+    public string? UserType { get; set; }
+    public string? Client { get; set; }
+    public string? ExternalSystem { get; set; }
     public int Duration { get; set; }
     public string? JsonData { get; set; }
+
 }

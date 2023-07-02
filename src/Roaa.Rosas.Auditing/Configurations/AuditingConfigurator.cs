@@ -10,9 +10,17 @@ public class AuditingConfigurator : IAuditingConfigurator
     internal string TimeStampColumnName { get; set; } = "TimeStamp";
     internal string MethodColumnName { get; set; } = "Method";
     internal string ActionColumnName { get; set; } = "Action";
-    internal string UserIdColumnName { get; set; } = "UserId";
-    internal string UserTypeColumnName { get; set; } = "UserType";
     internal string JsonDataColumnName { get; set; } = "JsonData";
+
+    internal string UserIdColumnName { get; set; } = "UserId";
+
+    internal string UserTypeColumnName { get; set; } = "UserType";
+
+    internal string ClientColumnName { get; set; } = "Client";
+
+    internal string ExternalSystemColumnName { get; set; } = "ExternalSystem";
+
+
 
 
     public IAuditingConfigurator SetConnectionString(string connectionString)
@@ -57,11 +65,20 @@ public class AuditingConfigurator : IAuditingConfigurator
         return this;
     }
 
+    public IAuditingConfigurator SetJsonDataColumnName(string jsonDataColumnName)
+    {
+        ConnectionString = jsonDataColumnName;
+        return this;
+    }
+
+
+
     public IAuditingConfigurator SetUserIdColumnName(string userIdColumnName)
     {
         UserIdColumnName = userIdColumnName;
         return this;
     }
+
 
     public IAuditingConfigurator SetUserTypeColumnName(string userTypeColumnName)
     {
@@ -69,9 +86,20 @@ public class AuditingConfigurator : IAuditingConfigurator
         return this;
     }
 
-    public IAuditingConfigurator SetJsonDataColumnName(string jsonDataColumnName)
+
+    public IAuditingConfigurator SetClientColumnName(string clientColumnName)
     {
-        ConnectionString = jsonDataColumnName;
+        ClientColumnName = clientColumnName;
         return this;
     }
+
+
+    public IAuditingConfigurator SetExternalSystemColumnName(string extenrnalSystemColumnName)
+    {
+        ExternalSystemColumnName = extenrnalSystemColumnName;
+        return this;
+    }
+
+
+
 }
