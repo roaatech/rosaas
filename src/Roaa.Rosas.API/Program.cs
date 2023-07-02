@@ -84,7 +84,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
     AllowCachingResponses = false
 });
 
-
+app.UseAudit();
 app.MapControllers();
 
 
