@@ -58,5 +58,18 @@ namespace Roaa.Rosas.Application.SystemMessages
         Ar = "تم الحذف بالفعل")]
         TenantaAlreadyDeleted = 3003,
 
+
+        [Localization(
+           En = "The Url is already existed",
+           Ar = "عنوان الرابط موجود مسبقا")]
+        UrlAlreadyExist = 3004,
+
+
+        [Localization(
+           En = "Deleting is not allowed",
+           Ar = "الحذف غير مسموح به")]
+        DeletingIsNotAllowed = 3005,
+
+
     }
 }
