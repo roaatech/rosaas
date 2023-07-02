@@ -11,8 +11,8 @@ using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 {
     [DbContext(typeof(RosasDbContext))]
-    [Migration("20230531170829_addTenant_Product_Client_Migration")]
-    partial class addTenant_Product_Client_Migration
+    [Migration("20230622152028_InitMigration")]
+    partial class InitMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,6 +21,64 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("Roaa.Rosas.Auditing.Models.AuditEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("Action")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("Action");
+
+                    b.Property<string>("Client")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Client");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("int")
+                        .HasColumnName("Duration");
+
+                    b.Property<string>("ExternalSystem")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("ExternalSystem");
+
+                    b.Property<string>("JsonData")
+                        .HasColumnType("longtext")
+                        .HasColumnName("JsonData");
+
+                    b.Property<string>("Method")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)")
+                        .HasColumnName("Method");
+
+                    b.Property<long>("TimeStamp")
+                        .HasColumnType("bigint")
+                        .HasColumnName("TimeStamp");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("UserId");
+
+                    b.Property<string>("UserType")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("UserType");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("rosas_audits", (string)null);
+                });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.Role", b =>
                 {
@@ -46,7 +104,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("Identity_Roles", (string)null);
+                    b.ToTable("identity_roles", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.RoleClaim", b =>
@@ -68,7 +126,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Identity_RoleClaims", (string)null);
+                    b.ToTable("identity_role_claims", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.User", b =>
@@ -165,7 +223,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("Identity_Users", (string)null);
+                    b.ToTable("identity_users", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.UserClaim", b =>
@@ -187,7 +245,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Identity_UserClaims", (string)null);
+                    b.ToTable("identity_user_claims", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.UserLogin", b =>
@@ -208,7 +266,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Identity_UserLogins", (string)null);
+                    b.ToTable("identity_user_logins", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.UserRole", b =>
@@ -223,7 +281,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Identity_UserRoles", (string)null);
+                    b.ToTable("identity_user_roles", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.UserToken", b =>
@@ -242,7 +300,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("Identity_UserTokens", (string)null);
+                    b.ToTable("identity_user_tokens", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Client", b =>
@@ -279,7 +337,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasKey("Id");
 
-                    b.ToTable("mng_Clients", (string)null);
+                    b.ToTable("rosas_clients", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Product", b =>
@@ -325,7 +383,28 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("mng_Products", (string)null);
+                    b.ToTable("rosas_products", (string)null);
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.ProductTenant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("rosas_product_tenants", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Tenant", b =>
@@ -351,9 +430,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false);
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("char(36)");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -368,9 +444,40 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId");
+                    b.ToTable("rosas_tenants", (string)null);
+                });
 
-                    b.ToTable("mng_Tenants", (string)null);
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantProcess", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<long>("Created")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("OwnerType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreviousStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("rosas_tenant_processes", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.RoleClaim", b =>
@@ -435,7 +542,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Tenant", b =>
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.ProductTenant", b =>
                 {
                     b.HasOne("Roaa.Rosas.Domain.Entities.Management.Product", "Product")
                         .WithMany("Tenants")
@@ -443,7 +550,15 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Tenant", "Tenant")
+                        .WithMany("Products")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Product");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Client", b =>
@@ -454,6 +569,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Product", b =>
                 {
                     b.Navigation("Tenants");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Tenant", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

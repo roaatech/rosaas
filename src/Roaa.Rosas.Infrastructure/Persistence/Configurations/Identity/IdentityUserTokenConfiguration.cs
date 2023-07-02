@@ -9,7 +9,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         #region Configure 
         public void Configure(EntityTypeBuilder<UserToken> builder)
         {
-            builder.ToTable("Identity_UserTokens");
+            builder.ToTableName("IdentityUserTokens");
         }
         #endregion
     }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfiguration
 {
     [DbContext(typeof(IdentityServerConfigurationDbContext))]
-    [Migration("20230528155408_InitIdentityServerConfigurationDbMigration")]
+    [Migration("20230622144316_InitIdentityServerConfigurationDbMigration")]
     partial class InitIdentityServerConfigurationDbMigration
     {
         /// <inheritdoc />
@@ -67,7 +67,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("IdS4c_ApiResources", (string)null);
+                    b.ToTable("ids4_api_resources", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiResourceClaim", b =>
@@ -88,7 +88,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ApiResourceId");
 
-                    b.ToTable("IdS4c_ApiResourceClaims", (string)null);
+                    b.ToTable("ids4_api_resource_claims", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiResourceProperty", b =>
@@ -114,7 +114,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ApiResourceId");
 
-                    b.ToTable("IdS4c_ApiResourceProperties", (string)null);
+                    b.ToTable("ids4_api_resource_properties", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiResourceScope", b =>
@@ -135,7 +135,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ApiResourceId");
 
-                    b.ToTable("IdS4c_ApiResourceScopes", (string)null);
+                    b.ToTable("ids4_api_resource_scopes", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiResourceSecret", b =>
@@ -171,7 +171,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ApiResourceId");
 
-                    b.ToTable("IdS4c_ApiResourceSecrets", (string)null);
+                    b.ToTable("ids4_api_resource_secrets", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiScope", b =>
@@ -210,7 +210,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("IdS4c_ApiScopes", (string)null);
+                    b.ToTable("ids4_api_scopes", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiScopeClaim", b =>
@@ -231,7 +231,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ScopeId");
 
-                    b.ToTable("IdS4c_ApiScopeClaims", (string)null);
+                    b.ToTable("ids4_api_scope_claims", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiScopeProperty", b =>
@@ -257,7 +257,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ScopeId");
 
-                    b.ToTable("IdS4c_ApiScopeProperties", (string)null);
+                    b.ToTable("ids4_api_scope_properties", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.Client", b =>
@@ -414,7 +414,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                     b.HasIndex("ClientId")
                         .IsUnique();
 
-                    b.ToTable("IdS4c_Clients", (string)null);
+                    b.ToTable("ids4_clients", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientClaim", b =>
@@ -440,7 +440,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("IdS4c_ClientClaims", (string)null);
+                    b.ToTable("ids4_client_claims", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientCorsOrigin", b =>
@@ -461,7 +461,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("IdS4c_ClientCorsOrigins", (string)null);
+                    b.ToTable("ids4_client_cors_origins", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientGrantType", b =>
@@ -482,7 +482,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("IdS4c_ClientGrantTypes", (string)null);
+                    b.ToTable("ids4_client_grant_types", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientIdPRestriction", b =>
@@ -503,7 +503,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("IdS4c_ClientIdPRestrictions", (string)null);
+                    b.ToTable("ids4_client_id_p_restrictions", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientPostLogoutRedirectUri", b =>
@@ -524,7 +524,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("IdS4c_ClientPostLogoutRedirectUris", (string)null);
+                    b.ToTable("ids4_client_post_logout_redirect_uris", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientProperty", b =>
@@ -550,7 +550,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("IdS4c_ClientProperties", (string)null);
+                    b.ToTable("ids4_client_properties", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientRedirectUri", b =>
@@ -571,7 +571,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("IdS4c_ClientRedirectUris", (string)null);
+                    b.ToTable("ids4_client_redirect_uris", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientScope", b =>
@@ -592,7 +592,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("IdS4c_ClientScopes", (string)null);
+                    b.ToTable("ids4_client_scopes", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ClientSecret", b =>
@@ -628,7 +628,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("IdS4c_ClientSecrets", (string)null);
+                    b.ToTable("ids4_client_secrets", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.IdentityResource", b =>
@@ -676,7 +676,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("IdS4c_IdentityResources", (string)null);
+                    b.ToTable("ids4_identity_resources", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.IdentityResourceClaim", b =>
@@ -697,7 +697,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("IdentityResourceId");
 
-                    b.ToTable("IdS4c_IdentityResourceClaims", (string)null);
+                    b.ToTable("ids4_identity_resource_claims", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.IdentityResourceProperty", b =>
@@ -723,7 +723,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
 
                     b.HasIndex("IdentityResourceId");
 
-                    b.ToTable("IdS4c_IdentityResourceProperties", (string)null);
+                    b.ToTable("ids4_identity_resource_properties", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiResourceClaim", b =>

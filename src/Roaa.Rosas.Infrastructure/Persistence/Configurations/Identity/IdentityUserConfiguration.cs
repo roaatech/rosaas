@@ -9,7 +9,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         #region Configure 
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.ToTable("Identity_Users");
+            builder.ToTableName("IdentityUsers");
             builder.HasQueryFilter(p => !p.IsDeleted);
             builder.Property(r => r.IsDeleted).HasDefaultValue(false).IsRequired();
             builder.Property(r => r.IsActive).HasDefaultValue(true).IsRequired();

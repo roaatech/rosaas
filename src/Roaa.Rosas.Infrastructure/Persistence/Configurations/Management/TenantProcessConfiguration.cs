@@ -9,7 +9,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         #region Configure 
         public void Configure(EntityTypeBuilder<TenantProcess> builder)
         {
-            builder.ToTable("mng_TenantProcesses");
+            builder.ToTableName("RosasTenantProcesses");
             builder.HasKey(x => x.Id);
             builder.Property(r => r.TenantId).IsRequired();
             builder.Property(r => r.Status).IsRequired();

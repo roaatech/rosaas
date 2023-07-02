@@ -65,7 +65,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerGrants
 
                     b.HasIndex("Expiration");
 
-                    b.ToTable("IdS4g_DeviceCodes", (string)null);
+                    b.ToTable("ids4_device_codes", (string)null);
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.PersistedGrant", b =>
@@ -118,7 +118,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerGrants
 
                     b.HasIndex("SubjectId", "SessionId", "Type");
 
-                    b.ToTable("IdS4g_PersistedGrants", (string)null);
+                    b.ToTable("ids4_persisted_grants", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.PersistedUserGrant", b =>

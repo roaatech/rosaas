@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Domain.Entities.Identity;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
@@ -9,8 +10,20 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         #region Configure 
         public void Configure(EntityTypeBuilder<RoleClaim> builder)
         {
-            builder.ToTable("Identity_RoleClaims");
+            builder.ToTableName("IdentityRoleClaims");
         }
         #endregion
+    }
+    public static class dddddsd
+    {
+        public static EntityTypeBuilder ToTableName(this EntityTypeBuilder builder, string? name)
+        {
+            return builder.ToTable(name.ToTableNamingStrategy());
+        }
+
+        public static string ToTableNamingStrategy(this string name)
+        {
+            return name.ToSnakeCaseNamingStrategy();
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ApiResources",
+                name: "ids4_api_resources",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -38,12 +38,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ApiResources", x => x.Id);
+                    table.PrimaryKey("PK_ids4_api_resources", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ApiScopes",
+                name: "ids4_api_scopes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -61,12 +61,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ApiScopes", x => x.Id);
+                    table.PrimaryKey("PK_ids4_api_scopes", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_Clients",
+                name: "ids4_clients",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -129,12 +129,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_Clients", x => x.Id);
+                    table.PrimaryKey("PK_ids4_clients", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_IdentityResources",
+                name: "ids4_identity_resources",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -155,12 +155,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_IdentityResources", x => x.Id);
+                    table.PrimaryKey("PK_ids4_identity_resources", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ApiResourceClaims",
+                name: "ids4_api_resource_claims",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -171,18 +171,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ApiResourceClaims", x => x.Id);
+                    table.PrimaryKey("PK_ids4_api_resource_claims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ApiResourceClaims_IdS4c_ApiResources_ApiResourceId",
+                        name: "FK_ids4_api_resource_claims_ids4_api_resources_ApiResourceId",
                         column: x => x.ApiResourceId,
-                        principalTable: "IdS4c_ApiResources",
+                        principalTable: "ids4_api_resources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ApiResourceProperties",
+                name: "ids4_api_resource_properties",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -195,18 +195,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ApiResourceProperties", x => x.Id);
+                    table.PrimaryKey("PK_ids4_api_resource_properties", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ApiResourceProperties_IdS4c_ApiResources_ApiResourceId",
+                        name: "FK_ids4_api_resource_properties_ids4_api_resources_ApiResourceId",
                         column: x => x.ApiResourceId,
-                        principalTable: "IdS4c_ApiResources",
+                        principalTable: "ids4_api_resources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ApiResourceScopes",
+                name: "ids4_api_resource_scopes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -217,18 +217,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ApiResourceScopes", x => x.Id);
+                    table.PrimaryKey("PK_ids4_api_resource_scopes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ApiResourceScopes_IdS4c_ApiResources_ApiResourceId",
+                        name: "FK_ids4_api_resource_scopes_ids4_api_resources_ApiResourceId",
                         column: x => x.ApiResourceId,
-                        principalTable: "IdS4c_ApiResources",
+                        principalTable: "ids4_api_resources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ApiResourceSecrets",
+                name: "ids4_api_resource_secrets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -245,18 +245,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ApiResourceSecrets", x => x.Id);
+                    table.PrimaryKey("PK_ids4_api_resource_secrets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ApiResourceSecrets_IdS4c_ApiResources_ApiResourceId",
+                        name: "FK_ids4_api_resource_secrets_ids4_api_resources_ApiResourceId",
                         column: x => x.ApiResourceId,
-                        principalTable: "IdS4c_ApiResources",
+                        principalTable: "ids4_api_resources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ApiScopeClaims",
+                name: "ids4_api_scope_claims",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -267,18 +267,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ApiScopeClaims", x => x.Id);
+                    table.PrimaryKey("PK_ids4_api_scope_claims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ApiScopeClaims_IdS4c_ApiScopes_ScopeId",
+                        name: "FK_ids4_api_scope_claims_ids4_api_scopes_ScopeId",
                         column: x => x.ScopeId,
-                        principalTable: "IdS4c_ApiScopes",
+                        principalTable: "ids4_api_scopes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ApiScopeProperties",
+                name: "ids4_api_scope_properties",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -291,18 +291,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ApiScopeProperties", x => x.Id);
+                    table.PrimaryKey("PK_ids4_api_scope_properties", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ApiScopeProperties_IdS4c_ApiScopes_ScopeId",
+                        name: "FK_ids4_api_scope_properties_ids4_api_scopes_ScopeId",
                         column: x => x.ScopeId,
-                        principalTable: "IdS4c_ApiScopes",
+                        principalTable: "ids4_api_scopes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ClientClaims",
+                name: "ids4_client_claims",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -315,18 +315,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ClientClaims", x => x.Id);
+                    table.PrimaryKey("PK_ids4_client_claims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ClientClaims_IdS4c_Clients_ClientId",
+                        name: "FK_ids4_client_claims_ids4_clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "IdS4c_Clients",
+                        principalTable: "ids4_clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ClientCorsOrigins",
+                name: "ids4_client_cors_origins",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -337,18 +337,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ClientCorsOrigins", x => x.Id);
+                    table.PrimaryKey("PK_ids4_client_cors_origins", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ClientCorsOrigins_IdS4c_Clients_ClientId",
+                        name: "FK_ids4_client_cors_origins_ids4_clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "IdS4c_Clients",
+                        principalTable: "ids4_clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ClientGrantTypes",
+                name: "ids4_client_grant_types",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -359,18 +359,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ClientGrantTypes", x => x.Id);
+                    table.PrimaryKey("PK_ids4_client_grant_types", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ClientGrantTypes_IdS4c_Clients_ClientId",
+                        name: "FK_ids4_client_grant_types_ids4_clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "IdS4c_Clients",
+                        principalTable: "ids4_clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ClientIdPRestrictions",
+                name: "ids4_client_id_p_restrictions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -381,18 +381,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ClientIdPRestrictions", x => x.Id);
+                    table.PrimaryKey("PK_ids4_client_id_p_restrictions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ClientIdPRestrictions_IdS4c_Clients_ClientId",
+                        name: "FK_ids4_client_id_p_restrictions_ids4_clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "IdS4c_Clients",
+                        principalTable: "ids4_clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ClientPostLogoutRedirectUris",
+                name: "ids4_client_post_logout_redirect_uris",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -403,18 +403,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ClientPostLogoutRedirectUris", x => x.Id);
+                    table.PrimaryKey("PK_ids4_client_post_logout_redirect_uris", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ClientPostLogoutRedirectUris_IdS4c_Clients_ClientId",
+                        name: "FK_ids4_client_post_logout_redirect_uris_ids4_clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "IdS4c_Clients",
+                        principalTable: "ids4_clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ClientProperties",
+                name: "ids4_client_properties",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -427,18 +427,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ClientProperties", x => x.Id);
+                    table.PrimaryKey("PK_ids4_client_properties", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ClientProperties_IdS4c_Clients_ClientId",
+                        name: "FK_ids4_client_properties_ids4_clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "IdS4c_Clients",
+                        principalTable: "ids4_clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ClientRedirectUris",
+                name: "ids4_client_redirect_uris",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -449,18 +449,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ClientRedirectUris", x => x.Id);
+                    table.PrimaryKey("PK_ids4_client_redirect_uris", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ClientRedirectUris_IdS4c_Clients_ClientId",
+                        name: "FK_ids4_client_redirect_uris_ids4_clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "IdS4c_Clients",
+                        principalTable: "ids4_clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ClientScopes",
+                name: "ids4_client_scopes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -471,18 +471,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ClientScopes", x => x.Id);
+                    table.PrimaryKey("PK_ids4_client_scopes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ClientScopes_IdS4c_Clients_ClientId",
+                        name: "FK_ids4_client_scopes_ids4_clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "IdS4c_Clients",
+                        principalTable: "ids4_clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_ClientSecrets",
+                name: "ids4_client_secrets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -499,18 +499,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_ClientSecrets", x => x.Id);
+                    table.PrimaryKey("PK_ids4_client_secrets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_ClientSecrets_IdS4c_Clients_ClientId",
+                        name: "FK_ids4_client_secrets_ids4_clients_ClientId",
                         column: x => x.ClientId,
-                        principalTable: "IdS4c_Clients",
+                        principalTable: "ids4_clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_IdentityResourceClaims",
+                name: "ids4_identity_resource_claims",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -521,18 +521,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_IdentityResourceClaims", x => x.Id);
+                    table.PrimaryKey("PK_ids4_identity_resource_claims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_IdentityResourceClaims_IdS4c_IdentityResources_Identit~",
+                        name: "FK_ids4_identity_resource_claims_ids4_identity_resources_Identi~",
                         column: x => x.IdentityResourceId,
-                        principalTable: "IdS4c_IdentityResources",
+                        principalTable: "ids4_identity_resources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "IdS4c_IdentityResourceProperties",
+                name: "ids4_identity_resource_properties",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -545,122 +545,122 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdS4c_IdentityResourceProperties", x => x.Id);
+                    table.PrimaryKey("PK_ids4_identity_resource_properties", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IdS4c_IdentityResourceProperties_IdS4c_IdentityResources_Ide~",
+                        name: "FK_ids4_identity_resource_properties_ids4_identity_resources_Id~",
                         column: x => x.IdentityResourceId,
-                        principalTable: "IdS4c_IdentityResources",
+                        principalTable: "ids4_identity_resources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ApiResourceClaims_ApiResourceId",
-                table: "IdS4c_ApiResourceClaims",
+                name: "IX_ids4_api_resource_claims_ApiResourceId",
+                table: "ids4_api_resource_claims",
                 column: "ApiResourceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ApiResourceProperties_ApiResourceId",
-                table: "IdS4c_ApiResourceProperties",
+                name: "IX_ids4_api_resource_properties_ApiResourceId",
+                table: "ids4_api_resource_properties",
                 column: "ApiResourceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ApiResources_Name",
-                table: "IdS4c_ApiResources",
+                name: "IX_ids4_api_resource_scopes_ApiResourceId",
+                table: "ids4_api_resource_scopes",
+                column: "ApiResourceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ids4_api_resource_secrets_ApiResourceId",
+                table: "ids4_api_resource_secrets",
+                column: "ApiResourceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ids4_api_resources_Name",
+                table: "ids4_api_resources",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ApiResourceScopes_ApiResourceId",
-                table: "IdS4c_ApiResourceScopes",
-                column: "ApiResourceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ApiResourceSecrets_ApiResourceId",
-                table: "IdS4c_ApiResourceSecrets",
-                column: "ApiResourceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ApiScopeClaims_ScopeId",
-                table: "IdS4c_ApiScopeClaims",
+                name: "IX_ids4_api_scope_claims_ScopeId",
+                table: "ids4_api_scope_claims",
                 column: "ScopeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ApiScopeProperties_ScopeId",
-                table: "IdS4c_ApiScopeProperties",
+                name: "IX_ids4_api_scope_properties_ScopeId",
+                table: "ids4_api_scope_properties",
                 column: "ScopeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ApiScopes_Name",
-                table: "IdS4c_ApiScopes",
+                name: "IX_ids4_api_scopes_Name",
+                table: "ids4_api_scopes",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ClientClaims_ClientId",
-                table: "IdS4c_ClientClaims",
+                name: "IX_ids4_client_claims_ClientId",
+                table: "ids4_client_claims",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ClientCorsOrigins_ClientId",
-                table: "IdS4c_ClientCorsOrigins",
+                name: "IX_ids4_client_cors_origins_ClientId",
+                table: "ids4_client_cors_origins",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ClientGrantTypes_ClientId",
-                table: "IdS4c_ClientGrantTypes",
+                name: "IX_ids4_client_grant_types_ClientId",
+                table: "ids4_client_grant_types",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ClientIdPRestrictions_ClientId",
-                table: "IdS4c_ClientIdPRestrictions",
+                name: "IX_ids4_client_id_p_restrictions_ClientId",
+                table: "ids4_client_id_p_restrictions",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ClientPostLogoutRedirectUris_ClientId",
-                table: "IdS4c_ClientPostLogoutRedirectUris",
+                name: "IX_ids4_client_post_logout_redirect_uris_ClientId",
+                table: "ids4_client_post_logout_redirect_uris",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ClientProperties_ClientId",
-                table: "IdS4c_ClientProperties",
+                name: "IX_ids4_client_properties_ClientId",
+                table: "ids4_client_properties",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ClientRedirectUris_ClientId",
-                table: "IdS4c_ClientRedirectUris",
+                name: "IX_ids4_client_redirect_uris_ClientId",
+                table: "ids4_client_redirect_uris",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_Clients_ClientId",
-                table: "IdS4c_Clients",
+                name: "IX_ids4_client_scopes_ClientId",
+                table: "ids4_client_scopes",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ids4_client_secrets_ClientId",
+                table: "ids4_client_secrets",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ids4_clients_ClientId",
+                table: "ids4_clients",
                 column: "ClientId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ClientScopes_ClientId",
-                table: "IdS4c_ClientScopes",
-                column: "ClientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_ClientSecrets_ClientId",
-                table: "IdS4c_ClientSecrets",
-                column: "ClientId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_IdentityResourceClaims_IdentityResourceId",
-                table: "IdS4c_IdentityResourceClaims",
+                name: "IX_ids4_identity_resource_claims_IdentityResourceId",
+                table: "ids4_identity_resource_claims",
                 column: "IdentityResourceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_IdentityResourceProperties_IdentityResourceId",
-                table: "IdS4c_IdentityResourceProperties",
+                name: "IX_ids4_identity_resource_properties_IdentityResourceId",
+                table: "ids4_identity_resource_properties",
                 column: "IdentityResourceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IdS4c_IdentityResources_Name",
-                table: "IdS4c_IdentityResources",
+                name: "IX_ids4_identity_resources_Name",
+                table: "ids4_identity_resources",
                 column: "Name",
                 unique: true);
         }
@@ -669,67 +669,67 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "IdS4c_ApiResourceClaims");
+                name: "ids4_api_resource_claims");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ApiResourceProperties");
+                name: "ids4_api_resource_properties");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ApiResourceScopes");
+                name: "ids4_api_resource_scopes");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ApiResourceSecrets");
+                name: "ids4_api_resource_secrets");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ApiScopeClaims");
+                name: "ids4_api_scope_claims");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ApiScopeProperties");
+                name: "ids4_api_scope_properties");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ClientClaims");
+                name: "ids4_client_claims");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ClientCorsOrigins");
+                name: "ids4_client_cors_origins");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ClientGrantTypes");
+                name: "ids4_client_grant_types");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ClientIdPRestrictions");
+                name: "ids4_client_id_p_restrictions");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ClientPostLogoutRedirectUris");
+                name: "ids4_client_post_logout_redirect_uris");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ClientProperties");
+                name: "ids4_client_properties");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ClientRedirectUris");
+                name: "ids4_client_redirect_uris");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ClientScopes");
+                name: "ids4_client_scopes");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ClientSecrets");
+                name: "ids4_client_secrets");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_IdentityResourceClaims");
+                name: "ids4_identity_resource_claims");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_IdentityResourceProperties");
+                name: "ids4_identity_resource_properties");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ApiResources");
+                name: "ids4_api_resources");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_ApiScopes");
+                name: "ids4_api_scopes");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_Clients");
+                name: "ids4_clients");
 
             migrationBuilder.DropTable(
-                name: "IdS4c_IdentityResources");
+                name: "ids4_identity_resources");
         }
     }
 }

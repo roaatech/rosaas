@@ -9,7 +9,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         #region Configure 
         public void Configure(EntityTypeBuilder<Product> builder)
         {
-            builder.ToTable("mng_Products");
+            builder.ToTableName("RosasProducts");
             builder.HasKey(x => x.Id);
             builder.HasQueryFilter(p => !p.IsDeleted);
             builder.Property(r => r.IsDeleted).HasDefaultValue(false).IsRequired();

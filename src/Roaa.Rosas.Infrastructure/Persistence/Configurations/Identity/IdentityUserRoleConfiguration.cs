@@ -9,7 +9,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         #region Configure 
         public void Configure(EntityTypeBuilder<UserRole> builder)
         {
-            builder.ToTable("Identity_UserRoles");
+            builder.ToTableName("IdentityUserRoles");
         }
         #endregion
     }

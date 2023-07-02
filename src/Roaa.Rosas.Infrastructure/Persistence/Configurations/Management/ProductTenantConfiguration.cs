@@ -9,7 +9,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         #region Configure 
         public void Configure(EntityTypeBuilder<ProductTenant> builder)
         {
-            builder.ToTable("mng_ProductTenants");
+            builder.ToTableName("RosasProductTenants");
             builder.HasKey(x => x.Id);
             builder.HasOne(b => b.Tenant).WithMany(p => p.Products).HasForeignKey(f => f.TenantId).OnDelete(DeleteBehavior.Restrict);
             builder.HasOne(b => b.Product).WithMany(p => p.Tenants).HasForeignKey(f => f.ProductId).OnDelete(DeleteBehavior.Restrict);

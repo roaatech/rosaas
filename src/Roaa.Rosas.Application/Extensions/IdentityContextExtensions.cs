@@ -19,7 +19,7 @@ namespace Roaa.Rosas.Application.Extensions
         {
             var value = identityContext.GetClaim(SystemConsts.Clients.Claims.ClaimType);
             var ss = value.ToPascalCaseNamingStrategy();
-            var type = CommonHelper.ParseEnum<UserType>(value.ToPascalCaseNamingStrategy());
+            var type = Helpers.ParseEnum<UserType>(value.ToPascalCaseNamingStrategy());
             return type;
         }
         public static Guid GetActorId(this IIdentityContextService identityContext)

@@ -2,7 +2,7 @@
 
 namespace Roaa.Rosas.Common.Utilities
 {
-    public class CommonHelper
+    public class Helpers
     {
         public static T ParseEnum<T>(string value)
         {

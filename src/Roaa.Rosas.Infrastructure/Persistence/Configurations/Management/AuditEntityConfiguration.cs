@@ -5,6 +5,5 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
 {
     public class AuditEntityConfiguration : Roaa.Rosas.Auditing.Contexts.AuditEntityConfiguration, IEntityTypeConfiguration<AuditEntity>
     {
-
     }
 }

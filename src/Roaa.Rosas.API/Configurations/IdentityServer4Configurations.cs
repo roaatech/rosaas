@@ -5,13 +5,14 @@ using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Models.Options;
+using Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity;
 
 namespace Roaa.Rosas.Framework.Configurations
 {
     public static class IdentityServer4Configurations
     {
-        private const string IdS4cPrefix = "IdS4c_";
-        private const string IdS4gPrefix = "IdS4g_";
+        private const string IdS4cPrefix = "Ids4";
+        private const string IdS4gPrefix = "Ids4";
         public static void AddIdentityServer4Configurations(this IServiceCollection services,
                                                                  IConfiguration configuration,
                                                                  IWebHostEnvironment environment,
@@ -56,27 +57,27 @@ namespace Roaa.Rosas.Framework.Configurations
                                  config.MigrationsHistoryTable(HistoryRepository.DefaultTableName,
                                                                rootOptions.General.UseSingleDatabase ? "ids4configuration" : null);
                              });
-                         options.IdentityResource = new TableConfiguration($"{IdS4cPrefix}IdentityResources");
-                         options.IdentityResourceClaim = new TableConfiguration($"{IdS4cPrefix}IdentityResourceClaims");
-                         options.IdentityResourceProperty = new TableConfiguration($"{IdS4cPrefix}IdentityResourceProperties");
-                         options.ApiResource = new TableConfiguration($"{IdS4cPrefix}ApiResources");
-                         options.ApiResourceSecret = new TableConfiguration($"{IdS4cPrefix}ApiResourceSecrets");
-                         options.ApiResourceScope = new TableConfiguration($"{IdS4cPrefix}ApiResourceScopes");
-                         options.ApiResourceClaim = new TableConfiguration($"{IdS4cPrefix}ApiResourceClaims");
-                         options.ApiResourceProperty = new TableConfiguration($"{IdS4cPrefix}ApiResourceProperties");
-                         options.Client = new TableConfiguration($"{IdS4cPrefix}Clients");
-                         options.ClientGrantType = new TableConfiguration($"{IdS4cPrefix}ClientGrantTypes");
-                         options.ClientRedirectUri = new TableConfiguration($"{IdS4cPrefix}ClientRedirectUris");
-                         options.ClientPostLogoutRedirectUri = new TableConfiguration($"{IdS4cPrefix}ClientPostLogoutRedirectUris");
-                         options.ClientScopes = new TableConfiguration($"{IdS4cPrefix}ClientScopes");
-                         options.ClientSecret = new TableConfiguration($"{IdS4cPrefix}ClientSecrets");
-                         options.ClientClaim = new TableConfiguration($"{IdS4cPrefix}ClientClaims");
-                         options.ClientIdPRestriction = new TableConfiguration($"{IdS4cPrefix}ClientIdPRestrictions");
-                         options.ClientCorsOrigin = new TableConfiguration($"{IdS4cPrefix}ClientCorsOrigins");
-                         options.ClientProperty = new TableConfiguration($"{IdS4cPrefix}ClientProperties");
-                         options.ApiScope = new TableConfiguration($"{IdS4cPrefix}ApiScopes");
-                         options.ApiScopeClaim = new TableConfiguration($"{IdS4cPrefix}ApiScopeClaims");
-                         options.ApiScopeProperty = new TableConfiguration($"{IdS4cPrefix}ApiScopeProperties");
+                         options.IdentityResource = new TableConfiguration($"{IdS4cPrefix}IdentityResources".ToTableNamingStrategy());
+                         options.IdentityResourceClaim = new TableConfiguration($"{IdS4cPrefix}IdentityResourceClaims".ToTableNamingStrategy());
+                         options.IdentityResourceProperty = new TableConfiguration($"{IdS4cPrefix}IdentityResourceProperties".ToTableNamingStrategy());
+                         options.ApiResource = new TableConfiguration($"{IdS4cPrefix}ApiResources".ToTableNamingStrategy());
+                         options.ApiResourceSecret = new TableConfiguration($"{IdS4cPrefix}ApiResourceSecrets".ToTableNamingStrategy());
+                         options.ApiResourceScope = new TableConfiguration($"{IdS4cPrefix}ApiResourceScopes".ToTableNamingStrategy());
+                         options.ApiResourceClaim = new TableConfiguration($"{IdS4cPrefix}ApiResourceClaims".ToTableNamingStrategy());
+                         options.ApiResourceProperty = new TableConfiguration($"{IdS4cPrefix}ApiResourceProperties".ToTableNamingStrategy());
+                         options.Client = new TableConfiguration($"{IdS4cPrefix}Clients".ToTableNamingStrategy());
+                         options.ClientGrantType = new TableConfiguration($"{IdS4cPrefix}ClientGrantTypes".ToTableNamingStrategy());
+                         options.ClientRedirectUri = new TableConfiguration($"{IdS4cPrefix}ClientRedirectUris".ToTableNamingStrategy());
+                         options.ClientPostLogoutRedirectUri = new TableConfiguration($"{IdS4cPrefix}ClientPostLogoutRedirectUris".ToTableNamingStrategy());
+                         options.ClientScopes = new TableConfiguration($"{IdS4cPrefix}ClientScopes".ToTableNamingStrategy());
+                         options.ClientSecret = new TableConfiguration($"{IdS4cPrefix}ClientSecrets".ToTableNamingStrategy());
+                         options.ClientClaim = new TableConfiguration($"{IdS4cPrefix}ClientClaims".ToTableNamingStrategy());
+                         options.ClientIdPRestriction = new TableConfiguration($"{IdS4cPrefix}ClientIdPRestrictions".ToTableNamingStrategy());
+                         options.ClientCorsOrigin = new TableConfiguration($"{IdS4cPrefix}ClientCorsOrigins".ToTableNamingStrategy());
+                         options.ClientProperty = new TableConfiguration($"{IdS4cPrefix}ClientProperties".ToTableNamingStrategy());
+                         options.ApiScope = new TableConfiguration($"{IdS4cPrefix}ApiScopes".ToTableNamingStrategy());
+                         options.ApiScopeClaim = new TableConfiguration($"{IdS4cPrefix}ApiScopeClaims".ToTableNamingStrategy());
+                         options.ApiScopeProperty = new TableConfiguration($"{IdS4cPrefix}ApiScopeProperties".ToTableNamingStrategy());
                      })
 
                     // this adds the operational data from DB (codes, tokens, consents)
@@ -88,8 +89,8 @@ namespace Roaa.Rosas.Framework.Configurations
                                 config.MigrationsHistoryTable(HistoryRepository.DefaultTableName,
                                                               rootOptions.General.UseSingleDatabase ? "ids4persistedgrant" : null);
                             });
-                        options.PersistedGrants = new TableConfiguration($"{IdS4gPrefix}PersistedGrants");
-                        options.DeviceFlowCodes = new TableConfiguration($"{IdS4gPrefix}DeviceCodes");
+                        options.PersistedGrants = new TableConfiguration($"{IdS4gPrefix}PersistedGrants".ToTableNamingStrategy());
+                        options.DeviceFlowCodes = new TableConfiguration($"{IdS4gPrefix}DeviceCodes".ToTableNamingStrategy());
 
                         // this enables automatic token cleanup. this is optional.
                         options.EnableTokenCleanup = true;
