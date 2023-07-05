@@ -53,6 +53,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<TenantProcess> TenantProcesses { get; set; }
         public DbSet<ProductTenant> ProductTenants { get; set; }
+        public DbSet<Feature> Features { get; set; }
+        public DbSet<Plan> Plans { get; set; }
+        public DbSet<PlanFeature> PlanFeatures { get; set; }
 
         public DbSet<AuditEntity> Audits { get; set; }
         #endregion

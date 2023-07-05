@@ -25,6 +25,9 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<Tenant> Tenants { get; }
         public DbSet<TenantProcess> TenantProcesses { get; }
         public DbSet<ProductTenant> ProductTenants { get; }
+        public DbSet<Feature> Features { get; }
+        public DbSet<Plan> Plans { get; }
+        public DbSet<PlanFeature> PlanFeatures { get; }
 
         #endregion
 
