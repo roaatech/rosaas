@@ -12,10 +12,10 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
         Task<Result<ProductDto>> GetProductByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-        Task<Result<CreatedResult<Guid>>> CreateProductAsync(CreateProductModel model, Guid currentUserId, CancellationToken cancellationToken = default);
+        Task<Result<CreatedResult<Guid>>> CreateProductAsync(CreateProductModel model, CancellationToken cancellationToken = default);
 
-        Task<Result> UpdateProductAsync(UpdateProductModel model, CancellationToken cancellationToken = default);
+        Task<Result> UpdateProductAsync(Guid id, UpdateProductModel model, CancellationToken cancellationToken = default);
 
-        Task<Result> DeleteProductAsync(DeleteResourceModel<Guid> model, CancellationToken cancellationToken = default);
+        Task<Result> DeleteProductAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }

@@ -103,7 +103,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             return Result<ProductDto>.Successful(product);
         }
 
-        public async Task<Result<CreatedResult<Guid>>> CreateProductAsync(CreateProductModel model, Guid currentUserId, CancellationToken cancellationToken = default)
+        public async Task<Result<CreatedResult<Guid>>> CreateProductAsync(CreateProductModel model, CancellationToken cancellationToken = default)
         {
             #region Validation
             var fValidation = new CreateProductValidator(_identityContextService).Validate(model);
@@ -129,8 +129,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 ClientId = model.ClientId,
                 UniqueName = model.Name,
                 Title = model.Name,
-                CreatedByUserId = currentUserId,
-                EditedByUserId = currentUserId,
+                CreatedByUserId = _identityContextService.UserId,
+                EditedByUserId = _identityContextService.UserId,
                 Created = date,
                 Edited = date,
             };
@@ -142,7 +142,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             return Result<CreatedResult<Guid>>.Successful(new CreatedResult<Guid>(product.Id));
         }
 
-        public async Task<Result> UpdateProductAsync(UpdateProductModel model, CancellationToken cancellationToken = default)
+        public async Task<Result> UpdateProductAsync(Guid id, UpdateProductModel model, CancellationToken cancellationToken = default)
         {
             #region Validation
             var fValidation = new UpdateProductValidator(_identityContextService).Validate(model);
@@ -151,13 +151,13 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var product = await _dbContext.Products.Where(x => x.Id == model.Id).SingleOrDefaultAsync();
+            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
             if (product is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await EnsureUniqueUrlAsync(model.Url, model.Id, cancellationToken))
+            if (!await EnsureUniqueUrlAsync(model.Url, id, cancellationToken))
             {
                 return Result.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.Url));
             }
@@ -177,22 +177,16 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
 
 
-        public async Task<Result> DeleteProductAsync(DeleteResourceModel<Guid> model, CancellationToken cancellationToken = default)
+        public async Task<Result> DeleteProductAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            #region Validation
-            //var fValidation = new DeleteResourceValidator<Guid>(_identityContextService).Validate(model);
-            //if (!fValidation.IsValid)
-            //{
-            //    return Result.New().WithErrors(fValidation.Errors);
-            //}
-
-            var product = await _dbContext.Products.Where(x => x.Id == model.Id).SingleOrDefaultAsync();
+            #region Validation 
+            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
             if (product is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (await DeletingIsAllowedAsync(model.Id, cancellationToken))
+            if (!await DeletingIsAllowedAsync(id, cancellationToken))
             {
                 return Result.Fail(ErrorMessage.DeletingIsNotAllowed, _identityContextService.Locale);
             }
