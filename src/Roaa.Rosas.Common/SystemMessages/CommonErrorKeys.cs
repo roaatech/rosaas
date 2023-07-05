@@ -95,6 +95,12 @@ namespace Roaa.Rosas.Common.SystemMessages
           En = "Client-Id header parameter is required",
           Ar = "Client-Id header parameter is required")]
         ClientIdRequired = 1015,
+
+
+        [Localization(
+        En = "This operation is not allowed",
+        Ar = "غير مسموح بتنفيذ هذه العملية")]
+        OperationIsNotAllowed = 1016,
     }
 
 }
