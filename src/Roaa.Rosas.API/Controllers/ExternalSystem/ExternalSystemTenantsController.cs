@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Tenants.Commands.UpdateTenantMetadata;
+using Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataById;
 using Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusById;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Enums;
@@ -77,6 +78,13 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         public async Task<IActionResult> UpdateTenantMetadataAsync([FromRoute] Guid id, [FromBody] Dictionary<string, string> metadata, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(new UpdateTenantMetadataCommand(id, metadata), cancellationToken));
+        }
+
+
+        [HttpGet("{id}/metadata")]
+        public async Task<IActionResult> GetTenantMetadataAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _mediator.Send(new GetTenantMetadataByIdQuery(id, _identityContextService.GetProductId()), cancellationToken));
         }
         #endregion
     }
