@@ -10,8 +10,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
 {
-    [Route("api/management/apps/v1/[controller]")]
-    public class TenantsController : BaseExternalSystemApiController
+    [Route("api/management/apps/v1/tenants")]
+    public class ExternalSystemTenantsController : BaseExternalSystemApiController
     {
         #region Props  
         private readonly ISender _mediator;
@@ -20,7 +20,7 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         #endregion
 
         #region Corts
-        public TenantsController(ISender mediator,
+        public ExternalSystemTenantsController(ISender mediator,
                                  IIdentityContextService identityContextService
                                  )
         {

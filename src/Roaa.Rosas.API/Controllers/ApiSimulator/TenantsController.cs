@@ -5,8 +5,8 @@ using Roaa.Rosas.Common.Controllers;
 
 namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
 {
-    [Route("Simulator/Rosas/v1/[Controller]")]
-    public class TenantsController : BaseApiController
+    [Route("Simulator/Rosas/v1/tenants")]
+    public class SimulationTenantsController : BaseApiController
     {
         #region Props  
         private readonly ISender _mediator;
@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         #endregion
 
         #region Corts
-        public TenantsController(ISender mediator,
+        public SimulationTenantsController(ISender mediator,
                                  IIdentityContextService identityContextService
                                  )
         {
