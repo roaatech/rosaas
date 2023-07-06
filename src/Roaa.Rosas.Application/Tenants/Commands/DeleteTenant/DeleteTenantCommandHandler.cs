@@ -48,9 +48,7 @@ public class DeleteTenantCommandHandler : IRequestHandler<DeleteTenantCommand, R
             return Result.Fail(CommonErrorKeys.OperationFaild, _identityContextService.Locale);
         }
 
-        tenant.EditedByUserId = _identityContextService.UserId;
-        tenant.Edited = DateTime.UtcNow;
-        tenant.IsDeleted = true;
+        _dbContext.Tenants.Remove(tenant);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

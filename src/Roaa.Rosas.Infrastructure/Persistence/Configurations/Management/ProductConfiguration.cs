@@ -16,6 +16,10 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.UniqueName).IsRequired().HasMaxLength(250);
             builder.Property(r => r.Title).IsRequired(false).HasMaxLength(250);
             builder.Property(r => r.Url).IsRequired(false).HasMaxLength(250);
+            builder.Property(r => r.CreationEndpoint).IsRequired(false).HasMaxLength(250);
+            builder.Property(r => r.ActivationEndpoint).IsRequired(false).HasMaxLength(250);
+            builder.Property(r => r.DeactivationEndpoint).IsRequired(false).HasMaxLength(250);
+            builder.Property(r => r.DeletionEndpoint).IsRequired(false).HasMaxLength(250);
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.EditedByUserId).IsRequired();
             builder.Property(r => r.Created).IsRequired();

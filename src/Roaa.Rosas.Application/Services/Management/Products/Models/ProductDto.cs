@@ -10,6 +10,10 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
         public LookupItemDto<Guid> Client { get; set; } = new();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
+        public string CreationEndpoint { get; set; } = string.Empty;
+        public string ActivationEndpoint { get; set; } = string.Empty;
+        public string DeactivationEndpoint { get; set; } = string.Empty;
+        public string DeletionEndpoint { get; set; } = string.Empty;
 
     }
 }

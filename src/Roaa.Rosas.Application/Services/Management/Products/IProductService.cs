@@ -1,12 +1,14 @@
 ﻿using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Domain.Entities.Management;
+using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Products
 {
     public interface IProductService
     {
-        Task<Result<List<ProductUrlListItem>>> GetProductsUrlsByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default);
+        Task<Result<List<ProductUrlListItem>>> GetProductsUrlsByTenantIdAsync(Guid tenantId, Expression<Func<ProductTenant, ProductUrlListItem>> selector, CancellationToken cancellationToken = default);
 
         Task<PaginatedResult<ProductListItemDto>> GetProductsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default);
 

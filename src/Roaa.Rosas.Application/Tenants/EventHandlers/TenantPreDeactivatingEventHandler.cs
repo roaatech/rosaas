@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Services.Management.Products;
+using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Application.Tenants.Service.Models;
@@ -9,6 +10,7 @@ using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
+using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Tenants.EventHandlers
 {
@@ -39,8 +41,13 @@ namespace Roaa.Rosas.Application.Tenants.EventHandlers
 
         public async Task Handle(TenantPreDeactivatingEvent @event, CancellationToken cancellationToken)
         {
+            Expression<Func<ProductTenant, ProductUrlListItem>> selector = x => new ProductUrlListItem
+            {
+                Id = x.ProductId,
+                Url = x.Product.DeactivationEndpoint,
+            };
 
-            var urlsItemsResult = await _productService.GetProductsUrlsByTenantIdAsync(@event.Tenant.Id, cancellationToken);
+            var urlsItemsResult = await _productService.GetProductsUrlsByTenantIdAsync(@event.Tenant.Id, selector, cancellationToken);
 
             var callingResults = new List<Result<ExternalSystemResultModel<dynamic>>>();
 
