@@ -87,6 +87,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             var product = await _dbContext.Products
                                           .AsNoTracking()
                                           .Include(x => x.Client)
+                                          .Where(x => x.Id == id)
                                           .Select(product => new ProductDto
                                           {
                                               Id = product.Id,
