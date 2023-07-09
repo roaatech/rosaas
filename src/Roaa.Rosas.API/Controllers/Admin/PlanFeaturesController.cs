@@ -46,14 +46,14 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpPut("{planFeatureId}")]
-        public async Task<IActionResult> UpdatePlanFeatureAsync([FromBody] UpdatePlanFeatureModel model, [FromRoute] Guid planFeatureId, [FromRoute] Guid productId, [FromRoute] Guid featureId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdatePlanFeatureAsync([FromBody] UpdatePlanFeatureModel model, [FromRoute] Guid planFeatureId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _planFeatureService.UpdatePlanFeatureAsync(planFeatureId, model, productId, cancellationToken));
         }
 
 
         [HttpDelete("{planFeatureId}")]
-        public async Task<IActionResult> DeletePlanFeatureAsync([FromRoute] Guid planFeatureId, [FromRoute] Guid productId, [FromRoute] Guid featureId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> DeletePlanFeatureAsync([FromRoute] Guid planFeatureId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _planFeatureService.DeletePlanFeatureAsync(planFeatureId, productId, cancellationToken));
         }
