@@ -95,6 +95,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
         {
             var feature = await _dbContext.Features
                                           .AsNoTracking()
+                                          .Where(x => x.Id == id)
                                           .Select(feature => new FeatureDto
                                           {
                                               Id = feature.Id,

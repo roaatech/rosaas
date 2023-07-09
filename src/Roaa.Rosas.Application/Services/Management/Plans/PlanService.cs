@@ -72,6 +72,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
         {
             var plan = await _dbContext.Plans
                                           .AsNoTracking()
+                                          .Where(x => x.Id == id)
                                           .Select(plan => new PlanDto
                                           {
                                               Id = plan.Id,
