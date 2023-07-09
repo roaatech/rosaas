@@ -337,11 +337,141 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.ToTable("rosas_clients", (string)null);
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Feature", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("Edited")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("EditedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Reset")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Unit")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("rosas_features", (string)null);
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Plan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Edited")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("EditedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("rosas_plans", (string)null);
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.PlanFeature", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("Edited")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("EditedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("FeatureId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("Limit")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FeatureId");
+
+                    b.HasIndex("PlanId");
+
+                    b.ToTable("rosas_plan_features", (string)null);
+                });
+
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("ActivationEndpoint")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
 
                     b.Property<Guid>("ClientId")
                         .HasColumnType("char(36)");
@@ -351,6 +481,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("CreationEndpoint")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<string>("DeactivationEndpoint")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<string>("DeletionEndpoint")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
 
                     b.Property<DateTime>("Edited")
                         .HasColumnType("datetime");
@@ -388,6 +530,10 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("Metadata")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("char(36)");
@@ -528,6 +674,36 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Feature", b =>
+                {
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Product", "Product")
+                        .WithMany("Features")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.PlanFeature", b =>
+                {
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Feature", "Feature")
+                        .WithMany("Plans")
+                        .HasForeignKey("FeatureId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Plan", "Plan")
+                        .WithMany("Features")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Feature");
+
+                    b.Navigation("Plan");
+                });
+
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Product", b =>
                 {
                     b.HasOne("Roaa.Rosas.Domain.Entities.Management.Client", "Client")
@@ -563,8 +739,20 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Feature", b =>
+                {
+                    b.Navigation("Plans");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Plan", b =>
+                {
+                    b.Navigation("Features");
+                });
+
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Product", b =>
                 {
+                    b.Navigation("Features");
+
                     b.Navigation("Tenants");
                 });
 

@@ -2,12 +2,6 @@
 
 namespace Roaa.Rosas.Domain.Models
 {
-    public record TenantStatusResultModel
-    {
-        public TenantStatus UpdatedStatus { get; set; }
-        public List<ActionResultModel> Actions { get; set; } = new();
-    }
-
     public record ActionResultModel
     {
         public ActionResultModel(TenantStatus status, string name)

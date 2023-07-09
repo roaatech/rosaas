@@ -13,6 +13,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Products
 {
@@ -45,20 +46,17 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         #region Services   
 
 
-        public async Task<Result<List<ProductUrlListItem>>> GetProductsUrlsByTenantIdAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        public async Task<Result<List<ProductUrlListItem>>> GetProductsUrlsByTenantIdAsync(Guid tenantId, Expression<Func<ProductTenant, ProductUrlListItem>> selector, CancellationToken cancellationToken = default)
         {
             var urls = await _dbContext.ProductTenants.AsNoTracking()
                                                   .Include(x => x.Product)
                                                    .Where(x => x.TenantId == tenantId)
-                                                   .Select(x => new ProductUrlListItem
-                                                   {
-                                                       Id = x.TenantId,
-                                                       Url = x.Product.Url,
-                                                   })
+                                                   .Select(selector)
                                                    .ToListAsync(cancellationToken);
 
             return Result<List<ProductUrlListItem>>.Successful(urls);
         }
+
         public async Task<PaginatedResult<ProductListItemDto>> GetProductsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default)
         {
             var query = _dbContext.Products.AsNoTracking()
@@ -97,13 +95,17 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.UniqueName),
                                               CreatedDate = product.Created,
                                               EditedDate = product.Edited,
+                                              ActivationEndpoint = product.ActivationEndpoint,
+                                              CreationEndpoint = product.CreationEndpoint,
+                                              DeactivationEndpoint = product.DeactivationEndpoint,
+                                              DeletionEndpoint = product.DeletionEndpoint,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
             return Result<ProductDto>.Successful(product);
         }
 
-        public async Task<Result<CreatedResult<Guid>>> CreateProductAsync(CreateProductModel model, Guid currentUserId, CancellationToken cancellationToken = default)
+        public async Task<Result<CreatedResult<Guid>>> CreateProductAsync(CreateProductModel model, CancellationToken cancellationToken = default)
         {
             #region Validation
             var fValidation = new CreateProductValidator(_identityContextService).Validate(model);
@@ -129,8 +131,12 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 ClientId = model.ClientId,
                 UniqueName = model.Name,
                 Title = model.Name,
-                CreatedByUserId = currentUserId,
-                EditedByUserId = currentUserId,
+                CreatedByUserId = _identityContextService.UserId,
+                EditedByUserId = _identityContextService.UserId,
+                ActivationEndpoint = model.ActivationEndpoint,
+                CreationEndpoint = model.CreationEndpoint,
+                DeactivationEndpoint = model.DeactivationEndpoint,
+                DeletionEndpoint = model.DeletionEndpoint,
                 Created = date,
                 Edited = date,
             };
@@ -142,7 +148,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             return Result<CreatedResult<Guid>>.Successful(new CreatedResult<Guid>(product.Id));
         }
 
-        public async Task<Result> UpdateProductAsync(UpdateProductModel model, CancellationToken cancellationToken = default)
+        public async Task<Result> UpdateProductAsync(Guid id, UpdateProductModel model, CancellationToken cancellationToken = default)
         {
             #region Validation
             var fValidation = new UpdateProductValidator(_identityContextService).Validate(model);
@@ -151,13 +157,13 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var product = await _dbContext.Products.Where(x => x.Id == model.Id).SingleOrDefaultAsync();
+            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
             if (product is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await EnsureUniqueUrlAsync(model.Url, model.Id, cancellationToken))
+            if (!await EnsureUniqueUrlAsync(model.Url, id, cancellationToken))
             {
                 return Result.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.Url));
             }
@@ -168,6 +174,10 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             product.UniqueName = model.Name;
             product.Title = model.Name;
             product.EditedByUserId = _identityContextService.UserId;
+            product.ActivationEndpoint = model.ActivationEndpoint;
+            product.CreationEndpoint = model.CreationEndpoint;
+            product.DeactivationEndpoint = model.DeactivationEndpoint;
+            product.DeletionEndpoint = model.DeletionEndpoint;
             product.Edited = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
@@ -177,22 +187,16 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
 
 
-        public async Task<Result> DeleteProductAsync(DeleteResourceModel<Guid> model, CancellationToken cancellationToken = default)
+        public async Task<Result> DeleteProductAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            #region Validation
-            //var fValidation = new DeleteResourceValidator<Guid>(_identityContextService).Validate(model);
-            //if (!fValidation.IsValid)
-            //{
-            //    return Result.New().WithErrors(fValidation.Errors);
-            //}
-
-            var product = await _dbContext.Products.Where(x => x.Id == model.Id).SingleOrDefaultAsync();
+            #region Validation 
+            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
             if (product is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (await DeletingIsAllowedAsync(model.Id, cancellationToken))
+            if (!await DeletingIsAllowedAsync(id, cancellationToken))
             {
                 return Result.Fail(ErrorMessage.DeletingIsNotAllowed, _identityContextService.Locale);
             }

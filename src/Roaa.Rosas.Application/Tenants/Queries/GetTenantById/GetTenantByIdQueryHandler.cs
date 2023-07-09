@@ -5,7 +5,6 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
-using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 
 namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantById
@@ -37,15 +36,13 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantById
         public async Task<Result<TenantDto>> Handle(GetTenantByIdQuery request, CancellationToken cancellationToken)
         {
             var tenant = await _dbContext.Tenants.AsNoTracking()
-                                                 .Include(x => x.Products)
-                                                 .ThenInclude(x => x.Product)
                                                   .Where(x => x.Id == request.Id)
                                                   .Select(tenant => new TenantDto
                                                   {
                                                       Id = tenant.Id,
                                                       UniqueName = tenant.UniqueName,
                                                       Title = tenant.Title,
-                                                      Products = tenant.Products.Select(x => new LookupItemDto<Guid>(x.ProductId, x.Product.UniqueName)),
+                                                      Products = tenant.Products.Select(x => new ProductTenantDto(x.ProductId, x.Product.UniqueName, x.Metadata)),
                                                       Status = tenant.Status,
                                                       CreatedDate = tenant.Created,
                                                       EditedDate = tenant.Edited,

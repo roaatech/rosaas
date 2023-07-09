@@ -5,6 +5,9 @@ using Roaa.Rosas.Application.JWT;
 using Roaa.Rosas.Application.Services.Identity.Accounts;
 using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Application.Services.IdentityServer4.Auth;
+using Roaa.Rosas.Application.Services.Management.Features;
+using Roaa.Rosas.Application.Services.Management.PlanFeatures;
+using Roaa.Rosas.Application.Services.Management.Plans;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Domain.Models.Options;
@@ -52,6 +55,9 @@ namespace Roaa.Rosas.Framework.Configurations
 
             services.AddScoped<IExternalSystemAPI, ExternalSystemAPI>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IFeatureService, FeatureService>();
+            services.AddScoped<IPlanService, PlanService>();
+            services.AddScoped<IPlanFeatureService, PlanFeatureService>();
 
             services.AddMediatRAServices();
 
