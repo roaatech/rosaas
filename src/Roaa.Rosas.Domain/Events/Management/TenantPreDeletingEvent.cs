@@ -6,12 +6,12 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
 {
     public class TenantPreDeletingEvent : BaseInternalEvent
     {
-        public Tenant Tenant { get; set; }
+        public ProductTenant ProductTenant { get; set; }
         public TenantStatus PreviousStatus { get; set; }
 
-        public TenantPreDeletingEvent(Tenant tenant, TenantStatus previousStatus)
+        public TenantPreDeletingEvent(ProductTenant productTenant, TenantStatus previousStatus)
         {
-            Tenant = tenant;
+            ProductTenant = productTenant;
             PreviousStatus = previousStatus;
         }
     }

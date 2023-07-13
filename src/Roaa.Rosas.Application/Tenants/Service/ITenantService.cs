@@ -5,6 +5,6 @@ namespace Roaa.Rosas.Application.Tenants.Service
 {
     public interface ITenantService
     {
-        Task<Result<ChangeTenantStatusResult>> ChangeTenantStatusAsync(ChangeTenantStatusModel model, CancellationToken cancellationToken = default);
+        Task<Result<List<ChangeTenantStatusResult>>> ChangeTenantStatusAsync(ChangeTenantStatusModel model, CancellationToken cancellationToken = default);
     }
 }

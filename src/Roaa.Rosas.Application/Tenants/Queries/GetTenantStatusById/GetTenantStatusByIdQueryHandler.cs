@@ -32,12 +32,11 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusById
         public async Task<Result<TenantStatusDto>> Handle(GetTenantStatusByIdQuery request, CancellationToken cancellationToken)
         {
             var tenantStatus = await _dbContext.ProductTenants.AsNoTracking()
-                                                 .Include(x => x.Tenant)
                                                   .Where(x => x.TenantId == request.Id && x.ProductId == request.ProductId)
                                                   .Select(x => new TenantStatusDto
                                                   {
-                                                      Status = x.Tenant.Status,
-                                                      IsActive = x.Tenant.Status == TenantStatus.Active,
+                                                      Status = x.Status,
+                                                      IsActive = x.Status == TenantStatus.Active,
                                                   })
                                                   .SingleOrDefaultAsync(cancellationToken);
 

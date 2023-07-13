@@ -37,15 +37,18 @@ public class DeleteTenantCommandHandler : IRequestHandler<DeleteTenantCommand, R
     #region Handler   
     public async Task<Result> Handle(DeleteTenantCommand model, CancellationToken cancellationToken)
     {
+        var productTenants = await _dbContext.ProductTenants.Where(x => x.Id == model.TenantId).ToListAsync(cancellationToken);
+
+
+        if (productTenants is not null && productTenants.Any(x => x.Status != TenantStatus.Deleted))
+        {
+            return Result.Fail(CommonErrorKeys.OperationFaild, _identityContextService.Locale);
+        }
+
         var tenant = await _dbContext.Tenants.Where(x => x.Id == model.TenantId).SingleOrDefaultAsync();
         if (tenant is null)
         {
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
-        }
-
-        if (tenant.Status != TenantStatus.Deleted)
-        {
-            return Result.Fail(CommonErrorKeys.OperationFaild, _identityContextService.Locale);
         }
 
         _dbContext.Tenants.Remove(tenant);

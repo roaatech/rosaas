@@ -6,6 +6,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
     public class TenantProcess : BaseEntity
     {
         public Guid TenantId { get; set; }
+        public Guid ProductId { get; set; }
 
         public TenantStatus Status { get; set; }
 

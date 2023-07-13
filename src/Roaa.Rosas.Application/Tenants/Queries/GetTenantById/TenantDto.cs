@@ -9,24 +9,27 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantById
         public string Title { get; set; } = string.Empty;
         public string UniqueName { get; set; } = string.Empty;
         public IEnumerable<ProductTenantDto> Products { get; set; } = new List<ProductTenantDto>();
-        public TenantStatus Status { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
-        public IEnumerable<ActionResultModel> Actions { get; set; } = new List<ActionResultModel>();
 
     }
 
     public record ProductTenantDto
     {
-        public ProductTenantDto(Guid id, string? name, Dictionary<string, string> metadata)
+        public ProductTenantDto(Guid id, string? name, TenantStatus status, DateTime editedDate, Dictionary<string, string> metadata)
         {
             Id = id;
             Name = name;
+            Status = status;
+            EditedDate = editedDate;
             Metadata = metadata ?? new();
         }
 
         public Guid Id { get; set; }
         public string? Name { get; set; }
+        public TenantStatus Status { get; set; }
+        public DateTime EditedDate { get; set; }
         public Dictionary<string, string> Metadata { get; set; } = new();
+        public IEnumerable<ActionResultModel> Actions { get; set; } = new List<ActionResultModel>();
     }
 }

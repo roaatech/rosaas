@@ -10,6 +10,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
     {
         Task<Result<List<ProductUrlListItem>>> GetProductsUrlsByTenantIdAsync(Guid tenantId, Expression<Func<ProductTenant, ProductUrlListItem>> selector, CancellationToken cancellationToken = default);
 
+        Task<Result<T>> GetProductEndpointByIdAsync<T>(Guid productId, Expression<Func<Product, T>> selector, CancellationToken cancellationToken = default);
+
         Task<PaginatedResult<ProductListItemDto>> GetProductsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default);
 
         Task<Result<ProductDto>> GetProductByIdAsync(Guid id, CancellationToken cancellationToken = default);

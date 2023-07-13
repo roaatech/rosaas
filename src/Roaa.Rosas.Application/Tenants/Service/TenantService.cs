@@ -10,6 +10,7 @@ using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Tenants.Service
 {
@@ -43,43 +44,62 @@ namespace Roaa.Rosas.Application.Tenants.Service
 
 
         #region Services    
-        public async Task<Result<ChangeTenantStatusResult>> ChangeTenantStatusAsync(ChangeTenantStatusModel model, CancellationToken cancellationToken = default)
+        public async Task<Result<List<ChangeTenantStatusResult>>> ChangeTenantStatusAsync(ChangeTenantStatusModel model, CancellationToken cancellationToken = default)
         {
-            var tenant = await _dbContext.Tenants.Where(x => x.Id == model.TenantId).SingleOrDefaultAsync();
-            if (tenant is null)
+            Expression<Func<ProductTenant, bool>> predicate = x => x.TenantId == model.TenantId;
+            if (model.ProductId is not null)
             {
-                return Result<ChangeTenantStatusResult>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+                predicate = x => x.TenantId == model.TenantId && x.ProductId == model.ProductId;
             }
 
-            var nextProcess = await _workflow.GetNextProcessActionAsync(tenant.Status, model.Status, model.UserType, model.Action);
-            if (nextProcess is null)
+            var productTenants = await _dbContext.ProductTenants.Where(predicate).ToListAsync(cancellationToken);
+            if (productTenants is null || !productTenants.Any())
             {
-                return Result<ChangeTenantStatusResult>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale);
+                return Result<List<ChangeTenantStatusResult>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            var statusBeforeUpdate = tenant.Status;
 
-            tenant.Status = nextProcess.NextStatus;
-            tenant.EditedByUserId = model.EditorBy;
-            tenant.Edited = DateTime.UtcNow;
-
-
-            var process = new TenantProcess
+            var nextProcesses = await _workflow.GetNextProcessActionsAsync(productTenants.Select(x => x.Status).ToList(), model.Status, model.UserType, model.Action);
+            if (nextProcesses is null || !nextProcesses.Any())
             {
-                Id = Guid.NewGuid(),
-                TenantId = tenant.Id,
-                Status = nextProcess.NextStatus,
-                PreviousStatus = nextProcess.CurrentStatus,
-                OwnerId = _identityContextService.GetActorId(),
-                OwnerType = _identityContextService.GetUserType(),
-                Created = DateTime.UtcNow,
-                Message = nextProcess.Message
-            };
-            _dbContext.TenantProcesses.Add(process);
+                return Result<List<ChangeTenantStatusResult>>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale);
+            }
+
+
+            List<ChangeTenantStatusResult> results = new();
+
+            foreach (var tenant in productTenants)
+            {
+                var nextProcess = nextProcesses.Where(x => x.CurrentStatus == tenant.Status).FirstOrDefault();
+                if (nextProcess is not null)
+                {
+                    tenant.Status = nextProcess.NextStatus;
+                    tenant.EditedByUserId = model.EditorBy;
+                    tenant.Edited = DateTime.UtcNow;
+
+
+                    var process = new TenantProcess
+                    {
+                        Id = Guid.NewGuid(),
+                        TenantId = tenant.Id,
+                        Status = nextProcess.NextStatus,
+                        PreviousStatus = nextProcess.CurrentStatus,
+                        OwnerId = _identityContextService.GetActorId(),
+                        OwnerType = _identityContextService.GetUserType(),
+                        Created = DateTime.UtcNow,
+                        Message = nextProcess.Message
+                    };
+
+                    _dbContext.TenantProcesses.Add(process);
+
+
+                    results.Add(new ChangeTenantStatusResult(tenant, nextProcess));
+                }
+            }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result<ChangeTenantStatusResult>.Successful(new ChangeTenantStatusResult(tenant, nextProcess));
+            return Result<List<ChangeTenantStatusResult>>.Successful(results);
         }
         #endregion
     }
