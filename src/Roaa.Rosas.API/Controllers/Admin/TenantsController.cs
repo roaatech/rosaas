@@ -56,10 +56,11 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         }
 
 
+        [Route($"{PrefixSuperAdminMainApiRoute}/products/{{productId}}/[controller]")]
         [HttpGet("{id}/processes")]
-        public async Task<IActionResult> GetTenantProcessesListByTenantIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetTenantProcessesListByTenantIdAsync([FromRoute] Guid productId, [FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetTenantProcessesByTenantIdQuery(id), cancellationToken));
+            return ItemResult(await _mediator.Send(new GetTenantProcessesByTenantIdQuery(id, productId), cancellationToken));
         }
 
 
