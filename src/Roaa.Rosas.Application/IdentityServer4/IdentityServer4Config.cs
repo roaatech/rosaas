@@ -132,7 +132,37 @@ namespace Roaa.Rosas.Application.IdentityServer4
                     Properties = new Dictionary<string, string>
                     {
                         {SystemConsts.Clients.Properties.RosasClientId , SystemConsts.Clients.Properties.Vlaue.RosasClientId},
-                        {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.RosasProductId},
+                        {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.OsosProductId},
+                    },
+                    Claims = new List<ClientClaim>
+                    {
+                        new ClientClaim(SystemConsts.Clients.Claims.ClaimType,SystemConsts.Clients.Claims.ExternalSystem)
+                    }
+                }
+                  ,
+                  new Client()
+                {
+                    ClientId = SystemConsts.Clients.ShamsExternalSystem,
+                    ClientName = "SHAMS System",
+                    Description = "SHAMS is External System of Roaa Tech client. It's calls the ROSAS API to manage its tenants.",
+
+                    // no interactive user, use the clientid/secret for authentication
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    RequireClientSecret = true,
+                    AllowAccessTokensViaBrowser = false,
+                    AllowedScopes = { SystemConsts.Scopes.ExternalSystem, },
+                    AccessTokenLifetime = 3600, //in seconds = 1hour
+                    AccessTokenType = AccessTokenType.Jwt,
+
+                     // secret for authentication
+                    ClientSecrets =
+                    {
+                        new Secret("MNFcPoTjWnZr8u6ADFJaNsAgUfXp4s0v7yBQEZlgWShYxCq3t6wZH3R6X0".Sha256())
+                    },
+                    Properties = new Dictionary<string, string>
+                    {
+                        {SystemConsts.Clients.Properties.RosasClientId , SystemConsts.Clients.Properties.Vlaue.RosasClientId},
+                        {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.ShamsProductId},
                     },
                     Claims = new List<ClientClaim>
                     {
