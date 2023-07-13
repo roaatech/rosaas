@@ -57,6 +57,16 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             return Result<List<ProductUrlListItem>>.Successful(urls);
         }
 
+        public async Task<Result<T>> GetProductEndpointByIdAsync<T>(Guid productId, Expression<Func<Product, T>> selector, CancellationToken cancellationToken = default)
+        {
+            var url = await _dbContext.Products.AsNoTracking()
+                                                   .Where(x => x.Id == productId)
+                                                   .Select(selector)
+                                                   .SingleOrDefaultAsync(cancellationToken);
+
+            return Result<T>.Successful(url);
+        }
+
         public async Task<PaginatedResult<ProductListItemDto>> GetProductsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default)
         {
             var query = _dbContext.Products.AsNoTracking()
@@ -223,7 +233,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             return !await _dbContext.ProductTenants
                                     .Include(x => x.Tenant)
                                     .Where(x => x.ProductId == productId &&
-                                                x.Tenant.Status != TenantStatus.Deleted)
+                                                x.Status != TenantStatus.Deleted)
                                     .AnyAsync(cancellationToken);
 
         }

@@ -1,13 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Services.Management.Products;
-using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Application.Tenants.Service.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
-using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
 using System.Linq.Expressions;
@@ -41,44 +39,32 @@ namespace Roaa.Rosas.Application.Tenants.EventHandlers
 
         public async Task Handle(TenantPreDeactivatingEvent @event, CancellationToken cancellationToken)
         {
-            Expression<Func<ProductTenant, ProductUrlListItem>> selector = x => new ProductUrlListItem
+            Expression<Func<Product, string>> selector = x => x.DeactivationEndpoint;
+
+            var urlItemResult = await _productService.GetProductEndpointByIdAsync(@event.ProductTenant.ProductId, selector, cancellationToken);
+
+            var callingResult = await _externalSystemAPI.DeactivateTenantAsync(new ExternalSystemRequestModel<DeactivateTenantModel>
             {
-                Id = x.ProductId,
-                Url = x.Product.DeactivationEndpoint,
-            };
-
-            var urlsItemsResult = await _productService.GetProductsUrlsByTenantIdAsync(@event.Tenant.Id, selector, cancellationToken);
-
-            var callingResults = new List<Result<ExternalSystemResultModel<dynamic>>>();
-
-            foreach (var item in urlsItemsResult.Data)
-                callingResults.Add(await _externalSystemAPI.DeactivateTenantAsync(new ExternalSystemRequestModel<DeactivateTenantModel>
+                BaseUrl = urlItemResult.Data,
+                Data = new()
                 {
-                    BaseUrl = item.Url,
-                    Data = new()
-                    {
-                        TenantId = @event.Tenant.Id,
-                    }
-                }, cancellationToken));
+                    TenantId = @event.ProductTenant.TenantId,
+                }
+            }, cancellationToken);
 
-            var action = WorkflowAction.Cancel;
+            var action = callingResult.Success ? WorkflowAction.Ok : WorkflowAction.Cancel;
 
-            if (callingResults.Where(x => x.Success).Any())
-            {
-                action = WorkflowAction.Ok;
-            }
+            var process = await _workflow.GetNextProcessActionAsync(@event.ProductTenant.Status, UserType.ExternalSystem, action);
 
-            var process = await _workflow.GetNextProcessActionAsync(@event.Tenant.Status, UserType.ExternalSystem, action);
             await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel
             {
-                TenantId = @event.Tenant.Id,
+                TenantId = @event.ProductTenant.TenantId,
+                ProductId = @event.ProductTenant.ProductId,
                 Status = process.NextStatus,
                 Action = process.Action,
                 UserType = process.OwnerType,
                 EditorBy = _identityContextService.UserId,
             });
-
-
         }
     }
 }

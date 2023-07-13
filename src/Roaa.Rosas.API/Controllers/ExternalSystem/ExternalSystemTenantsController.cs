@@ -50,34 +50,34 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         [HttpPut("{id}/status/created")]
         public async Task<IActionResult> SetTenantAsCreatedAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(id, TenantStatus.CreatedAsActive), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(id, TenantStatus.CreatedAsActive, _identityContextService.GetProductId()), cancellationToken));
         }
 
         [HttpPut("{id}/status/active")]
         public async Task<IActionResult> ActivateTenantAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(id, TenantStatus.Active), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(id, TenantStatus.Active, _identityContextService.GetProductId()), cancellationToken));
         }
 
 
         [HttpPut("{id}/status/deactive")]
         public async Task<IActionResult> DeactivateTenantAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(id, TenantStatus.Deactive), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(id, TenantStatus.Deactive, _identityContextService.GetProductId()), cancellationToken));
         }
 
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTenantAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(id, TenantStatus.Deleted), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(id, TenantStatus.Deleted, _identityContextService.GetProductId()), cancellationToken));
         }
 
 
         [HttpPut("{id}/metadata")]
         public async Task<IActionResult> UpdateTenantMetadataAsync([FromRoute] Guid id, [FromBody] Dictionary<string, string> metadata, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new UpdateTenantMetadataCommand(id, metadata), cancellationToken));
+            return EmptyResult(await _mediator.Send(new UpdateTenantMetadataCommand(id, _identityContextService.GetProductId(), metadata), cancellationToken));
         }
 
 

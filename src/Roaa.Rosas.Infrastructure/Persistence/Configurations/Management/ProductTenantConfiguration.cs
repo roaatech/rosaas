@@ -18,6 +18,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
                     d => JsonConvert.SerializeObject(d),
                     s => JsonConvert.DeserializeObject<Dictionary<string, string>>(s)
                 );
+            builder.Property(r => r.EditedByUserId).IsRequired();
+            builder.Property(r => r.Edited).IsRequired();
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

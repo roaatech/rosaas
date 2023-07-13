@@ -7,6 +7,7 @@ namespace Roaa.Rosas.Application.Tenants.Service.Models
     public record ChangeTenantStatusModel
     {
         public Guid TenantId { get; init; }
+        public Guid? ProductId { get; init; }
         public Guid EditorBy { get; init; }
         public WorkflowAction Action { get; init; }
         public TenantStatus Status { get; init; }

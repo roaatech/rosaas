@@ -66,10 +66,24 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         var tenant = await CreateTenantInDBAsync(request, cancellationToken);
 
 
-        var flows = await _workflow.GetProcessActionsAsync(tenant.Status, _identityContextService.GetUserType());
+        var updatedStatuses = await _dbContext.ProductTenants
+                                         .Where(x => x.TenantId == tenant.Id)
+                                         .Select(x => new { x.Status, x.ProductId })
+                                         .ToListAsync(cancellationToken);
 
-        return Result<TenantCreatedResultDto>.Successful(
-                        new TenantCreatedResultDto(tenant.Id, tenant.Status, flows.ToActionsResults()));
+        List<ProductTenantCreatedResultDto> productTenantCreatedResults = new();
+        foreach (var item in updatedStatuses)
+        {
+            productTenantCreatedResults.Add(new ProductTenantCreatedResultDto(
+            item.ProductId,
+            item.Status,
+            (await _workflow.GetProcessActionsAsync(item.Status, _identityContextService.GetUserType()))
+                            .ToActionsResults()));
+        }
+
+
+
+        return Result<TenantCreatedResultDto>.Successful(new TenantCreatedResultDto(tenant.Id, productTenantCreatedResults));
     }
 
     #endregion
@@ -89,26 +103,19 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             }
         }, cancellationToken);
     }
-    private async Task UpdateTenantStatusAsync(Tenant tenant, Process process, CancellationToken cancellationToken = default)
-    {
-        tenant.Status = process.NextStatus;
-        tenant.Edited = DateTime.UtcNow;
-
-        var res = await _dbContext.SaveChangesAsync(cancellationToken);
-    }
     private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand request, CancellationToken cancellationToken = default)
     {
         var initialProcess = await _workflow.GetNextProcessActionAsync(TenantStatus.None, _identityContextService.GetUserType());
 
         var tenant = BuildTenantEntity(request, initialProcess);
 
-        var process = BuildTenantProcessEntity(tenant.Id, initialProcess);
+        var processes = BuildTenantProcessEntities(tenant.Id, request.ProductsIds, initialProcess);
 
-        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant));
+        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Products.First().Status));
 
         _dbContext.Tenants.Add(tenant);
 
-        _dbContext.TenantProcesses.Add(process);
+        _dbContext.TenantProcesses.AddRange(processes);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -125,38 +132,39 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             Id = id,
             UniqueName = model.UniqueName.ToLower(),
             Title = model.Title,
-            Status = initialProcess.NextStatus,
             CreatedByUserId = _identityContextService.GetActorId(),
             EditedByUserId = _identityContextService.GetActorId(),
             Created = date,
             Edited = date,
-            Products = model.ProductsIds.Select(proId => new ProductTenant
+            Products = model.ProductsIds.Select(productId => new ProductTenant
             {
                 Id = Guid.NewGuid(),
                 TenantId = id,
-                ProductId = proId,
+                ProductId = productId,
+                Status = initialProcess.NextStatus,
+                EditedByUserId = _identityContextService.GetActorId(),
+                Edited = date,
 
             }).ToList(),
         };
     }
-    private TenantProcess BuildTenantProcessEntity(Guid tenantId, Process initialProcess)
+    private IEnumerable<TenantProcess> BuildTenantProcessEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
     {
 
         var date = DateTime.UtcNow;
 
-        var id = Guid.NewGuid();
-
-        return new TenantProcess
+        return ProductsIds.Select(productId => new TenantProcess
         {
-            Id = id,
+            Id = Guid.NewGuid(),
             TenantId = tenantId,
+            ProductId = productId,
             Status = initialProcess.NextStatus,
             PreviousStatus = initialProcess.CurrentStatus,
             OwnerId = _identityContextService.GetActorId(),
             OwnerType = _identityContextService.GetUserType(),
             Created = date,
             Message = initialProcess.Message
-        };
+        });
     }
     private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
     {

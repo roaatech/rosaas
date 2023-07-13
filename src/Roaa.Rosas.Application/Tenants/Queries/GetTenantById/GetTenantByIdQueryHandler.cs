@@ -36,23 +36,25 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantById
         public async Task<Result<TenantDto>> Handle(GetTenantByIdQuery request, CancellationToken cancellationToken)
         {
             var tenant = await _dbContext.Tenants.AsNoTracking()
-                                                  .Where(x => x.Id == request.Id)
-                                                  .Select(tenant => new TenantDto
-                                                  {
-                                                      Id = tenant.Id,
-                                                      UniqueName = tenant.UniqueName,
-                                                      Title = tenant.Title,
-                                                      Products = tenant.Products.Select(x => new ProductTenantDto(x.ProductId, x.Product.UniqueName, x.Metadata)),
-                                                      Status = tenant.Status,
-                                                      CreatedDate = tenant.Created,
-                                                      EditedDate = tenant.Edited,
-                                                  })
-                                                  .SingleOrDefaultAsync(cancellationToken);
-
+                                                 .Where(x => x.Id == request.Id)
+                                                 .Select(tenant => new TenantDto
+                                                 {
+                                                     Id = tenant.Id,
+                                                     UniqueName = tenant.UniqueName,
+                                                     Title = tenant.Title,
+                                                     Products = tenant.Products.Select(x => new ProductTenantDto(x.ProductId, x.Product.UniqueName, x.Status, x.Edited, x.Metadata)),
+                                                     //Status = tenant.Status,
+                                                     CreatedDate = tenant.Created,
+                                                     EditedDate = tenant.Edited,
+                                                 })
+                                                 .SingleOrDefaultAsync(cancellationToken);
             if (tenant is not null)
             {
-                var flows = await _workflow.GetProcessActionsAsync(tenant.Status, _identityContextService.GetUserType());
-                tenant.Actions = flows.ToActionsResults();
+                foreach (var item in tenant.Products)
+                {
+                    var flows = await _workflow.GetProcessActionsAsync(item.Status, _identityContextService.GetUserType());
+                    item.Actions = flows.ToActionsResults();
+                }
             }
 
             return Result<TenantDto>.Successful(tenant);

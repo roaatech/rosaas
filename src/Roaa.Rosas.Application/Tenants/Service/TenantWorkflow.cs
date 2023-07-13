@@ -12,6 +12,17 @@ namespace Roaa.Rosas.Application.Tenants.Service
                                                                           WorkflowAction action = WorkflowAction.Ok,
                                                                           WorkflowTrack track = WorkflowTrack.Normal);
 
+        Task<ICollection<Process>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
+                                                                        UserType ownerType,
+                                                                         WorkflowAction action = WorkflowAction.Ok,
+                                                                        WorkflowTrack track = WorkflowTrack.Normal);
+
+        Task<ICollection<Process>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
+                                                          TenantStatus nextStatus,
+                                                          UserType ownerType,
+                                                          WorkflowAction action = WorkflowAction.Ok,
+                                                          WorkflowTrack track = WorkflowTrack.Normal);
+
         Task<Process> GetNextProcessActionAsync(TenantStatus currentStatus,
                                                              TenantStatus nextStatus,
                                                              UserType ownerType,
@@ -261,6 +272,26 @@ namespace Roaa.Rosas.Application.Tenants.Service
             return Workflow.Where(p => p.CurrentStatus == currentStatus && p.OwnerType == ownerType && p.Action == action && p.Track == track).SingleOrDefault();
         }
 
+        public async Task<ICollection<Process>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
+                                                                        UserType ownerType,
+                                                                         WorkflowAction action = WorkflowAction.Ok,
+                                                                        WorkflowTrack track = WorkflowTrack.Normal)
+        {
+            return Workflow.Where(p => currentStatuses.Contains(p.CurrentStatus) && p.OwnerType == ownerType && p.Action == action && p.Track == track).ToList();
+        }
+
+        public async Task<ICollection<Process>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
+                                                           TenantStatus nextStatus,
+                                                           UserType ownerType,
+                                                           WorkflowAction action = WorkflowAction.Ok,
+                                                           WorkflowTrack track = WorkflowTrack.Normal)
+        {
+            return Workflow.Where(p => currentStatuses.Contains(p.CurrentStatus) &&
+                                       p.NextStatus == nextStatus &&
+                                       p.OwnerType == ownerType &&
+                                       p.Action == action &&
+                                       p.Track == track).ToList();
+        }
         public async Task<Process> GetNextProcessActionAsync(TenantStatus currentStatus,
                                                              TenantStatus nextStatus,
                                                              UserType ownerType,

@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
@@ -36,7 +35,7 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
 
         var tenant = await _dbContext.ProductTenants
                                      .Where(x => x.TenantId == request.TenantId &&
-                                                 x.ProductId == _identityContextService.GetProductId())
+                                                 x.ProductId == request.ProductId)
                                      .SingleOrDefaultAsync(cancellationToken);
         if (tenant is null)
         {
