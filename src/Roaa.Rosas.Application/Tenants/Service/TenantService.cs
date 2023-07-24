@@ -69,24 +69,25 @@ namespace Roaa.Rosas.Application.Tenants.Service
 
             List<ChangeTenantStatusResult> results = new();
 
-            foreach (var tenant in productTenants)
+            foreach (var tenantProduct in productTenants)
             {
-                var nextProcess = nextProcesses.Where(x => x.CurrentStatus == tenant.Status).FirstOrDefault();
+                var nextProcess = nextProcesses.Where(x => x.CurrentStatus == tenantProduct.Status).FirstOrDefault();
                 if (nextProcess is not null)
                 {
-                    tenant.Status = nextProcess.NextStatus;
-                    tenant.EditedByUserId = model.EditorBy;
-                    tenant.Edited = DateTime.UtcNow;
+                    tenantProduct.Status = nextProcess.NextStatus;
+                    tenantProduct.EditedByUserId = model.EditorBy;
+                    tenantProduct.Edited = DateTime.UtcNow;
 
                     if (nextProcess.CurrentStatus == Domain.Enums.TenantStatus.Active)
                     {
-                        tenant.AddDomainEvent(new ActiveTenantStatusUpdated(tenant));
+                        tenantProduct.AddDomainEvent(new ActiveTenantStatusUpdated(tenantProduct));
                     }
 
                     var process = new TenantProcess
                     {
                         Id = Guid.NewGuid(),
-                        TenantId = tenant.Id,
+                        TenantId = tenantProduct.TenantId,
+                        ProductId = tenantProduct.ProductId,
                         Status = nextProcess.NextStatus,
                         PreviousStatus = nextProcess.CurrentStatus,
                         OwnerId = _identityContextService.GetActorId(),
@@ -98,7 +99,7 @@ namespace Roaa.Rosas.Application.Tenants.Service
                     _dbContext.TenantProcesses.Add(process);
 
 
-                    results.Add(new ChangeTenantStatusResult(tenant, nextProcess));
+                    results.Add(new ChangeTenantStatusResult(tenantProduct, nextProcess));
                 }
             }
 
