@@ -107,7 +107,16 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     {
         var initialProcess = await _workflow.GetNextProcessActionAsync(TenantStatus.None, _identityContextService.GetUserType());
 
-        var tenant = BuildTenantEntity(request, initialProcess);
+        var defaultHealthCheckUrlOfProducts = await _dbContext.Products
+                                                            .Where(x => request.ProductsIds.Contains(x.Id))
+                                                            .Select(x => new ProductUrlListItem
+                                                            {
+                                                                Id = x.Id,
+                                                                Url = x.DefaultHealthCheckUrl
+                                                            })
+                                                            .ToListAsync(cancellationToken);
+
+        var tenant = BuildTenantEntity(request, defaultHealthCheckUrlOfProducts, initialProcess);
 
         var processes = BuildTenantProcessEntities(tenant.Id, request.ProductsIds, initialProcess);
 
@@ -121,7 +130,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         return tenant;
     }
-    private Tenant BuildTenantEntity(CreateTenantCommand model, Process initialProcess)
+    private Tenant BuildTenantEntity(CreateTenantCommand model, List<ProductUrlListItem> defaultHealthCheckUrlOfProducts, Process initialProcess)
     {
         var date = DateTime.UtcNow;
 
@@ -136,15 +145,16 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             EditedByUserId = _identityContextService.GetActorId(),
             Created = date,
             Edited = date,
-            Products = model.ProductsIds.Select(productId => new ProductTenant
+            Products = defaultHealthCheckUrlOfProducts.Select(productUrl => new ProductTenant
             {
                 Id = Guid.NewGuid(),
                 TenantId = id,
-                ProductId = productId,
+                ProductId = productUrl.Id,
                 Status = initialProcess.NextStatus,
                 EditedByUserId = _identityContextService.GetActorId(),
                 Edited = date,
-
+                HealthCheckUrl = productUrl.Url,
+                HealthCheckUrlIsOverridden = false,
             }).ToList(),
         };
     }
@@ -178,44 +188,3 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
     #endregion
 }
-/*
-    public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
-    {
-        #region Validation 
-        if (!await EnsureUniqueNameAsync(request.ProductsIds, request.UniqueName))
-        {
-            return Result<TenantCreatedResultDto>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.UniqueName));
-        }
-        #endregion
-
-        // first status
-        var tenant = await CreateTenantInDBAsync(request, cancellationToken);
-
-
-        var urlsItemsResult = await _productService.GetProductsUrlsByTenantIdAsync(tenant.Id, cancellationToken);
-
-        var previousStatus = tenant.Status;
-
-        var callingResults = new List<Result<ExternalSystemResultModel<dynamic>>>();
-
-        var process = await _workflow.GetNextProcessActionAsync(tenant.Status, _identityContextService.GetUserType());
-
-        // second status
-        foreach (var item in urlsItemsResult.Data)
-            callingResults.Add(await CallExternalSystemToCreateTenantResourecesAsync(tenant, item, cancellationToken));
-
-        // 3th status
-        if (callingResults.Where(x => x.Success).Any())
-            await UpdateTenantStatusAsync(tenant, process, cancellationToken);
-
-        // 4th status 
-        foreach (var callingResult in callingResults)
-            await _publisher.Publish(new TenantProcessedEvent(process, tenant.Id, tenant.Status, previousStatus, tenant.Status, callingResult.Success));
-
-
-        var flows = await _workflow.GetProcessActionsAsync(tenant.Status, _identityContextService.GetUserType());
-
-        return Result<TenantCreatedResultDto>.Successful(
-                        new TenantCreatedResultDto(tenant.Id, tenant.Status, flows.ToActionsResults()));
-    }
- */

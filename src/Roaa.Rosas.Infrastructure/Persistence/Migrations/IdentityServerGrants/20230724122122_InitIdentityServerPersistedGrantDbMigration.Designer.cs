@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerGrants
 {
     [DbContext(typeof(IdentityServerPersistedGrantDbContext))]
-    [Migration("20230622144343_InitIdentityServerPersistedGrantDbMigration")]
+    [Migration("20230724122122_InitIdentityServerPersistedGrantDbMigration")]
     partial class InitIdentityServerPersistedGrantDbMigration
     {
         /// <inheritdoc />
@@ -166,7 +166,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerGrants
 
                     b.HasKey("Key");
 
-                    b.ToTable("IdS4g_IdentityPersistedUserGrants", (string)null);
+                    b.ToTable("ids4_identity_persisted_user_grants", (string)null);
                 });
 #pragma warning restore 612, 618
         }

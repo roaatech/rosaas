@@ -74,8 +74,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           .Select(product => new ProductListItemDto
                                           {
                                               Id = product.Id,
-                                              Url = product.Url,
-                                              Name = product.Title,
+                                              Url = product.DefaultHealthCheckUrl,
+                                              Name = product.Name,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.UniqueName),
                                               CreatedDate = product.Created,
                                               EditedDate = product.Edited,
@@ -101,15 +101,16 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           .Select(product => new ProductDto
                                           {
                                               Id = product.Id,
-                                              Url = product.Url,
-                                              Name = product.Title,
+                                              DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
+                                              HealthStatusChangeUrl = product.HealthStatusChangeUrl,
+                                              Name = product.Name,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.UniqueName),
                                               CreatedDate = product.Created,
                                               EditedDate = product.Edited,
-                                              ActivationEndpoint = product.ActivationEndpoint,
-                                              CreationEndpoint = product.CreationEndpoint,
-                                              DeactivationEndpoint = product.DeactivationEndpoint,
-                                              DeletionEndpoint = product.DeletionEndpoint,
+                                              ActivationEndpoint = product.ActivationUrl,
+                                              CreationEndpoint = product.CreationUrl,
+                                              DeactivationEndpoint = product.DeactivationUrl,
+                                              DeletionEndpoint = product.DeletionUrl,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -125,9 +126,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueUrlAsync(model.Url))
+            if (!await EnsureUniqueUrlAsync(model.DefaultHealthCheckUrl))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.Url));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.DefaultHealthCheckUrl));
             }
             #endregion
 
@@ -138,16 +139,16 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             var product = new Product
             {
                 Id = id,
-                Url = model.Url.ToLower(),
                 ClientId = model.ClientId,
-                UniqueName = model.Name,
-                Title = model.Name,
+                Name = model.Name,
+                DefaultHealthCheckUrl = model.DefaultHealthCheckUrl,
+                HealthStatusChangeUrl = model.HealthStatusChangeUrl,
                 CreatedByUserId = _identityContextService.UserId,
                 EditedByUserId = _identityContextService.UserId,
-                ActivationEndpoint = model.ActivationEndpoint,
-                CreationEndpoint = model.CreationEndpoint,
-                DeactivationEndpoint = model.DeactivationEndpoint,
-                DeletionEndpoint = model.DeletionEndpoint,
+                ActivationUrl = model.ActivationEndpoint,
+                CreationUrl = model.CreationEndpoint,
+                DeactivationUrl = model.DeactivationEndpoint,
+                DeletionUrl = model.DeletionEndpoint,
                 Created = date,
                 Edited = date,
             };
@@ -168,7 +169,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
+            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync(cancellationToken);
             if (product is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
@@ -179,16 +180,27 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.Url));
             }
             #endregion
+
+
+            if (!product.DefaultHealthCheckUrl.Equals(model.DefaultHealthCheckUrl, StringComparison.OrdinalIgnoreCase))
+            {
+                var tenants = await _dbContext.ProductTenants.Where(x => x.ProductId == id && !x.HealthCheckUrlIsOverridden).ToListAsync(cancellationToken);
+                foreach (var tenant in tenants)
+                {
+                    tenant.HealthCheckUrl = model.DefaultHealthCheckUrl;
+                }
+            }
+
             Product productBeforeUpdate = product.DeepCopy();
 
-            product.Url = model.Url.ToLower();
-            product.UniqueName = model.Name;
-            product.Title = model.Name;
+            product.Name = model.Name;
+            product.HealthStatusChangeUrl = model.HealthStatusChangeUrl;
+            product.DefaultHealthCheckUrl = model.DefaultHealthCheckUrl;
             product.EditedByUserId = _identityContextService.UserId;
-            product.ActivationEndpoint = model.ActivationEndpoint;
-            product.CreationEndpoint = model.CreationEndpoint;
-            product.DeactivationEndpoint = model.DeactivationEndpoint;
-            product.DeletionEndpoint = model.DeletionEndpoint;
+            product.ActivationUrl = model.ActivationEndpoint;
+            product.CreationUrl = model.CreationEndpoint;
+            product.DeactivationUrl = model.DeactivationEndpoint;
+            product.DeletionUrl = model.DeletionEndpoint;
             product.Edited = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);

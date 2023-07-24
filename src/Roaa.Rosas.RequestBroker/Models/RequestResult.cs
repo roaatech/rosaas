@@ -10,6 +10,8 @@ namespace Roaa.Rosas.RequestBroker.Models
 
         public HttpStatusCode StatusCode { get; set; }
 
+        public double DurationInMillisecond { get; set; }
+
         public Dictionary<string, List<string>> Errors { get; set; }
     }
 }

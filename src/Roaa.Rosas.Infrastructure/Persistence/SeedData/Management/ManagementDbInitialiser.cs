@@ -17,17 +17,21 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
         private readonly ILogger<ManagementDbInitialiser> _logger;
         private readonly IWebHostEnvironment _environment;
         private readonly GeneralOptions _settings;
+        private readonly IdentityServerOptions _identityServerOptions;
+        private string _baseUrl;
         #endregion
 
         #region Ctors     
         public ManagementDbInitialiser(IRosasDbContext identityDbContext,
                                      IWebHostEnvironment environmen,
                                      IApiConfigurationService<GeneralOptions> settings,
+                                     IApiConfigurationService<IdentityServerOptions> identityServerOptions,
                                      ILogger<ManagementDbInitialiser> logger)
         {
             _logger = logger;
             _environment = environmen;
             _settings = settings.Options;
+            _identityServerOptions = identityServerOptions.Options;
             _dbContext = identityDbContext;
         }
         #endregion
@@ -115,7 +119,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     },
             };
         }
-
         private List<Product> GetProducts()
         {
             return new List<Product>
@@ -124,9 +127,13 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     {
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.OsosProductId),
                         ClientId = new Guid("88283b02-e969-485a-a5a3-9e5d1d0d3337"),
-                        UniqueName = "osos",
-                        Title = "OSOS",
-                        Url = "https://osos.roaa.tech",
+                        Name = "OSOS",
+                        DefaultHealthCheckUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}/health-check",
+                        HealthStatusChangeUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}/health-status-change",
+                        CreationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}",
+                        ActivationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}/status/active",
+                        DeactivationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}/status/inactive",
+                        DeletionUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}",
                         Created = DateTime.Now,
                         Edited = DateTime.Now,
                         CreatedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
@@ -137,9 +144,13 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     {
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.ShamsProductId),
                         ClientId = new Guid("88283b02-e969-485a-a5a3-9e5d1d0d3337"),
-                        UniqueName = "shams",
-                        Title = "SHAMS",
-                        Url = "https://shams.roaa.tech",
+                        Name = "SHAMS",
+                        DefaultHealthCheckUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}/health-check",
+                        HealthStatusChangeUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}/health-status-change",
+                        CreationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}",
+                        ActivationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}/status/active",
+                        DeactivationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}/status/inactive",
+                        DeletionUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{tenantId}}",
                         Created = DateTime.Now,
                         Edited = DateTime.Now,
                         CreatedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),

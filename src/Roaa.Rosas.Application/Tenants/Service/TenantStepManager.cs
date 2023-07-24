@@ -83,9 +83,9 @@ namespace Roaa.Rosas.Application.Tenants.Service
             #endregion
 
             #region overrides  
-            public override Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override async Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
-                return Task.CompletedTask;
+                await publisher.Publish(new TenantActivatedEvent(productTenant, previousStatus), cancellationToken);
             }
             #endregion
         }
@@ -153,9 +153,9 @@ namespace Roaa.Rosas.Application.Tenants.Service
             #endregion
 
             #region overrides  
-            public override Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override async Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
-                return Task.CompletedTask;
+                await publisher.Publish(new TenantActivatedEvent(productTenant, previousStatus), cancellationToken);
             }
             #endregion
         }

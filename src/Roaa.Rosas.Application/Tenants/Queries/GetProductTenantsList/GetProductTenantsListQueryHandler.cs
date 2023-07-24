@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Tenants.Service;
-using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 
@@ -12,20 +10,13 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetProductTenantsList
     {
         #region Props 
         private readonly IRosasDbContext _dbContext;
-        private readonly IIdentityContextService _identityContextService;
-        private readonly ITenantWorkflow _workflow;
         #endregion
 
 
         #region Corts
-        public GetProductTenantsListQueryHandler(
-            IRosasDbContext dbContext,
-        ITenantWorkflow workflow,
-            IIdentityContextService identityContextService)
+        public GetProductTenantsListQueryHandler(IRosasDbContext dbContext)
         {
             _dbContext = dbContext;
-            _workflow = workflow;
-            _identityContextService = identityContextService;
         }
 
         #endregion
@@ -40,6 +31,8 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetProductTenantsList
                                                  {
                                                      Id = x.Tenant.Id,
                                                      UniqueName = x.Tenant.UniqueName,
+                                                     HealthCheckUrl = x.HealthCheckUrl,
+                                                     HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
                                                      Title = x.Tenant.Title,
                                                      Status = x.Status,
                                                      CreatedDate = x.Tenant.Created,

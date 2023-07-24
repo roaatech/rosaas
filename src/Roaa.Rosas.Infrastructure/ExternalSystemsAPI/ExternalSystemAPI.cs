@@ -15,8 +15,6 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
 
 
-
-
         public ExternalSystemAPI(IRequestBroker requestBroker,
                                  ILogger<ExternalSystemAPI> logger)
         {
@@ -26,16 +24,11 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
 
 
-
-
-
         public async Task<Result<ExternalSystemResultModel<dynamic>>> CreateTenantAsync(ExternalSystemRequestModel<CreateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, ExternalSystemEndpoints.CreateTenantEndpoint, model.Data.TenantId, cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
             var result = await _requestBroker.PostAsync<ExternalSystemResultModel<dynamic>, CreateTenantModel>(request);
-
-            LogInformation(model.Data.TenantId, request.Uri);
 
             return result.GetResult();
         }
@@ -43,11 +36,9 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> ActivateTenantAsync(ExternalSystemRequestModel<ActivateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, ExternalSystemEndpoints.ActivateTenantEndpoint, model.Data.TenantId, cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
             var result = await _requestBroker.PutAsync<ExternalSystemResultModel<dynamic>, ActivateTenantModel>(request);
-
-            LogInformation(model.Data.TenantId, request.Uri);
 
             return result.GetResult();
         }
@@ -55,11 +46,9 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> DeactivateTenantAsync(ExternalSystemRequestModel<DeactivateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, ExternalSystemEndpoints.DeactivateTenantEndpoint, model.Data.TenantId, cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
             var result = await _requestBroker.PutAsync<ExternalSystemResultModel<dynamic>, DeactivateTenantModel>(request);
-
-            LogInformation(model.Data.TenantId, request.Uri);
 
             return result.GetResult();
         }
@@ -67,21 +56,39 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> DeleteTenantAsync(ExternalSystemRequestModel<DeleteTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, ExternalSystemEndpoints.DeleteTenantEndpoint, model.Data.TenantId, cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
             var result = await _requestBroker.DeleteAsync<ExternalSystemResultModel<dynamic>, DeleteTenantModel>(request);
-
-            LogInformation(model.Data.TenantId, request.Uri);
 
             return result.GetResult();
         }
 
 
-        public async Task<RequestModel<T>> BuildRequestModelAsync<T>(ExternalSystemRequestModel<T> model, string endpoint, Guid? tenantId, CancellationToken cancellationToken = default)
+
+        public async Task<Result<ExternalSystemResultModel<dynamic>>> InformTheTenantUnavailabilityAsync(ExternalSystemRequestModel<InformTenantAvailabilityModel> model, CancellationToken cancellationToken = default)
+        {
+            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
+
+            var result = await _requestBroker.PostAsync<ExternalSystemResultModel<dynamic>, InformTenantAvailabilityModel>(request);
+
+            return result.GetResult();
+        }
+
+        public async Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(ExternalSystemRequestModel<CheckTenantAvailabilityModel> model, CancellationToken cancellationToken = default)
+        {
+            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
+
+            var result = await _requestBroker.GetAsync<ExternalSystemResultModel<dynamic>, CheckTenantAvailabilityModel>(request);
+
+            return result.GetResult();
+        }
+
+
+        public async Task<RequestModel<T>> BuildRequestModelAsync<T>(ExternalSystemRequestModel<T> model, Guid? tenantId, CancellationToken cancellationToken = default)
         {
             string id = tenantId.HasValue ? tenantId.Value.ToString() : string.Empty;
             var token = await GenerateTokenAsync(cancellationToken);
-            var uri = $"{model.BaseUrl}/{endpoint.Replace("{id}", tenantId.ToString())}";
+            var uri = $"{model.BaseUrl.Replace("{tenantId}", tenantId.ToString())}";
             return new RequestModel<T>
              (
                  uri: uri,
@@ -97,16 +104,8 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         }
         private void LogInformation(Guid tenantId, string uri)
         {
-            _logger.LogInformation($"sent request to call the external system(Url:{uri}) API, with the tenant TenantId({tenantId}).");
+            _logger.LogInformation($"{{0}}: sent a request to call the external system API   (Url:{uri}) , with the tenant TenantId({tenantId}).", "ExternalSystemAPI");
         }
-
-    }
-    public class ExternalSystemEndpoints
-    {
-        public const string CreateTenantEndpoint = "Rosas/v1/Tenants";
-        public const string DeleteTenantEndpoint = "Rosas/v1/Tenants/{id}";
-        public const string ActivateTenantEndpoint = "Rosas/v1/Tenants/{id}/status/active";
-        public const string DeactivateTenantEndpoint = "Rosas/v1/Tenants/{id}/status/deactive";
 
     }
 

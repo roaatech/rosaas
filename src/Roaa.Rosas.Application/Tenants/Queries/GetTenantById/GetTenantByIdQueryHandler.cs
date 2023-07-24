@@ -42,7 +42,16 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantById
                                                      Id = tenant.Id,
                                                      UniqueName = tenant.UniqueName,
                                                      Title = tenant.Title,
-                                                     Products = tenant.Products.Select(x => new ProductTenantDto(x.ProductId, x.Product.UniqueName, x.Status, x.Edited, x.Metadata)),
+                                                     Products = tenant.Products.Select(x => new ProductTenantDto
+                                                     {
+                                                         Id = x.ProductId,
+                                                         Name = x.Product.Name,
+                                                         Status = x.Status,
+                                                         EditedDate = x.Edited,
+                                                         Metadata = x.Metadata,
+                                                         HealthCheckUrl = x.HealthCheckUrl,
+                                                         HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
+                                                     }),
                                                      //Status = tenant.Status,
                                                      CreatedDate = tenant.Created,
                                                      EditedDate = tenant.Edited,

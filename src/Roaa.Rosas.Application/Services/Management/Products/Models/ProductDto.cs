@@ -7,6 +7,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
+        public string DefaultHealthCheckUrl { get; set; } = string.Empty;
+        public string HealthStatusChangeUrl { get; set; } = string.Empty;
         public LookupItemDto<Guid> Client { get; set; } = new();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }

@@ -3,7 +3,7 @@ using Roaa.Rosas.Common.Models.Results;
 
 namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataById
 {
-    public record GetTenantMetadataByIdQuery : IRequest<Result<Dictionary<string, string>>>
+    public record GetTenantMetadataByIdQuery : IRequest<Result<TenantMetadataModel>>
     {
         public GetTenantMetadataByIdQuery(Guid tenantId, Guid productId)
         {
