@@ -24,10 +24,12 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<Product> Products { get; }
         public DbSet<Tenant> Tenants { get; }
         public DbSet<TenantProcess> TenantProcesses { get; }
+        public DbSet<TenantHealthCheck> TenantHealthChecks { get; }
         public DbSet<ProductTenant> ProductTenants { get; }
         public DbSet<Feature> Features { get; }
         public DbSet<Plan> Plans { get; }
         public DbSet<PlanFeature> PlanFeatures { get; }
+        public DbSet<JobTask> JobTasks { get; }
 
         #endregion
 

@@ -39,7 +39,7 @@ namespace Roaa.Rosas.Application.Tenants.EventHandlers
 
         public async Task Handle(TenantPreActivatingEvent @event, CancellationToken cancellationToken)
         {
-            Expression<Func<Product, string>> selector = x => x.ActivationEndpoint;
+            Expression<Func<Product, string>> selector = x => x.ActivationUrl;
 
             var urlItemResult = await _productService.GetProductEndpointByIdAsync(@event.ProductTenant.ProductId, selector, cancellationToken);
 

@@ -42,7 +42,7 @@ namespace Roaa.Rosas.RequestBroker
             if (requestModel.Data != null)
                 return await SendRequestAsync<TResult, TRequest>(requestModel, httpClient, HttpMethod.Get);
             else
-                return await SendRequestAsync<TResult, TRequest>(requestModel, httpClient.GetAsync);
+                return await SendRequestAsync<TResult, TRequest>(requestModel, "GET", httpClient.GetAsync);
         }
 
         public async Task<RequestResult<TResult>> GetAsync<TResult>(string uri)
@@ -51,28 +51,28 @@ namespace Roaa.Rosas.RequestBroker
 
             HttpClient httpClient = CreateHttpClient(requestModel);
 
-            return await SendRequestAsync<TResult, dynamic>(requestModel, httpClient.GetAsync);
+            return await SendRequestAsync<TResult, dynamic>(requestModel, "GET", httpClient.GetAsync);
         }
 
         public async Task<RequestResult<TResult>> PostAsync<TResult, TRequest>(RequestModel<TRequest> requestModel)
         {
             HttpClient httpClient = CreateHttpClient(requestModel);
 
-            return await SendRequestAsync<TResult, TRequest>(requestModel, httpClient.PostAsync);
+            return await SendRequestAsync<TResult, TRequest>(requestModel, "POST", httpClient.PostAsync);
         }
 
         public async Task<RequestResult<TResult>> PutAsync<TResult, TRequest>(RequestModel<TRequest> requestModel)
         {
             HttpClient httpClient = CreateHttpClient(requestModel);
 
-            return await SendRequestAsync<TResult, TRequest>(requestModel, httpClient.PutAsync);
+            return await SendRequestAsync<TResult, TRequest>(requestModel, "PUT", httpClient.PutAsync);
         }
 
         public async Task<RequestResult<TResult>> DeleteAsync<TResult, TRequest>(RequestModel<TRequest> requestModel)
         {
             HttpClient httpClient = CreateHttpClient(requestModel);
 
-            return await SendRequestAsync<TResult, TRequest>(requestModel, httpClient.DeleteAsync);
+            return await SendRequestAsync<TResult, TRequest>(requestModel, "DELETE", httpClient.DeleteAsync);
         }
 
         public async Task<RequestResult<TResult>> DeleteAsync<TResult>(string uri)
@@ -81,7 +81,7 @@ namespace Roaa.Rosas.RequestBroker
 
             HttpClient httpClient = CreateHttpClient(requestModel);
 
-            return await SendRequestAsync<TResult, dynamic>(requestModel, httpClient.DeleteAsync);
+            return await SendRequestAsync<TResult, dynamic>(requestModel, "DELETE", httpClient.DeleteAsync);
         }
         #endregion
 
@@ -100,7 +100,7 @@ namespace Roaa.Rosas.RequestBroker
 
             var content = new StringContent(JsonData, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
 
-            _logger.LogDebug($"Request Broker - Send HTTP Request - RequestUrl:{uri} jsonBody: {JsonData}");
+            _logger.LogInformation($"{{0}}: Sending HTTP {{1}} request to {{2}}, jsonBody:{{3}}.", "Request Broker", "GET", uri, JsonData);
 
             HttpRequestMessage request = new HttpRequestMessage
             {
@@ -108,14 +108,16 @@ namespace Roaa.Rosas.RequestBroker
                 RequestUri = new Uri(uri),
                 Content = content
             };
+
+            DateTime startTime = DateTime.UtcNow;
             HttpResponseMessage response = await httpClient.SendAsync(request);
 
-            var handledResponse = await HandleResponse<TResult>(response, uri);
+            var handledResponse = await HandleResponse<TResult>(response, uri, startTime);
 
             return handledResponse.Result;
         }
 
-        private async Task<RequestResult<TResult>> SendRequestAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, Func<string, HttpContent, Task<HttpResponseMessage>> doRequestAsync)
+        private async Task<RequestResult<TResult>> SendRequestAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, string methodName, Func<string, HttpContent, Task<HttpResponseMessage>> doRequestAsync)
         {
             string uri = HandleRequestUri(requestModel);
 
@@ -123,25 +125,27 @@ namespace Roaa.Rosas.RequestBroker
 
             var content = new StringContent(JsonData, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
 
-            _logger.LogDebug($"Request Broker - Send HTTP Request - RequestUrl:{uri} jsonBody: {JsonData}");
+            _logger.LogInformation($"{{0}}: Sending HTTP {{1}} request to {{2}}, jsonBody:{{3}}.", "Request Broker", methodName, uri, JsonData);
 
+            DateTime startTime = DateTime.UtcNow;
             HttpResponseMessage response = await doRequestAsync(uri, content);
 
-            var handledResponse = await HandleResponse<TResult>(response, uri);
+            var handledResponse = await HandleResponse<TResult>(response, uri, startTime);
 
             return handledResponse.Result;
         }
 
 
-        private async Task<RequestResult<TResult>> SendRequestAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, Func<string, Task<HttpResponseMessage>> doRequestAsync)
+        private async Task<RequestResult<TResult>> SendRequestAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, string methodName, Func<string, Task<HttpResponseMessage>> doRequestAsync)
         {
             string uri = HandleRequestUri(requestModel);
 
-            _logger.LogDebug($"Request Broker - Send HTTP Request - RequestUrl:{uri}");
+            _logger.LogInformation($"{{0}}: Sending HTTP {{1}} request to {{2}}.", "Request Broker", methodName, uri);
 
+            DateTime startTime = DateTime.UtcNow;
             HttpResponseMessage response = await doRequestAsync(uri);
 
-            var handledResponse = await HandleResponse<TResult>(response, uri);
+            var handledResponse = await HandleResponse<TResult>(response, uri, startTime);
 
             return handledResponse.Result;
         }
@@ -178,18 +182,28 @@ namespace Roaa.Rosas.RequestBroker
             return httpClient;
         }
 
-        private async Task<HandledResponse<TResult>> HandleResponse<TResult>(HttpResponseMessage response, string uri)
+        private async Task<HandledResponse<TResult>> HandleResponse<TResult>(HttpResponseMessage response, string uri, DateTime startTime)
         {
             HandledResponse<TResult> handledResponse = new HandledResponse<TResult>
             {
                 Content = await response.Content.ReadAsStringAsync(),
                 Result = new RequestResult<TResult>()
                 {
+                    DurationInMillisecond = (DateTime.UtcNow - startTime).TotalMilliseconds,
                     StatusCode = response.StatusCode,
                 },
+
             };
 
-            _logger.LogDebug($"Request Broker - Response<< StatusCode: {response.StatusCode} | Method: {response.RequestMessage.Method} | RequestUrl: {uri} | ResponseContent: {handledResponse.Content}. >>");
+            _logger.LogInformation("{0}: HTTP {1} request completed in [{2}] ms with status code [{3}={4}], Url {5} and response content {6}",
+                                                                                                                        "Request Broker",
+                                                                                                                        response.RequestMessage.Method,
+                                                                                                                        handledResponse.Result.DurationInMillisecond,
+                                                                                                                        (int)response.StatusCode,
+                                                                                                                        response.StatusCode.ToString(),
+                                                                                                                        uri,
+                                                                                                                        handledResponse.Content);
+
 
             if (response.IsSuccessStatusCode)
             {
@@ -290,5 +304,7 @@ namespace Roaa.Rosas.RequestBroker
         public RequestResult<T> Result { get; set; }
 
         public string Content { get; set; }
+
+
     }
 }

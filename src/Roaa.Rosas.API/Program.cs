@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Logging;
 using Roaa.Rosas.API.Configurations;
+using Roaa.Rosas.Application.Tenants.BackgroundServices;
 using Roaa.Rosas.Auditing;
 using Roaa.Rosas.Authorization;
 using Roaa.Rosas.Common;
@@ -93,12 +94,14 @@ using (var scope = app.Services.CreateScope())
     var idS4initialiserI = scope.ServiceProvider.GetRequiredService<IdentityServerConfigurationDbInitialiser>();
     var identityInitialiser = scope.ServiceProvider.GetRequiredService<IdentityDbInitialiser>();
     var managementDbInitialiser = scope.ServiceProvider.GetRequiredService<ManagementDbInitialiser>();
+    var backgroundWorkerManager = scope.ServiceProvider.GetRequiredService<BackgroundServiceManager>();
     await identityInitialiser.MigrateAsync();
     await identityInitialiser.SeedAsync();
     await idS4initialiserI.MigrateAsync();
     await idS4initialiserI.SeedAsync();
     await managementDbInitialiser.MigrateAsync();
     await managementDbInitialiser.SeedAsync();
+    await backgroundWorkerManager.PrepareAsync();
 }
 
 app.Run();

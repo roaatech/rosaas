@@ -40,7 +40,7 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantsPaginatedList
                                                          UniqueName = tenant.UniqueName,
                                                          Title = tenant.Title,
                                                          Products = tenant.Products.Select(x => new
-                                                                            LookupItemDto<Guid>(x.ProductId, x.Product.UniqueName)),
+                                                                            LookupItemDto<Guid>(x.ProductId, x.Product.Name)),
                                                          //Status = tenant.Status,
                                                          CreatedDate = tenant.Created,
                                                          EditedDate = tenant.Edited,

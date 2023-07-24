@@ -41,9 +41,9 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
         {
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
         }
-        #endregion
+        #endregion 
 
-        tenant.Metadata = request.Metadata;
+        tenant.Metadata = System.Text.Json.JsonSerializer.Serialize(request.Metadata);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

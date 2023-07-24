@@ -7,7 +7,7 @@ using Roaa.Rosas.Common.Models.Results;
 
 namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataById
 {
-    public class GetTenantMetadataByIdQueryHandler : IRequestHandler<GetTenantMetadataByIdQuery, Result<Dictionary<string, string>>>
+    public class GetTenantMetadataByIdQueryHandler : IRequestHandler<GetTenantMetadataByIdQuery, Result<TenantMetadataModel>>
     {
         #region Props 
         private readonly IRosasDbContext _dbContext;
@@ -28,7 +28,7 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataById
 
 
         #region Handler   
-        public async Task<Result<Dictionary<string, string>>> Handle(GetTenantMetadataByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<TenantMetadataModel>> Handle(GetTenantMetadataByIdQuery request, CancellationToken cancellationToken)
         {
             var metadata = await _dbContext.ProductTenants.AsNoTracking()
                                                  .Include(x => x.Tenant)
@@ -36,8 +36,19 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataById
                                                   .Select(x => x.Metadata)
                                                   .SingleOrDefaultAsync(cancellationToken);
 
-            return Result<Dictionary<string, string>>.Successful(metadata);
+            return Result<TenantMetadataModel>.Successful(new TenantMetadataModel(metadata));
         }
         #endregion
     }
+    public class TenantMetadataModel
+    {
+        public TenantMetadataModel(string metadata)
+        {
+            Metadata = metadata;
+        }
+
+        public string Metadata { get; set; }
+    }
 }
+
+

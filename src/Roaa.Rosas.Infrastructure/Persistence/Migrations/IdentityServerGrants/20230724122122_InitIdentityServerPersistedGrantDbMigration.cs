@@ -42,6 +42,32 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerGrants
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ids4_identity_persisted_user_grants",
+                columns: table => new
+                {
+                    Key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    AuthenticationMethod = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ClientId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IssuedAt = table.Column<DateTime>(type: "datetime", nullable: false),
+                    Expiration = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ConsumedTime = table.Column<DateTime>(type: "datetime", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    MetaData = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ids4_identity_persisted_user_grants", x => x.Key);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "ids4_persisted_grants",
                 columns: table => new
                 {
@@ -66,32 +92,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerGrants
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ids4_persisted_grants", x => x.Key);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "IdS4g_IdentityPersistedUserGrants",
-                columns: table => new
-                {
-                    Key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    UserId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    AuthenticationMethod = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ClientId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    IssuedAt = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Expiration = table.Column<DateTime>(type: "datetime", nullable: false),
-                    ConsumedTime = table.Column<DateTime>(type: "datetime", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    MetaData = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_IdS4g_IdentityPersistedUserGrants", x => x.Key);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -129,10 +129,10 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerGrants
                 name: "ids4_device_codes");
 
             migrationBuilder.DropTable(
-                name: "ids4_persisted_grants");
+                name: "ids4_identity_persisted_user_grants");
 
             migrationBuilder.DropTable(
-                name: "IdS4g_IdentityPersistedUserGrants");
+                name: "ids4_persisted_grants");
         }
     }
 }

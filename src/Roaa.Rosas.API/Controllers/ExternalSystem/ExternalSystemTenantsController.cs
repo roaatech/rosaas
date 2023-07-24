@@ -1,12 +1,15 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Tenants.Commands.UpdateTenantMetadata;
 using Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataById;
 using Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusById;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Models.ResponseMessages;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Education.API.Models.Common.Responses;
 using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
@@ -75,7 +78,7 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
 
 
         [HttpPut("{id}/metadata")]
-        public async Task<IActionResult> UpdateTenantMetadataAsync([FromRoute] Guid id, [FromBody] Dictionary<string, string> metadata, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdateTenantMetadataAsync([FromRoute] Guid id, dynamic metadata, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(new UpdateTenantMetadataCommand(id, _identityContextService.GetProductId(), metadata), cancellationToken));
         }
@@ -84,7 +87,15 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         [HttpGet("{id}/metadata")]
         public async Task<IActionResult> GetTenantMetadataAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetTenantMetadataByIdQuery(id, _identityContextService.GetProductId()), cancellationToken));
+            var result = await _mediator.Send(new GetTenantMetadataByIdQuery(id, _identityContextService.GetProductId()), cancellationToken);
+
+            var response = new ResponseItemResult<dynamic>
+            {
+                Metadata = new ResponseMetadata(),
+                Data = JsonConvert.DeserializeObject<dynamic>(result.Data.Metadata),
+            };
+
+            return Content(JsonConvert.SerializeObject(response), "application/json");
         }
         #endregion
     }

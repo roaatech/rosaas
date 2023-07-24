@@ -4,7 +4,7 @@ using Roaa.Rosas.Common.Models.Results;
 namespace Roaa.Rosas.Application.Tenants.Commands.UpdateTenantMetadata;
 public record UpdateTenantMetadataCommand : IRequest<Result>
 {
-    public UpdateTenantMetadataCommand(Guid tenantId, Guid productId, Dictionary<string, string> metadata)
+    public UpdateTenantMetadataCommand(Guid tenantId, Guid productId, dynamic metadata)
     {
         TenantId = tenantId;
         ProductId = productId;
@@ -14,5 +14,5 @@ public record UpdateTenantMetadataCommand : IRequest<Result>
 
     public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }
-    public Dictionary<string, string> Metadata { get; set; } = new();
+    public dynamic Metadata { get; set; }
 }

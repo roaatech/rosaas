@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Application.Tenants.Service.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
@@ -77,6 +78,10 @@ namespace Roaa.Rosas.Application.Tenants.Service
                     tenant.EditedByUserId = model.EditorBy;
                     tenant.Edited = DateTime.UtcNow;
 
+                    if (nextProcess.CurrentStatus == Domain.Enums.TenantStatus.Active)
+                    {
+                        tenant.AddDomainEvent(new ActiveTenantStatusUpdated(tenant));
+                    }
 
                     var process = new TenantProcess
                     {
