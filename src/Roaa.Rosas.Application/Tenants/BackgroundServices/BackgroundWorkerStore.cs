@@ -88,7 +88,7 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
                 if (task.Type == JobTaskType.Available)
                 {
 
-                    var removedTask = availableTenantsTasks.Where(x => x.TenantId == task.TenantId && x.ProductId == task.ProductId).SingleOrDefault();
+                    var removedTask = availableTenantsTasks.Where(x => x.TenantId == task.TenantId && x.ProductId == task.ProductId && x.Type == JobTaskType.Available).SingleOrDefault();
 
                     if (removedTask is not null)
                     {
