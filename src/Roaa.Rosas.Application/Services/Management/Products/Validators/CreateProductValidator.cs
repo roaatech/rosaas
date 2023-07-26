@@ -17,12 +17,12 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Validators
 
             // RuleFor(x => x.DefaultHealthCheckUrl).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
-            RuleFor(x => x.DefaultHealthCheckUrl).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
-            RuleFor(x => x.HealthStatusChangeUrl).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
-            RuleFor(x => x.CreationEndpoint).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
-            RuleFor(x => x.ActivationEndpoint).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
-            RuleFor(x => x.DeactivationEndpoint).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
-            RuleFor(x => x.DeletionEndpoint).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            //RuleFor(x => x.DefaultHealthCheckUrl).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            //RuleFor(x => x.HealthStatusChangeUrl).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            //RuleFor(x => x.CreationEndpoint).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            //RuleFor(x => x.ActivationEndpoint).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            //RuleFor(x => x.DeactivationEndpoint).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            //RuleFor(x => x.DeletionEndpoint).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
         }
         public bool ValidateUri(string uri)
         {
