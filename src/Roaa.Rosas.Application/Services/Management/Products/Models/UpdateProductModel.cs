@@ -2,7 +2,6 @@
 {
     public record UpdateProductModel
     {
-        public string Url { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string DefaultHealthCheckUrl { get; set; } = string.Empty;
         public string HealthStatusChangeUrl { get; set; } = string.Empty;

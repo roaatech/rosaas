@@ -74,7 +74,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           .Select(product => new ProductListItemDto
                                           {
                                               Id = product.Id,
-                                              Url = product.DefaultHealthCheckUrl,
+                                              DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               Name = product.Name,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.UniqueName),
                                               CreatedDate = product.Created,
@@ -175,10 +175,10 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await EnsureUniqueUrlAsync(model.Url, id, cancellationToken))
-            {
-                return Result.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.Url));
-            }
+            //if (!await EnsureUniqueUrlAsync(model.Url, id, cancellationToken))
+            //{
+            //    return Result.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.Url));
+            //}
             #endregion
 
 
