@@ -120,11 +120,15 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         var processes = BuildTenantProcessEntities(tenant.Id, request.ProductsIds, initialProcess);
 
+        var healthStatuses = BuildProductTenantHealthStatusEntities(tenant.Products);
+
         tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Products.First().Status));
 
         _dbContext.Tenants.Add(tenant);
 
         _dbContext.TenantProcesses.AddRange(processes);
+
+        _dbContext.ProductTenantHealthStatuses.AddRange(healthStatuses);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -158,6 +162,19 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             }).ToList(),
         };
     }
+    private IEnumerable<ProductTenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<ProductTenant> Products)
+    {
+        return Products.Select(item => new ProductTenantHealthStatus
+        {
+            Id = item.Id,
+            TenantId = item.TenantId,
+            ProductId = item.ProductId,
+            LastCheckDate = item.Edited,
+            CheckDate = item.Edited,
+            IsHealthy = false,
+        });
+    }
+
     private IEnumerable<TenantProcess> BuildTenantProcessEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
     {
 
