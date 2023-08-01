@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
@@ -9,6 +10,9 @@ using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
+
+
+
 
 namespace Roaa.Rosas.Application.Tenants.BackgroundServices.Workers.abstruct
 {
@@ -41,10 +45,12 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices.Workers.abstruct
 
         protected async Task AddTenantAvailabilityHistoryAsync(JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable, CancellationToken stoppingToken)
         {
+            var date = DateTime.UtcNow;
             var entity = new TenantHealthCheck
             {
                 Id = Guid.NewGuid(),
-                Created = DateTime.UtcNow,
+                TimeStamp = date,
+                Created = date,
                 TenantId = jobTask.TenantId,
                 ProductId = jobTask.ProductId,
                 IsHealthy = isAvailable,
@@ -55,14 +61,50 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices.Workers.abstruct
             _dbContext.TenantHealthChecks.Add(entity);
 
             await _dbContext.SaveChangesAsync();
+
+
+
+
+
+            Type dss = this.GetType();
+            string checkDateUpdatingQuery = "";
+            ProductTenantHealthStatus hs = null;
+            List<object> paramItems = new List<object>
+                            {
+                                new MySqlParameter($"@{nameof(hs.HealthCheckUrl)}", healthCheckUrl),
+                                new MySqlParameter($"@{nameof(hs.IsHealthy)}", isAvailable),
+                                new MySqlParameter($"@{nameof(hs.LastCheckDate)}",  date),
+                                new MySqlParameter($"@{nameof(hs.TenantId)}", jobTask.TenantId),
+                                new MySqlParameter($"@{nameof(hs.ProductId)}", jobTask.ProductId),
+                            };
+
+            if (this.GetType() == typeof(AvailableTenantChecker) && !isAvailable)
+            {
+                paramItems.Add(new MySqlParameter($"@{nameof(hs.CheckDate)}", date));
+
+                checkDateUpdatingQuery = $"{nameof(hs.CheckDate)} = @{nameof(hs.CheckDate)} ,";
+            }
+
+            var commandText = @$"UPDATE {_backgroundWorkerStore.ProductTenantHealthStatusTableName} 
+                                        SET     {checkDateUpdatingQuery}
+                                                {nameof(hs.HealthCheckUrl)} = @{nameof(hs.HealthCheckUrl)} , 
+                                                {nameof(hs.IsHealthy)} = @{nameof(hs.IsHealthy)} ,  
+                                                {nameof(hs.LastCheckDate)} = @{nameof(hs.LastCheckDate)}
+                                        WHERE   {nameof(hs.TenantId)} =  @{nameof(hs.TenantId)}  
+                                        AND     {nameof(hs.ProductId)} =  @{nameof(hs.ProductId)}
+                                 ";
+
+            var res = await _dbContext.Database.ExecuteSqlRawAsync(commandText, paramItems, stoppingToken);
         }
 
         protected TenantHealthCheck AddTenantAvailabilityToDbContext(JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable)
         {
+            var date = DateTime.UtcNow;
             var entity = new TenantHealthCheck
             {
                 Id = Guid.NewGuid(),
-                Created = DateTime.UtcNow,
+                TimeStamp = date,
+                Created = date,
                 TenantId = jobTask.TenantId,
                 ProductId = jobTask.ProductId,
                 IsHealthy = isAvailable,

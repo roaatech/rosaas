@@ -5,6 +5,7 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
 {
     public class BackgroundWorkerStore
     {
+        public string ProductTenantHealthStatusTableName { get; set; } = string.Empty;
         public BlockingCollection<JobTask> AvailableTenantsTasks { get; private set; } = new BlockingCollection<JobTask>();
         public BlockingCollection<JobTask> UnavailableTenantsTasks { get; private set; } = new BlockingCollection<JobTask>();
         public BlockingCollection<JobTask> InaccessibleTenantsTasks { get; private set; } = new BlockingCollection<JobTask>();

@@ -112,6 +112,12 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
               nameof(Informer));
 
             informerTasks.ForEach(task => _store.AddInformerTask(task));
+
+
+
+            var entityType = dbContext.Model.FindEntityType(typeof(ProductTenantHealthStatus));
+            var schema = entityType.GetSchema();
+            _store.ProductTenantHealthStatusTableName = entityType.GetTableName();
         }
     }
 }

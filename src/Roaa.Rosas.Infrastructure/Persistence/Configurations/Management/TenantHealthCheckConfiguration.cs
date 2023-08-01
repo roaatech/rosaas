@@ -4,25 +4,24 @@ using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
 {
-    public class TenantProcessConfiguration : IEntityTypeConfiguration<TenantProcess>
+    public class TenantHealthCheckConfiguration : IEntityTypeConfiguration<TenantHealthCheck>
     {
         #region Configure 
-        public void Configure(EntityTypeBuilder<TenantProcess> builder)
+        public void Configure(EntityTypeBuilder<TenantHealthCheck> builder)
         {
-            builder.ToTableName("RosasTenantProcesses");
+            builder.ToTableName("RosasTenantHealthChecks");
             builder.HasKey(x => x.Id);
             builder.Property(r => r.TenantId).IsRequired();
             builder.Property(r => r.ProductId).IsRequired();
-            builder.Property(r => r.Status).IsRequired();
-            builder.Property(r => r.PreviousStatus).IsRequired();
-            builder.Property(r => r.OwnerId).IsRequired();
-            builder.Property(r => r.OwnerType).IsRequired();
+            builder.Property(r => r.Duration).IsRequired();
+            builder.Property(r => r.IsHealthy).IsRequired();
+            builder.Property(r => r.TimeStamp).IsRequired();
             builder.Property(r => r.Created).IsRequired();
-            builder.Property(r => r.Created).HasConversion(
+            builder.Property(r => r.HealthCheckUrl).IsRequired().HasMaxLength(250);
+            builder.Property(r => r.TimeStamp).HasConversion(
                 v => v.Ticks,
                 v => new DateTime(v)
             );
-            builder.Property(r => r.Message).IsRequired();
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

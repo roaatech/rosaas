@@ -51,6 +51,13 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantById
                                                          Metadata = x.Metadata,
                                                          HealthCheckUrl = x.HealthCheckUrl,
                                                          HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
+                                                         HealthCheckStatus = new ProductTenantHealthStatusDto
+                                                         {
+                                                             HealthCheckUrl = x.HealthCheckStatus.HealthCheckUrl,
+                                                             IsHealthy = x.HealthCheckStatus.IsHealthy,
+                                                             LastCheckDate = x.HealthCheckStatus.LastCheckDate,
+                                                             CheckDate = x.HealthCheckStatus.CheckDate,
+                                                         }
                                                      }),
                                                      //Status = tenant.Status,
                                                      CreatedDate = tenant.Created,

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Roaa.Rosas.Domain.Common;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -26,6 +27,7 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<TenantProcess> TenantProcesses { get; }
         public DbSet<TenantHealthCheck> TenantHealthChecks { get; }
         public DbSet<ProductTenant> ProductTenants { get; }
+        public DbSet<ProductTenantHealthStatus> ProductTenantHealthStatuses { get; }
         public DbSet<Feature> Features { get; }
         public DbSet<Plan> Plans { get; }
         public DbSet<PlanFeature> PlanFeatures { get; }
@@ -34,6 +36,8 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         #endregion
 
         public DatabaseFacade Database { get; }
+
+        public IModel Model { get; }
 
         public EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
 
