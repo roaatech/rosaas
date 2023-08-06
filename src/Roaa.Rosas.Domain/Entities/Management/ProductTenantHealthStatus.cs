@@ -10,6 +10,8 @@
 
         public string HealthCheckUrl { get; set; } = string.Empty;
 
+        public int Duration { get; set; }
+
         public DateTime LastCheckDate { get; set; }
 
         public DateTime CheckDate { get; set; }

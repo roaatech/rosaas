@@ -1,9 +1,10 @@
-﻿using Roaa.Rosas.Domain.Entities.Management;
+﻿using Roaa.Rosas.Application.Tenants.HealthCheckStatus.Settings;
+using Roaa.Rosas.Domain.Entities.Management;
 using System.Collections.Concurrent;
 
 namespace Roaa.Rosas.Application.Tenants.BackgroundServices
 {
-    public class BackgroundWorkerStore
+    public class BackgroundServicesStore
     {
         public string ProductTenantHealthStatusTableName { get; set; } = string.Empty;
         public BlockingCollection<JobTask> AvailableTenantsTasks { get; private set; } = new BlockingCollection<JobTask>();
@@ -11,6 +12,7 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
         public BlockingCollection<JobTask> InaccessibleTenantsTasks { get; private set; } = new BlockingCollection<JobTask>();
         public BlockingCollection<JobTask> InformerTasks { get; private set; } = new BlockingCollection<JobTask>();
         public List<TenantHealthCheckUrlModel> TenanstHealthCheckUrls { get; private set; } = new();
+        public HealthCheckSettings Settings { get; private set; } = new();
 
 
 
@@ -26,7 +28,10 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
         private List<JobTask> informerTasks = new List<JobTask>();
 
 
-
+        public void SetHealthCheckSettings(HealthCheckSettings settings)
+        {
+            Settings = settings;
+        }
 
         public void RefillAvailableTenantTask()
         {

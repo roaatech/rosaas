@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 
@@ -10,9 +11,11 @@ using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 {
     [DbContext(typeof(RosasDbContext))]
-    partial class RosasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230805202443_AddSettingsMigration")]
+    partial class AddSettingsMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -337,44 +340,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.ToTable("rosas_clients", (string)null);
                 });
 
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.ExternalSystemDispatch", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("DispatchDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<int>("Duration")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsSuccessful")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<long>("TimeStamp")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("rosas_external_system_dispatches", (string)null);
-                });
-
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Feature", b =>
                 {
                     b.Property<Guid>("Id")
@@ -635,9 +600,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<DateTime>("CheckDate")
                         .HasColumnType("datetime");
-
-                    b.Property<int>("Duration")
-                        .HasColumnType("int");
 
                     b.Property<string>("HealthCheckUrl")
                         .IsRequired()

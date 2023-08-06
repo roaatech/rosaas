@@ -3,18 +3,19 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants;
+using Roaa.Rosas.Application.Tenants.BackgroundServices;
 using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Tenants.BackgroundServices.Workers
+namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Handlers
 {
     public class ActiveTenantStatusUpdatedHandler : IInternalDomainEventHandler<ActiveTenantStatusUpdated>
     {
         private readonly ILogger<ActiveTenantStatusUpdatedHandler> _logger;
-        private readonly BackgroundWorkerStore _backgroundWorkerStore;
+        private readonly BackgroundServicesStore _backgroundWorkerStore;
         private readonly IRosasDbContext _dbContext;
 
         public ActiveTenantStatusUpdatedHandler(ILogger<ActiveTenantStatusUpdatedHandler> logger,
-                                                         BackgroundWorkerStore backgroundWorkerStore,
+                                                         BackgroundServicesStore backgroundWorkerStore,
                                                          IRosasDbContext dbContext)
         {
             _logger = logger;

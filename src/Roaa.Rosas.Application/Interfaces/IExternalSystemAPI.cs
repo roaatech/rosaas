@@ -17,6 +17,7 @@ namespace Roaa.Rosas.Application.Interfaces
     public class ExternalSystemResultModel<T>
     {
         public double DurationInMillisecond { get; set; }
+        public string Url { get; set; } = string.Empty;
     }
 
 }

@@ -28,6 +28,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     private readonly IExternalSystemAPI _externalSystemAPI;
     private readonly IIdentityContextService _identityContextService;
     private readonly ILogger<CreateTenantCommandHandler> _logger;
+    private readonly DateTime _date = DateTime.UtcNow;
     #endregion
 
     #region Corts
@@ -136,7 +137,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     }
     private Tenant BuildTenantEntity(CreateTenantCommand model, List<ProductUrlListItem> defaultHealthCheckUrlOfProducts, Process initialProcess)
     {
-        var date = DateTime.UtcNow;
+
 
         var id = Guid.NewGuid();
 
@@ -147,8 +148,8 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             Title = model.Title,
             CreatedByUserId = _identityContextService.GetActorId(),
             EditedByUserId = _identityContextService.GetActorId(),
-            Created = date,
-            Edited = date,
+            Created = _date,
+            Edited = _date,
             Products = defaultHealthCheckUrlOfProducts.Select(productUrl => new ProductTenant
             {
                 Id = Guid.NewGuid(),
@@ -156,7 +157,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 ProductId = productUrl.Id,
                 Status = initialProcess.NextStatus,
                 EditedByUserId = _identityContextService.GetActorId(),
-                Edited = date,
+                Edited = _date,
                 HealthCheckUrl = productUrl.Url,
                 HealthCheckUrlIsOverridden = false,
             }).ToList(),
@@ -178,7 +179,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     private IEnumerable<TenantProcess> BuildTenantProcessEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
     {
 
-        var date = DateTime.UtcNow;
 
         return ProductsIds.Select(productId => new TenantProcess
         {
@@ -189,7 +189,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             PreviousStatus = initialProcess.CurrentStatus,
             OwnerId = _identityContextService.GetActorId(),
             OwnerType = _identityContextService.GetUserType(),
-            Created = date,
+            Created = _date,
             Message = initialProcess.Message
         });
     }

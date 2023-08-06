@@ -16,7 +16,6 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public virtual Product? Product { get; set; }
         public virtual ProductTenantHealthStatus? HealthCheckStatus { get; set; }
 
-
     }
 
 }

@@ -6,6 +6,7 @@ using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantById
 {
@@ -42,6 +43,8 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantById
                                                      Id = tenant.Id,
                                                      UniqueName = tenant.UniqueName,
                                                      Title = tenant.Title,
+                                                     CreatedDate = tenant.Created,
+                                                     EditedDate = tenant.Edited,
                                                      Products = tenant.Products.Select(x => new ProductTenantDto
                                                      {
                                                          Id = x.ProductId,
@@ -57,23 +60,63 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantById
                                                              IsHealthy = x.HealthCheckStatus.IsHealthy,
                                                              LastCheckDate = x.HealthCheckStatus.LastCheckDate,
                                                              CheckDate = x.HealthCheckStatus.CheckDate,
+                                                             Duration = x.HealthCheckStatus.Duration,
                                                          }
                                                      }),
-                                                     //Status = tenant.Status,
-                                                     CreatedDate = tenant.Created,
-                                                     EditedDate = tenant.Edited,
                                                  })
                                                  .SingleOrDefaultAsync(cancellationToken);
             if (tenant is not null)
             {
-                foreach (var item in tenant.Products)
+                foreach (var product in tenant.Products)
                 {
-                    var flows = await _workflow.GetProcessActionsAsync(item.Status, _identityContextService.GetUserType());
-                    item.Actions = flows.ToActionsResults();
+                    // Set Actions
+                    var flows = await _workflow.GetProcessActionsAsync(product.Status, _identityContextService.GetUserType());
+                    product.Actions = flows.ToActionsResults();
+
+                    // Set ShowHealthStatus
+                    product.HealthCheckStatus.ShowHealthStatus = IsMustShowHealthStatus(product.HealthCheckStatus, product.Status, tenant.CreatedDate);
+
+                    // Try retrieve last External System Dispatch if existed
+                    product.HealthCheckStatus.ExternalSystemDispatch = await TryGetExternalSystemDispatchesAsync(product.Id, tenant.Id, cancellationToken);
                 }
             }
 
             return Result<TenantDto>.Successful(tenant);
+        }
+
+        private async Task<ExternalSystemDispatchDto?> TryGetExternalSystemDispatchesAsync(Guid productId, Guid tenantId, CancellationToken stoppingToken)
+        {
+            return await _dbContext.ExternalSystemDispatches
+                                               .AsNoTracking()
+                                               .Where(x => x.ProductId == productId && x.TenantId == tenantId)
+                                               .OrderByDescending(x => x.TimeStamp)
+                                               .Select(x => new ExternalSystemDispatchDto
+                                               {
+                                                   IsSuccessful = x.IsSuccessful,
+                                                   DispatchDate = x.DispatchDate,
+                                                   Url = x.Url,
+                                                   Notes = x.Notes,
+                                                   Duration = x.Duration,
+                                               })
+                                               .FirstOrDefaultAsync(stoppingToken);
+        }
+
+        private bool IsMustShowHealthStatus(ProductTenantHealthStatusDto healthCheckStatus, TenantStatus tenantStatus, DateTime tenantCreatedDate)
+        {
+            if (tenantStatus != TenantStatus.Active && tenantStatus != TenantStatus.CreatedAsActive)
+            {
+                return false;
+            }
+
+            healthCheckStatus.ShowHealthStatus = true;
+            if (!healthCheckStatus.IsHealthy &&
+            healthCheckStatus.CheckDate == tenantCreatedDate &&
+                healthCheckStatus.LastCheckDate == tenantCreatedDate)
+            {
+                healthCheckStatus.ShowHealthStatus = false;
+            }
+
+            return healthCheckStatus.ShowHealthStatus;
         }
         #endregion
     }
