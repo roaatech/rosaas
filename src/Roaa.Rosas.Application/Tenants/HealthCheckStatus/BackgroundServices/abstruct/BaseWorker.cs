@@ -61,7 +61,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices.ab
 
             var requestResult = await _tenantHealthCheckService.CheckTenantHealthStatusAsync(jobTask, healthCheckUrl, stoppingToken);
 
-            Log($"##founds the tenan is {{0}} [TenantId:{{1}}], [ProductId:{{2}}]",
+            Log($"##founds the tenant is {{0}} [TenantId:{{1}}], [ProductId:{{2}}]",
                requestResult.Success ? "Available" : "Unavailable",
                jobTask.TenantId,
                jobTask.ProductId);
