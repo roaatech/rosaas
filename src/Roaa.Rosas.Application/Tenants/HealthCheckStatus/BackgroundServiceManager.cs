@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Tenants.BackgroundServices.Workers;
+using Roaa.Rosas.Application.Services.Management.Settings;
+using Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices;
+using Roaa.Rosas.Application.Tenants.HealthCheckStatus.Settings;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 
@@ -12,26 +13,27 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
     public class BackgroundServiceManager
     {
         private readonly ILogger<BackgroundServiceManager> _logger;
-        private readonly BackgroundWorkerStore _store;
-        protected readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly BackgroundServicesStore _store;
+        protected readonly IRosasDbContext _dbContext;
+        protected readonly ISettingService _settingService;
 
 
         public BackgroundServiceManager(ILogger<BackgroundServiceManager> logger,
-                                 BackgroundWorkerStore store,
-                                 IServiceScopeFactory serviceScopeFactory)
+                                 BackgroundServicesStore store,
+                                  IRosasDbContext dbContext,
+                                  ISettingService settingService)
         {
             _logger = logger;
             _store = store;
-            _serviceScopeFactory = serviceScopeFactory;
+            _dbContext = dbContext;
+            _settingService = settingService;
         }
 
 
         public async Task PrepareAsync()
         {
-            using var scope = _serviceScopeFactory.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<IRosasDbContext>();
 
-            var activeTenants = await dbContext
+            var activeTenants = await _dbContext
                                     .ProductTenants
                                     .Where(x => x.Status == TenantStatus.Active ||
                                                 x.Status == TenantStatus.CreatedAsActive)
@@ -39,7 +41,7 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
                                     .Select(x => new { x.ProductId, x.TenantId })
                                     .ToListAsync();
 
-            var tasks = await dbContext
+            var tasks = await _dbContext
                                      .JobTasks
                                      .OrderBy(x => x.Created)
                                      .ToListAsync();
@@ -115,9 +117,13 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
 
 
 
-            var entityType = dbContext.Model.FindEntityType(typeof(ProductTenantHealthStatus));
+            var entityType = _dbContext.Model.FindEntityType(typeof(ProductTenantHealthStatus));
             var schema = entityType.GetSchema();
             _store.ProductTenantHealthStatusTableName = entityType.GetTableName();
+
+
+
+            _store.SetHealthCheckSettings((await _settingService.LoadSettingAsync<HealthCheckSettings>()).Data);
         }
     }
 }

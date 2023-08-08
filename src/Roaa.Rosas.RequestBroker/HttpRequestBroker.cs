@@ -35,7 +35,7 @@ namespace Roaa.Rosas.RequestBroker
 
 
         #region Requests
-        public async Task<RequestResult<TResult>> GetAsync<TResult, TRequest>(RequestModel<TRequest> requestModel)
+        public async Task<RequestResult<TResult>> GetAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, CancellationToken cancellationToken = default)
         {
             HttpClient httpClient = CreateHttpClient(requestModel);
 
@@ -45,7 +45,7 @@ namespace Roaa.Rosas.RequestBroker
                 return await SendRequestAsync<TResult, TRequest>(requestModel, "GET", httpClient.GetAsync);
         }
 
-        public async Task<RequestResult<TResult>> GetAsync<TResult>(string uri)
+        public async Task<RequestResult<TResult>> GetAsync<TResult>(string uri, CancellationToken cancellationToken = default)
         {
             RequestModel<dynamic> requestModel = new RequestModel<dynamic>(uri);
 
@@ -54,28 +54,28 @@ namespace Roaa.Rosas.RequestBroker
             return await SendRequestAsync<TResult, dynamic>(requestModel, "GET", httpClient.GetAsync);
         }
 
-        public async Task<RequestResult<TResult>> PostAsync<TResult, TRequest>(RequestModel<TRequest> requestModel)
+        public async Task<RequestResult<TResult>> PostAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, CancellationToken cancellationToken = default)
         {
             HttpClient httpClient = CreateHttpClient(requestModel);
 
             return await SendRequestAsync<TResult, TRequest>(requestModel, "POST", httpClient.PostAsync);
         }
 
-        public async Task<RequestResult<TResult>> PutAsync<TResult, TRequest>(RequestModel<TRequest> requestModel)
+        public async Task<RequestResult<TResult>> PutAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, CancellationToken cancellationToken = default)
         {
             HttpClient httpClient = CreateHttpClient(requestModel);
 
             return await SendRequestAsync<TResult, TRequest>(requestModel, "PUT", httpClient.PutAsync);
         }
 
-        public async Task<RequestResult<TResult>> DeleteAsync<TResult, TRequest>(RequestModel<TRequest> requestModel)
+        public async Task<RequestResult<TResult>> DeleteAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, CancellationToken cancellationToken = default)
         {
             HttpClient httpClient = CreateHttpClient(requestModel);
 
             return await SendRequestAsync<TResult, TRequest>(requestModel, "DELETE", httpClient.DeleteAsync);
         }
 
-        public async Task<RequestResult<TResult>> DeleteAsync<TResult>(string uri)
+        public async Task<RequestResult<TResult>> DeleteAsync<TResult>(string uri, CancellationToken cancellationToken = default)
         {
             RequestModel<dynamic> requestModel = new RequestModel<dynamic>(uri);
 

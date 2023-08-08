@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces;
+using Roaa.Rosas.Common.Models.ResponseMessages;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
 using Roaa.Rosas.RequestBroker;
@@ -28,9 +28,9 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         {
             var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
-            var result = await _requestBroker.PostAsync<ExternalSystemResultModel<dynamic>, CreateTenantModel>(request);
+            var result = await _requestBroker.PostAsync<dynamic, CreateTenantModel>(request, cancellationToken);
 
-            return result.GetResult();
+            return RetrieveResult(result, request.Uri);
         }
 
 
@@ -38,9 +38,9 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         {
             var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
-            var result = await _requestBroker.PutAsync<ExternalSystemResultModel<dynamic>, ActivateTenantModel>(request);
+            var result = await _requestBroker.PutAsync<dynamic, ActivateTenantModel>(request, cancellationToken);
 
-            return result.GetResult();
+            return RetrieveResult(result, request.Uri);
         }
 
 
@@ -48,9 +48,9 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         {
             var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
-            var result = await _requestBroker.PutAsync<ExternalSystemResultModel<dynamic>, DeactivateTenantModel>(request);
+            var result = await _requestBroker.PutAsync<dynamic, DeactivateTenantModel>(request, cancellationToken);
 
-            return result.GetResult();
+            return RetrieveResult(result, request.Uri);
         }
 
 
@@ -58,9 +58,9 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         {
             var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
-            var result = await _requestBroker.DeleteAsync<ExternalSystemResultModel<dynamic>, DeleteTenantModel>(request);
+            var result = await _requestBroker.DeleteAsync<dynamic, DeleteTenantModel>(request, cancellationToken);
 
-            return result.GetResult();
+            return RetrieveResult(result, request.Uri);
         }
 
 
@@ -69,18 +69,18 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         {
             var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
-            var result = await _requestBroker.PostAsync<ExternalSystemResultModel<dynamic>, InformTenantAvailabilityModel>(request);
+            var result = await _requestBroker.PostAsync<dynamic, InformTenantAvailabilityModel>(request, cancellationToken);
 
-            return result.GetResult();
+            return RetrieveResult(result, request.Uri);
         }
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(ExternalSystemRequestModel<CheckTenantAvailabilityModel> model, CancellationToken cancellationToken = default)
         {
             var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
-            var result = await _requestBroker.GetAsync<ExternalSystemResultModel<dynamic>, CheckTenantAvailabilityModel>(request);
+            var result = await _requestBroker.GetAsync<dynamic, CheckTenantAvailabilityModel>(request, cancellationToken);
 
-            return result.GetResult();
+            return RetrieveResult(result, request.Uri);
         }
 
 
@@ -105,6 +105,25 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         private void LogInformation(Guid tenantId, string uri)
         {
             _logger.LogInformation($"{{0}}: sent a request to call the external system API   (Url:{uri}) , with the tenant TenantId({tenantId}).", "ExternalSystemAPI");
+        }
+
+        private Result<ExternalSystemResultModel<T>> RetrieveResult<T>(RequestResult<T> requestResult, string url)
+        {
+            var data = new ExternalSystemResultModel<T>
+            {
+                DurationInMillisecond = requestResult.DurationInMillisecond,
+                Url = url,
+            };
+            return Result<ExternalSystemResultModel<T>>.Successful(data);
+
+            if (requestResult.Success)
+            {
+                Result<ExternalSystemResultModel<T>>.Successful(data);
+            }
+
+            var errors = requestResult.Errors.Select(x => x.Value.Select(val => MessageDetail.Error(val, x.Key))).SelectMany(x => x).ToList();
+
+            Result<ExternalSystemResultModel<T>>.Fail(errors);
         }
 
     }

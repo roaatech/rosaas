@@ -1,5 +1,5 @@
 ﻿using Roaa.Rosas.Application.Tenants.BackgroundServices;
-using Roaa.Rosas.Application.Tenants.BackgroundServices.Workers;
+using Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices;
 using Roaa.Rosas.Domain.Models.Options;
 
 namespace Roaa.Rosas.Framework.Configurations
@@ -11,8 +11,11 @@ namespace Roaa.Rosas.Framework.Configurations
                                                            IWebHostEnvironment environment,
                                                            RootOptions rootOptions)
         {
-            services.AddSingleton<BackgroundWorkerStore>();
-            services.AddSingleton<BackgroundServiceManager>();
+            services.AddSingleton<IAvailableTenantChecker, AvailableTenantChecker>();
+            services.AddSingleton<IInaccessibleTenantChecker, InaccessibleTenantChecker>();
+            services.AddSingleton<IUnavailableTenantChecker, UnavailableTenantChecker>();
+            services.AddSingleton<BackgroundServicesStore>();
+            services.AddScoped<BackgroundServiceManager>();
 
             services.AddHostedService<InaccessibleTenantChecker>();
             services.AddHostedService<AvailableTenantChecker>();

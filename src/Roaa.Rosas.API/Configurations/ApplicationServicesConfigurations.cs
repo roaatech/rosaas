@@ -9,6 +9,9 @@ using Roaa.Rosas.Application.Services.Management.Features;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures;
 using Roaa.Rosas.Application.Services.Management.Plans;
 using Roaa.Rosas.Application.Services.Management.Products;
+using Roaa.Rosas.Application.Services.Management.Settings;
+using Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services;
+using Roaa.Rosas.Application.Tenants.HealthCheckStatus.Settings;
 using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Domain.Models.Options;
 using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
@@ -58,6 +61,9 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<IFeatureService, FeatureService>();
             services.AddScoped<IPlanService, PlanService>();
             services.AddScoped<IPlanFeatureService, PlanFeatureService>();
+            services.AddScoped<ISettingService, SettingService>();
+            services.AddScoped<ITenantHealthCheckService, TenantHealthCheckService>();
+            services.AddScoped<ITenantHealthCheckSettingsService, TenantHealthCheckSettingsService>();
 
             services.AddMediatRAServices();
 

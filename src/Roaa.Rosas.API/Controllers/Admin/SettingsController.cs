@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Roaa.Rosas.Application.Tenants.HealthCheckStatus.Settings;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
@@ -11,26 +12,30 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         private readonly ILogger<SettingsController> _logger;
         private readonly IIdentityContextService _identityContextService;
         private readonly IWebHostEnvironment _environment;
+        private readonly ITenantHealthCheckSettingsService _settingService;
 
         #endregion
 
         #region Corts
         public SettingsController(ILogger<SettingsController> logger,
                                 IWebHostEnvironment environment,
-                                IIdentityContextService identityContextService)
+                                IIdentityContextService identityContextService,
+                                 ITenantHealthCheckSettingsService settingService)
         {
             _logger = logger;
             _environment = environment;
             _identityContextService = identityContextService;
+            _settingService = settingService;
         }
         #endregion
 
         #region Actions   
 
+
         [HttpGet("HealthCheck")]
         public async Task<IActionResult> GetHealthCheckSettingsAsync(CancellationToken cancellationToken = default)
         {
-            return ItemResult(HealthCheckSettings.Settings);
+            return Ok(await _settingService.GetTenantHealthCheckSettingsAsync(cancellationToken));
         }
 
 
@@ -40,22 +45,14 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpPut("HealthCheck")]
         public async Task<IActionResult> UpdateHealthCheckSettingsAsync([FromBody] HealthCheckSettings model, CancellationToken cancellationToken = default)
         {
-            HealthCheckSettings.Settings = model;
+            await _settingService.UpdateTenantHealthCheckSettingsAsync(model, cancellationToken);
+
             return EmptyResult();
         }
-
         #endregion
 
 
     }
 
-    public class HealthCheckSettings
-    {
-        public int AvailableCheckTimePeriod { get; set; }
-        public int InaccessibleCheckTimePeriod { get; set; }
-        public int UnavailableCheckTimePeriod { get; set; }
-        public int TimesNumberBeforeInformExternalSys { get; set; }
 
-        public static HealthCheckSettings Settings = new HealthCheckSettings();
-    }
 }

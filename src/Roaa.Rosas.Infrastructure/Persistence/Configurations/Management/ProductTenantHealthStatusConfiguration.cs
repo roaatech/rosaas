@@ -17,6 +17,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.HealthCheckUrl).IsRequired().HasMaxLength(250);
             builder.Property(r => r.LastCheckDate).IsRequired();
             builder.Property(r => r.CheckDate).IsRequired();
+            builder.Property(r => r.Duration).IsRequired();
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

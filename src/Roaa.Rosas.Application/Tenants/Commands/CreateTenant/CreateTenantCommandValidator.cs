@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Roaa.Rosas.Application.Tenants.Service.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.SystemMessages;
