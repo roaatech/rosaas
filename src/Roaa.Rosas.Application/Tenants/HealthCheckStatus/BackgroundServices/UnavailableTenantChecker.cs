@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices
                                   BackgroundServicesStore backgroundWorkerStore)
             : base(logger, serviceScopeFactory, backgroundWorkerStore)
         {
-            _period = TimeSpan.FromMinutes(backgroundWorkerStore.Settings.UnavailableCheckTimePeriod);
+            SetPeriod();
         }
 
 
@@ -93,10 +93,17 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices
 
             if (IsPeriodUpdated(timePeriod))
             {
+                SetPeriod();
+
                 Log("Will be restarted after its time period updated. It's will execute its work every [{0}] seconds", timePeriod);
 
                 await base.StartAsync(token);
             }
+        }
+
+        public void SetPeriod()
+        {
+            _period = TimeSpan.FromMinutes(_backgroundWorkerStore.Settings.UnavailableCheckTimePeriod);
         }
     }
 
