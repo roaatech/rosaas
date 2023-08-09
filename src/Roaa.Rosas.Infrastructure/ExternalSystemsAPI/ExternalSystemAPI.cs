@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
+using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.ResponseMessages;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
@@ -11,14 +14,20 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
     public class ExternalSystemAPI : IExternalSystemAPI
     {
         private readonly ILogger<ExternalSystemAPI> _logger;
+        private readonly IWebHostEnvironment _environment;
         private readonly IRequestBroker _requestBroker;
-
+        private readonly IRosasDbContext _dbContext;
+        private Guid _tenantId = Guid.Empty;
 
 
         public ExternalSystemAPI(IRequestBroker requestBroker,
+                                IWebHostEnvironment environment,
+                                IRosasDbContext dbContext,
                                  ILogger<ExternalSystemAPI> logger)
         {
             _requestBroker = requestBroker;
+            _environment = environment;
+            _dbContext = dbContext;
             _logger = logger;
         }
 
@@ -80,12 +89,13 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
             var result = await _requestBroker.GetAsync<dynamic, CheckTenantAvailabilityModel>(request, cancellationToken);
 
-            return RetrieveResult(result, request.Uri);
+            return RetrieveResult(result, request.Uri, true);
         }
 
 
         public async Task<RequestModel<T>> BuildRequestModelAsync<T>(ExternalSystemRequestModel<T> model, Guid? tenantId, CancellationToken cancellationToken = default)
         {
+            _tenantId = tenantId.Value;
             string id = tenantId.HasValue ? tenantId.Value.ToString() : string.Empty;
             var token = await GenerateTokenAsync(cancellationToken);
             var uri = $"{model.BaseUrl.Replace("{tenantId}", tenantId.ToString())}";
@@ -107,23 +117,37 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
             _logger.LogInformation($"{{0}}: sent a request to call the external system API   (Url:{uri}) , with the tenant TenantId({tenantId}).", "ExternalSystemAPI");
         }
 
-        private Result<ExternalSystemResultModel<T>> RetrieveResult<T>(RequestResult<T> requestResult, string url)
+        private Result<ExternalSystemResultModel<T>> RetrieveResult<T>(RequestResult<T> requestResult, string url, bool isCheckHealthStatus = false)
         {
             var data = new ExternalSystemResultModel<T>
             {
                 DurationInMillisecond = requestResult.DurationInMillisecond,
                 Url = url,
             };
-            return Result<ExternalSystemResultModel<T>>.Successful(data);
+
+            // temp - for test operations
+            if (!_environment.IsProductionEnvironment() && isCheckHealthStatus)
+            {
+
+                if (_dbContext.Tenants.Where(x => x.Id == _tenantId && x.UniqueName.Contains("-x0")).Any())
+                {
+                    var res = Result<ExternalSystemResultModel<T>>.Fail("custom error");
+                    res.WithData(data);
+                    return res;
+                }
+                return Result<ExternalSystemResultModel<T>>.Successful(data);
+            }
 
             if (requestResult.Success)
             {
-                Result<ExternalSystemResultModel<T>>.Successful(data);
+                return Result<ExternalSystemResultModel<T>>.Successful(data);
             }
 
             var errors = requestResult.Errors.Select(x => x.Value.Select(val => MessageDetail.Error(val, x.Key))).SelectMany(x => x).ToList();
 
-            Result<ExternalSystemResultModel<T>>.Fail(errors);
+            var result = Result<ExternalSystemResultModel<T>>.Fail(errors);
+            result.WithData(data);
+            return result;
         }
 
     }

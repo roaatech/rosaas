@@ -82,8 +82,9 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices.ab
 
             var urlItemResult = await productService.GetProductEndpointByIdAsync(jobTask.ProductId, selector, stoppingToken);
 
+            string text = "Unavailable(Down)";
             Log($"##informs the external system that the is {{0}}, [TenantId:{{1}}], [ProductId:{{2}}], [Url:{{3}}]",
-                    "Unavailable(Down)",
+                text,
                 jobTask.TenantId,
                 jobTask.ProductId,
                 urlItemResult.Data);

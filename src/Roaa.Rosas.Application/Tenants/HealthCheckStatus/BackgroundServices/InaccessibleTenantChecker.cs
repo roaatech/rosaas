@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Tenants.BackgroundServices;
 using Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices.abstruct;
 using Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services;
@@ -12,8 +11,8 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices
         protected override TimeSpan _period { get; set; }
 
         public InaccessibleTenantChecker(ILogger<InaccessibleTenantChecker> logger,
-                                  IServiceScopeFactory serviceScopeFactory,
-                                  BackgroundServicesStore backgroundWorkerStore)
+                                          IServiceScopeFactory serviceScopeFactory,
+                                          BackgroundServicesStore backgroundWorkerStore)
             : base(logger, serviceScopeFactory, backgroundWorkerStore)
         {
             SetPeriod();
@@ -23,7 +22,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices
         {
             Log("Started. It's will execute its work every [{0}] seconds", _period.TotalSeconds);
 
-            using PeriodicTimer timer = new PeriodicTimer(_period);
+            using PeriodicTimer timer = new PeriodicTimer(TimeSpan.FromSeconds(60));
 
             while (!cancellationToken.IsCancellationRequested && await timer.WaitForNextTickAsync(cancellationToken))
             {
@@ -48,14 +47,13 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices
                 {
                     Log($"#Try to take a job Task");
 
-                    if (_backgroundWorkerStore.InaccessibleTenantsTasks.TryTake(out var jobTask) &&
-                            _backgroundWorkerStore.MakeSureIsNotRemoved(jobTask))
+                    if (_backgroundWorkerStore.InaccessibleTenantsTasks.TryTake(out var jobTask) && _backgroundWorkerStore.MakeSureIsNotRemoved(jobTask))
                     {
                         tenantId = jobTask.TenantId;
                         productId = jobTask.ProductId;
                         bool isAvailable = false;
 
-                        using PeriodicTimer subTimer = new PeriodicTimer(TimeSpan.FromSeconds(60));
+                        using PeriodicTimer subTimer = new PeriodicTimer(_period);
 
                         int counter = 1;
 
@@ -71,7 +69,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices
 
                             counter++;
                         }
-                        await _tenantHealthCheckService.RemoveJobTaskAsync(jobTask, cancellationToken);
+                        await _tenantHealthCheckService.RemoveInaccessibleJobTaskTasks(jobTask, cancellationToken);
 
                         if (isAvailable)
                         {
@@ -80,20 +78,20 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices
                         {
                             await _tenantHealthCheckService.AddInformerJobTaskAsync(jobTask, cancellationToken);
 
-                            await Task.Run(async () =>
-                            {
-                                var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
-                                var success = await InformExternalSystemTheTenantIsUnavailableAsync(jobTask, productService, cancellationToken);
+                            //await Task.Run(async () =>
+                            //{
+                            //    var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+                            //    var success = await InformExternalSystemTheTenantIsUnavailableAsync(jobTask, productService, cancellationToken);
 
-                                if (success)
-                                {
-                                    await _tenantHealthCheckService.RemoveJobTaskAsync(jobTask, cancellationToken);
-                                }
-                                else
-                                {
+                            //    if (success)
+                            //    {
+                            //        await _tenantHealthCheckService.RemoveJobTaskAsync(jobTask, cancellationToken);
+                            //    }
+                            //    else
+                            //    {
 
-                                }
-                            });
+                            //    }
+                            //});
 
                             await _tenantHealthCheckService.AddUnavailableJobTaskAsync(jobTask, cancellationToken);
 

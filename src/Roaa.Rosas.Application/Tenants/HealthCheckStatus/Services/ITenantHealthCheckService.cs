@@ -30,6 +30,8 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
 
         Task RemoveUnavailableJobTaskAsync(JobTask jobTask, CancellationToken cancellationToken);
 
+        Task RemoveInaccessibleJobTaskTasks(JobTask jobTask, CancellationToken cancellationToken);
+
         Task RemoveJobTaskAsync(JobTask jobTask, CancellationToken cancellationToken);
 
         Task<Result<ExternalSystemResultModel<dynamic>>> InformExternalSystemTheTenantIsUnavailableAsync(JobTask jobTask, string healthCheckStatusUrl, CancellationToken cancellationToken);

@@ -6,7 +6,7 @@ using Roaa.Rosas.Common.Controllers;
 namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
 {
     [Route("external-system-simulator/tenants")]
-    public class ExternalSystemSimulationsontroller : BaseApiController
+    public class ExternalSystemSimulationController : BaseApiController
     {
         #region Props  
         private readonly ISender _mediator;
@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         #endregion
 
         #region Corts
-        public ExternalSystemSimulationsontroller(ISender mediator,
+        public ExternalSystemSimulationController(ISender mediator,
                                  IIdentityContextService identityContextService
                                  )
         {
