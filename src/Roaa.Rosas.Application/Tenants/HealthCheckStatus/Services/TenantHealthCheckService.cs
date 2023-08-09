@@ -216,6 +216,13 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
             _backgroundWorkerStore.RemoveUnavailableTenantTask(jobTask);
         }
 
+        public async Task RemoveInaccessibleJobTaskTasks(JobTask jobTask, CancellationToken cancellationToken)
+        {
+            await RemoveJobTaskAsync(jobTask, cancellationToken);
+
+            _backgroundWorkerStore.RemoveInaccessibleTenantsTasks(jobTask);
+        }
+
         public async Task RemoveJobTaskAsync(JobTask jobTask, CancellationToken cancellationToken)
         {
             _dbContext.Entry(jobTask).State = EntityState.Deleted;

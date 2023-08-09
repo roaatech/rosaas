@@ -73,8 +73,8 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
 
         public void AddInformerTask(JobTask task)
         {
-            InaccessibleTenantsTasks.Add(task);
-            inaccessibleTenantsTasks.Add(task);
+            InformerTasks.Add(task);
+            informerTasks.Add(task);
         }
 
         public void RemoveJobTask(params JobTask[] tasks)
@@ -139,6 +139,18 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
                 unavailableTenantsTasks.Remove(removedTask);
             }
         }
+
+        public void RemoveInaccessibleTenantsTasks(JobTask task)
+        {
+
+            var removedTask = inaccessibleTenantsTasks.Where(x => x.TenantId == task.TenantId && x.ProductId == task.ProductId).SingleOrDefault();
+
+            if (removedTask is not null)
+            {
+                inaccessibleTenantsTasks.Remove(removedTask);
+            }
+        }
+
 
         public bool MakeSureIsNotRemoved(JobTask task)
         {
