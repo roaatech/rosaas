@@ -7,7 +7,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
 {
     public interface ITenantHealthCheckService
     {
-        Task AddTenantHealthCheckStatusAsync(JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable, CancellationToken cancellationToken);
+        Task AddTenantHealthCheckStatusAsync(Type backgroundServiceType, JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable, CancellationToken cancellationToken);
 
         Task AddExternalSystemDispatchAsync(JobTask jobTask, double duration, string url, bool isSuccessful, CancellationToken cancellationToken);
 

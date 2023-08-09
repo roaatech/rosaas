@@ -38,7 +38,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
 
 
         #region Services     
-        public async Task AddTenantHealthCheckStatusAsync(JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable, CancellationToken cancellationToken)
+        public async Task AddTenantHealthCheckStatusAsync(Type backgroundServiceType, JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable, CancellationToken cancellationToken)
         {
             var date = DateTime.UtcNow;
             var entity = new TenantHealthCheck
@@ -74,7 +74,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
                                 new MySqlParameter($"@{nameof(hs.ProductId)}", jobTask.ProductId),
                             };
 
-            if (GetType() == typeof(AvailableTenantChecker) && !isAvailable)
+            if (backgroundServiceType == typeof(AvailableTenantChecker) && !isAvailable)
             {
                 paramItems.Add(new MySqlParameter($"@{nameof(hs.CheckDate)}", date));
 
