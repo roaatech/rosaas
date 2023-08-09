@@ -66,7 +66,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices.ab
                jobTask.TenantId,
                jobTask.ProductId);
 
-            await _tenantHealthCheckService.AddTenantHealthCheckStatusAsync(jobTask, requestResult.Data.DurationInMillisecond, requestResult.Data.Url, requestResult.Success, stoppingToken);
+            await _tenantHealthCheckService.AddTenantHealthCheckStatusAsync(GetType(), jobTask, requestResult.Data.DurationInMillisecond, requestResult.Data.Url, requestResult.Success, stoppingToken);
 
             return requestResult.Success;
         }
