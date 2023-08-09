@@ -138,6 +138,10 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
                 return Result<ExternalSystemResultModel<T>>.Successful(data);
             }
 
+
+            return Result<ExternalSystemResultModel<T>>.Successful(data);
+
+
             if (requestResult.Success)
             {
                 return Result<ExternalSystemResultModel<T>>.Successful(data);

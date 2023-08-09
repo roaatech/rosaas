@@ -26,7 +26,7 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
 
 
         #region Actions    
-        [HttpPost()]
+        [HttpPost("{tenantId}")]
         public async Task<IActionResult> CreateTenantAsync(CancellationToken cancellationToken = default)
         {
             return Ok();
