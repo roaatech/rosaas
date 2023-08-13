@@ -1,5 +1,5 @@
-﻿using Roaa.Rosas.Application.Tenants.BackgroundServices;
-using Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices;
+﻿using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
+using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
 using Roaa.Rosas.Domain.Models.Options;
 
 namespace Roaa.Rosas.Framework.Configurations

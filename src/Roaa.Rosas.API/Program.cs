@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Logging;
 using Roaa.Rosas.API.Configurations;
-using Roaa.Rosas.Application.Tenants.BackgroundServices;
+using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 using Roaa.Rosas.Auditing;
 using Roaa.Rosas.Authorization;
 using Roaa.Rosas.Common;
