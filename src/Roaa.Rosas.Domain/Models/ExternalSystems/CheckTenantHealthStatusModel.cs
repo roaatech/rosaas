@@ -1,6 +1,6 @@
 ﻿namespace Roaa.Rosas.Domain.Models.ExternalSystems
 {
-    public record CreateTenantModel
+    public record CheckTenantHealthStatusModel
     {
         public string TenantName { get; set; } = string.Empty;
     }

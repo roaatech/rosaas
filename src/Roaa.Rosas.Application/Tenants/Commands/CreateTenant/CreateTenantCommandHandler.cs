@@ -96,11 +96,10 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         return await _externalSystemAPI.CreateTenantAsync(new ExternalSystemRequestModel<CreateTenantModel>
         {
             BaseUrl = item.Url,
+            TenantId = tenant.Id,
             Data = new()
             {
-                TenantId = tenant.Id,
-                TenantUniqueName = tenant.UniqueName,
-                TenantTitle = tenant.Title,
+                TenantName = tenant.UniqueName,
             }
         }, cancellationToken);
     }

@@ -102,7 +102,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           {
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
-                                              HealthStatusChangeUrl = product.HealthStatusChangeUrl,
+                                              HealthStatusChangeUrl = product.HealthStatusInformerUrl,
                                               Name = product.Name,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.UniqueName),
                                               CreatedDate = product.Created,
@@ -111,6 +111,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               CreationEndpoint = product.CreationUrl,
                                               DeactivationEndpoint = product.DeactivationUrl,
                                               DeletionEndpoint = product.DeletionUrl,
+                                              ApiKey = product.ApiKey,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -126,10 +127,10 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueUrlAsync(model.DefaultHealthCheckUrl))
-            {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.DefaultHealthCheckUrl));
-            }
+            //if (!await EnsureUniqueUrlAsync(model.DefaultHealthCheckUrl))
+            //{
+            //    return Result<CreatedResult<Guid>>.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.DefaultHealthCheckUrl));
+            //}
             #endregion
 
 
@@ -142,13 +143,14 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 ClientId = model.ClientId,
                 Name = model.Name,
                 DefaultHealthCheckUrl = model.DefaultHealthCheckUrl,
-                HealthStatusChangeUrl = model.HealthStatusChangeUrl,
+                HealthStatusInformerUrl = model.HealthStatusChangeUrl,
                 CreatedByUserId = _identityContextService.UserId,
                 EditedByUserId = _identityContextService.UserId,
                 ActivationUrl = model.ActivationEndpoint,
                 CreationUrl = model.CreationEndpoint,
                 DeactivationUrl = model.DeactivationEndpoint,
                 DeletionUrl = model.DeletionEndpoint,
+                ApiKey = model.ApiKey,
                 Created = date,
                 Edited = date,
             };
@@ -194,13 +196,14 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             Product productBeforeUpdate = product.DeepCopy();
 
             product.Name = model.Name;
-            product.HealthStatusChangeUrl = model.HealthStatusChangeUrl;
+            product.HealthStatusInformerUrl = model.HealthStatusChangeUrl;
             product.DefaultHealthCheckUrl = model.DefaultHealthCheckUrl;
             product.EditedByUserId = _identityContextService.UserId;
             product.ActivationUrl = model.ActivationEndpoint;
             product.CreationUrl = model.CreationEndpoint;
             product.DeactivationUrl = model.DeactivationEndpoint;
             product.DeletionUrl = model.DeletionEndpoint;
+            product.ApiKey = model.ApiKey;
             product.Edited = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);

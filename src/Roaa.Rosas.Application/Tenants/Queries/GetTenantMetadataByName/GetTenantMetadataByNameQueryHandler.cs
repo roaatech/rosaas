@@ -5,9 +5,9 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataById
+namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataByName
 {
-    public class GetTenantMetadataByIdQueryHandler : IRequestHandler<GetTenantMetadataByIdQuery, Result<TenantMetadataModel>>
+    public class GetTenantMetadataByNameQueryHandler : IRequestHandler<GetTenantMetadataByNameQuery, Result<TenantMetadataModel>>
     {
         #region Props 
         private readonly IRosasDbContext _dbContext;
@@ -16,7 +16,7 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataById
 
 
         #region Corts
-        public GetTenantMetadataByIdQueryHandler(
+        public GetTenantMetadataByNameQueryHandler(
             IRosasDbContext dbContext,
             IIdentityContextService identityContextService)
         {
@@ -28,11 +28,12 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataById
 
 
         #region Handler   
-        public async Task<Result<TenantMetadataModel>> Handle(GetTenantMetadataByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<TenantMetadataModel>> Handle(GetTenantMetadataByNameQuery request, CancellationToken cancellationToken)
         {
             var metadata = await _dbContext.ProductTenants.AsNoTracking()
                                                  .Include(x => x.Tenant)
-                                                  .Where(x => x.TenantId == request.TenantId && x.ProductId == request.ProductId)
+                                                 .Where(x => x.ProductId == request.ProductId &&
+                                                         request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
                                                   .Select(x => x.Metadata)
                                                   .SingleOrDefaultAsync(cancellationToken);
 

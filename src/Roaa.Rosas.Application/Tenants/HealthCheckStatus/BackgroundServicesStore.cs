@@ -27,7 +27,20 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
 
         private List<JobTask> informerTasks = new List<JobTask>();
 
+        private Dictionary<Guid, string> tenantsNames = new();
 
+        public string GetTenantName(Guid tenantId)
+        {
+            return tenantsNames[tenantId];
+        }
+
+        public void AddTenantsNames(Guid tenantId, string tenantName)
+        {
+            if (!tenantsNames.TryGetValue(tenantId, out string val))
+            {
+                tenantsNames.Add(tenantId, tenantName);
+            }
+        }
         public void SetHealthCheckSettings(HealthCheckSettings settings)
         {
             Settings = settings;
@@ -53,10 +66,15 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
         }
 
 
-        public void AddAvailableTenantTask(JobTask task)
+        public void AddAvailableTenantTask(JobTask task, string tenantName)
         {
             AvailableTenantsTasks.Add(task);
             availableTenantsTasks.Add(task);
+
+            if (!tenantsNames.TryGetValue(task.TenantId, out string val))
+            {
+                tenantsNames.Add(task.TenantId, tenantName);
+            }
         }
 
         public void AddUnavailableTenantTask(JobTask task)
@@ -124,6 +142,17 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
                     if (removedTask is not null)
                     {
                         informerTasks.Remove(removedTask);
+
+                        if (!availableTenantsTasks.Where(x => x.TenantId == task.TenantId && x.Type == JobTaskType.Available).Any() &&
+                             !inaccessibleTenantsTasks.Where(x => x.TenantId == task.TenantId && x.Type == JobTaskType.Available).Any() &&
+                             !informerTasks.Where(x => x.TenantId == task.TenantId && x.Type == JobTaskType.Available).Any()
+                           )
+                        {
+                            if (tenantsNames.TryGetValue(task.TenantId, out string val))
+                            {
+                                tenantsNames.Remove(task.TenantId);
+                            }
+                        }
                     }
                 }
             }

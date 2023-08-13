@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Roaa.Rosas.RequestBroker.Models
+﻿namespace Roaa.Rosas.RequestBroker.Models
 {
     public class RequestModel<T>
     {
@@ -35,6 +31,15 @@ namespace Roaa.Rosas.RequestBroker.Models
             Token = requestAuthorization.Token;
             Data = data;
         }
+        public RequestModel(string uri, T data, RequestAuthorizationModel requestAuthorization, params (string Key, object Value)[] header)
+        {
+            Uri = uri;
+            Scheme = requestAuthorization.Scheme;
+            Token = requestAuthorization.Token;
+            Data = data;
+            Header = header.ToDictionary(pair => pair.Key, pair => pair.Value);
+        }
+
         public RequestModel(string uri, T data)
         {
             Uri = uri;

@@ -7,6 +7,7 @@ using Roaa.Rosas.Application.Tenants.Service.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Models;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
 using System.Linq.Expressions;
 
@@ -39,16 +40,22 @@ namespace Roaa.Rosas.Application.Tenants.EventHandlers
 
         public async Task Handle(TenantPreDeletingEvent @event, CancellationToken cancellationToken)
         {
-            Expression<Func<Product, string>> selector = x => x.DeletionUrl;
+            Expression<Func<Product, ProductApiModel>> selector = x => new ProductApiModel(x.ApiKey, x.DeletionUrl);
 
             var urlItemResult = await _productService.GetProductEndpointByIdAsync(@event.ProductTenant.ProductId, selector, cancellationToken);
 
+            Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
+
+            var tenantResult = await _tenantService.GetByIdAsync(@event.ProductTenant.TenantId, tenantSelector, cancellationToken);
+
             var callingResult = await _externalSystemAPI.DeleteTenantAsync(new ExternalSystemRequestModel<DeleteTenantModel>
             {
-                BaseUrl = urlItemResult.Data,
+                BaseUrl = urlItemResult.Data.Url,
+                ApiKey = urlItemResult.Data.ApiKey,
+                TenantId = @event.ProductTenant.TenantId,
                 Data = new()
                 {
-                    TenantId = @event.ProductTenant.TenantId,
+                    TenantName = tenantResult.Data,
                 }
             }, cancellationToken);
 
@@ -56,7 +63,7 @@ namespace Roaa.Rosas.Application.Tenants.EventHandlers
 
             var process = await _workflow.GetNextProcessActionAsync(@event.ProductTenant.Status, UserType.ExternalSystem, action);
 
-            await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel
+            await _tenantService.SetTenantNextStatusAsync(new SetTenantNextStatusModel
             {
                 TenantId = @event.ProductTenant.TenantId,
                 ProductId = @event.ProductTenant.ProductId,

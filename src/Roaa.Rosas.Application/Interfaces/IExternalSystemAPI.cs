@@ -10,8 +10,8 @@ namespace Roaa.Rosas.Application.Interfaces
         Task<Result<ExternalSystemResultModel<dynamic>>> DeactivateTenantAsync(ExternalSystemRequestModel<DeactivateTenantModel> model, CancellationToken cancellationToken = default);
         Task<Result<ExternalSystemResultModel<dynamic>>> DeleteTenantAsync(ExternalSystemRequestModel<DeleteTenantModel> model, CancellationToken cancellationToken = default);
 
-        Task<Result<ExternalSystemResultModel<dynamic>>> InformTheTenantUnavailabilityAsync(ExternalSystemRequestModel<InformTenantAvailabilityModel> model, CancellationToken cancellationToken = default);
-        Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(ExternalSystemRequestModel<CheckTenantAvailabilityModel> model, CancellationToken cancellationToken = default);
+        Task<Result<ExternalSystemResultModel<dynamic>>> InformTheTenantUnavailableAsync(ExternalSystemRequestModel<InformTheTenantUnavailableModel> model, CancellationToken cancellationToken = default);
+        Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(ExternalSystemRequestModel<CheckTenantHealthStatusModel> model, CancellationToken cancellationToken = default);
     }
 
     public class ExternalSystemResultModel<T>

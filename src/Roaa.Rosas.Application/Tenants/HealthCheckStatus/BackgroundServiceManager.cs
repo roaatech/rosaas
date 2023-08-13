@@ -38,8 +38,11 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
                                     .Where(x => x.Status == TenantStatus.Active ||
                                                 x.Status == TenantStatus.CreatedAsActive)
                                     .OrderBy(x => x.Edited)
-                                    .Select(x => new { x.ProductId, x.TenantId })
+                                    .Select(x => new { x.ProductId, x.TenantId, x.Tenant.UniqueName })
                                     .ToListAsync();
+
+
+            activeTenants.ForEach(x => _store.AddTenantsNames(x.TenantId, x.UniqueName));
 
             var tasks = await _dbContext
                                      .JobTasks
@@ -146,7 +149,7 @@ namespace Roaa.Rosas.Application.Tenants.BackgroundServices
                 TenantId = task.TenantId,
                 Created = DateTime.UtcNow,
                 Type = JobTaskType.Available,
-            }));
+            }, task.UniqueName));
 
 
 

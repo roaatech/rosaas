@@ -9,6 +9,6 @@ public partial class UpdateTenantMetadataCommandValidator : AbstractValidator<Up
 {
     public UpdateTenantMetadataCommandValidator(IIdentityContextService identityContextService)
     {
-        RuleFor(x => x.TenantId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        RuleFor(x => x.TenantName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
     }
 }

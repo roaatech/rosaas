@@ -2,6 +2,7 @@
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
 {
@@ -34,7 +35,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
 
         Task RemoveJobTaskAsync(JobTask jobTask, CancellationToken cancellationToken);
 
-        Task<Result<ExternalSystemResultModel<dynamic>>> InformExternalSystemTheTenantIsUnavailableAsync(JobTask jobTask, string healthCheckStatusUrl, CancellationToken cancellationToken);
+        Task<Result<ExternalSystemResultModel<dynamic>>> InformExternalSystemTheTenantIsUnavailableAsync(JobTask jobTask, ProductApiModel productApi, CancellationToken cancellationToken);
 
         Task<string> GetHealthCheckStatusUrlOfExternalSystemAsync(JobTask jobTask, IProductService productService, CancellationToken cancellationToken);
 

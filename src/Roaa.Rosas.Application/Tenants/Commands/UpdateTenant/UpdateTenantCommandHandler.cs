@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants;
-using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
@@ -42,15 +41,15 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
         }
 
-        var productsIds = await _dbContext.ProductTenants.Where(x => x.TenantId == request.Id).Select(x => x.ProductId).ToListAsync();
-        if (!await EnsureUniqueNameAsync(productsIds, request.UniqueName, request.Id))
-        {
-            return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.UniqueName));
-        }
+        //var productsIds = await _dbContext.ProductTenants.Where(x => x.TenantId == request.Id).Select(x => x.ProductId).ToListAsync();
+        //if (!await EnsureUniqueNameAsync(productsIds, request.UniqueName, request.Id))
+        //{
+        //    return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.UniqueName));
+        //}
         #endregion
         Tenant tenantBeforeUpdate = tenant.DeepCopy();
 
-        tenant.UniqueName = request.UniqueName.ToLower();
+        //  tenant.UniqueName = request.UniqueName.ToLower();
         tenant.Title = request.Title;
         tenant.EditedByUserId = _identityContextService.UserId;
         tenant.Edited = DateTime.UtcNow;

@@ -9,5 +9,6 @@
         public string ActivationEndpoint { get; set; } = string.Empty;
         public string DeactivationEndpoint { get; set; } = string.Empty;
         public string DeletionEndpoint { get; set; } = string.Empty;
+        public string ApiKey { get; set; } = string.Empty;
     }
 }
