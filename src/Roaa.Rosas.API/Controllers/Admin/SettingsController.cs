@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application.Tenants.HealthCheckStatus.Settings;
+using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 

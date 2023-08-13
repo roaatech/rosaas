@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Roaa.Rosas.Application.Extensions;
-using Roaa.Rosas.Application.Tenants.Commands.ChangeTenantStatus;
-using Roaa.Rosas.Application.Tenants.Commands.UpdateTenantMetadata;
-using Roaa.Rosas.Application.Tenants.Queries.GetTenantMetadataByName;
-using Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusByName;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantMetadataByName;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantStatusByName;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.ResponseMessages;
 using Roaa.Rosas.Domain.Enums;
