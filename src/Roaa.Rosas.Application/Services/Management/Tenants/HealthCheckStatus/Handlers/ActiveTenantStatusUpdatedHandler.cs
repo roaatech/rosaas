@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Handlers
@@ -24,29 +23,35 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
 
         public async Task Handle(ActiveTenantStatusUpdated @event, CancellationToken cancellationToken)
         {
-
-            var jobTasksToRemove = await _dbContext.JobTasks
-                                                   .Where(x => x.TenantId == @event.ProductTenant.TenantId &&
-                                                               x.ProductId == @event.ProductTenant.ProductId)
-                                                   .ToListAsync(cancellationToken);
-            if (jobTasksToRemove.Any())
+            try
             {
-                _dbContext.JobTasks.RemoveRange(jobTasksToRemove);
+                var jobTasksToRemove = await _dbContext.JobTasks
+                                                       .Where(x => x.TenantId == @event.ProductTenant.TenantId &&
+                                                                   x.ProductId == @event.ProductTenant.ProductId)
+                                                       .ToListAsync(cancellationToken);
+                if (jobTasksToRemove.Any())
+                {
+                    _dbContext.JobTasks.RemoveRange(jobTasksToRemove);
 
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                }
+
+                _backgroundWorkerStore.RemoveJobTask(new JobTask
+                {
+                    ProductId = @event.ProductTenant.ProductId,
+                    TenantId = @event.ProductTenant.TenantId,
+                    Created = DateTime.UtcNow,
+                    Type = JobTaskType.Available,
+                });
+
+                _logger.LogInformation($"The job tasks removed from Background Services with info: TenantId:{{0}}, ProductId:{{1}}",
+                  @event.ProductTenant.TenantId,
+                  @event.ProductTenant.ProductId);
             }
-
-            _backgroundWorkerStore.RemoveJobTask(new JobTask
+            catch (Exception ex)
             {
-                ProductId = @event.ProductTenant.ProductId,
-                TenantId = @event.ProductTenant.TenantId,
-                Created = DateTime.UtcNow,
-                Type = JobTaskType.Available,
-            });
-
-            _logger.LogInformation($"The job tasks removed from Background Services with info: TenantId:{{0}}, ProductId:{{1}}",
-              @event.ProductTenant.TenantId,
-              @event.ProductTenant.ProductId);
+                _logger.LogError(ex, "An error occurred on {0} while processing the Event Handler related to the tenant [TenantId:{1}], [ProductId:{2}]", GetType().Name, @event.ProductTenant.TenantId, @event.ProductTenant.ProductId);
+            }
 
         }
     }
