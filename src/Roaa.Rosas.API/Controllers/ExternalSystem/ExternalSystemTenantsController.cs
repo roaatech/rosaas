@@ -43,34 +43,34 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
             return ItemResult(await _mediator.Send(new GetTenantStatusByNameQuery(name, _identityContextService.GetProductId()), cancellationToken));
         }
 
-        [HttpPut("{name}/status/created")]
+        [HttpPost("{name}/created")]
         public async Task<IActionResult> SetTenantAsCreatedAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.CreatedAsActive, _identityContextService.GetProductId()), cancellationToken));
         }
 
-        [HttpPut("{name}/status/active")]
+        [HttpPost("{name}/active")]
         public async Task<IActionResult> ActivateTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Active, _identityContextService.GetProductId()), cancellationToken));
         }
 
 
-        [HttpPut("{name}/status/inactive")]
+        [HttpPost("{name}/inactive")]
         public async Task<IActionResult> DeactivateTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Deactive, _identityContextService.GetProductId()), cancellationToken));
         }
 
 
-        [HttpPut("{name}/status/deleted")]
+        [HttpPost("{name}/deleted")]
         public async Task<IActionResult> DeleteTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Deleted, _identityContextService.GetProductId()), cancellationToken));
         }
 
 
-        [HttpPut("{name}/metadata")]
+        [HttpPost("{name}/metadata")]
         public async Task<IActionResult> UpdateTenantMetadataAsync([FromRoute] string name, dynamic metadata, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(new UpdateTenantMetadataCommand(name, _identityContextService.GetProductId(), metadata), cancellationToken));
