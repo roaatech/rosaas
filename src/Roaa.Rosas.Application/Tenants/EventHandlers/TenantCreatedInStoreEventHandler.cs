@@ -33,7 +33,7 @@ namespace Roaa.Rosas.Application.Tenants.EventHandlers
         public async Task Handle(TenantCreatedInStoreEvent @event, CancellationToken cancellationToken)
         {
             var process = await _workflow.GetNextProcessActionAsync(@event.Status, _identityContextService.GetUserType());
-            var result = await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel
+            var result = await _tenantService.SetTenantNextStatusAsync(new SetTenantNextStatusModel
             {
                 TenantId = @event.Tenant.Id,
                 Status = process.NextStatus,

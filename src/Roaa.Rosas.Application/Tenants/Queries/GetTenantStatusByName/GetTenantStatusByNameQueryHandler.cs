@@ -6,9 +6,9 @@ using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Enums;
 
-namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusById
+namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusByName
 {
-    public class GetTenantStatusByIdQueryHandler : IRequestHandler<GetTenantStatusByIdQuery, Result<TenantStatusDto>>
+    public class GetTenantStatusByNameQueryHandler : IRequestHandler<GetTenantStatusByNameQuery, Result<TenantStatusDto>>
     {
         #region Props 
         private readonly IRosasDbContext _dbContext;
@@ -17,7 +17,7 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusById
 
 
         #region Corts
-        public GetTenantStatusByIdQueryHandler(
+        public GetTenantStatusByNameQueryHandler(
             IRosasDbContext dbContext,
             IIdentityContextService identityContextService)
         {
@@ -29,10 +29,11 @@ namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusById
 
 
         #region Handler   
-        public async Task<Result<TenantStatusDto>> Handle(GetTenantStatusByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<TenantStatusDto>> Handle(GetTenantStatusByNameQuery request, CancellationToken cancellationToken)
         {
             var tenantStatus = await _dbContext.ProductTenants.AsNoTracking()
-                                                  .Where(x => x.TenantId == request.Id && x.ProductId == request.ProductId)
+                                                 .Where(x => x.ProductId == request.ProductId &&
+                                                         request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
                                                   .Select(x => new TenantStatusDto
                                                   {
                                                       Status = x.Status,

@@ -1,14 +1,12 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Tenants.Service;
 using Roaa.Rosas.Application.Tenants.Service.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
-using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Common.SystemMessages;
 using System.Data;
-using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Tenants.Commands.ChangeTenantStatus;
 
@@ -44,57 +42,21 @@ public class ChangeTenantStatusCommandHandler : IRequestHandler<ChangeTenantStat
     public async Task<Result<List<TenantStatusChangedResultDto>>> Handle(ChangeTenantStatusCommand request, CancellationToken cancellationToken)
     {
 
-        // #1 - Change Status   
-        var result = await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel
-        {
-            UserType = _identityContextService.GetUserType(),
-            Status = request.Status,
-            Action = WorkflowAction.Ok,
-            TenantId = request.TenantId,
-            ProductId = request.ProductId,
-            EditorBy = _identityContextService.GetActorId(),
-        });
+        var tenantId = await _dbContext.ProductTenants
+                                           .Where(x => x.ProductId == request.ProductId &&
+                                                         request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
+                                           .Select(x => x.TenantId)
+                                           .SingleOrDefaultAsync(cancellationToken);
 
-        if (!result.Success)
+        if (tenantId == Guid.Empty)
         {
-            return Result<List<TenantStatusChangedResultDto>>.Fail(result.Messages);
+            return Result<List<TenantStatusChangedResultDto>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(request.TenantName));
         }
 
 
-        // #2 - Publish Events by status (Call External Systems)
-        foreach (var resultItem in result.Data)
-        {
-            var statusManager = TenantStatusManager.FromKey(resultItem.ProductTenant.Status);
+        return await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel(tenantId, request.Status, request.ProductId), cancellationToken);
 
-            await statusManager.PublishEventAsync(_publisher, resultItem.ProductTenant, resultItem.Process.CurrentStatus, cancellationToken);
-        }
-
-        // #3 - Retrieve The Results (Updated Status & Process Actions)
-        Expression<Func<ProductTenant, bool>> predicate = x => x.TenantId == request.TenantId;
-        if (request.ProductId is not null)
-        {
-            predicate = x => x.TenantId == request.TenantId && x.ProductId == request.ProductId;
-        }
-
-        var updatedStatuses = await _dbContext.ProductTenants
-                                            .Where(predicate)
-                                            .Select(x => new { x.Status, x.ProductId })
-                                            .ToListAsync(cancellationToken);
-
-        List<TenantStatusChangedResultDto> results = new();
-        foreach (var item in updatedStatuses)
-        {
-            results.Add(new TenantStatusChangedResultDto(
-            item.ProductId,
-            item.Status,
-            (await _workflow.GetProcessActionsAsync(item.Status,
-                                                    _identityContextService.GetUserType()))
-                            .ToActionsResults()));
-        }
-
-        return Result<List<TenantStatusChangedResultDto>>.Successful(results);
     }
 
     #endregion
 }
-

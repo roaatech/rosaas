@@ -1,6 +1,6 @@
 ﻿using Roaa.Rosas.Domain.Enums;
 
-namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusById
+namespace Roaa.Rosas.Application.Tenants.Queries.GetTenantStatusByName
 {
     public record TenantStatusDto
     {

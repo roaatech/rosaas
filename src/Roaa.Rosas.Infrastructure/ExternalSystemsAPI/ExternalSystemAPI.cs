@@ -17,7 +17,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         private readonly IWebHostEnvironment _environment;
         private readonly IRequestBroker _requestBroker;
         private readonly IRosasDbContext _dbContext;
-        private Guid _tenantId = Guid.Empty;
+        private string _tenantName = string.Empty;
 
 
         public ExternalSystemAPI(IRequestBroker requestBroker,
@@ -35,7 +35,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> CreateTenantAsync(ExternalSystemRequestModel<CreateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
 
             var result = await _requestBroker.PostAsync<dynamic, CreateTenantModel>(request, cancellationToken);
 
@@ -45,9 +45,9 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> ActivateTenantAsync(ExternalSystemRequestModel<ActivateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
 
-            var result = await _requestBroker.PutAsync<dynamic, ActivateTenantModel>(request, cancellationToken);
+            var result = await _requestBroker.PostAsync<dynamic, ActivateTenantModel>(request, cancellationToken);
 
             return RetrieveResult(result, request.Uri);
         }
@@ -55,9 +55,9 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> DeactivateTenantAsync(ExternalSystemRequestModel<DeactivateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
 
-            var result = await _requestBroker.PutAsync<dynamic, DeactivateTenantModel>(request, cancellationToken);
+            var result = await _requestBroker.PostAsync<dynamic, DeactivateTenantModel>(request, cancellationToken);
 
             return RetrieveResult(result, request.Uri);
         }
@@ -65,45 +65,49 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> DeleteTenantAsync(ExternalSystemRequestModel<DeleteTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
 
-            var result = await _requestBroker.DeleteAsync<dynamic, DeleteTenantModel>(request, cancellationToken);
-
-            return RetrieveResult(result, request.Uri);
-        }
-
-
-
-        public async Task<Result<ExternalSystemResultModel<dynamic>>> InformTheTenantUnavailabilityAsync(ExternalSystemRequestModel<InformTenantAvailabilityModel> model, CancellationToken cancellationToken = default)
-        {
-            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
-
-            var result = await _requestBroker.PostAsync<dynamic, InformTenantAvailabilityModel>(request, cancellationToken);
+            var result = await _requestBroker.PostAsync<dynamic, DeleteTenantModel>(request, cancellationToken);
 
             return RetrieveResult(result, request.Uri);
         }
 
-        public async Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(ExternalSystemRequestModel<CheckTenantAvailabilityModel> model, CancellationToken cancellationToken = default)
-        {
-            var request = await BuildRequestModelAsync(model, model.Data.TenantId, cancellationToken);
 
-            var result = await _requestBroker.GetAsync<dynamic, CheckTenantAvailabilityModel>(request, cancellationToken);
+
+        public async Task<Result<ExternalSystemResultModel<dynamic>>> InformTheTenantUnavailableAsync(ExternalSystemRequestModel<InformTheTenantUnavailableModel> model, CancellationToken cancellationToken = default)
+        {
+            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
+
+            var result = await _requestBroker.PostAsync<dynamic, InformTheTenantUnavailableModel>(request, cancellationToken);
+
+            return RetrieveResult(result, request.Uri);
+        }
+
+        public async Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(ExternalSystemRequestModel<CheckTenantHealthStatusModel> model, CancellationToken cancellationToken = default)
+        {
+            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
+
+            var result = await _requestBroker.GetAsync<dynamic, CheckTenantHealthStatusModel>(request, cancellationToken);
+
+            _tenantName = model.Data.TenantName;
 
             return RetrieveResult(result, request.Uri, true);
         }
 
 
-        public async Task<RequestModel<T>> BuildRequestModelAsync<T>(ExternalSystemRequestModel<T> model, Guid? tenantId, CancellationToken cancellationToken = default)
+        public async Task<RequestModel<T>> BuildRequestModelAsync<T>(ExternalSystemRequestModel<T> model, Guid tenantId, string? tenantName = null, CancellationToken cancellationToken = default)
         {
-            _tenantId = tenantId.Value;
-            string id = tenantId.HasValue ? tenantId.Value.ToString() : string.Empty;
+            string name = tenantName ?? string.Empty;
             var token = await GenerateTokenAsync(cancellationToken);
-            var uri = $"{model.BaseUrl.Replace("{tenantId}", tenantId.ToString())}";
+            var uri = model.BaseUrl.Replace("{tenantId}", tenantId.ToString())
+                                   .Replace("{name}", name);
             return new RequestModel<T>
              (
                  uri: uri,
                  data: model.Data,
-                 requestAuthorization: token.Data
+                 requestAuthorization: token.Data,
+                 header: ("api-key", model.ApiKey)
+
             );
         }
 
@@ -129,7 +133,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
             if (!_environment.IsProductionEnvironment() && isCheckHealthStatus)
             {
 
-                if (_dbContext.Tenants.Where(x => x.Id == _tenantId && x.UniqueName.Contains("-x0")).Any())
+                if (_tenantName.Contains("-x0"))
                 {
                     var res = Result<ExternalSystemResultModel<T>>.Fail("custom error");
                     res.WithData(data);

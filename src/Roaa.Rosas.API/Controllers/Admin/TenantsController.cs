@@ -86,7 +86,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         }
 
         [HttpPut("Status")]
-        public async Task<IActionResult> UpdateTenantStatusAsync([FromBody] ChangeTenantStatusCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdateTenantStatusAsync([FromBody] ChangeTenantStatusByIdCommand command, CancellationToken cancellationToken = default)
         {
             var ddd = await _mediator.Send(command, cancellationToken);
             return ItemResult(ddd);

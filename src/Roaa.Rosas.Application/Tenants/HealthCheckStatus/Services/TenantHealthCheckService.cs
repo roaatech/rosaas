@@ -8,6 +8,7 @@ using Roaa.Rosas.Application.Tenants.BackgroundServices;
 using Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Models;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
 using System.Linq.Expressions;
 
@@ -157,12 +158,16 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(JobTask jobTask, string tenantHhealthCheckUrl, CancellationToken cancellationToken)
         {
-            var requestResult = await _externalSystemAPI.CheckTenantHealthStatusAsync(new ExternalSystemRequestModel<CheckTenantAvailabilityModel>
+            string tenantName = _backgroundWorkerStore.GetTenantName(jobTask.TenantId);
+
+
+            var requestResult = await _externalSystemAPI.CheckTenantHealthStatusAsync(new ExternalSystemRequestModel<CheckTenantHealthStatusModel>
             {
                 BaseUrl = tenantHhealthCheckUrl,
+                TenantId = jobTask.TenantId,
                 Data = new()
                 {
-                    TenantId = jobTask.TenantId,
+                    TenantName = tenantName,
                 }
             }, cancellationToken);
 
@@ -233,14 +238,18 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
         }
 
 
-        public async Task<Result<ExternalSystemResultModel<dynamic>>> InformExternalSystemTheTenantIsUnavailableAsync(JobTask jobTask, string healthCheckStatusUrl, CancellationToken cancellationToken)
+        public async Task<Result<ExternalSystemResultModel<dynamic>>> InformExternalSystemTheTenantIsUnavailableAsync(JobTask jobTask, ProductApiModel productApi, CancellationToken cancellationToken)
         {
-            var requestResult = await _externalSystemAPI.InformTheTenantUnavailabilityAsync(new ExternalSystemRequestModel<InformTenantAvailabilityModel>
+            var tenantName = await GetTenantNameAsync(jobTask, cancellationToken);
+
+            var requestResult = await _externalSystemAPI.InformTheTenantUnavailableAsync(new ExternalSystemRequestModel<InformTheTenantUnavailableModel>
             {
-                BaseUrl = healthCheckStatusUrl,
+                BaseUrl = productApi.Url,
+                ApiKey = productApi.ApiKey,
+                TenantId = jobTask.TenantId,
                 Data = new()
                 {
-                    TenantId = jobTask.TenantId,
+                    TenantName = tenantName,
                 }
             }, cancellationToken);
 
@@ -249,11 +258,21 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services
 
         public async Task<string> GetHealthCheckStatusUrlOfExternalSystemAsync(JobTask jobTask, IProductService productService, CancellationToken cancellationToken)
         {
-            Expression<Func<Product, string>> selector = x => x.HealthStatusChangeUrl;
+            Expression<Func<Product, string>> selector = x => x.HealthStatusInformerUrl;
 
             var urlItemResult = await productService.GetProductEndpointByIdAsync(jobTask.ProductId, selector, cancellationToken);
 
             return urlItemResult.Data;
+        }
+
+
+        public async Task<string> GetTenantNameAsync(JobTask jobTask, CancellationToken cancellationToken)
+        {
+            var tenantName = await _dbContext.Tenants
+                                       .Where(x => x.Id == jobTask.TenantId)
+                                       .Select(x => x.UniqueName)
+                                       .SingleOrDefaultAsync(cancellationToken);
+            return tenantName;
         }
 
 

@@ -5,6 +5,7 @@ using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Tenants.BackgroundServices;
 using Roaa.Rosas.Application.Tenants.HealthCheckStatus.Services;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Models;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 
@@ -78,7 +79,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices.ab
 
         protected async Task<bool> InformExternalSystemTheTenantIsUnavailableAsync(JobTask jobTask, IProductService productService, CancellationToken stoppingToken)
         {
-            Expression<Func<Product, string>> selector = x => x.HealthStatusChangeUrl;
+            Expression<Func<Product, ProductApiModel>> selector = x => new ProductApiModel(x.ApiKey, x.HealthStatusInformerUrl);
 
             var urlItemResult = await productService.GetProductEndpointByIdAsync(jobTask.ProductId, selector, stoppingToken);
 
@@ -87,7 +88,7 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices.ab
                 text,
                 jobTask.TenantId,
                 jobTask.ProductId,
-                urlItemResult.Data);
+                urlItemResult.Data.Url);
 
 
             var requestResult = await _tenantHealthCheckService.InformExternalSystemTheTenantIsUnavailableAsync(jobTask, urlItemResult.Data, stoppingToken);
@@ -110,14 +111,19 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices.ab
             object?[] fullArgs = new object[fullArgsLength];
 
             fullArgs[0] = GetType().Name;
+            string temap = "0_t_e_m_p_0";
 
             for (int i = 0; i < args.Length; i++)
             {
                 var displacement = fullArgsLength - (args.Length + 1);
                 var argIndex = $"{{{i}}}";
-                message = message.Replace(argIndex, $"{{{i + displacement}}}");
+                message = message.Replace(argIndex, $"{temap}[[{i + displacement}]]{temap}");
                 fullArgs[i + displacement] = args[i];
             }
+
+            message = message.Replace($"{temap}[[", "{");
+            message = message.Replace($"]]{temap}", "}");
+
 
             if (message.StartsWith("##"))
             {
@@ -138,7 +144,5 @@ namespace Roaa.Rosas.Application.Tenants.HealthCheckStatus.BackgroundServices.ab
 
             _logger.LogInformation($"{{{0}}} Background Service {message}. [{dateTimeIndex}]", fullArgs);
         }
-
-
     }
 }

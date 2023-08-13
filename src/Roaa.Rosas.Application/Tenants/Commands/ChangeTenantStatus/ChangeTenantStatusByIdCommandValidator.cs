@@ -5,11 +5,11 @@ using Roaa.Rosas.Common.SystemMessages;
 
 namespace Roaa.Rosas.Application.Tenants.Commands.ChangeTenantStatus;
 
-public class ChangeTenantStatusCommandValidator : AbstractValidator<ChangeTenantStatusCommand>
+public class ChangeTenantStatusByIdCommandValidator : AbstractValidator<ChangeTenantStatusByIdCommand>
 {
-    public ChangeTenantStatusCommandValidator(IIdentityContextService identityContextService)
+    public ChangeTenantStatusByIdCommandValidator(IIdentityContextService identityContextService)
     {
-        RuleFor(x => x.TenantName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        RuleFor(x => x.TenantId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
         RuleFor(x => x.Status).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
     }

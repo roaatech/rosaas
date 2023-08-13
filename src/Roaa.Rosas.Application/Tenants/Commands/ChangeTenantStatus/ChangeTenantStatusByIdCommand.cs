@@ -4,17 +4,17 @@ using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Tenants.Commands.ChangeTenantStatus;
 
-public record ChangeTenantStatusCommand : IRequest<Result<List<TenantStatusChangedResultDto>>>
+public record ChangeTenantStatusByIdCommand : IRequest<Result<List<TenantStatusChangedResultDto>>>
 {
-    public ChangeTenantStatusCommand(string tenantName, TenantStatus status, Guid? productId)
+    public ChangeTenantStatusByIdCommand(Guid tenantId, TenantStatus status, Guid? productId)
     {
-        TenantName = tenantName;
+        TenantId = tenantId;
         ProductId = productId;
         Status = status;
     }
-    public ChangeTenantStatusCommand() { }
+    public ChangeTenantStatusByIdCommand() { }
 
-    public string TenantName { get; init; }
+    public Guid TenantId { get; init; }
     public Guid? ProductId { get; init; }
     public TenantStatus Status { get; init; }
 }

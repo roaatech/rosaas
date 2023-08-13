@@ -2,9 +2,9 @@
 
 namespace Roaa.Rosas.Application.Tenants.Service.Models
 {
-    public record ChangeTenantStatusResult
+    public record SetTenantNextStatusResult
     {
-        public ChangeTenantStatusResult(ProductTenant tenant, Process process)
+        public SetTenantNextStatusResult(ProductTenant tenant, Process process)
         {
             Process = process;
             ProductTenant = tenant;

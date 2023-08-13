@@ -34,8 +34,8 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
         #region Validation
 
         var tenant = await _dbContext.ProductTenants
-                                     .Where(x => x.TenantId == request.TenantId &&
-                                                 x.ProductId == request.ProductId)
+                                     .Where(x => x.ProductId == request.ProductId &&
+                                                         request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
                                      .SingleOrDefaultAsync(cancellationToken);
         if (tenant is null)
         {
