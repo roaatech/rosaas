@@ -76,19 +76,19 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.Auth
                 {
                     AccessToken = tokenResult.Data.AccessToken,
                 },
-                Info = new ClientInfoDto
-                {
-                    RosasClient = new InfoDto
-                    {
-                        Name = "roaa",
-                        Title = "Roaa Tech",
-                    },
-                    RosasProduct = new InfoDto
-                    {
-                        Name = "osos",
-                        Title = "OSOS System",
-                    }
-                }
+                Info = new ClientInfoDto()
+                //{
+                //    RosasClient = new InfoDto
+                //    {
+                //        Name = "roaa",
+                //        Title = "Roaa Tech",
+                //    },
+                //    RosasProduct = new InfoDto
+                //    {
+                //        Name = "osos",
+                //        Title = "OSOS System",
+                //    }
+                //}
             });
         }
 

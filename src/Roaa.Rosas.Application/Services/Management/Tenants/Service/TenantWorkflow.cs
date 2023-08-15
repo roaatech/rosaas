@@ -48,7 +48,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Action = WorkflowAction.Ok,
                     NextStatus = TenantStatus.RecordCreated,
                     Name = "Create Record",
-                    Message = "ROSAS - Super Admin created a tenant record in ROSAS's database",
+                    Message = "ROSAS - created a tenant record in ROSAS's database",
                 },
 
                 new Process()
@@ -58,7 +58,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Action = WorkflowAction.Ok,
                     NextStatus = TenantStatus.PreCreating,
                     Name = "Create",
-                    Message = "ROSAS - Super Admin called the external system to create the tenant resources for it",
+                    Message = "ROSAS - called the external system to create the tenant resources for it",
                 },
 
                 new Process()
@@ -97,7 +97,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Action = WorkflowAction.Ok,
                     NextStatus = TenantStatus.PreDeactivating,
                     Name = "Deactivate",
-                    Message = "ROSAS - Super Admin called the external system to deactivate the tenant resources",
+                    Message = "ROSAS - called the external system to deactivate the tenant resources",
                 },
 
 
@@ -108,7 +108,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Action = WorkflowAction.Ok,
                     NextStatus = TenantStatus.PreDeleting,
                     Name = "Delete",
-                    Message = "ROSAS - Super Admin called the external system to delete the tenant resources",
+                    Message = "ROSAS - called the external system to delete the tenant resources",
                 },
 
                 new Process()
@@ -129,7 +129,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Action = WorkflowAction.Ok,
                     NextStatus = TenantStatus.PreDeactivating,
                     Name = "Deactivate",
-                    Message = "ROSAS - Super Admin called the external system to deactivate the tenant resources",
+                    Message = "ROSAS - called the external system to deactivate the tenant resources",
                 },
 
                   new Process()
@@ -167,7 +167,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Action = WorkflowAction.Ok,
                     NextStatus = TenantStatus.PreActivating,
                     Name = "Activate",
-                    Message = "ROSAS - Super Admin called the external system to activate the tenant resources",
+                    Message = "ROSAS - called the external system to activate the tenant resources",
                 },
 
                   new Process()
@@ -207,7 +207,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Action = WorkflowAction.Ok,
                     NextStatus = TenantStatus.PreDeleting,
                     Name = "Delete",
-                    Message = "ROSAS - Super Admin called the external system to delete the tenant resources",
+                    Message = "ROSAS - called the external system to delete the tenant resources",
                 },
 
                   new Process()
@@ -228,7 +228,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Action = WorkflowAction.Ok,
                     NextStatus = TenantStatus.PreDeleting,
                     Name = "Delete",
-                    Message = "ROSAS - Super Admin called the external system to delete the tenant resources",
+                    Message = "ROSAS - called the external system to delete the tenant resources",
                 },
 
                 new Process()

@@ -2,8 +2,8 @@
 {
     public record ClientInfoDto
     {
-        public InfoDto? RosasClient { get; set; }
-        public InfoDto? RosasProduct { get; set; }
+        //    public InfoDto? RosasClient { get; set; }
+        //    public InfoDto? RosasProduct { get; set; }
     }
     public record InfoDto
     {
