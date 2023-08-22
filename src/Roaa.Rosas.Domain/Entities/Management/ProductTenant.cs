@@ -14,7 +14,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public string Metadata { get; set; } = string.Empty;
         public virtual Tenant? Tenant { get; set; }
         public virtual Product? Product { get; set; }
-        public virtual ProductTenantHealthStatus? HealthCheckStatus { get; set; }
+        public virtual TenantHealthStatus? HealthCheckStatus { get; set; }
 
     }
 

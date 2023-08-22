@@ -41,7 +41,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
         public async Task AddTenantHealthCheckStatusAsync(Type backgroundServiceType, JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable, CancellationToken cancellationToken)
         {
             var date = DateTime.UtcNow;
-            var entity = new TenantHealthCheck
+            var entity = new TenantHealthCheckHistory
             {
                 Id = Guid.NewGuid(),
                 TimeStamp = date,
@@ -63,7 +63,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
 
             Type dss = GetType();
             string checkDateUpdatingQuery = "";
-            ProductTenantHealthStatus hs = null;
+            TenantHealthStatus hs = null;
             List<object> paramItems = new List<object>
                             {
                                 new MySqlParameter($"@{nameof(hs.HealthCheckUrl)}", healthCheckUrl),
@@ -119,10 +119,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
 
 
         }
-        public TenantHealthCheck AddTenantAvailabilityToDbContext(JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable)
+        public TenantHealthCheckHistory AddTenantAvailabilityToDbContext(JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable)
         {
             var date = DateTime.UtcNow;
-            var entity = new TenantHealthCheck
+            var entity = new TenantHealthCheckHistory
             {
                 Id = Guid.NewGuid(),
                 TimeStamp = date,

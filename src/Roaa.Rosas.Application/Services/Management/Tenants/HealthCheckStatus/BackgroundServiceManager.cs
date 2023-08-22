@@ -159,7 +159,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 
 
 
-            var entityType = _dbContext.Model.FindEntityType(typeof(ProductTenantHealthStatus));
+            var entityType = _dbContext.Model.FindEntityType(typeof(TenantHealthStatus));
             var schema = entityType.GetSchema();
             _store.ProductTenantHealthStatusTableName = entityType.GetTableName();
 

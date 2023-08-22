@@ -4,12 +4,12 @@ using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
 {
-    public class TenantProcessConfiguration : IEntityTypeConfiguration<TenantProcess>
+    public class TenantStatusHistoryConfiguration : IEntityTypeConfiguration<TenantStatusHistory>
     {
         #region Configure 
-        public void Configure(EntityTypeBuilder<TenantProcess> builder)
+        public void Configure(EntityTypeBuilder<TenantStatusHistory> builder)
         {
-            builder.ToTableName("RosasTenantProcesses");
+            builder.ToTableName("RosasTenantStatusHistory");
             builder.HasKey(x => x.Id);
             builder.Property(r => r.TenantId).IsRequired();
             builder.Property(r => r.ProductId).IsRequired();
@@ -27,5 +27,4 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         }
         #endregion
     }
-
 }

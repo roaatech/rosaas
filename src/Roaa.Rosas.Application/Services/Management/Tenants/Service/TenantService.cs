@@ -151,7 +151,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                         tenantProduct.AddDomainEvent(new ActiveTenantStatusUpdated(tenantProduct));
                     }
 
-                    var process = new TenantProcess
+                    var process = new TenantStatusHistory
                     {
                         Id = Guid.NewGuid(),
                         TenantId = tenantProduct.TenantId,

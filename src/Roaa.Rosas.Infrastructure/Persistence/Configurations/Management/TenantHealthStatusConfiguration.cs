@@ -4,12 +4,12 @@ using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
 {
-    public class ProductTenantHealthStatusConfiguration : IEntityTypeConfiguration<ProductTenantHealthStatus>
+    public class TenantHealthStatusConfiguration : IEntityTypeConfiguration<TenantHealthStatus>
     {
         #region Configure 
-        public void Configure(EntityTypeBuilder<ProductTenantHealthStatus> builder)
+        public void Configure(EntityTypeBuilder<TenantHealthStatus> builder)
         {
-            builder.ToTableName("RosasProductTenantHealthStatuses");
+            builder.ToTableName("RosasTenantHealthStatuses");
             builder.HasKey(x => x.Id);
             builder.Property(r => r.TenantId).IsRequired();
             builder.Property(r => r.ProductId).IsRequired();

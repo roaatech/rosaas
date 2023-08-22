@@ -24,10 +24,10 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<Client> Clients { get; }
         public DbSet<Product> Products { get; }
         public DbSet<Tenant> Tenants { get; }
-        public DbSet<TenantProcess> TenantProcesses { get; }
-        public DbSet<TenantHealthCheck> TenantHealthChecks { get; }
+        public DbSet<TenantStatusHistory> TenantProcesses { get; }
+        public DbSet<TenantHealthCheckHistory> TenantHealthChecks { get; }
         public DbSet<ProductTenant> ProductTenants { get; }
-        public DbSet<ProductTenantHealthStatus> ProductTenantHealthStatuses { get; }
+        public DbSet<TenantHealthStatus> ProductTenantHealthStatuses { get; }
         public DbSet<ExternalSystemDispatch> ExternalSystemDispatches { get; }
         public DbSet<Feature> Features { get; }
         public DbSet<Plan> Plans { get; }
