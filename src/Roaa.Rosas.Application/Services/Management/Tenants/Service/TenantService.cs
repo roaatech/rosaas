@@ -164,7 +164,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                         Message = nextProcess.Message
                     };
 
-                    _dbContext.TenantProcesses.Add(process);
+                    _dbContext.TenantStatusHistory.Add(process);
 
 
                     results.Add(new SetTenantNextStatusResult(tenantProduct, nextProcess));

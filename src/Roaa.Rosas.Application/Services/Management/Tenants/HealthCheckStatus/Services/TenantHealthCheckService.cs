@@ -53,7 +53,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                 HealthCheckUrl = healthCheckUrl
             };
 
-            _dbContext.TenantHealthChecks.Add(entity);
+            _dbContext.TenantHealthCheckHistory.Add(entity);
 
             await _dbContext.SaveChangesAsync();
 
@@ -134,7 +134,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                 HealthCheckUrl = healthCheckUrl
             };
 
-            _dbContext.TenantHealthChecks.Add(entity);
+            _dbContext.TenantHealthCheckHistory.Add(entity);
 
             return entity;
         }

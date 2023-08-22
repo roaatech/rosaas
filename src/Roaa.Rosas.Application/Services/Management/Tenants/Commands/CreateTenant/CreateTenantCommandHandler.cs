@@ -125,9 +125,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         _dbContext.Tenants.Add(tenant);
 
-        _dbContext.TenantProcesses.AddRange(processes);
+        _dbContext.TenantStatusHistory.AddRange(processes);
 
-        _dbContext.ProductTenantHealthStatuses.AddRange(healthStatuses);
+        _dbContext.TenantHealthStatuses.AddRange(healthStatuses);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
