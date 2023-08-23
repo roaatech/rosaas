@@ -30,7 +30,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
         #region Handler   
         public async Task<Result<List<TenantProcessDto>>> Handle(GetTenantProcessesByTenantIdQuery request, CancellationToken cancellationToken)
         {
-            var results = await _dbContext.TenantProcesses.AsNoTracking()
+            var results = await _dbContext.TenantStatusHistory.AsNoTracking()
                                                   .Where(x => x.TenantId == request.TenantId && x.ProductId == request.ProductId)
                                                   .Select(x => new TenantProcessDto
                                                   {

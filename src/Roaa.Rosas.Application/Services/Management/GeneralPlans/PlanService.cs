@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Plans.Models;
-using Roaa.Rosas.Application.Services.Management.Plans.Validators;
-using Roaa.Rosas.Application.SystemMessages;
+using Roaa.Rosas.Application.Services.Management.GeneralPlans.Models;
+using Roaa.Rosas.Application.Services.Management.GeneralPlans.Validators;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
@@ -13,7 +12,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Plans
+namespace Roaa.Rosas.Application.Services.Management.GeneralPlans
 {
     public class PlanService : IPlanService
     {
@@ -56,12 +55,11 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.Created,
                                               EditedDate = plan.Edited,
-                                              Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "Description", "Name", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
 
-            query = query.Where(filters, new string[] { "ProductId", "_Description", "_Name" }, "CreatedDate");
+            query = query.Where(filters, new string[] { "_Description", "_Name" }, "CreatedDate");
 
             query = query.OrderBy(sort);
 
@@ -69,47 +67,12 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
 
             return pagedUsers;
         }
-        public async Task<Result<List<PlanListItemDto>>> GetPlansListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
-        {
-            var plans = await _dbContext.Plans
-                                              .AsNoTracking()
-                                              .Where(f => f.ProductId == productId)
-                                              .Select(plan => new PlanListItemDto
-                                              {
-                                                  Id = plan.Id,
-                                                  Name = plan.Name,
-                                                  Description = plan.Description,
-                                                  DisplayOrder = plan.DisplayOrder,
-                                                  CreatedDate = plan.Created,
-                                                  EditedDate = plan.Edited,
-                                                  Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
-                                              })
-                                              .ToListAsync(cancellationToken);
 
-            return Result<List<PlanListItemDto>>.Successful(plans);
-        }
-
-        public async Task<Result<List<LookupItemDto<Guid>>>> GetPlansLookupListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
-        {
-            var plans = await _dbContext.Plans
-                                              .AsNoTracking()
-                                              .Where(f => f.ProductId == productId)
-                                              .Select(plan => new LookupItemDto<Guid>
-                                              {
-                                                  Id = plan.Id,
-                                                  Name = plan.Name,
-                                              })
-                                              .ToListAsync(cancellationToken);
-
-            return Result<List<LookupItemDto<Guid>>>.Successful(plans);
-        }
-
-
-        public async Task<Result<PlanDto>> GetPlanByIdAsync(Guid id, Guid productId, CancellationToken cancellationToken = default)
+        public async Task<Result<PlanDto>> GetPlanByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var plan = await _dbContext.Plans
                                           .AsNoTracking()
-                                          .Where(x => x.Id == id && x.ProductId == productId)
+                                          .Where(x => x.Id == id)
                                           .Select(plan => new PlanDto
                                           {
                                               Id = plan.Id,
@@ -118,14 +81,13 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.Created,
                                               EditedDate = plan.Edited,
-                                              Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
             return Result<PlanDto>.Successful(plan);
         }
 
-        public async Task<Result<CreatedResult<Guid>>> CreatePlanAsync(CreatePlanModel model, Guid productId, CancellationToken cancellationToken = default)
+        public async Task<Result<CreatedResult<Guid>>> CreatePlanAsync(CreatePlanModel model, CancellationToken cancellationToken = default)
         {
             #region Validation
             var fValidation = new CreatePlanValidator(_identityContextService).Validate(model);
@@ -134,10 +96,6 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await _dbContext.Products.Where(x => x.Id == productId).AnyAsync(cancellationToken))
-            {
-                return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, "productId");
-            }
             #endregion
 
 
@@ -147,7 +105,6 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             var plan = new Plan
             {
                 Id = id,
-                ProductId = model.ProductId,
                 Name = model.Name,
                 Description = model.Description,
                 DisplayOrder = model.DisplayOrder,
@@ -164,7 +121,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             return Result<CreatedResult<Guid>>.Successful(new CreatedResult<Guid>(plan.Id));
         }
 
-        public async Task<Result> UpdatePlanAsync(Guid id, UpdatePlanModel model, Guid productId, CancellationToken cancellationToken = default)
+        public async Task<Result> UpdatePlanAsync(Guid id, UpdatePlanModel model, CancellationToken cancellationToken = default)
         {
             #region Validation
             var fValidation = new UpdatePlanValidator(_identityContextService).Validate(model);
@@ -173,7 +130,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var plan = await _dbContext.Plans.Where(x => x.Id == id && x.ProductId == productId).SingleOrDefaultAsync();
+            var plan = await _dbContext.Plans.Where(x => x.Id == id).SingleOrDefaultAsync();
             if (plan is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
@@ -195,18 +152,13 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
 
 
 
-        public async Task<Result> DeletePlanAsync(Guid id, Guid productId, CancellationToken cancellationToken = default)
+        public async Task<Result> DeletePlanAsync(Guid id, CancellationToken cancellationToken = default)
         {
             #region Validation 
-            var plan = await _dbContext.Plans.Where(x => x.Id == id && x.ProductId == productId).SingleOrDefaultAsync();
+            var plan = await _dbContext.Plans.Where(x => x.Id == id).SingleOrDefaultAsync();
             if (plan is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
-            }
-
-            if (!await DeletingIsAllowedAsync(id, cancellationToken))
-            {
-                return Result.Fail(ErrorMessage.DeletingIsNotAllowed, _identityContextService.Locale);
             }
             #endregion
 
@@ -215,14 +167,6 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Successful();
-        }
-
-        private async Task<bool> DeletingIsAllowedAsync(Guid planId, CancellationToken cancellationToken = default)
-        {
-            return !await _dbContext.PlanFeatures
-                                    .Where(x => x.PlanId == planId)
-                                    .AnyAsync(cancellationToken);
-
         }
         #endregion
     }

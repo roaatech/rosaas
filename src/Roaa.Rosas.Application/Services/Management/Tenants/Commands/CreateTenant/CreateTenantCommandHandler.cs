@@ -125,9 +125,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         _dbContext.Tenants.Add(tenant);
 
-        _dbContext.TenantProcesses.AddRange(processes);
+        _dbContext.TenantStatusHistory.AddRange(processes);
 
-        _dbContext.ProductTenantHealthStatuses.AddRange(healthStatuses);
+        _dbContext.TenantHealthStatuses.AddRange(healthStatuses);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -161,9 +161,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             }).ToList(),
         };
     }
-    private IEnumerable<ProductTenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<ProductTenant> Products)
+    private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<ProductTenant> Products)
     {
-        return Products.Select(item => new ProductTenantHealthStatus
+        return Products.Select(item => new TenantHealthStatus
         {
             Id = item.Id,
             TenantId = item.TenantId,
@@ -174,11 +174,11 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         });
     }
 
-    private IEnumerable<TenantProcess> BuildTenantProcessEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
+    private IEnumerable<TenantStatusHistory> BuildTenantProcessEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
     {
 
 
-        return ProductsIds.Select(productId => new TenantProcess
+        return ProductsIds.Select(productId => new TenantStatusHistory
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,

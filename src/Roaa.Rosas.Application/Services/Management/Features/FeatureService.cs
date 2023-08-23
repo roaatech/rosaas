@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Features.Models;
 using Roaa.Rosas.Application.Services.Management.Features.Validators;
+using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
@@ -90,12 +91,27 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             return Result<List<FeatureListItemDto>>.Successful(features);
         }
 
+        public async Task<Result<List<LookupItemDto<Guid>>>> GetFeaturesLookupListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
+        {
+            var features = await _dbContext.Features
+                                              .AsNoTracking()
+                                              .Where(f => f.ProductId == productId)
+                                              .Select(feature => new LookupItemDto<Guid>
+                                              {
+                                                  Id = feature.Id,
+                                                  Name = feature.Name,
+                                              })
+                                              .ToListAsync(cancellationToken);
+
+            return Result<List<LookupItemDto<Guid>>>.Successful(features);
+        }
+
 
         public async Task<Result<FeatureDto>> GetFeatureByIdAsync(Guid id, Guid productId, CancellationToken cancellationToken = default)
         {
             var feature = await _dbContext.Features
                                           .AsNoTracking()
-                                          .Where(x => x.Id == id)
+                                          .Where(x => x.Id == id && x.ProductId == productId)
                                           .Select(feature => new FeatureDto
                                           {
                                               Id = feature.Id,
@@ -119,6 +135,11 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             if (!fValidation.IsValid)
             {
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
+            }
+
+            if (!await _dbContext.Products.Where(x => x.Id == productId).AnyAsync(cancellationToken))
+            {
+                return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, "productId");
             }
 
             #endregion
@@ -158,7 +179,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var feature = await _dbContext.Features.Where(x => x.Id == id).SingleOrDefaultAsync();
+            var feature = await _dbContext.Features.Where(x => x.Id == id && x.ProductId == productId).SingleOrDefaultAsync();
             if (feature is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
@@ -190,7 +211,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
         {
             #region Validation 
 
-            var feature = await _dbContext.Features.Where(x => x.Id == id).SingleOrDefaultAsync();
+            var feature = await _dbContext.Features.Where(x => x.Id == id && x.ProductId == productId).SingleOrDefaultAsync();
             if (feature is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
@@ -199,6 +220,11 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             if (!await UpdatingOrDeletingIsAllowedAsync(id, cancellationToken))
             {
                 return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+            }
+
+            if (!await DeletingIsAllowedAsync(id, cancellationToken))
+            {
+                return Result.Fail(ErrorMessage.DeletingIsNotAllowed, _identityContextService.Locale);
             }
             #endregion
 
@@ -209,6 +235,13 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             return Result.Successful();
         }
 
+        private async Task<bool> DeletingIsAllowedAsync(Guid featureId, CancellationToken cancellationToken = default)
+        {
+            return !await _dbContext.PlanFeatures
+                                    .Where(x => x.FeatureId == featureId)
+                                    .AnyAsync(cancellationToken);
+
+        }
 
         private async Task<bool> UpdatingOrDeletingIsAllowedAsync(Guid featureId, CancellationToken cancellationToken = default)
         {

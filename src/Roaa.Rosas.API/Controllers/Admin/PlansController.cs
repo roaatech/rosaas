@@ -7,7 +7,7 @@ using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
-
+    [Route($"{PrefixSuperAdminMainApiRoute}/products/{{productId}}/[controller]")]
     public class PlansController : BaseSuperAdminMainApiController
     {
         #region Props 
@@ -32,41 +32,55 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
         #region Actions   
 
-        [HttpGet()]
-        public async Task<IActionResult> GetPlansPaginatedListAsync([FromQuery] PaginationMetaData pagination, [FromQuery] List<FilterItem> filters, [FromQuery] SortItem sort, CancellationToken cancellationToken = default)
+        [HttpGet($"/{PrefixSuperAdminMainApiRoute}/[controller]")]
+        public async Task<IActionResult> GetPlansListByProductIdAsync([FromQuery] PaginationMetaData pagination, [FromQuery] List<FilterItem> filters, [FromQuery] SortItem sort, CancellationToken cancellationToken = default)
         {
             return PaginatedResult(await _planService.GetPlansPaginatedListAsync(pagination, filters, sort, cancellationToken));
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetPlanByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        [HttpGet("Lookup")]
+        public async Task<IActionResult> GetPlansLookupListByProductIdAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _planService.GetPlanByIdAsync(id, cancellationToken));
+            return ListResult(await _planService.GetPlansLookupListByProductIdAsync(productId, cancellationToken));
         }
 
 
+        [HttpGet()]
+        public async Task<IActionResult> GetPlansListByProductIdAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _planService.GetPlansListByProductIdAsync(productId, cancellationToken));
+        }
+
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPlanByIdAsync([FromRoute] Guid productId, [FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _planService.GetPlanByIdAsync(id, productId, cancellationToken));
+        }
+
 
         [HttpPost()]
-        public async Task<IActionResult> CreatePlanAsync([FromBody] CreatePlanModel model, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CreatePlanAsync([FromBody] CreatePlanModel model, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _planService.CreatePlanAsync(model, cancellationToken));
+            return ItemResult(await _planService.CreatePlanAsync(model, productId, cancellationToken));
         }
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePlanAsync([FromBody] UpdatePlanModel model, [FromRoute] Guid id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdatePlanAsync([FromBody] UpdatePlanModel model, [FromRoute] Guid id, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _planService.UpdatePlanAsync(id, model, cancellationToken));
+            return EmptyResult(await _planService.UpdatePlanAsync(id, model, productId, cancellationToken));
         }
+
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePlanAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> DeletePlanAsync([FromRoute] Guid id, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _planService.DeletePlanAsync(id, cancellationToken));
+            return EmptyResult(await _planService.DeletePlanAsync(id, productId, cancellationToken));
         }
-        #endregion
 
+        #endregion
 
     }
 }

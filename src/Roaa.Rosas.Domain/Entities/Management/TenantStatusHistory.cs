@@ -3,7 +3,7 @@ using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Domain.Entities.Management
 {
-    public class TenantProcess : BaseEntity
+    public class TenantStatusHistory : BaseEntity
     {
         public Guid TenantId { get; set; }
         public Guid ProductId { get; set; }

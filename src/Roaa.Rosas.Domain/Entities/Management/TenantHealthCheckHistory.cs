@@ -1,6 +1,6 @@
 ﻿namespace Roaa.Rosas.Domain.Entities.Management
 {
-    public class TenantHealthCheck : BaseEntity
+    public class TenantHealthCheckHistory : BaseEntity
     {
         public Guid TenantId { get; set; }
 
