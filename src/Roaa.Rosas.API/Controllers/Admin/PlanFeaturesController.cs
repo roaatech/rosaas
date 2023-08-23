@@ -6,7 +6,7 @@ using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
-    [Route($"{PrefixSuperAdminMainApiRoute}/products/{{productId}}/plans")]
+    [Route($"{PrefixSuperAdminMainApiRoute}/products/{{productId}}/[controller]")]
     public class PlanFeaturesController : BaseSuperAdminMainApiController
     {
         #region Props 
