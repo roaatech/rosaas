@@ -8,12 +8,16 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
     {
         Task<PaginatedResult<PlanListItemDto>> GetPlansPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default);
 
-        Task<Result<PlanDto>> GetPlanByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<Result<List<PlanListItemDto>>> GetPlansListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 
-        Task<Result<CreatedResult<Guid>>> CreatePlanAsync(CreatePlanModel model, CancellationToken cancellationToken = default);
+        Task<Result<List<LookupItemDto<Guid>>>> GetPlansLookupListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 
-        Task<Result> UpdatePlanAsync(Guid id, UpdatePlanModel model, CancellationToken cancellationToken = default);
+        Task<Result<PlanDto>> GetPlanByIdAsync(Guid id, Guid productId, CancellationToken cancellationToken = default);
 
-        Task<Result> DeletePlanAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<Result<CreatedResult<Guid>>> CreatePlanAsync(CreatePlanModel model, Guid productId, CancellationToken cancellationToken = default);
+
+        Task<Result> UpdatePlanAsync(Guid id, UpdatePlanModel model, Guid productId, CancellationToken cancellationToken = default);
+
+        Task<Result> DeletePlanAsync(Guid id, Guid productId, CancellationToken cancellationToken = default);
     }
 }
