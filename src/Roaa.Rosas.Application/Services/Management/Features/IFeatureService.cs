@@ -10,6 +10,8 @@ namespace Roaa.Rosas.Application.Services.Management.Features
 
         Task<Result<List<FeatureListItemDto>>> GetFeaturesListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 
+        Task<Result<List<LookupItemDto<Guid>>>> GetFeaturesLookupListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
+
         Task<Result<FeatureDto>> GetFeatureByIdAsync(Guid id, Guid productId, CancellationToken cancellationToken = default);
 
         Task<Result<CreatedResult<Guid>>> CreateFeatureAsync(CreateFeatureModel model, Guid productId, CancellationToken cancellationToken = default);

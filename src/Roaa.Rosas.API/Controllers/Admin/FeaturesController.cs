@@ -2,12 +2,13 @@
 using Roaa.Rosas.Application.Services.Management.Features;
 using Roaa.Rosas.Application.Services.Management.Features.Models;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
     [Route($"{PrefixSuperAdminMainApiRoute}/products/{{productId}}/[controller]")]
-    public class FeaturesController : BaseSuperAdminMainApiController
+    public partial class FeaturesController : BaseSuperAdminMainApiController
     {
         #region Props 
         private readonly ILogger<FeaturesController> _logger;
@@ -30,6 +31,20 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #endregion
 
         #region Actions   
+
+        [HttpGet($"/{PrefixSuperAdminMainApiRoute}/[controller]")]
+        public async Task<IActionResult> GetFeaturesListByProductIdAsync([FromQuery] PaginationMetaData pagination, [FromQuery] List<FilterItem> filters, [FromQuery] SortItem sort, CancellationToken cancellationToken = default)
+        {
+            return PaginatedResult(await _featureService.GetFeaturesPaginatedListAsync(pagination, filters, sort, cancellationToken));
+        }
+
+
+        [HttpGet("Lookup")]
+        public async Task<IActionResult> GetFeaturesLookupListByProductIdAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _featureService.GetFeaturesLookupListByProductIdAsync(productId, cancellationToken));
+        }
+
 
         [HttpGet()]
         public async Task<IActionResult> GetFeaturesListByProductIdAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
@@ -68,4 +83,6 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #endregion
 
     }
+
+
 }
