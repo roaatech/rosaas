@@ -117,7 +117,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         var tenant = BuildTenantEntity(request, defaultHealthCheckUrlOfProducts, initialProcess);
 
-        var processes = BuildTenantProcessEntities(tenant.Id, request.ProductsIds, initialProcess);
+        var statusHistory = BuildTenantStatusHistoryEntities(tenant.Id, request.ProductsIds, initialProcess);
+
+        var processHistory = BuildTenantProcessHistoryEntities(tenant.Id, request.ProductsIds, initialProcess);
 
         var healthStatuses = BuildProductTenantHealthStatusEntities(tenant.Products);
 
@@ -125,7 +127,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         _dbContext.Tenants.Add(tenant);
 
-        _dbContext.TenantStatusHistory.AddRange(processes);
+        _dbContext.TenantStatusHistory.AddRange(statusHistory);
+
+        _dbContext.TenantProcessHistory.AddRange(processHistory);
 
         _dbContext.TenantHealthStatuses.AddRange(healthStatuses);
 
@@ -174,7 +178,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         });
     }
 
-    private IEnumerable<TenantStatusHistory> BuildTenantProcessEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
+    private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
     {
 
 
@@ -188,7 +192,25 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             OwnerId = _identityContextService.GetActorId(),
             OwnerType = _identityContextService.GetUserType(),
             Created = _date,
+            TimeStamp = _date,
             Message = initialProcess.Message
+        });
+    }
+    private IEnumerable<TenantProcessHistory> BuildTenantProcessHistoryEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
+    {
+
+
+        return ProductsIds.Select(productId => new TenantProcessHistory
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            ProductId = productId,
+            Status = initialProcess.NextStatus,
+            OwnerId = _identityContextService.GetActorId(),
+            OwnerType = _identityContextService.GetUserType(),
+            ProcessDate = _date,
+            TimeStamp = _date,
+            ProcessType = TenantProcessType.RecordCreated
         });
     }
     private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)

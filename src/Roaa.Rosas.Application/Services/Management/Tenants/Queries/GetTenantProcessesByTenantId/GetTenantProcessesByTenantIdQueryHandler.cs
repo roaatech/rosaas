@@ -7,7 +7,7 @@ using Roaa.Rosas.Common.Models.Results;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantProcessesByTenantId
 {
-    public class GetTenantProcessesByTenantIdQueryHandler : IRequestHandler<GetTenantProcessesByTenantIdQuery, Result<List<TenantProcessDto>>>
+    public class GetTenantProcessesByTenantIdQueryHandler : IRequestHandler<GetTenantProcessesByTenantIdQuery, PaginatedResult<TenantProcessDto>>
     {
         #region Props 
         private readonly IRosasDbContext _dbContext;
@@ -28,24 +28,26 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
 
 
         #region Handler   
-        public async Task<Result<List<TenantProcessDto>>> Handle(GetTenantProcessesByTenantIdQuery request, CancellationToken cancellationToken)
+        public async Task<PaginatedResult<TenantProcessDto>> Handle(GetTenantProcessesByTenantIdQuery request, CancellationToken cancellationToken)
         {
-            var results = await _dbContext.TenantStatusHistory.AsNoTracking()
-                                                  .Where(x => x.TenantId == request.TenantId && x.ProductId == request.ProductId)
-                                                  .Select(x => new TenantProcessDto
-                                                  {
-                                                      TenantId = x.TenantId,
-                                                      Status = x.Status,
-                                                      PreviousStatus = x.PreviousStatus,
-                                                      OwnerId = x.OwnerId,
-                                                      OwnerType = x.OwnerType,
-                                                      Message = x.Message,
-                                                      Created = x.Created,
-                                                  })
-                                                  .OrderByDescending(x => x.Created)
-                                                  .ToListAsync(cancellationToken);
+            var query = _dbContext.TenantProcessHistory.AsNoTracking()
+                                                    .Where(x => x.TenantId == request.TenantId && x.ProductId == request.ProductId)
+                                                    .Select(x => new TenantProcessDto
+                                                    {
+                                                        TenantId = x.TenantId,
+                                                        ProductId = x.ProductId,
+                                                        Status = x.Status,
+                                                        OwnerId = x.OwnerId,
+                                                        OwnerType = x.OwnerType,
+                                                        Data = x.Data,
+                                                        ProcessDate = x.TimeStamp,
+                                                        ProcessType = x.ProcessType,
+                                                    })
+                                                  .OrderByDescending(x => x.ProcessDate);
 
-            return Result<List<TenantProcessDto>>.Successful(results);
+            var pagedUsers = await query.ToPagedResultAsync(request.PaginationInfo, cancellationToken);
+
+            return pagedUsers;
         }
         #endregion
     }

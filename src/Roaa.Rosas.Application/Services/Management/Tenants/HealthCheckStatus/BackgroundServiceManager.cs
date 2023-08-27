@@ -160,10 +160,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 
 
             var entityType = _dbContext.Model.FindEntityType(typeof(TenantHealthStatus));
-            var schema = entityType.GetSchema();
-            _store.ProductTenantHealthStatusTableName = entityType.GetTableName();
+            _store.TenantHealthStatusTableName = entityType.GetTableName();
 
-
+            var processHistoryEntityType = _dbContext.Model.FindEntityType(typeof(TenantProcessHistory));
+            _store.TenantProcessHistoryTableName = processHistoryEntityType.GetTableName();
 
             _store.SetHealthCheckSettings((await _settingService.LoadSettingAsync<HealthCheckSettings>()).Data);
         }

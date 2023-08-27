@@ -16,6 +16,10 @@
 
         public DateTime CheckDate { get; set; }
 
+        public int HealthyCount { get; set; }
+
+        public int UnhealthyCount { get; set; }
+
         public virtual ProductTenant? ProductTenant { get; set; }
     }
 

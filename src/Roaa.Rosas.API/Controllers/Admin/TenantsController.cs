@@ -58,9 +58,9 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpGet("{id}/Products/{productId}/processes")]
-        public async Task<IActionResult> GetTenantProcessesListByTenantIdAsync([FromRoute] Guid productId, [FromRoute] Guid id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetTenantProcessesListByTenantIdAsync([FromQuery] PaginationMetaData pagination, [FromRoute] Guid productId, [FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetTenantProcessesByTenantIdQuery(id, productId), cancellationToken));
+            return PaginatedResult(await _mediator.Send(new GetTenantProcessesByTenantIdQuery(id, productId, pagination), cancellationToken));
         }
 
 

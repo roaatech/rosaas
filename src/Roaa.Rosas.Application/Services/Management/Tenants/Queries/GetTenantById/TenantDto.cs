@@ -41,6 +41,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
 
         public DateTime CheckDate { get; set; }
 
+        public int HealthyCount { get; set; }
+
+        public int UnhealthyCount { get; set; }
+
         public ExternalSystemDispatchDto? ExternalSystemDispatch { get; set; }
     }
 
