@@ -218,7 +218,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                             };
 
             var commandText = @$"UPDATE {_backgroundWorkerStore.TenantHealthStatusTableName} 
-                                     
+                                      SET 
                                                 {nameof(hs.HealthyCount)} = @{nameof(hs.HealthyCount)} , 
                                                 {nameof(hs.UnhealthyCount)} = @{nameof(hs.UnhealthyCount)}  
                                         WHERE   {nameof(hs.TenantId)} =  @{nameof(hs.TenantId)}  
