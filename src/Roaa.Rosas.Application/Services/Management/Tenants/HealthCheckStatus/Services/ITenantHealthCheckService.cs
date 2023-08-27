@@ -9,16 +9,23 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
     public interface ITenantHealthCheckService
     {
         Task AddTenantHealthCheckStatusAsync(Type backgroundServiceType, JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable, CancellationToken cancellationToken);
+        Task AddTenantProcessHistoryAsHealthyStatusAsync(JobTask jobTask, CancellationToken cancellationToken);
+        Task AddTenantProcessHistoryAsUnhealthyStatusAsync(JobTask jobTask, CancellationToken cancellationToken);
+        Task AddTenantProcessHistoryAsExternalSystemInformedAsync(JobTask jobTask, bool success, CancellationToken cancellationToken);
+        Task UpdateTenantProcessHistoryAsHealthCheckStatusAsync(JobTask jobTask, CancellationToken cancellationToken);
+        Task ResetTenantHealthStatusCountersAsync(JobTask jobTask, CancellationToken cancellationToken);
 
         Task AddExternalSystemDispatchAsync(JobTask jobTask, double duration, string url, bool isSuccessful, CancellationToken cancellationToken);
 
-        TenantHealthCheckHistory AddTenantAvailabilityToDbContext(JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable);
+        TenantHealthCheckHistory AddTenantHealthCheckHistoryToDbContext(JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable);
 
         JobTask AddJobTaskToDbContext(JobTask jobTask, JobTaskType type);
 
         Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(JobTask jobTask, string tenantHhealthCheckUrl, CancellationToken cancellationToken);
 
         Task<string> GetTenantHhealthCheckUrlAsync(JobTask jobTask, CancellationToken cancellationToken);
+
+        Task AddAvailableTenantTaskAsync(JobTask jobTask, CancellationToken cancellationToken);
 
         Task AddInaccessibleJobTaskAsync(JobTask jobTask, CancellationToken cancellationToken);
 

@@ -61,6 +61,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                              LastCheckDate = x.HealthCheckStatus.LastCheckDate,
                                                              CheckDate = x.HealthCheckStatus.CheckDate,
                                                              Duration = x.HealthCheckStatus.Duration,
+                                                             HealthyCount = x.HealthCheckStatus.HealthyCount,
+                                                             UnhealthyCount = x.HealthCheckStatus.UnhealthyCount,
                                                          }
                                                      }),
                                                  })

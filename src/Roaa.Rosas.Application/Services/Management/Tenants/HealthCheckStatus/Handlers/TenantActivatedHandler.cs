@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
+using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
 using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Handlers
@@ -12,12 +13,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
         private readonly ILogger<TenantActivatedHandler> _logger;
         private readonly BackgroundServicesStore _backgroundWorkerStore;
         private readonly IRosasDbContext _dbContext;
+        private readonly ITenantHealthCheckService _tenantHealthCheckService;
 
         public TenantActivatedHandler(ILogger<TenantActivatedHandler> logger,
                                       IRosasDbContext dbContext,
-                                      BackgroundServicesStore backgroundWorkerStore)
+                                      BackgroundServicesStore backgroundWorkerStore,
+                                      ITenantHealthCheckService tenantHealthCheckService)
         {
             _backgroundWorkerStore = backgroundWorkerStore;
+            _tenantHealthCheckService = tenantHealthCheckService;
             _dbContext = dbContext;
             _logger = logger;
         }
@@ -26,20 +30,24 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
         {
             try
             {
+                var date = DateTime.UtcNow;
+                var jobTask = new JobTask
+                {
+                    Id = Guid.NewGuid(),
+                    ProductId = @event.ProductTenant.ProductId,
+                    TenantId = @event.ProductTenant.TenantId,
+                    Created = date,
+                    Type = JobTaskType.Available,
+                };
+
+                await _tenantHealthCheckService.ResetTenantHealthStatusCountersAsync(jobTask, cancellationToken);
+
                 var tenantName = await _dbContext.Tenants
                                .Where(x => x.Id == @event.ProductTenant.TenantId)
                                .Select(x => x.UniqueName)
                                .SingleOrDefaultAsync(cancellationToken);
 
-                _backgroundWorkerStore.AddAvailableTenantTask(
-                    new JobTask
-                    {
-                        Id = Guid.NewGuid(),
-                        ProductId = @event.ProductTenant.ProductId,
-                        TenantId = @event.ProductTenant.TenantId,
-                        Created = DateTime.UtcNow,
-                        Type = JobTaskType.Available,
-                    }, tenantName);
+                _backgroundWorkerStore.AddAvailableTenantTask(jobTask, tenantName);
 
                 _logger.LogInformation($"The job task added to {nameof(AvailableTenantChecker)} Background Service with info: TenantId:{{0}}, ProductId:{{1}}",
                       @event.ProductTenant.TenantId,

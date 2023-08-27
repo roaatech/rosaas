@@ -65,32 +65,26 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.B
                             Log($"##-[{{0}}]Took the JobTask, for the tenant: [TenantId:{{1}}], [ProductId:{{2}}]", counter, jobTask.TenantId, jobTask.ProductId);
 
                             isAvailable = await CheckTenantHealthStatusAndRecordResultAsync(jobTask, cancellationToken);
-
+                            if (isAvailable)
+                            {
+                                await _tenantHealthCheckService.AddTenantProcessHistoryAsHealthyStatusAsync(jobTask, cancellationToken);
+                            }
+                            else
+                            {
+                                await _tenantHealthCheckService.AddTenantProcessHistoryAsUnhealthyStatusAsync(jobTask, cancellationToken);
+                            }
                             counter++;
                         }
                         await _tenantHealthCheckService.RemoveInaccessibleJobTaskTasks(jobTask, cancellationToken);
 
                         if (isAvailable)
                         {
+                            await _tenantHealthCheckService.AddAvailableTenantTaskAsync(jobTask, cancellationToken);
                         }
                         else
                         {
                             await _tenantHealthCheckService.AddInformerJobTaskAsync(jobTask, cancellationToken);
 
-                            //await Task.Run(async () =>
-                            //{
-                            //    var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
-                            //    var success = await InformExternalSystemTheTenantIsUnavailableAsync(jobTask, productService, cancellationToken);
-
-                            //    if (success)
-                            //    {
-                            //        await _tenantHealthCheckService.RemoveJobTaskAsync(jobTask, cancellationToken);
-                            //    }
-                            //    else
-                            //    {
-
-                            //    }
-                            //});
 
                             await _tenantHealthCheckService.AddUnavailableJobTaskAsync(jobTask, cancellationToken);
 

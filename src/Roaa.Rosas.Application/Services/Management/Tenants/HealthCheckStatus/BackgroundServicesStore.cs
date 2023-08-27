@@ -6,7 +6,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 {
     public class BackgroundServicesStore
     {
-        public string ProductTenantHealthStatusTableName { get; set; } = string.Empty;
+        public string TenantHealthStatusTableName { get; set; } = string.Empty;
+        public string TenantProcessHistoryTableName { get; set; } = string.Empty;
         public BlockingCollection<JobTask> AvailableTenantsTasks { get; private set; } = new BlockingCollection<JobTask>();
         public BlockingCollection<JobTask> UnavailableTenantsTasks { get; private set; } = new BlockingCollection<JobTask>();
         public BlockingCollection<JobTask> InaccessibleTenantsTasks { get; private set; } = new BlockingCollection<JobTask>();
@@ -29,6 +30,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 
         private Dictionary<Guid, string> tenantsNames = new();
 
+        private List<TenantHealthCheckProcessModel> tenantsProcesses = new();
+
         public string GetTenantName(Guid tenantId)
         {
             return tenantsNames[tenantId];
@@ -40,6 +43,34 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
             {
                 tenantsNames.Add(tenantId, tenantName);
             }
+        }
+
+        public Guid? GetTenantProcess(Guid tenantId, Guid productId)
+        {
+            var p = tenantsProcesses.Where(x => x.TenantId == tenantId &&
+                                                x.ProductId == productId)
+                                    .SingleOrDefault();
+            if (p is not null) return p.ProcessId;
+
+            return null;
+        }
+
+        public void AddTenantProcess(Guid tenantId, Guid productId, Guid processId)
+        {
+            RemoveTenantProcess(tenantId, productId);
+            tenantsProcesses.Add(new TenantHealthCheckProcessModel
+            {
+                TenantId = tenantId,
+                ProductId = productId,
+                ProcessId = processId
+            });
+
+        }
+
+        public void RemoveTenantProcess(Guid tenantId, Guid productId)
+        {
+            tenantsProcesses.RemoveAll(x => x.TenantId == tenantId &&
+                                            x.ProductId == productId);
         }
         public void SetHealthCheckSettings(HealthCheckSettings settings)
         {
@@ -209,5 +240,12 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
         public Guid ProductId { get; set; }
         public Guid TenantId { get; set; }
         public string HealthCheckUrl { get; set; } = string.Empty;
+    }
+
+    public class TenantHealthCheckProcessModel
+    {
+        public Guid ProductId { get; set; }
+        public Guid TenantId { get; set; }
+        public Guid ProcessId { get; set; }
     }
 }

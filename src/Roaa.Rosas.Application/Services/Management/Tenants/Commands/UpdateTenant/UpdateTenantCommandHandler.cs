@@ -1,12 +1,13 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using static Roaa.Rosas.Domain.Entities.Management.TenantProcessData;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenant;
 
@@ -49,10 +50,17 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
         #endregion
         Tenant tenantBeforeUpdate = tenant.DeepCopy();
 
+        DateTime date = DateTime.UtcNow;
+
         //  tenant.UniqueName = request.UniqueName.ToLower();
+        var processData = new TenantDataUpdatedProcessData
+        {
+            OldData = new TenantInfoProcessData { Title = tenant.Title },
+            UpdatedData = new TenantInfoProcessData { Title = request.Title },
+        };
         tenant.Title = request.Title;
         tenant.EditedByUserId = _identityContextService.UserId;
-        tenant.Edited = DateTime.UtcNow;
+        tenant.Edited = date;
 
         ////update products
         //var tenantProducts = await _dbContext.ProductTenants.Where(x => x.TenantId == x.TenantId).ToListAsync();
@@ -68,6 +76,30 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
         //}));
 
         tenant.AddDomainEvent(new TenantUpdatedEvent(tenantBeforeUpdate, tenant));
+
+        var tenantProducts = await _dbContext.ProductTenants.Where(x => x.TenantId == tenant.Id).ToListAsync();
+
+        foreach (var tProduct in tenantProducts)
+        {
+            var processHistory = new TenantProcessHistory
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tProduct.TenantId,
+                ProductId = tProduct.ProductId,
+                Status = tProduct.Status,
+                OwnerId = _identityContextService.GetActorId(),
+                OwnerType = _identityContextService.GetUserType(),
+                ProcessDate = date,
+                TimeStamp = date,
+                ProcessType = TenantProcessType.DataUpdated,
+                Enabled = true,
+                Data = System.Text.Json.JsonSerializer.Serialize(processData),
+            };
+            _dbContext.TenantProcessHistory.Add(processHistory);
+        }
+
+
+
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service.Models;
 using Roaa.Rosas.Authorization.Utilities;
@@ -14,6 +13,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using System.Linq.Expressions;
+using static Roaa.Rosas.Domain.Entities.Management.TenantProcessData;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 {
@@ -137,6 +137,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
             List<SetTenantNextStatusResult> results = new();
 
+            DateTime date = DateTime.UtcNow;
+
             foreach (var tenantProduct in productTenants)
             {
                 var nextProcess = nextProcesses.Where(x => x.CurrentStatus == tenantProduct.Status).FirstOrDefault();
@@ -144,14 +146,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 {
                     tenantProduct.Status = nextProcess.NextStatus;
                     tenantProduct.EditedByUserId = model.EditorBy;
-                    tenantProduct.Edited = DateTime.UtcNow;
+                    tenantProduct.Edited = date;
 
                     if (nextProcess.CurrentStatus == Domain.Enums.TenantStatus.Active)
                     {
                         tenantProduct.AddDomainEvent(new ActiveTenantStatusUpdated(tenantProduct));
                     }
 
-                    var process = new TenantStatusHistory
+                    var statusHistory = new TenantStatusHistory
                     {
                         Id = Guid.NewGuid(),
                         TenantId = tenantProduct.TenantId,
@@ -160,12 +162,35 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                         PreviousStatus = nextProcess.CurrentStatus,
                         OwnerId = _identityContextService.GetActorId(),
                         OwnerType = _identityContextService.GetUserType(),
-                        Created = DateTime.UtcNow,
+                        Created = date,
+                        TimeStamp = date,
                         Message = nextProcess.Message
                     };
 
-                    _dbContext.TenantStatusHistory.Add(process);
+                    _dbContext.TenantStatusHistory.Add(statusHistory);
 
+                    var processData = new TenantStatusChangedProcessData
+                    {
+                        PreviousStatus = nextProcess.CurrentStatus,
+                        Status = nextProcess.NextStatus,
+                    };
+
+                    var processHistory = new TenantProcessHistory
+                    {
+                        Id = Guid.NewGuid(),
+                        TenantId = tenantProduct.TenantId,
+                        ProductId = tenantProduct.ProductId,
+                        Status = nextProcess.NextStatus,
+                        OwnerId = _identityContextService.GetActorId(),
+                        OwnerType = _identityContextService.GetUserType(),
+                        ProcessDate = date,
+                        TimeStamp = date,
+                        ProcessType = TenantProcessType.StatusChanged,
+                        Enabled = true,
+                        Data = System.Text.Json.JsonSerializer.Serialize(processData),
+                    };
+
+                    _dbContext.TenantProcessHistory.Add(processHistory);
 
                     results.Add(new SetTenantNextStatusResult(tenantProduct, nextProcess));
                 }
@@ -175,6 +200,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
             return Result<List<SetTenantNextStatusResult>>.Successful(results);
         }
+
         #endregion
     }
 }
