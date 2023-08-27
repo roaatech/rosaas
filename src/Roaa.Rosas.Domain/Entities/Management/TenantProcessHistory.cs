@@ -36,7 +36,6 @@ namespace Roaa.Rosas.Domain.Entities.Management
         UnhealthStatus,
         ExternalSystemSuccessfullyInformed,
         FailedToInformExternalSystem,
-
     }
 
     public class TenantProcessData

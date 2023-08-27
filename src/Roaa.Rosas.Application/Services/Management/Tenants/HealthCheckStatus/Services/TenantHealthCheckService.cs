@@ -185,17 +185,17 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             TenantProcessHistory entity = null;
             List<object> paramItems = new List<object>
                             {
+                                new MySqlParameter($"@{nameof(entity.Enabled)}", true),
                                 new MySqlParameter($"@{nameof(entity.ProcessDate)}", date),
                                 new MySqlParameter($"@{nameof(entity.TimeStamp)}", date),
-                                new MySqlParameter($"@{nameof(entity.Enabled)}", true),
                                 new MySqlParameter($"@{nameof(entity.TenantId)}", jobTask.TenantId),
                                 new MySqlParameter($"@{nameof(entity.ProductId)}", jobTask.ProductId),
                                 new MySqlParameter($"@{nameof(entity.Id)}", processId),
                             };
 
             var commandText = @$"UPDATE {_backgroundWorkerStore.TenantProcessHistoryTableName} 
-                                     
-                                                {nameof(entity.Enabled)} = @{nameof(entity.Enabled)} , 
+                                        SET 
+                                                {nameof(entity.Enabled)} = @{nameof(entity.Enabled)}, 
                                                 {nameof(entity.ProcessDate)} = @{nameof(entity.ProcessDate)} , 
                                                 {nameof(entity.TimeStamp)} = @{nameof(entity.TimeStamp)}  
                                         WHERE   {nameof(entity.TenantId)} =  @{nameof(entity.TenantId)}  
