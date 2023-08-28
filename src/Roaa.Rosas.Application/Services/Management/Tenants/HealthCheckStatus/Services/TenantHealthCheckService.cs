@@ -187,7 +187,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                             {
                                 new MySqlParameter($"@{nameof(entity.Enabled)}", true),
                                 new MySqlParameter($"@{nameof(entity.ProcessDate)}", date),
-                                new MySqlParameter($"@{nameof(entity.TimeStamp)}", date),
+                                new MySqlParameter($"@{nameof(entity.TimeStamp)}", date.Ticks),
                                 new MySqlParameter($"@{nameof(entity.TenantId)}", jobTask.TenantId),
                                 new MySqlParameter($"@{nameof(entity.ProductId)}", jobTask.ProductId),
                                 new MySqlParameter($"@{nameof(entity.Id)}", processId),
