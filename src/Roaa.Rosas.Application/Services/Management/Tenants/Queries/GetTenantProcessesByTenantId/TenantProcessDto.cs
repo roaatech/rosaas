@@ -22,5 +22,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
 
         public DateTime ProcessDate { get; set; }
 
+        public int UpdatesCount { get; set; }
+
     }
 }

@@ -42,6 +42,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
                                                         Data = x.Data,
                                                         ProcessDate = x.TimeStamp,
                                                         ProcessType = x.ProcessType,
+                                                        UpdatesCount = x.UpdatesCount,
                                                     })
                                                   .OrderByDescending(x => x.ProcessDate);
 

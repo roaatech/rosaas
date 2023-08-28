@@ -23,6 +23,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public DateTime TimeStamp { get; set; }
 
+        public int UpdatesCount { get; set; } = 1;
+
         public bool Enabled { get; set; } = true;
     }
 
