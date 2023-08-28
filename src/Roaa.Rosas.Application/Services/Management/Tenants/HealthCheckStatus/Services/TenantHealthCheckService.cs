@@ -149,13 +149,18 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
         public async Task AddTenantProcessHistoryAsExternalSystemInformedAsync(JobTask jobTask, bool success, CancellationToken cancellationToken)
         {
             var date = DateTime.UtcNow;
-
+            var status = await _dbContext.ProductTenants
+                                     .Where(x => x.TenantId == jobTask.TenantId &&
+                                                 x.ProductId == jobTask.ProductId)
+                                     .Select(x => x.Status)
+                                     .SingleOrDefaultAsync(cancellationToken);
             var processHistory = new TenantProcessHistory
             {
                 Id = Guid.NewGuid(),
                 TenantId = jobTask.TenantId,
                 ProductId = jobTask.ProductId,
                 OwnerType = UserType.RosasSystem,
+                Status = status,
                 ProcessDate = date,
                 TimeStamp = date,
                 ProcessType = success ? TenantProcessType.ExternalSystemSuccessfullyInformed : TenantProcessType.FailedToInformExternalSystem,
@@ -194,7 +199,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                             };
 
             var commandText = @$"UPDATE {_backgroundWorkerStore.TenantProcessHistoryTableName} 
-                                        SET 
+                                        SET  
+                                                {nameof(entity.UpdatesCount)} = {nameof(entity.UpdatesCount)} + 1 ,
                                                 {nameof(entity.Enabled)} = @{nameof(entity.Enabled)}, 
                                                 {nameof(entity.ProcessDate)} = @{nameof(entity.ProcessDate)} , 
                                                 {nameof(entity.TimeStamp)} = @{nameof(entity.TimeStamp)}  
