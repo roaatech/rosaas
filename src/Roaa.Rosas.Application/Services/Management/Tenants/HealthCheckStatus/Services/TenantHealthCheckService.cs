@@ -208,11 +208,12 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
 
         public async Task ResetTenantHealthStatusCountersAsync(JobTask jobTask, CancellationToken cancellationToken)
         {
+            int count = 0;
             TenantHealthStatus hs = null;
             List<object> paramItems = new List<object>
                             {
-                                new MySqlParameter($"@{nameof(hs.HealthyCount)}", 0),
-                                new MySqlParameter($"@{nameof(hs.UnhealthyCount)}", 0),
+                                new MySqlParameter($"@{nameof(hs.HealthyCount)}", count),
+                                new MySqlParameter($"@{nameof(hs.UnhealthyCount)}", count),
                                 new MySqlParameter($"@{nameof(hs.TenantId)}", jobTask.TenantId),
                                 new MySqlParameter($"@{nameof(hs.ProductId)}", jobTask.ProductId),
                             };
