@@ -187,8 +187,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                     processId = await AddTenantProcessHistoryAsync(jobTask, TenantProcessType.HealthyStatus, true, cancellationToken);
                 }
             }
-            TenantProcessHistory entity = null;
-            List<object> paramItems = new List<object>
+            else
+            {
+                TenantProcessHistory entity = null;
+                List<object> paramItems = new List<object>
                             {
                                 new MySqlParameter($"@{nameof(entity.Enabled)}", true),
                                 new MySqlParameter($"@{nameof(entity.ProcessDate)}", date),
@@ -198,7 +200,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                 new MySqlParameter($"@{nameof(entity.Id)}", processId),
                             };
 
-            var commandText = @$"UPDATE {_backgroundWorkerStore.TenantProcessHistoryTableName} 
+                var commandText = @$"UPDATE {_backgroundWorkerStore.TenantProcessHistoryTableName} 
                                         SET  
                                                 {nameof(entity.UpdatesCount)} = {nameof(entity.UpdatesCount)} + 1 ,
                                                 {nameof(entity.Enabled)} = @{nameof(entity.Enabled)}, 
@@ -209,7 +211,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                         AND     {nameof(entity.Id)} =  @{nameof(entity.Id)}
                                  ";
 
-            var res = await _dbContext.Database.ExecuteSqlRawAsync(commandText, paramItems, cancellationToken);
+                var res = await _dbContext.Database.ExecuteSqlRawAsync(commandText, paramItems, cancellationToken);
+            }
         }
 
         public async Task ResetTenantHealthStatusCountersAsync(JobTask jobTask, CancellationToken cancellationToken)
