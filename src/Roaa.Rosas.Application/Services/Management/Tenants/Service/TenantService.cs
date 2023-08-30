@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
+using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
@@ -26,6 +27,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
         private readonly IIdentityContextService _identityContextService;
         private readonly ITenantWorkflow _workflow;
         private readonly IPublisher _publisher;
+        private readonly BackgroundServicesStore _backgroundServicesStore;
         #endregion
 
 
@@ -36,7 +38,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             IWebHostEnvironment environment,
             ITenantWorkflow workflow,
             IPublisher publisher,
-            IIdentityContextService identityContextService)
+            IIdentityContextService identityContextService,
+            BackgroundServicesStore backgroundServicesStore)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -44,6 +47,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             _workflow = workflow;
             _publisher = publisher;
             _identityContextService = identityContextService;
+            _backgroundServicesStore = backgroundServicesStore;
         }
 
         #endregion
@@ -197,6 +201,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            foreach (var tenantProduct in productTenants)
+            {
+                _backgroundServicesStore.RemoveTenantProcess(tenantProduct.TenantId, tenantProduct.ProductId);
+            }
 
             return Result<List<SetTenantNextStatusResult>>.Successful(results);
         }

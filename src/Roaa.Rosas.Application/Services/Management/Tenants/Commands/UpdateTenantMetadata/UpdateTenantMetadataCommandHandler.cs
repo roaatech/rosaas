@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
@@ -16,15 +17,18 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
     #region Props 
     private readonly IRosasDbContext _dbContext;
     private readonly IIdentityContextService _identityContextService;
+    private readonly BackgroundServicesStore _backgroundServicesStore;
     #endregion
 
     #region Corts
     public UpdateTenantMetadataCommandHandler(
         IRosasDbContext dbContext,
-        IIdentityContextService identityContextService)
+        IIdentityContextService identityContextService,
+        BackgroundServicesStore backgroundServicesStore)
     {
         _dbContext = dbContext;
         _identityContextService = identityContextService;
+        _backgroundServicesStore = backgroundServicesStore;
     }
 
     #endregion
@@ -74,6 +78,7 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
         _dbContext.TenantProcessHistory.Add(processHistory);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        _backgroundServicesStore.RemoveTenantProcess(tenant.TenantId, tenant.ProductId);
 
         return Result.Successful();
     }
