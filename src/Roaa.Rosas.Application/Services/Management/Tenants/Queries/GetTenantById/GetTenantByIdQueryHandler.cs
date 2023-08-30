@@ -74,6 +74,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                     // Set Actions
                     var flows = await _workflow.GetProcessActionsAsync(product.Status, _identityContextService.GetUserType());
                     product.Actions = flows.ToActionsResults();
+                    product.HealthCheckUrl = product.HealthCheckUrl.Replace("{name}", tenant.UniqueName);
 
                     // Set ShowHealthStatus
                     product.HealthCheckStatus.ShowHealthStatus = IsMustShowHealthStatus(product.HealthCheckStatus, product.Status, tenant.CreatedDate);
