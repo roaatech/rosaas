@@ -56,6 +56,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   CreatedDate = planFeature.Created,
                                                   EditedDate = planFeature.Edited,
                                               })
+                                              .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
 
             return Result<List<PlanFeatureListItemDto>>.Successful(planFeature);

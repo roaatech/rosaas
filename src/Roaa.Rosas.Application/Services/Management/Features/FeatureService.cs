@@ -86,6 +86,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                                   CreatedDate = feature.Created,
                                                   EditedDate = feature.Edited,
                                               })
+                                              .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
 
             return Result<List<FeatureListItemDto>>.Successful(features);
@@ -101,6 +102,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                                   Id = feature.Id,
                                                   Name = feature.Name,
                                               })
+                                               .OrderBy(x => x.Name)
                                               .ToListAsync(cancellationToken);
 
             return Result<List<LookupItemDto<Guid>>>.Successful(features);

@@ -84,6 +84,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   EditedDate = plan.Edited,
                                                   Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
                                               })
+                                              .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
 
             return Result<List<PlanListItemDto>>.Successful(plans);
@@ -99,6 +100,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   Id = plan.Id,
                                                   Name = plan.Name,
                                               })
+                                               .OrderBy(x => x.Name)
                                               .ToListAsync(cancellationToken);
 
             return Result<List<LookupItemDto<Guid>>>.Successful(plans);
