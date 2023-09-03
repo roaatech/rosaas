@@ -7,6 +7,7 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetProductTenantsList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantById;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantProcessesByTenantId;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsLookupList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsPaginatedList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
@@ -47,6 +48,13 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         public async Task<IActionResult> GetTenantsPaginatedListAsync([FromQuery] PaginationMetaData pagination, [FromQuery] List<FilterItem> filters, [FromQuery] SortItem sort, CancellationToken cancellationToken = default)
         {
             return PaginatedResult(await _mediator.Send(new GetTenantsPaginatedListQuery(pagination, filters, sort), cancellationToken));
+        }
+
+
+        [HttpGet("Lookup")]
+        public async Task<IActionResult> GetProductsLookupListAsync(CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _mediator.Send(new GetTenantsLookupListQuery(), cancellationToken));
         }
 
 

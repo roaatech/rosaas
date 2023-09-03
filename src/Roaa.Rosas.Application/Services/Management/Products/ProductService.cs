@@ -92,6 +92,24 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             return pagedUsers;
         }
 
+
+        public async Task<Result<List<LookupItemDto<Guid>>>> GetProductsLookupListAsync(CancellationToken cancellationToken = default)
+        {
+            var products = await _dbContext.Products
+                                              .AsNoTracking()
+                                              .Select(x => new LookupItemDto<Guid>
+                                              {
+                                                  Id = x.Id,
+                                                  Name = x.Name,
+                                              })
+                                              .ToListAsync(cancellationToken);
+
+            return Result<List<LookupItemDto<Guid>>>.Successful(products);
+        }
+
+
+
+
         public async Task<Result<ProductDto>> GetProductByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var product = await _dbContext.Products

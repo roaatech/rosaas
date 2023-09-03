@@ -39,6 +39,13 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         }
 
 
+        [HttpGet("Lookup")]
+        public async Task<IActionResult> GetProductsLookupListAsync(CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _productService.GetProductsLookupListAsync(cancellationToken));
+        }
+
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProductByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
