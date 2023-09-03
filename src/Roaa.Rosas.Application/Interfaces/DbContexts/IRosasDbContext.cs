@@ -33,6 +33,7 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<Feature> Features { get; }
         public DbSet<Plan> Plans { get; }
         public DbSet<PlanFeature> PlanFeatures { get; }
+        public DbSet<PlanPrice> PlanPrices { get; }
         public DbSet<JobTask> JobTasks { get; }
         public DbSet<Setting> Settings { get; }
 
