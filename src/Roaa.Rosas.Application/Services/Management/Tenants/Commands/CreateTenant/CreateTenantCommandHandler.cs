@@ -163,10 +163,10 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                                          {
                                                              PlanFeatureId = x.Id,
                                                              FeatureId = x.FeatureId,
+                                                             Unit = x.Unit,
                                                              PlanId = x.PlanId,
                                                              Limit = x.Limit,
                                                              Type = x.Feature.Type,
-                                                             Unit = x.Feature.Unit,
                                                              Reset = x.Feature.Reset,
                                                          })
                                                          .ToListAsync(cancellationToken);

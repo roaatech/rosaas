@@ -57,7 +57,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 Description = feature.Description,
                 Reset = feature.Reset,
                 Type = feature.Type,
-                Unit = feature.Unit,
                 CreatedDate = feature.CreationDate,
                 EditedDate = feature.ModificationDate,
             });
@@ -82,7 +81,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                                   Description = feature.Description,
                                                   Reset = feature.Reset,
                                                   Type = feature.Type,
-                                                  Unit = feature.Unit,
                                                   CreatedDate = feature.CreationDate,
                                                   EditedDate = feature.ModificationDate,
                                               })
@@ -121,7 +119,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               Description = feature.Description,
                                               Reset = feature.Reset,
                                               Type = feature.Type,
-                                              Unit = feature.Unit,
                                               CreatedDate = feature.CreationDate,
                                               EditedDate = feature.ModificationDate,
                                           })
@@ -158,7 +155,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 Description = model.Description,
                 Reset = model.Reset,
                 Type = model.Type,
-                Unit = model.Unit,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
                 CreationDate = date,
@@ -198,7 +194,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             feature.Description = model.Description;
             feature.Reset = model.Reset;
             feature.Type = model.Type;
-            feature.Unit = model.Unit;
             feature.ModifiedByUserId = _identityContextService.UserId;
             feature.ModificationDate = DateTime.UtcNow;
 

@@ -36,7 +36,7 @@ public record PlanInfoModel
     public Guid PlanPriceId { get; set; }
     public Guid PlanId { get; set; }
     public bool IsPublished { get; set; }
-    public Cycle PlanCycle { get; set; }
+    public PlanCycle PlanCycle { get; set; }
     public ProductUrlListItem Product { get; set; } = new();
     public List<FeatureInfoModel> Features { get; set; } = new();
 }

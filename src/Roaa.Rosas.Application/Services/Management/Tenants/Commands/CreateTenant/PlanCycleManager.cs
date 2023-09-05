@@ -3,7 +3,7 @@ using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus
 {
-    public abstract class PlanCycleManager : Enumeration<PlanCycleManager, Cycle>
+    public abstract class PlanCycleManager : Enumeration<PlanCycleManager, PlanCycle>
     {
         #region Props
         public static readonly PlanCycleManager Week = new WeekPlanCycle();
@@ -12,7 +12,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
         #endregion
 
         #region Corts
-        protected PlanCycleManager(Cycle cycle) : base(cycle)
+        protected PlanCycleManager(PlanCycle cycle) : base(cycle)
         {
         }
         #endregion
@@ -28,7 +28,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
         private sealed class WeekPlanCycle : PlanCycleManager
         {
             #region Corts
-            public WeekPlanCycle() : base(Cycle.Week) { }
+            public WeekPlanCycle() : base(PlanCycle.Week) { }
             #endregion 
 
             #region overrides  
@@ -43,7 +43,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
         private sealed class MonthPlanCycle : PlanCycleManager
         {
             #region Corts
-            public MonthPlanCycle() : base(Cycle.Month) { }
+            public MonthPlanCycle() : base(PlanCycle.Month) { }
             #endregion 
 
             #region overrides  
@@ -58,7 +58,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
         private sealed class YearPlanCycle : PlanCycleManager
         {
             #region Corts
-            public YearPlanCycle() : base(Cycle.Year) { }
+            public YearPlanCycle() : base(PlanCycle.Year) { }
             #endregion 
 
             #region overrides  

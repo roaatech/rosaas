@@ -3,7 +3,7 @@
     public class PlanPrice : BaseAuditableEntity
     {
         public Guid PlanId { get; set; }
-        public Cycle Cycle { get; set; }
+        public PlanCycle Cycle { get; set; }
         public decimal Price { get; set; }
         public string Description { get; set; } = string.Empty;
         public virtual Plan? Plan { get; set; }
@@ -11,7 +11,7 @@
     }
 
 
-    public enum Cycle
+    public enum PlanCycle
     {
         Week = 2,
         Month = 3,
