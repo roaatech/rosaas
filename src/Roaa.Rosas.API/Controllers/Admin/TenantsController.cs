@@ -73,8 +73,8 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
 
-        [HttpGet($"/{PrefixSuperAdminMainApiRoute}/products/{{productId}}/Tenants")]
-        public async Task<IActionResult> GetProductTenantsListAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        [HttpGet($"/{PrefixSuperAdminMainApiRoute}/products/{{productId}}/subscriptions")]
+        public async Task<IActionResult> GetSubscriptionsListAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
             return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(productId), cancellationToken));
         }

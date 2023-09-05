@@ -51,6 +51,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   Id = planFeature.Id,
                                                   Plan = new LookupItemDto<Guid>(planFeature.Plan.Id, planFeature.Plan.Name),
                                                   Limit = planFeature.Limit,
+                                                  Unit = planFeature.Unit,
                                                   Description = planFeature.Description,
                                                   CreatedDate = planFeature.CreationDate,
                                                   EditedDate = planFeature.ModificationDate,
@@ -59,7 +60,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       Id = planFeature.Feature.Id,
                                                       Name = planFeature.Feature.Name,
                                                       Type = planFeature.Feature.Type,
-                                                      Unit = planFeature.Feature.Unit,
                                                   },
                                               })
                                               .OrderByDescending(x => x.EditedDate)
@@ -91,6 +91,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 FeatureId = model.FeatureId,
                 PlanId = model.PlanId,
                 Limit = model.Limit,
+                Unit = model.Unit,
                 Description = model.Description,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
@@ -114,8 +115,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var feature = await _dbContext.PlanFeatures.Where(x => x.Id == planFeatureId).SingleOrDefaultAsync();
-            if (feature is null)
+            var planFeature = await _dbContext.PlanFeatures.Where(x => x.Id == planFeatureId).SingleOrDefaultAsync();
+            if (planFeature is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
@@ -125,12 +126,13 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
             }
             #endregion
-            PlanFeature featureBeforeUpdate = feature.DeepCopy();
+            PlanFeature featureBeforeUpdate = planFeature.DeepCopy();
 
-            feature.Limit = model.Limit;
-            feature.Description = model.Description;
-            feature.ModifiedByUserId = _identityContextService.UserId;
-            feature.ModificationDate = DateTime.UtcNow;
+            planFeature.Limit = model.Limit;
+            planFeature.Unit = model.Unit;
+            planFeature.Description = model.Description;
+            planFeature.ModifiedByUserId = _identityContextService.UserId;
+            planFeature.ModificationDate = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

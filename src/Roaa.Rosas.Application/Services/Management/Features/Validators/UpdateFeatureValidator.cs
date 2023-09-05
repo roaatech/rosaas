@@ -17,10 +17,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features.Validators
 
             RuleFor(x => x.Type).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
 
-            When(model => model.Unit is not null, () =>
-            {
-                RuleFor(x => x.Unit).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
-            });
+
         }
     }
 }
