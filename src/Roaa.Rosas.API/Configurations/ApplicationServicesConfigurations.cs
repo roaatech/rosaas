@@ -7,6 +7,7 @@ using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Application.Services.IdentityServer4.Auth;
 using Roaa.Rosas.Application.Services.Management.Features;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures;
+using Roaa.Rosas.Application.Services.Management.PlanPrices;
 using Roaa.Rosas.Application.Services.Management.Plans;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Settings;
@@ -61,6 +62,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<IFeatureService, FeatureService>();
             services.AddScoped<IPlanService, PlanService>();
             services.AddScoped<IPlanFeatureService, PlanFeatureService>();
+            services.AddScoped<IPlanPriceService, PlanPriceService>();
             services.AddScoped<ISettingService, SettingService>();
             services.AddScoped<ITenantHealthCheckService, TenantHealthCheckService>();
             services.AddScoped<ITenantHealthCheckSettingsService, TenantHealthCheckSettingsService>();

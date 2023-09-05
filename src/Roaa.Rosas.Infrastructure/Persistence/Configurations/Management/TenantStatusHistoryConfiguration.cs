@@ -13,6 +13,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.HasKey(x => x.Id);
             builder.Property(r => r.TenantId).IsRequired();
             builder.Property(r => r.ProductId).IsRequired();
+            builder.Property(r => r.SubscriptionId).IsRequired();
             builder.Property(r => r.Status).IsRequired();
             builder.Property(r => r.PreviousStatus).IsRequired();
             builder.Property(r => r.OwnerId).IsRequired();

@@ -4,13 +4,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service.Models
 {
     public record SetTenantNextStatusResult
     {
-        public SetTenantNextStatusResult(ProductTenant tenant, Process process)
+        public SetTenantNextStatusResult(Subscription tenant, Process process)
         {
             Process = process;
             ProductTenant = tenant;
         }
 
         public Process Process { get; set; }
-        public ProductTenant ProductTenant { get; set; }
+        public Subscription ProductTenant { get; set; }
     }
 }

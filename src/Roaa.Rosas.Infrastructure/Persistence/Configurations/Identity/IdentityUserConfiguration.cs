@@ -14,8 +14,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.IsDeleted).HasDefaultValue(false).IsRequired();
             builder.Property(r => r.IsActive).HasDefaultValue(true).IsRequired();
             builder.Property(r => r.Locale).HasMaxLength(2);
-            builder.Property(r => r.Created).IsRequired();
-            builder.Property(r => r.Edited).IsRequired();
+            builder.Property(r => r.CreationDate).IsRequired();
+            builder.Property(r => r.ModificationDate).IsRequired();
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

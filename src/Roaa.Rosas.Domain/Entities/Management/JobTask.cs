@@ -4,6 +4,7 @@
     {
         public Guid TenantId { get; set; }
         public Guid ProductId { get; set; }
+        public Guid SubscriptionId { get; set; }
         public JobTaskType Type { get; set; }
         public DateTime Created { get; set; }
 

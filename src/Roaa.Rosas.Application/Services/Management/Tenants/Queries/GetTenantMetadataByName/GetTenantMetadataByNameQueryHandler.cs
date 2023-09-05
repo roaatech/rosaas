@@ -30,7 +30,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantMe
         #region Handler   
         public async Task<Result<TenantMetadataModel>> Handle(GetTenantMetadataByNameQuery request, CancellationToken cancellationToken)
         {
-            var metadata = await _dbContext.ProductTenants.AsNoTracking()
+            var metadata = await _dbContext.Subscriptions.AsNoTracking()
                                                  .Include(x => x.Tenant)
                                                  .Where(x => x.ProductId == request.ProductId &&
                                                          request.TenantName.ToLower().Equals(x.Tenant.UniqueName))

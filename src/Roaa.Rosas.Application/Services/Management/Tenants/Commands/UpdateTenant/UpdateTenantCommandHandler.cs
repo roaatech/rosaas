@@ -63,8 +63,8 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
             UpdatedData = new TenantInfoProcessData { Title = request.Title },
         };
         tenant.Title = request.Title;
-        tenant.EditedByUserId = _identityContextService.UserId;
-        tenant.Edited = date;
+        tenant.ModifiedByUserId = _identityContextService.UserId;
+        tenant.ModificationDate = date;
 
         ////update products
         //var tenantProducts = await _dbContext.ProductTenants.Where(x => x.TenantId == x.TenantId).ToListAsync();
@@ -81,16 +81,17 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
 
         tenant.AddDomainEvent(new TenantUpdatedEvent(tenantBeforeUpdate, tenant));
 
-        var tenantProducts = await _dbContext.ProductTenants.Where(x => x.TenantId == tenant.Id).ToListAsync();
+        var subscriptions = await _dbContext.Subscriptions.Where(x => x.TenantId == tenant.Id).ToListAsync();
 
-        foreach (var tProduct in tenantProducts)
+        foreach (var subscription in subscriptions)
         {
             var processHistory = new TenantProcessHistory
             {
                 Id = Guid.NewGuid(),
-                TenantId = tProduct.TenantId,
-                ProductId = tProduct.ProductId,
-                Status = tProduct.Status,
+                TenantId = subscription.TenantId,
+                ProductId = subscription.ProductId,
+                SubscriptionId = subscription.Id,
+                Status = subscription.Status,
                 OwnerId = _identityContextService.GetActorId(),
                 OwnerType = _identityContextService.GetUserType(),
                 ProcessDate = date,
@@ -104,7 +105,7 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        foreach (var tProduct in tenantProducts)
+        foreach (var tProduct in subscriptions)
         {
             _backgroundServicesStore.RemoveTenantProcess(tProduct.TenantId, tProduct.ProductId);
         }
@@ -113,7 +114,7 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
     }
     private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
     {
-        return !await _dbContext.ProductTenants
+        return !await _dbContext.Subscriptions
                                 .Where(x => x.TenantId != id && x.Tenant != null &&
                                             productsIds.Contains(x.ProductId) &&
                                             uniqueName.ToLower().Equals(x.Tenant.UniqueName))

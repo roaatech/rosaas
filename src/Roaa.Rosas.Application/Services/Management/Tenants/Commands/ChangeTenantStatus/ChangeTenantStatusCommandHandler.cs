@@ -42,7 +42,7 @@ public class ChangeTenantStatusCommandHandler : IRequestHandler<ChangeTenantStat
     public async Task<Result<List<TenantStatusChangedResultDto>>> Handle(ChangeTenantStatusCommand request, CancellationToken cancellationToken)
     {
 
-        var tenantId = await _dbContext.ProductTenants
+        var tenantId = await _dbContext.Subscriptions
                                            .Where(x => x.ProductId == request.ProductId &&
                                                          request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
                                            .Select(x => x.TenantId)

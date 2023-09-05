@@ -6,6 +6,8 @@
 
         public Guid ProductId { get; set; }
 
+        public Guid SubscriptionId { get; set; }
+
         public bool IsSuccessful { get; set; }
 
         public string Url { get; set; } = string.Empty;

@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Common.Utilities;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
@@ -27,7 +26,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
         #endregion
 
         #region abst   
-        public abstract Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken);
+        public abstract Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken);
         #endregion
 
 
@@ -41,7 +40,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             #endregion 
 
             #region overrides  
-            public override async Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override async Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
                 await publisher.Publish(new TenantPreCreatingEvent(productTenant, previousStatus), cancellationToken);
             }
@@ -55,7 +54,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             #endregion
 
             #region overrides   
-            public override Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -69,7 +68,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             #endregion
 
             #region overrides  
-            public override async Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override async Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
                 await publisher.Publish(new TenantPreActivatingEvent(productTenant, previousStatus), cancellationToken);
             }
@@ -83,7 +82,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             #endregion
 
             #region overrides  
-            public override async Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override async Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
                 await publisher.Publish(new TenantActivatedEvent(productTenant, previousStatus), cancellationToken);
             }
@@ -97,7 +96,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             #endregion
 
             #region overrides  
-            public override async Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override async Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
                 await publisher.Publish(new TenantPreDeactivatingEvent(productTenant, previousStatus), cancellationToken);
             }
@@ -111,7 +110,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             #endregion
 
             #region overrides  
-            public override Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -125,7 +124,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             #endregion
 
             #region overrides  
-            public override async Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override async Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
                 await publisher.Publish(new TenantPreDeletingEvent(productTenant, previousStatus), cancellationToken);
             }
@@ -139,7 +138,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             #endregion
 
             #region overrides  
-            public override Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
                 return Task.CompletedTask;
             }
@@ -153,7 +152,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             #endregion
 
             #region overrides  
-            public override async Task PublishEventAsync(IPublisher publisher, ProductTenant productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
+            public override async Task PublishEventAsync(IPublisher publisher, Subscription productTenant, TenantStatus previousStatus, CancellationToken cancellationToken)
             {
                 await publisher.Publish(new TenantActivatedEvent(productTenant, previousStatus), cancellationToken);
             }

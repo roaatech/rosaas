@@ -6,11 +6,13 @@ using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
@@ -55,18 +57,64 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     #region Handler   
     public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
     {
-        #region Validation 
-        if (!await EnsureUniqueNameAsync(request.ProductsIds, request.UniqueName))
+        #region Validation  
+        var planPriceIds = request.Subscriptions.Select(x => x.PlanPriceId).ToList();
+
+        var plansInfo = await _dbContext.PlanPrices
+                                                         .Where(x => planPriceIds.Contains(x.Id))
+                                                         .Select(x => new PlanInfoModel
+                                                         {
+                                                             PlanPriceId = x.Id,
+                                                             PlanId = x.PlanId,
+                                                             IsPublished = x.Plan.IsPublished,
+                                                             PlanCycle = x.Cycle,
+                                                             Product = new ProductUrlListItem
+                                                             {
+                                                                 Id = x.Plan.ProductId,
+                                                                 Url = x.Plan.Product.DefaultHealthCheckUrl
+                                                             },
+
+                                                         })
+                                                         .ToListAsync(cancellationToken);
+
+        if (plansInfo is null || !plansInfo.Any())
+        {
+            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(request.Subscriptions));
+        }
+
+
+        foreach (var item in plansInfo)
+        {
+            var req = request.Subscriptions.Where(x => x.ProductId == item.Product.Id).FirstOrDefault();
+            if (req is null)
+            {
+                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.Subscriptions));
+            }
+
+            if (request.Subscriptions.Where(x => x.ProductId == item.Product.Id).Count() > 1)
+            {
+                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.Subscriptions));
+            }
+
+            if (!item.IsPublished)
+            {
+                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.Subscriptions));
+            }
+        }
+
+
+        if (!await EnsureUniqueNameAsync(request.Subscriptions.Select(x => x.ProductId).ToList(), request.UniqueName))
         {
             return Result<TenantCreatedResultDto>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.UniqueName));
         }
+
         #endregion
 
         // first status
-        var tenant = await CreateTenantInDBAsync(request, cancellationToken);
+        var tenant = await CreateTenantInDBAsync(request, plansInfo, cancellationToken);
 
 
-        var updatedStatuses = await _dbContext.ProductTenants
+        var updatedStatuses = await _dbContext.Subscriptions
                                          .Where(x => x.TenantId == tenant.Id)
                                          .Select(x => new { x.Status, x.ProductId })
                                          .ToListAsync(cancellationToken);
@@ -102,28 +150,41 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             }
         }, cancellationToken);
     }
-    private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand request, CancellationToken cancellationToken = default)
+
+
+    private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand request, List<PlanInfoModel> plansInfo, CancellationToken cancellationToken = default)
     {
         var initialProcess = await _workflow.GetNextProcessActionAsync(TenantStatus.None, _identityContextService.GetUserType());
 
-        var defaultHealthCheckUrlOfProducts = await _dbContext.Products
-                                                            .Where(x => request.ProductsIds.Contains(x.Id))
-                                                            .Select(x => new ProductUrlListItem
-                                                            {
-                                                                Id = x.Id,
-                                                                Url = x.DefaultHealthCheckUrl
-                                                            })
-                                                            .ToListAsync(cancellationToken);
+        var planIds = request.Subscriptions.Select(x => x.PlanId).ToList();
+        var featuresInfo = await _dbContext.PlanFeatures
+                                                         .Where(x => planIds.Contains(x.Id))
+                                                         .Select(x => new FeatureInfoModel
+                                                         {
+                                                             PlanFeatureId = x.Id,
+                                                             FeatureId = x.FeatureId,
+                                                             PlanId = x.PlanId,
+                                                             Limit = x.Limit,
+                                                             Type = x.Feature.Type,
+                                                             Unit = x.Feature.Unit,
+                                                             Reset = x.Feature.Reset,
+                                                         })
+                                                         .ToListAsync(cancellationToken);
 
-        var tenant = BuildTenantEntity(request, defaultHealthCheckUrlOfProducts, initialProcess);
+        foreach (var item in plansInfo)
+        {
+            item.Features = featuresInfo.Where(x => x.PlanId == item.PlanId).ToList();
+        }
 
-        var statusHistory = BuildTenantStatusHistoryEntities(tenant.Id, request.ProductsIds, initialProcess);
+        var tenant = BuildTenantEntity(request, plansInfo, initialProcess);
 
-        var processHistory = BuildTenantProcessHistoryEntities(tenant.Id, request.ProductsIds, initialProcess);
+        var statusHistory = BuildTenantStatusHistoryEntities(tenant.Id, tenant.Subscriptions, initialProcess);
 
-        var healthStatuses = BuildProductTenantHealthStatusEntities(tenant.Products);
+        var processHistory = BuildTenantProcessHistoryEntities(tenant.Id, tenant.Subscriptions, initialProcess);
 
-        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Products.First().Status));
+        var healthStatuses = BuildProductTenantHealthStatusEntities(tenant.Subscriptions);
+
+        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Subscriptions.First().Status));
 
         _dbContext.Tenants.Add(tenant);
 
@@ -137,7 +198,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         return tenant;
     }
-    private Tenant BuildTenantEntity(CreateTenantCommand model, List<ProductUrlListItem> defaultHealthCheckUrlOfProducts, Process initialProcess)
+    private Tenant BuildTenantEntity(CreateTenantCommand model, List<PlanInfoModel> plansInfo, Process initialProcess)
     {
 
 
@@ -149,44 +210,65 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             UniqueName = model.UniqueName.ToLower(),
             Title = model.Title,
             CreatedByUserId = _identityContextService.GetActorId(),
-            EditedByUserId = _identityContextService.GetActorId(),
-            Created = _date,
-            Edited = _date,
-            Products = defaultHealthCheckUrlOfProducts.Select(productUrl => new ProductTenant
+            ModifiedByUserId = _identityContextService.GetActorId(),
+            CreationDate = _date,
+            ModificationDate = _date,
+            Subscriptions = plansInfo.Select(item => new Subscription
             {
                 Id = Guid.NewGuid(),
+                StartDate = _date,
+                EndDate = PlanCycleManager.FromKey(item.PlanCycle).GetExpiryDate(_date),
                 TenantId = id,
-                ProductId = productUrl.Id,
+                PlanId = item.PlanId,
+                PlanPriceId = item.PlanPriceId,
+                ProductId = item.Product.Id,
                 Status = initialProcess.NextStatus,
-                EditedByUserId = _identityContextService.GetActorId(),
-                Edited = _date,
-                HealthCheckUrl = productUrl.Url,
+                CreatedByUserId = _identityContextService.GetActorId(),
+                ModifiedByUserId = _identityContextService.GetActorId(),
+                CreationDate = _date,
+                ModificationDate = _date,
+                HealthCheckUrl = item.Product.Url,
                 HealthCheckUrlIsOverridden = false,
+                SubscriptionFeatures = item.Features.Select(f => new SubscriptionFeature
+                {
+                    Id = Guid.NewGuid(),
+                    StartDate = _date,
+                    EndDate = FeatureResetManager.FromKey(f.Reset).GetExpiryDate(_date),
+                    FeatureId = f.FeatureId,
+                    PlanFeatureId = f.PlanFeatureId,
+                    RemainingUsage = f.Limit,
+                    CreatedByUserId = _identityContextService.GetActorId(),
+                    ModifiedByUserId = _identityContextService.GetActorId(),
+                    CreationDate = _date,
+                    ModificationDate = _date,
+                }).ToList()
             }).ToList(),
         };
     }
-    private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<ProductTenant> Products)
+    private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<Subscription> subscriptions)
     {
-        return Products.Select(item => new TenantHealthStatus
+        return subscriptions.Select(item => new TenantHealthStatus
         {
             Id = item.Id,
-            TenantId = item.TenantId,
+            SubscriptionId = item.Id,
             ProductId = item.ProductId,
-            LastCheckDate = item.Edited,
-            CheckDate = item.Edited,
+            TenantId = item.TenantId,
+            LastCheckDate = item.ModificationDate,
+            CheckDate = item.ModificationDate,
             IsHealthy = false,
         });
     }
 
-    private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
+    private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(Guid tenantId, ICollection<Subscription> subscriptions, Process initialProcess)
     {
 
 
-        return ProductsIds.Select(productId => new TenantStatusHistory
+        return subscriptions.Select(subscription => new TenantStatusHistory
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,
-            ProductId = productId,
+            ProductId = subscription.ProductId,
+            SubscriptionId = subscription.Id,
             Status = initialProcess.NextStatus,
             PreviousStatus = initialProcess.CurrentStatus,
             OwnerId = _identityContextService.GetActorId(),
@@ -196,15 +278,16 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             Message = initialProcess.Message
         });
     }
-    private IEnumerable<TenantProcessHistory> BuildTenantProcessHistoryEntities(Guid tenantId, List<Guid> ProductsIds, Process initialProcess)
+    private IEnumerable<TenantProcessHistory> BuildTenantProcessHistoryEntities(Guid tenantId, ICollection<Subscription> subscriptions, Process initialProcess)
     {
 
 
-        return ProductsIds.Select(productId => new TenantProcessHistory
+        return subscriptions.Select(subscription => new TenantProcessHistory
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,
-            ProductId = productId,
+            ProductId = subscription.ProductId,
+            SubscriptionId = subscription.Id,
             Status = initialProcess.NextStatus,
             OwnerId = _identityContextService.GetActorId(),
             OwnerType = _identityContextService.GetUserType(),
@@ -215,7 +298,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     }
     private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
     {
-        return !await _dbContext.ProductTenants
+        return !await _dbContext.Subscriptions
                                 .Where(x => x.TenantId != id && x.Tenant != null &&
                                             productsIds.Contains(x.ProductId) &&
                                             uniqueName.ToLower().Equals(x.Tenant.UniqueName))

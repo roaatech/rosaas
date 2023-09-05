@@ -10,6 +10,7 @@
         public FeatureReset Reset { get; set; }
         public virtual Product Product { get; set; }
         public virtual ICollection<PlanFeature> Plans { get; set; }
+        public virtual ICollection<SubscriptionFeature>? SubscriptionFeatures { get; set; }
     }
 
     public enum FeatureType

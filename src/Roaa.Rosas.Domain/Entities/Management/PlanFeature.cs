@@ -8,5 +8,6 @@
         public string Description { get; set; } = string.Empty;
         public virtual Feature Feature { get; set; }
         public virtual Plan Plan { get; set; }
+        public virtual ICollection<SubscriptionFeature>? SubscriptionFeatures { get; set; }
     }
 }

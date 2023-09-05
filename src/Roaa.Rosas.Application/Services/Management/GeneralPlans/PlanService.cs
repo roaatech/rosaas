@@ -53,8 +53,8 @@ namespace Roaa.Rosas.Application.Services.Management.GeneralPlans
                                               Name = plan.Name,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
-                                              CreatedDate = plan.Created,
-                                              EditedDate = plan.Edited,
+                                              CreatedDate = plan.CreationDate,
+                                              EditedDate = plan.ModificationDate,
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "Description", "Name", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
@@ -79,8 +79,8 @@ namespace Roaa.Rosas.Application.Services.Management.GeneralPlans
                                               Name = plan.Name,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
-                                              CreatedDate = plan.Created,
-                                              EditedDate = plan.Edited,
+                                              CreatedDate = plan.CreationDate,
+                                              EditedDate = plan.ModificationDate,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -109,9 +109,9 @@ namespace Roaa.Rosas.Application.Services.Management.GeneralPlans
                 Description = model.Description,
                 DisplayOrder = model.DisplayOrder,
                 CreatedByUserId = _identityContextService.UserId,
-                EditedByUserId = _identityContextService.UserId,
-                Created = date,
-                Edited = date,
+                ModifiedByUserId = _identityContextService.UserId,
+                CreationDate = date,
+                ModificationDate = date,
             };
 
             _dbContext.Plans.Add(plan);
@@ -142,8 +142,8 @@ namespace Roaa.Rosas.Application.Services.Management.GeneralPlans
             plan.Name = model.Name;
             plan.Description = model.Description;
             plan.DisplayOrder = model.DisplayOrder;
-            plan.EditedByUserId = _identityContextService.UserId;
-            plan.Edited = DateTime.UtcNow;
+            plan.ModifiedByUserId = _identityContextService.UserId;
+            plan.ModificationDate = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

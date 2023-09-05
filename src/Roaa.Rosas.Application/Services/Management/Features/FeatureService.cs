@@ -58,8 +58,8 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 Reset = feature.Reset,
                 Type = feature.Type,
                 Unit = feature.Unit,
-                CreatedDate = feature.Created,
-                EditedDate = feature.Edited,
+                CreatedDate = feature.CreationDate,
+                EditedDate = feature.ModificationDate,
             });
 
             selectedQuery = selectedQuery.OrderBy(sort);
@@ -83,8 +83,8 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                                   Reset = feature.Reset,
                                                   Type = feature.Type,
                                                   Unit = feature.Unit,
-                                                  CreatedDate = feature.Created,
-                                                  EditedDate = feature.Edited,
+                                                  CreatedDate = feature.CreationDate,
+                                                  EditedDate = feature.ModificationDate,
                                               })
                                               .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
@@ -122,8 +122,8 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               Reset = feature.Reset,
                                               Type = feature.Type,
                                               Unit = feature.Unit,
-                                              CreatedDate = feature.Created,
-                                              EditedDate = feature.Edited,
+                                              CreatedDate = feature.CreationDate,
+                                              EditedDate = feature.ModificationDate,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -160,9 +160,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 Type = model.Type,
                 Unit = model.Unit,
                 CreatedByUserId = _identityContextService.UserId,
-                EditedByUserId = _identityContextService.UserId,
-                Created = date,
-                Edited = date,
+                ModifiedByUserId = _identityContextService.UserId,
+                CreationDate = date,
+                ModificationDate = date,
             };
 
             _dbContext.Features.Add(feature);
@@ -199,8 +199,8 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             feature.Reset = model.Reset;
             feature.Type = model.Type;
             feature.Unit = model.Unit;
-            feature.EditedByUserId = _identityContextService.UserId;
-            feature.Edited = DateTime.UtcNow;
+            feature.ModifiedByUserId = _identityContextService.UserId;
+            feature.ModificationDate = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

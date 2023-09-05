@@ -92,13 +92,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             }
 
             // #3 - Retrieve The Results (Updated Status & Process Actions)
-            Expression<Func<ProductTenant, bool>> predicate = x => x.TenantId == model.TenantId;
+            Expression<Func<Subscription, bool>> predicate = x => x.TenantId == model.TenantId;
             if (model.ProductId is not null)
             {
                 predicate = x => x.TenantId == model.TenantId && x.ProductId == model.ProductId;
             }
 
-            var updatedStatuses = await _dbContext.ProductTenants
+            var updatedStatuses = await _dbContext.Subscriptions
                                                 .Where(predicate)
                                                 .Select(x => new { x.Status, x.ProductId })
                                                 .ToListAsync(cancellationToken);
@@ -119,20 +119,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
         public async Task<Result<List<SetTenantNextStatusResult>>> SetTenantNextStatusAsync(SetTenantNextStatusModel model, CancellationToken cancellationToken = default)
         {
-            Expression<Func<ProductTenant, bool>> predicate = x => x.TenantId == model.TenantId;
+            Expression<Func<Subscription, bool>> predicate = x => x.TenantId == model.TenantId;
             if (model.ProductId is not null)
             {
                 predicate = x => x.TenantId == model.TenantId && x.ProductId == model.ProductId;
             }
 
-            var productTenants = await _dbContext.ProductTenants.Where(predicate).ToListAsync(cancellationToken);
-            if (productTenants is null || !productTenants.Any())
+            var subscriptions = await _dbContext.Subscriptions.Where(predicate).ToListAsync(cancellationToken);
+            if (subscriptions is null || !subscriptions.Any())
             {
                 return Result<List<SetTenantNextStatusResult>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
 
-            var nextProcesses = await _workflow.GetNextProcessActionsAsync(productTenants.Select(x => x.Status).ToList(), model.Status, model.UserType, model.Action);
+            var nextProcesses = await _workflow.GetNextProcessActionsAsync(subscriptions.Select(x => x.Status).ToList(), model.Status, model.UserType, model.Action);
             if (nextProcesses is null || !nextProcesses.Any())
             {
                 return Result<List<SetTenantNextStatusResult>>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale);
@@ -143,25 +143,26 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
             DateTime date = DateTime.UtcNow;
 
-            foreach (var tenantProduct in productTenants)
+            foreach (var subscription in subscriptions)
             {
-                var nextProcess = nextProcesses.Where(x => x.CurrentStatus == tenantProduct.Status).FirstOrDefault();
+                var nextProcess = nextProcesses.Where(x => x.CurrentStatus == subscription.Status).FirstOrDefault();
                 if (nextProcess is not null)
                 {
-                    tenantProduct.Status = nextProcess.NextStatus;
-                    tenantProduct.EditedByUserId = model.EditorBy;
-                    tenantProduct.Edited = date;
+                    subscription.Status = nextProcess.NextStatus;
+                    subscription.ModifiedByUserId = model.EditorBy;
+                    subscription.ModificationDate = date;
 
                     if (nextProcess.CurrentStatus == Domain.Enums.TenantStatus.Active)
                     {
-                        tenantProduct.AddDomainEvent(new ActiveTenantStatusUpdated(tenantProduct));
+                        subscription.AddDomainEvent(new ActiveTenantStatusUpdated(subscription));
                     }
 
                     var statusHistory = new TenantStatusHistory
                     {
                         Id = Guid.NewGuid(),
-                        TenantId = tenantProduct.TenantId,
-                        ProductId = tenantProduct.ProductId,
+                        TenantId = subscription.TenantId,
+                        ProductId = subscription.ProductId,
+                        SubscriptionId = subscription.Id,
                         Status = nextProcess.NextStatus,
                         PreviousStatus = nextProcess.CurrentStatus,
                         OwnerId = _identityContextService.GetActorId(),
@@ -182,8 +183,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     var processHistory = new TenantProcessHistory
                     {
                         Id = Guid.NewGuid(),
-                        TenantId = tenantProduct.TenantId,
-                        ProductId = tenantProduct.ProductId,
+                        TenantId = subscription.TenantId,
+                        ProductId = subscription.ProductId,
+                        SubscriptionId = subscription.Id,
                         Status = nextProcess.NextStatus,
                         OwnerId = _identityContextService.GetActorId(),
                         OwnerType = _identityContextService.GetUserType(),
@@ -196,13 +198,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                     _dbContext.TenantProcessHistory.Add(processHistory);
 
-                    results.Add(new SetTenantNextStatusResult(tenantProduct, nextProcess));
+                    results.Add(new SetTenantNextStatusResult(subscription, nextProcess));
                 }
             }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            foreach (var tenantProduct in productTenants)
+            foreach (var tenantProduct in subscriptions)
             {
                 _backgroundServicesStore.RemoveTenantProcess(tenantProduct.TenantId, tenantProduct.ProductId);
             }
