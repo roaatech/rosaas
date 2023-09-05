@@ -26,8 +26,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
             try
             {
                 var jobTasksToRemove = await _dbContext.JobTasks
-                                                       .Where(x => x.TenantId == @event.ProductTenant.TenantId &&
-                                                                   x.ProductId == @event.ProductTenant.ProductId)
+                                                       .Where(x => x.TenantId == @event.Subscription.TenantId &&
+                                                                   x.ProductId == @event.Subscription.ProductId)
                                                        .ToListAsync(cancellationToken);
                 if (jobTasksToRemove.Any())
                 {
@@ -38,19 +38,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
 
                 _backgroundWorkerStore.RemoveJobTask(new JobTask
                 {
-                    ProductId = @event.ProductTenant.ProductId,
-                    TenantId = @event.ProductTenant.TenantId,
+                    SubscriptionId = @event.Subscription.Id,
+                    ProductId = @event.Subscription.ProductId,
+                    TenantId = @event.Subscription.TenantId,
                     Created = DateTime.UtcNow,
                     Type = JobTaskType.Available,
                 });
 
                 _logger.LogInformation($"The job tasks removed from Background Services with info: TenantId:{{0}}, ProductId:{{1}}",
-                  @event.ProductTenant.TenantId,
-                  @event.ProductTenant.ProductId);
+                  @event.Subscription.TenantId,
+                  @event.Subscription.ProductId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred on {0} while processing the Event Handler related to the tenant [TenantId:{1}], [ProductId:{2}]", GetType().Name, @event.ProductTenant.TenantId, @event.ProductTenant.ProductId);
+                _logger.LogError(ex, "An error occurred on {0} while processing the Event Handler related to the tenant [TenantId:{1}], [ProductId:{2}]", GetType().Name, @event.Subscription.TenantId, @event.Subscription.ProductId);
             }
 
         }

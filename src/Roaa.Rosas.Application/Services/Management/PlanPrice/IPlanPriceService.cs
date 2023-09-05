@@ -9,8 +9,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
 
         Task<Result<CreatedResult<Guid>>> CreatePlanPriceAsync(CreatePlanPriceModel model, Guid productId, CancellationToken cancellationToken = default);
 
-        Task<Result> UpdatePlanPriceAsync(Guid planFeatureId, UpdatePlanPriceModel model, Guid productId, CancellationToken cancellationToken = default);
+        Task<Result> UpdatePlanPriceAsync(Guid planPriceId, UpdatePlanPriceModel model, Guid productId, CancellationToken cancellationToken = default);
 
-        Task<Result> DeletePlanPriceAsync(Guid planFeatureId, Guid productId, CancellationToken cancellationToken = default);
+        Task<Result> DeletePlanPriceAsync(Guid planPriceId, Guid productId, CancellationToken cancellationToken = default);
     }
 }

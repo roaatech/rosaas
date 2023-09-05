@@ -46,9 +46,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         #region Services   
 
 
-        public async Task<Result<List<ProductUrlListItem>>> GetProductsUrlsByTenantIdAsync(Guid tenantId, Expression<Func<ProductTenant, ProductUrlListItem>> selector, CancellationToken cancellationToken = default)
+        public async Task<Result<List<ProductUrlListItem>>> GetProductsUrlsByTenantIdAsync(Guid tenantId, Expression<Func<Subscription, ProductUrlListItem>> selector, CancellationToken cancellationToken = default)
         {
-            var urls = await _dbContext.ProductTenants.AsNoTracking()
+            var urls = await _dbContext.Subscriptions.AsNoTracking()
                                                   .Include(x => x.Product)
                                                    .Where(x => x.TenantId == tenantId)
                                                    .Select(selector)
@@ -77,8 +77,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               Name = product.Name,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.UniqueName),
-                                              CreatedDate = product.Created,
-                                              EditedDate = product.Edited,
+                                              CreatedDate = product.CreationDate,
+                                              EditedDate = product.ModificationDate,
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "Url", "Name", "ClientId", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
@@ -123,8 +123,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               HealthStatusChangeUrl = product.HealthStatusInformerUrl,
                                               Name = product.Name,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.UniqueName),
-                                              CreatedDate = product.Created,
-                                              EditedDate = product.Edited,
+                                              CreatedDate = product.CreationDate,
+                                              EditedDate = product.ModificationDate,
                                               ActivationEndpoint = product.ActivationUrl,
                                               CreationEndpoint = product.CreationUrl,
                                               DeactivationEndpoint = product.DeactivationUrl,
@@ -163,14 +163,14 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 DefaultHealthCheckUrl = model.DefaultHealthCheckUrl,
                 HealthStatusInformerUrl = model.HealthStatusChangeUrl,
                 CreatedByUserId = _identityContextService.UserId,
-                EditedByUserId = _identityContextService.UserId,
+                ModifiedByUserId = _identityContextService.UserId,
                 ActivationUrl = model.ActivationEndpoint,
                 CreationUrl = model.CreationEndpoint,
                 DeactivationUrl = model.DeactivationEndpoint,
                 DeletionUrl = model.DeletionEndpoint,
                 ApiKey = model.ApiKey,
-                Created = date,
-                Edited = date,
+                CreationDate = date,
+                ModificationDate = date,
             };
 
             _dbContext.Products.Add(product);
@@ -204,7 +204,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             if (!product.DefaultHealthCheckUrl.Equals(model.DefaultHealthCheckUrl, StringComparison.OrdinalIgnoreCase))
             {
-                var tenants = await _dbContext.ProductTenants.Where(x => x.ProductId == id && !x.HealthCheckUrlIsOverridden).ToListAsync(cancellationToken);
+                var tenants = await _dbContext.Subscriptions.Where(x => x.ProductId == id && !x.HealthCheckUrlIsOverridden).ToListAsync(cancellationToken);
                 foreach (var tenant in tenants)
                 {
                     tenant.HealthCheckUrl = model.DefaultHealthCheckUrl;
@@ -216,13 +216,13 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             product.Name = model.Name;
             product.HealthStatusInformerUrl = model.HealthStatusChangeUrl;
             product.DefaultHealthCheckUrl = model.DefaultHealthCheckUrl;
-            product.EditedByUserId = _identityContextService.UserId;
+            product.ModifiedByUserId = _identityContextService.UserId;
             product.ActivationUrl = model.ActivationEndpoint;
             product.CreationUrl = model.CreationEndpoint;
             product.DeactivationUrl = model.DeactivationEndpoint;
             product.DeletionUrl = model.DeletionEndpoint;
             product.ApiKey = model.ApiKey;
-            product.Edited = DateTime.UtcNow;
+            product.ModificationDate = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -263,7 +263,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
         private async Task<bool> DeletingIsAllowedAsync(Guid productId, CancellationToken cancellationToken = default)
         {
-            return !await _dbContext.ProductTenants
+            return !await _dbContext.Subscriptions
                                     .Include(x => x.Tenant)
                                     .Where(x => x.ProductId == productId &&
                                                 x.Status != TenantStatus.Deleted)

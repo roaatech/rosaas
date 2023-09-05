@@ -14,9 +14,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.Name).IsRequired().HasMaxLength(250).IsUnicode();
             builder.Property(r => r.Description).IsRequired(false).HasMaxLength(500).IsUnicode();
             builder.Property(r => r.CreatedByUserId).IsRequired();
-            builder.Property(r => r.EditedByUserId).IsRequired();
-            builder.Property(r => r.Created).IsRequired();
-            builder.Property(r => r.Edited).IsRequired();
+            builder.Property(r => r.ModifiedByUserId).IsRequired();
+            builder.Property(r => r.CreationDate).IsRequired();
+            builder.Property(r => r.ModificationDate).IsRequired();
             builder.HasOne(b => b.Product).WithMany(p => p.Plans).HasForeignKey(f => f.ProductId).OnDelete(DeleteBehavior.Restrict);
             builder.Ignore(r => r.DomainEvents);
         }

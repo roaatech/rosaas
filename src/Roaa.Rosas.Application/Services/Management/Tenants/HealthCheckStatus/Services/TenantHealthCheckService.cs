@@ -47,8 +47,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                 Id = Guid.NewGuid(),
                 TimeStamp = date,
                 Created = date,
-                TenantId = jobTask.TenantId,
+                SubscriptionId = jobTask.SubscriptionId,
                 ProductId = jobTask.ProductId,
+                TenantId = jobTask.TenantId,
                 IsHealthy = isAvailable,
                 Duration = (int)duration,
                 HealthCheckUrl = healthCheckUrl
@@ -73,6 +74,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                 new MySqlParameter($"@{nameof(hs.LastCheckDate)}",  date),
                                 new MySqlParameter($"@{nameof(hs.TenantId)}", jobTask.TenantId),
                                 new MySqlParameter($"@{nameof(hs.ProductId)}", jobTask.ProductId),
+                                new MySqlParameter($"@{nameof(hs.SubscriptionId)}", jobTask.SubscriptionId),
                             };
 
             if (isAvailable)
@@ -100,6 +102,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                                 {nameof(hs.LastCheckDate)} = @{nameof(hs.LastCheckDate)}
                                         WHERE   {nameof(hs.TenantId)} =  @{nameof(hs.TenantId)}  
                                         AND     {nameof(hs.ProductId)} =  @{nameof(hs.ProductId)}
+                                        AND     {nameof(hs.SubscriptionId)} =  @{nameof(hs.SubscriptionId)}
                                  ";
 
             var res = await _dbContext.Database.ExecuteSqlRawAsync(commandText, paramItems, cancellationToken);
@@ -118,9 +121,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
         private async Task<Guid> AddTenantProcessHistoryAsync(JobTask jobTask, TenantProcessType processType, bool enabled, CancellationToken cancellationToken)
         {
             var date = DateTime.UtcNow;
-            var status = await _dbContext.ProductTenants
+            var status = await _dbContext.Subscriptions
                                       .Where(x => x.TenantId == jobTask.TenantId &&
-                                                  x.ProductId == jobTask.ProductId)
+                                                  x.ProductId == jobTask.ProductId &&
+                                                  x.Id == jobTask.SubscriptionId)
                                       .Select(x => x.Status)
                                       .SingleOrDefaultAsync(cancellationToken);
 
@@ -129,6 +133,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                 Id = Guid.NewGuid(),
                 TenantId = jobTask.TenantId,
                 ProductId = jobTask.ProductId,
+                SubscriptionId = jobTask.SubscriptionId,
                 OwnerType = UserType.RosasSystem,
                 Status = status,
                 ProcessDate = date,
@@ -149,9 +154,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
         public async Task AddTenantProcessHistoryAsExternalSystemInformedAsync(JobTask jobTask, bool success, CancellationToken cancellationToken)
         {
             var date = DateTime.UtcNow;
-            var status = await _dbContext.ProductTenants
+            var status = await _dbContext.Subscriptions
                                      .Where(x => x.TenantId == jobTask.TenantId &&
-                                                 x.ProductId == jobTask.ProductId)
+                                                 x.ProductId == jobTask.ProductId &&
+                                                  x.Id == jobTask.SubscriptionId)
                                      .Select(x => x.Status)
                                      .SingleOrDefaultAsync(cancellationToken);
             var processHistory = new TenantProcessHistory
@@ -159,6 +165,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                 Id = Guid.NewGuid(),
                 TenantId = jobTask.TenantId,
                 ProductId = jobTask.ProductId,
+                SubscriptionId = jobTask.SubscriptionId,
                 OwnerType = UserType.RosasSystem,
                 Status = status,
                 ProcessDate = date,
@@ -197,6 +204,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                 new MySqlParameter($"@{nameof(entity.TimeStamp)}", date.Ticks),
                                 new MySqlParameter($"@{nameof(entity.TenantId)}", jobTask.TenantId),
                                 new MySqlParameter($"@{nameof(entity.ProductId)}", jobTask.ProductId),
+                                new MySqlParameter($"@{nameof(entity.SubscriptionId)}", jobTask.SubscriptionId),
                                 new MySqlParameter($"@{nameof(entity.Id)}", processId),
                             };
 
@@ -208,6 +216,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                                 {nameof(entity.TimeStamp)} = @{nameof(entity.TimeStamp)}  
                                         WHERE   {nameof(entity.TenantId)} =  @{nameof(entity.TenantId)}  
                                         AND     {nameof(entity.ProductId)} =  @{nameof(entity.ProductId)}
+                                        AND     {nameof(entity.SubscriptionId)} =  @{nameof(entity.SubscriptionId)}
                                         AND     {nameof(entity.Id)} =  @{nameof(entity.Id)}
                                  ";
 
@@ -225,6 +234,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                 new MySqlParameter($"@{nameof(hs.UnhealthyCount)}", count),
                                 new MySqlParameter($"@{nameof(hs.TenantId)}", jobTask.TenantId),
                                 new MySqlParameter($"@{nameof(hs.ProductId)}", jobTask.ProductId),
+                                new MySqlParameter($"@{nameof(hs.SubscriptionId)}", jobTask.SubscriptionId),
                             };
 
             var commandText = @$"UPDATE {_backgroundWorkerStore.TenantHealthStatusTableName} 
@@ -233,6 +243,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                                 {nameof(hs.UnhealthyCount)} = @{nameof(hs.UnhealthyCount)}  
                                         WHERE   {nameof(hs.TenantId)} =  @{nameof(hs.TenantId)}  
                                         AND     {nameof(hs.ProductId)} =  @{nameof(hs.ProductId)}
+                                        AND     {nameof(hs.SubscriptionId)} =  @{nameof(hs.SubscriptionId)}
                                  ";
 
             var res = await _dbContext.Database.ExecuteSqlRawAsync(commandText, paramItems, cancellationToken);
@@ -248,6 +259,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                 DispatchDate = date,
                 TenantId = jobTask.TenantId,
                 ProductId = jobTask.ProductId,
+                SubscriptionId = jobTask.SubscriptionId,
                 Duration = (int)duration,
                 IsSuccessful = isSuccessful,
                 Url = url
@@ -271,8 +283,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                 Id = Guid.NewGuid(),
                 TimeStamp = date,
                 Created = date,
-                TenantId = jobTask.TenantId,
+                SubscriptionId = jobTask.SubscriptionId,
                 ProductId = jobTask.ProductId,
+                TenantId = jobTask.TenantId,
                 IsHealthy = isAvailable,
                 Duration = (int)duration,
                 HealthCheckUrl = healthCheckUrl
@@ -289,8 +302,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             {
                 Id = Guid.NewGuid(),
                 Created = DateTime.UtcNow,
-                TenantId = jobTask.TenantId,
+                SubscriptionId = jobTask.SubscriptionId,
                 ProductId = jobTask.ProductId,
+                TenantId = jobTask.TenantId,
                 Type = type,
             };
 
@@ -319,8 +333,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
 
         public async Task<string> GetTenantHhealthCheckUrlAsync(JobTask jobTask, CancellationToken cancellationToken)
         {
-            return await _dbContext.ProductTenants
-                                               .Where(x => x.ProductId == jobTask.ProductId && x.TenantId == jobTask.TenantId)
+            return await _dbContext.Subscriptions
+                                               .Where(x => x.Id == jobTask.SubscriptionId &&
+                                                           x.ProductId == jobTask.ProductId &&
+                                                           x.TenantId == jobTask.TenantId)
                                                .Select(x => x.HealthCheckUrl)
                                                .SingleOrDefaultAsync(cancellationToken) ?? string.Empty;
         }
@@ -330,8 +346,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             {
                 Id = Guid.NewGuid(),
                 Created = DateTime.UtcNow,
-                TenantId = jobTask.TenantId,
+                SubscriptionId = jobTask.SubscriptionId,
                 ProductId = jobTask.ProductId,
+                TenantId = jobTask.TenantId,
                 Type = JobTaskType.Available,
             }, "");
         }

@@ -42,11 +42,11 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
 
         DateTime date = DateTime.UtcNow;
 
-        var tenant = await _dbContext.ProductTenants
+        var subscription = await _dbContext.Subscriptions
                                      .Where(x => x.ProductId == request.ProductId &&
                                                          request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
                                      .SingleOrDefaultAsync(cancellationToken);
-        if (tenant is null)
+        if (subscription is null)
         {
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
         }
@@ -54,18 +54,19 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
 
         var processData = new TenantMetadataUpdatedProcessData
         {
-            OldData = tenant.Metadata,
+            OldData = subscription.Metadata,
             UpdatedData = request.Metadata,
         };
 
-        tenant.Metadata = System.Text.Json.JsonSerializer.Serialize(request.Metadata);
+        subscription.Metadata = System.Text.Json.JsonSerializer.Serialize(request.Metadata);
 
         var processHistory = new TenantProcessHistory
         {
             Id = Guid.NewGuid(),
-            TenantId = tenant.TenantId,
-            ProductId = tenant.ProductId,
-            Status = tenant.Status,
+            TenantId = subscription.TenantId,
+            ProductId = subscription.ProductId,
+            SubscriptionId = subscription.Id,
+            Status = subscription.Status,
             OwnerId = _identityContextService.GetActorId(),
             OwnerType = _identityContextService.GetUserType(),
             ProcessDate = date,
@@ -78,7 +79,7 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
         _dbContext.TenantProcessHistory.Add(processHistory);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _backgroundServicesStore.RemoveTenantProcess(tenant.TenantId, tenant.ProductId);
+        _backgroundServicesStore.RemoveTenantProcess(subscription.TenantId, subscription.ProductId);
 
         return Result.Successful();
     }

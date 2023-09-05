@@ -54,8 +54,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               Name = plan.Name,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
-                                              CreatedDate = plan.Created,
-                                              EditedDate = plan.Edited,
+                                              CreatedDate = plan.CreationDate,
+                                              EditedDate = plan.ModificationDate,
                                               Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
                                           });
 
@@ -80,8 +80,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   Name = plan.Name,
                                                   Description = plan.Description,
                                                   DisplayOrder = plan.DisplayOrder,
-                                                  CreatedDate = plan.Created,
-                                                  EditedDate = plan.Edited,
+                                                  CreatedDate = plan.CreationDate,
+                                                  EditedDate = plan.ModificationDate,
                                                   Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
                                               })
                                               .OrderByDescending(x => x.EditedDate)
@@ -118,8 +118,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               Name = plan.Name,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
-                                              CreatedDate = plan.Created,
-                                              EditedDate = plan.Edited,
+                                              CreatedDate = plan.CreationDate,
+                                              EditedDate = plan.ModificationDate,
                                               Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
@@ -154,9 +154,10 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 Description = model.Description,
                 DisplayOrder = model.DisplayOrder,
                 CreatedByUserId = _identityContextService.UserId,
-                EditedByUserId = _identityContextService.UserId,
-                Created = date,
-                Edited = date,
+                ModifiedByUserId = _identityContextService.UserId,
+                CreationDate = date,
+                ModificationDate = date,
+                IsPublished = true,
             };
 
             _dbContext.Plans.Add(plan);
@@ -187,8 +188,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             plan.Name = model.Name;
             plan.Description = model.Description;
             plan.DisplayOrder = model.DisplayOrder;
-            plan.EditedByUserId = _identityContextService.UserId;
-            plan.Edited = DateTime.UtcNow;
+            plan.ModifiedByUserId = _identityContextService.UserId;
+            plan.ModificationDate = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

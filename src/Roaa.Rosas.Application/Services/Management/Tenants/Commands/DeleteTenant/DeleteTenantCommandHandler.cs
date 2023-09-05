@@ -37,7 +37,7 @@ public class DeleteTenantCommandHandler : IRequestHandler<DeleteTenantCommand, R
     #region Handler   
     public async Task<Result> Handle(DeleteTenantCommand model, CancellationToken cancellationToken)
     {
-        var productTenants = await _dbContext.ProductTenants.Where(x => x.Id == model.TenantId).ToListAsync(cancellationToken);
+        var productTenants = await _dbContext.Subscriptions.Where(x => x.Id == model.TenantId).ToListAsync(cancellationToken);
 
 
         if (productTenants is not null && productTenants.Any(x => x.Status != TenantStatus.Deleted))

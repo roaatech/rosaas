@@ -6,6 +6,8 @@
 
         public Guid ProductId { get; set; }
 
+        public Guid SubscriptionId { get; set; }
+
         public bool IsHealthy { get; set; }
 
         public string HealthCheckUrl { get; set; } = string.Empty;
@@ -20,7 +22,7 @@
 
         public int UnhealthyCount { get; set; }
 
-        public virtual ProductTenant? ProductTenant { get; set; }
+        public virtual Subscription? Subscription { get; set; }
     }
 
 }

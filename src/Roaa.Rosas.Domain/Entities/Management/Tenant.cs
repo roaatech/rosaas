@@ -5,6 +5,6 @@
         public string UniqueName { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
-        public virtual ICollection<ProductTenant> Products { get; set; }
+        public virtual ICollection<Subscription> Subscriptions { get; set; }
     }
 }

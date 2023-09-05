@@ -9,6 +9,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public Guid ProductId { get; set; }
 
+        public Guid SubscriptionId { get; set; }
+
         public TenantStatus Status { get; set; }
 
         public TenantProcessType ProcessType { get; set; }

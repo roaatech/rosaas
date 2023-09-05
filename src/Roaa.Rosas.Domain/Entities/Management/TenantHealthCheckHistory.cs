@@ -6,6 +6,8 @@
 
         public Guid ProductId { get; set; }
 
+        public Guid SubscriptionId { get; set; }
+
         public bool IsHealthy { get; set; }
 
         public int Duration { get; set; }

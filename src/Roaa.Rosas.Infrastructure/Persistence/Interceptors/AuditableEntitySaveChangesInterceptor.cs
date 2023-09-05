@@ -47,18 +47,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Interceptors
                     if (entry.Entity.CreatedByUserId == Guid.Empty)
                     {
                         entry.Entity.CreatedByUserId = _identityContextService.UserId;
-                        entry.Entity.EditedByUserId = _identityContextService.UserId;
+                        entry.Entity.ModifiedByUserId = _identityContextService.UserId;
                     }
-                    entry.Entity.Created = DateTime.UtcNow;
-                    entry.Entity.Edited = entry.Entity.Created;
+                    entry.Entity.CreationDate = DateTime.UtcNow;
+                    entry.Entity.ModificationDate = entry.Entity.CreationDate;
                 }
                 if (entry.State == EntityState.Modified)
                 {
-                    if (entry.Entity.EditedByUserId == Guid.Empty)
+                    if (entry.Entity.ModifiedByUserId == Guid.Empty)
                     {
-                        entry.Entity.EditedByUserId = _identityContextService.UserId;
+                        entry.Entity.ModifiedByUserId = _identityContextService.UserId;
                     }
-                    entry.Entity.Edited = DateTime.UtcNow;
+                    entry.Entity.ModificationDate = DateTime.UtcNow;
                 }
             }
         }

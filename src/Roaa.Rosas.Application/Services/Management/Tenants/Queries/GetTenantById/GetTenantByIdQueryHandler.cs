@@ -43,44 +43,48 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                      Id = tenant.Id,
                                                      UniqueName = tenant.UniqueName,
                                                      Title = tenant.Title,
-                                                     CreatedDate = tenant.Created,
-                                                     EditedDate = tenant.Edited,
-                                                     Products = tenant.Products.Select(x => new ProductTenantDto
+                                                     CreatedDate = tenant.CreationDate,
+                                                     EditedDate = tenant.ModificationDate,
+                                                     Subscriptions = tenant.Subscriptions.Select(subscription => new SubscriptionDto
                                                      {
-                                                         Id = x.ProductId,
-                                                         Name = x.Product.Name,
-                                                         Status = x.Status,
-                                                         EditedDate = x.Edited,
-                                                         Metadata = x.Metadata,
-                                                         HealthCheckUrl = x.HealthCheckUrl,
-                                                         HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
+                                                         Id = subscription.ProductId,
+                                                         ProductId = subscription.ProductId,
+                                                         SubscriptionId = subscription.Id,
+                                                         Name = subscription.Product.Name,
+                                                         ProductName = subscription.Product.Name,
+                                                         Status = subscription.Status,
+                                                         CreatedDate = subscription.CreationDate,
+                                                         EditedDate = subscription.ModificationDate,
+                                                         Metadata = subscription.Metadata,
+                                                         HealthCheckUrl = subscription.HealthCheckUrl,
+                                                         HealthCheckUrlIsOverridden = subscription.HealthCheckUrlIsOverridden,
                                                          HealthCheckStatus = new ProductTenantHealthStatusDto
                                                          {
-                                                             HealthCheckUrl = x.HealthCheckStatus.HealthCheckUrl,
-                                                             IsHealthy = x.HealthCheckStatus.IsHealthy,
-                                                             LastCheckDate = x.HealthCheckStatus.LastCheckDate,
-                                                             CheckDate = x.HealthCheckStatus.CheckDate,
-                                                             Duration = x.HealthCheckStatus.Duration,
-                                                             HealthyCount = x.HealthCheckStatus.HealthyCount,
-                                                             UnhealthyCount = x.HealthCheckStatus.UnhealthyCount,
+                                                             HealthCheckUrl = subscription.HealthCheckStatus.HealthCheckUrl,
+                                                             IsHealthy = subscription.HealthCheckStatus.IsHealthy,
+                                                             LastCheckDate = subscription.HealthCheckStatus.LastCheckDate,
+                                                             CheckDate = subscription.HealthCheckStatus.CheckDate,
+                                                             Duration = subscription.HealthCheckStatus.Duration,
+                                                             HealthyCount = subscription.HealthCheckStatus.HealthyCount,
+                                                             UnhealthyCount = subscription.HealthCheckStatus.UnhealthyCount,
                                                          }
                                                      }),
                                                  })
                                                  .SingleOrDefaultAsync(cancellationToken);
             if (tenant is not null)
             {
-                foreach (var product in tenant.Products)
+                foreach (var subscription in tenant.Subscriptions)
                 {
                     // Set Actions
-                    var flows = await _workflow.GetProcessActionsAsync(product.Status, _identityContextService.GetUserType());
-                    product.Actions = flows.ToActionsResults();
-                    product.HealthCheckUrl = product.HealthCheckUrl.Replace("{name}", tenant.UniqueName);
+                    var flows = await _workflow.GetProcessActionsAsync(subscription.Status, _identityContextService.GetUserType());
+                    subscription.Actions = flows.ToActionsResults();
+                    subscription.HealthCheckUrl = subscription.HealthCheckUrl.Replace("{name}", tenant.UniqueName);
 
                     // Set ShowHealthStatus
-                    product.HealthCheckStatus.ShowHealthStatus = IsMustShowHealthStatus(product.HealthCheckStatus, product.Status, tenant.CreatedDate);
+                    subscription.HealthCheckStatus.ShowHealthStatus = IsMustShowHealthStatus(subscription.HealthCheckStatus, subscription.Status, tenant.CreatedDate);
 
                     // Try retrieve last External System Dispatch if existed
-                    product.HealthCheckStatus.ExternalSystemDispatch = await TryGetExternalSystemDispatchesAsync(product.Id, tenant.Id, cancellationToken);
+                    subscription.HealthCheckStatus.ExternalSystemDispatch = await TryGetExternalSystemDispatchesAsync(subscription.ProductId, tenant.Id, cancellationToken);
                 }
             }
 

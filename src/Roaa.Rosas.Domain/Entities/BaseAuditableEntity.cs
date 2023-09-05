@@ -2,12 +2,12 @@
 {
     public abstract class BaseAuditableEntity : BaseEntity
     {
-        public DateTime Created { get; set; }
+        public DateTime CreationDate { get; set; }
 
-        public DateTime Edited { get; set; }
+        public DateTime ModificationDate { get; set; }
 
         public Guid CreatedByUserId { get; set; }
 
-        public Guid EditedByUserId { get; set; }
+        public Guid ModifiedByUserId { get; set; }
     }
 }

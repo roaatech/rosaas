@@ -9,10 +9,23 @@ public partial class CreateTenantCommandValidator : AbstractValidator<CreateTena
 {
     public CreateTenantCommandValidator(IIdentityContextService identityContextService)
     {
-        RuleFor(x => x.ProductsIds).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
         RuleFor(x => x.UniqueName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
         RuleFor(x => x.UniqueName).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+
+        RuleForEach(x => x.Subscriptions).SetValidator(new CreateSubscriptionValidator(identityContextService));
+    }
+}
+
+public partial class CreateSubscriptionValidator : AbstractValidator<CreateSubscriptionModel>
+{
+    public CreateSubscriptionValidator(IIdentityContextService identityContextService)
+    {
+        RuleFor(x => x.PlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+
+        RuleFor(x => x.ProductId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+
+        RuleFor(x => x.PlanId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
     }
 }

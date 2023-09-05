@@ -49,12 +49,18 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                               .Select(planFeature => new PlanFeatureListItemDto
                                               {
                                                   Id = planFeature.Id,
-                                                  Feature = new LookupItemDto<Guid>(planFeature.Feature.Id, planFeature.Feature.Name),
                                                   Plan = new LookupItemDto<Guid>(planFeature.Plan.Id, planFeature.Plan.Name),
                                                   Limit = planFeature.Limit,
                                                   Description = planFeature.Description,
-                                                  CreatedDate = planFeature.Created,
-                                                  EditedDate = planFeature.Edited,
+                                                  CreatedDate = planFeature.CreationDate,
+                                                  EditedDate = planFeature.ModificationDate,
+                                                  Feature = new FeatureItemDto
+                                                  {
+                                                      Id = planFeature.Feature.Id,
+                                                      Name = planFeature.Feature.Name,
+                                                      Type = planFeature.Feature.Type,
+                                                      Unit = planFeature.Feature.Unit,
+                                                  },
                                               })
                                               .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
@@ -75,7 +81,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             {
                 return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourceAlreadyExists, _identityContextService.Locale);
             }
-            #endregion 
+            #endregion
 
             var date = DateTime.UtcNow;
 
@@ -87,9 +93,9 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 Limit = model.Limit,
                 Description = model.Description,
                 CreatedByUserId = _identityContextService.UserId,
-                EditedByUserId = _identityContextService.UserId,
-                Created = date,
-                Edited = date,
+                ModifiedByUserId = _identityContextService.UserId,
+                CreationDate = date,
+                ModificationDate = date,
             };
 
             _dbContext.PlanFeatures.Add(planFeature);
@@ -123,8 +129,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
 
             feature.Limit = model.Limit;
             feature.Description = model.Description;
-            feature.EditedByUserId = _identityContextService.UserId;
-            feature.Edited = DateTime.UtcNow;
+            feature.ModifiedByUserId = _identityContextService.UserId;
+            feature.ModificationDate = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

@@ -36,6 +36,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
                                                     {
                                                         TenantId = x.TenantId,
                                                         ProductId = x.ProductId,
+                                                        SubscriptionId = x.SubscriptionId,
                                                         Status = x.Status,
                                                         OwnerId = x.OwnerId,
                                                         OwnerType = x.OwnerType,

@@ -8,7 +8,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 {
     public interface IProductService
     {
-        Task<Result<List<ProductUrlListItem>>> GetProductsUrlsByTenantIdAsync(Guid tenantId, Expression<Func<ProductTenant, ProductUrlListItem>> selector, CancellationToken cancellationToken = default);
+        Task<Result<List<ProductUrlListItem>>> GetProductsUrlsByTenantIdAsync(Guid tenantId, Expression<Func<Subscription, ProductUrlListItem>> selector, CancellationToken cancellationToken = default);
 
         Task<Result<T>> GetProductEndpointByIdAsync<T>(Guid productId, Expression<Func<Product, T>> selector, CancellationToken cancellationToken = default);
 

@@ -4,7 +4,7 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantSt
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.DeleteTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenant;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetProductTenantsList;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantById;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantProcessesByTenantId;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsLookupList;
@@ -76,7 +76,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpGet($"/{PrefixSuperAdminMainApiRoute}/products/{{productId}}/Tenants")]
         public async Task<IActionResult> GetProductTenantsListAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetProductTenantsListQuery(productId), cancellationToken));
+            return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(productId), cancellationToken));
         }
 
 
@@ -105,8 +105,6 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         {
             return EmptyResult(await _mediator.Send(new DeleteTenantCommand(model.Id), cancellationToken));
         }
-        #endregion
-
-
+        #endregion 
     }
 }

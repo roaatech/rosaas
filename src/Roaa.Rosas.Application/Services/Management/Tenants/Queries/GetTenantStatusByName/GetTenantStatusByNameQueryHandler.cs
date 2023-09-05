@@ -31,7 +31,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantSt
         #region Handler   
         public async Task<Result<TenantStatusDto>> Handle(GetTenantStatusByNameQuery request, CancellationToken cancellationToken)
         {
-            var tenantStatus = await _dbContext.ProductTenants.AsNoTracking()
+            var tenantStatus = await _dbContext.Subscriptions.AsNoTracking()
                                                  .Where(x => x.ProductId == request.ProductId &&
                                                          request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
                                                   .Select(x => new TenantStatusDto

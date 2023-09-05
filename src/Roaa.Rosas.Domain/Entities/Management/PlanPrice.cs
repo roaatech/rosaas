@@ -7,6 +7,7 @@
         public decimal Price { get; set; }
         public string Description { get; set; } = string.Empty;
         public virtual Plan? Plan { get; set; }
+        public virtual ICollection<Subscription>? Subscriptions { get; set; }
     }
 
 

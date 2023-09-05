@@ -19,8 +19,8 @@ namespace Roaa.Rosas.Domain.Entities.Identity
         public UserType UserType { get; set; }
         public bool IsActive { get; set; }
         public DateTime? LastLoginDate { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Edited { get; set; }
+        public DateTime CreationDate { get; set; }
+        public DateTime ModificationDate { get; set; }
         public string? Locale { get; set; }
         public string? MetaData { get; set; }
         public bool IsDeleted { get; set; }

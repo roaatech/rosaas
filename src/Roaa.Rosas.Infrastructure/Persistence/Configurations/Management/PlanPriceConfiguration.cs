@@ -15,9 +15,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.Cycle).IsRequired();
             builder.Property(r => r.Price).IsRequired();
             builder.Property(r => r.CreatedByUserId).IsRequired();
-            builder.Property(r => r.EditedByUserId).IsRequired();
-            builder.Property(r => r.Created).IsRequired();
-            builder.Property(r => r.Edited).IsRequired();
+            builder.Property(r => r.ModifiedByUserId).IsRequired();
+            builder.Property(r => r.CreationDate).IsRequired();
+            builder.Property(r => r.ModificationDate).IsRequired();
             builder.Ignore(r => r.DomainEvents);
             builder.HasOne(b => b.Plan).WithMany(p => p.Prices).HasForeignKey(f => f.PlanId).OnDelete(DeleteBehavior.Restrict);
         }

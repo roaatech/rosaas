@@ -53,8 +53,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                                   Cycle = planPrice.Cycle,
                                                   Price = planPrice.Price,
                                                   Description = planPrice.Description,
-                                                  CreatedDate = planPrice.Created,
-                                                  EditedDate = planPrice.Edited,
+                                                  CreatedDate = planPrice.CreationDate,
+                                                  EditedDate = planPrice.ModificationDate,
                                               })
                                               .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
@@ -83,9 +83,9 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 Price = model.Price,
                 Description = model.Description,
                 CreatedByUserId = _identityContextService.UserId,
-                EditedByUserId = _identityContextService.UserId,
-                Created = date,
-                Edited = date,
+                ModifiedByUserId = _identityContextService.UserId,
+                CreationDate = date,
+                ModificationDate = date,
             };
 
             _dbContext.PlanPrices.Add(planPrice);
@@ -120,8 +120,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             planPrice.Cycle = model.Cycle;
             planPrice.Price = model.Price;
             planPrice.Description = model.Description;
-            planPrice.EditedByUserId = _identityContextService.UserId;
-            planPrice.Edited = DateTime.UtcNow;
+            planPrice.ModifiedByUserId = _identityContextService.UserId;
+            planPrice.ModificationDate = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

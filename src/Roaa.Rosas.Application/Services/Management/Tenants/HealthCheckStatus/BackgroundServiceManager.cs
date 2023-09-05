@@ -33,16 +33,16 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
         public async Task PrepareAsync()
         {
 
-            var activeTenants = await _dbContext
-                                    .ProductTenants
+            var activeSubscriptions = await _dbContext
+                                    .Subscriptions
                                     .Where(x => x.Status == TenantStatus.Active ||
                                                 x.Status == TenantStatus.CreatedAsActive)
-                                    .OrderBy(x => x.Edited)
-                                    .Select(x => new { x.ProductId, x.TenantId, x.Tenant.UniqueName })
+                                    .OrderBy(x => x.ModificationDate)
+                                    .Select(x => new { x.Id, x.ProductId, x.TenantId, x.Tenant.UniqueName })
                                     .ToListAsync();
 
 
-            activeTenants.ForEach(x => _store.AddTenantsNames(x.TenantId, x.UniqueName));
+            activeSubscriptions.ForEach(x => _store.AddTenantsNames(x.TenantId, x.UniqueName));
 
             var tasks = await _dbContext
                                      .JobTasks
@@ -60,7 +60,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 
 
             var unavailabeTasks = tasks.Where(task => task.Type == JobTaskType.Unavailable &&
-                                                      activeTenants.Any(x => x.TenantId == task.TenantId &&
+                                                      activeSubscriptions.Any(x => x.TenantId == task.TenantId &&
                                                                              x.ProductId == task.ProductId))
                                         .ToList();
 
@@ -78,7 +78,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 
 
             var inaccessibleTasks = tasks.Where(task => task.Type == JobTaskType.Inaccessible &&
-                                                        activeTenants.Any(x => x.TenantId == task.TenantId &&
+                                                        activeSubscriptions.Any(x => x.TenantId == task.TenantId &&
                                                                                x.ProductId == task.ProductId))
                                         .ToList();
 
@@ -96,7 +96,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 
 
             var informerTasks = tasks.Where(task => task.Type == JobTaskType.Informer &&
-                                                        activeTenants.Any(x => x.TenantId == task.TenantId &&
+                                                        activeSubscriptions.Any(x => x.TenantId == task.TenantId &&
                                                                                x.ProductId == task.ProductId))
                                         .ToList();
 
@@ -110,46 +110,47 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 
             foreach (var task in unavailabeTasks)
             {
-                var activeTenant = activeTenants.Where(x => task.TenantId == x.TenantId && task.ProductId == x.ProductId).FirstOrDefault();
+                var activeTenant = activeSubscriptions.Where(x => task.TenantId == x.TenantId && task.ProductId == x.ProductId).FirstOrDefault();
                 if (activeTenant is not null)
                 {
-                    activeTenants.Remove(activeTenant);
+                    activeSubscriptions.Remove(activeTenant);
                 }
             }
 
             foreach (var task in inaccessibleTasks)
             {
-                var activeTenant = activeTenants.Where(x => task.TenantId == x.TenantId && task.ProductId == x.ProductId).FirstOrDefault();
+                var activeTenant = activeSubscriptions.Where(x => task.TenantId == x.TenantId && task.ProductId == x.ProductId).FirstOrDefault();
                 if (activeTenant is not null)
                 {
-                    activeTenants.Remove(activeTenant);
+                    activeSubscriptions.Remove(activeTenant);
                 }
             }
 
             foreach (var task in informerTasks)
             {
-                var activeTenant = activeTenants.Where(x => task.TenantId == x.TenantId && task.ProductId == x.ProductId).FirstOrDefault();
+                var activeTenant = activeSubscriptions.Where(x => task.TenantId == x.TenantId && task.ProductId == x.ProductId).FirstOrDefault();
                 if (activeTenant is not null)
                 {
-                    activeTenants.Remove(activeTenant);
+                    activeSubscriptions.Remove(activeTenant);
                 }
             }
 
 
 
             _logger.LogInformation("There are [{0}] {1} job tasks added to {2} Background Service.",
-              activeTenants.Count,
+              activeSubscriptions.Count,
               JobTaskType.Available,
               nameof(AvailableTenantChecker));
 
-            activeTenants.ForEach(task => _store.AddAvailableTenantTask(new JobTask
+            activeSubscriptions.ForEach(subscription => _store.AddAvailableTenantTask(new JobTask
             {
                 Id = Guid.NewGuid(),
-                ProductId = task.ProductId,
-                TenantId = task.TenantId,
+                SubscriptionId = subscription.Id,
+                ProductId = subscription.ProductId,
+                TenantId = subscription.TenantId,
                 Created = DateTime.UtcNow,
                 Type = JobTaskType.Available,
-            }, task.UniqueName));
+            }, subscription.UniqueName));
 
 
 

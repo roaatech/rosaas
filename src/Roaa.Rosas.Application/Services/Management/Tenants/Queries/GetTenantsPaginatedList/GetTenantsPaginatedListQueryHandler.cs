@@ -32,18 +32,18 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsP
         {
 
             var query = _dbContext.Tenants.AsNoTracking()
-                                                     .Include(x => x.Products)
+                                                     .Include(x => x.Subscriptions)
                                                      .ThenInclude(x => x.Product)
                                                      .Select(tenant => new TenantListItemDto
                                                      {
                                                          Id = tenant.Id,
                                                          UniqueName = tenant.UniqueName,
                                                          Title = tenant.Title,
-                                                         Products = tenant.Products.Select(x => new
+                                                         Products = tenant.Subscriptions.Select(x => new
                                                                             LookupItemDto<Guid>(x.ProductId, x.Product.Name)),
                                                          //Status = tenant.Status,
-                                                         CreatedDate = tenant.Created,
-                                                         EditedDate = tenant.Edited,
+                                                         CreatedDate = tenant.CreationDate,
+                                                         EditedDate = tenant.ModificationDate,
                                                      });
 
             var sort = request.Sort.HandleDefaultSorting(new string[] { "TenantUniqueName", "TenantTitle", "ProductId", "Status", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);

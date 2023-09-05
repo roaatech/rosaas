@@ -8,19 +8,23 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string UniqueName { get; set; } = string.Empty;
-        public IEnumerable<ProductTenantDto> Products { get; set; } = new List<ProductTenantDto>();
+        public IEnumerable<SubscriptionDto> Subscriptions { get; set; } = new List<SubscriptionDto>();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
 
     }
 
-    public record ProductTenantDto
+    public record SubscriptionDto
     {
+        public Guid SubscriptionId { get; set; }
+        public Guid ProductId { get; set; }
         public Guid Id { get; set; }
+        public string? ProductName { get; set; }
         public string? Name { get; set; }
         public string HealthCheckUrl { get; set; } = string.Empty;
         public bool HealthCheckUrlIsOverridden { get; set; }
         public TenantStatus Status { get; set; }
+        public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public object Metadata { get; set; } = new();
         public ProductTenantHealthStatusDto HealthCheckStatus { get; set; } = new();

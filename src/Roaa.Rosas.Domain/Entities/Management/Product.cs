@@ -13,7 +13,7 @@
         public string ApiKey { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
         public virtual Client? Client { get; set; }
-        public virtual ICollection<ProductTenant>? Tenants { get; set; }
+        public virtual ICollection<Subscription>? Subscriptions { get; set; }
         public virtual ICollection<Feature>? Features { get; set; }
         public virtual ICollection<Plan>? Plans { get; set; }
     }
