@@ -39,9 +39,12 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsP
                                                          Id = tenant.Id,
                                                          UniqueName = tenant.UniqueName,
                                                          Title = tenant.Title,
-                                                         Products = tenant.Subscriptions.Select(x => new
-                                                                            LookupItemDto<Guid>(x.ProductId, x.Product.Name)),
-                                                         //Status = tenant.Status,
+                                                         Subscriptions = tenant.Subscriptions.Select(x => new SubscriptionDto
+                                                         {
+                                                             ProductId = x.ProductId,
+                                                             ProductName = x.Product.Name,
+                                                             SubscriptionId = x.Id,
+                                                         }),
                                                          CreatedDate = tenant.CreationDate,
                                                          EditedDate = tenant.ModificationDate,
                                                      });
