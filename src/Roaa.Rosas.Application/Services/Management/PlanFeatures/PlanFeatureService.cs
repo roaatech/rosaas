@@ -7,7 +7,6 @@ using Roaa.Rosas.Application.Services.Management.PlanFeatures.Models;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures.Validators;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
-using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -43,13 +42,18 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
         #region Services  
         public async Task<Result<List<PlanFeatureListItemDto>>> GetPlanFeaturesListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
-            var planFeature = await _dbContext.PlanFeatures
+            var planFeatures = await _dbContext.PlanFeatures
                                               .AsNoTracking()
                                               .Where(f => f.Feature.ProductId == productId)
                                               .Select(planFeature => new PlanFeatureListItemDto
                                               {
                                                   Id = planFeature.Id,
-                                                  Plan = new LookupItemDto<Guid>(planFeature.Plan.Id, planFeature.Plan.Name),
+                                                  Plan = new PlanItemDto
+                                                  {
+                                                      Id = planFeature.PlanId,
+                                                      Name = planFeature.Plan.Name,
+                                                      DisplayOrder = planFeature.Plan.DisplayOrder,
+                                                  },
                                                   Limit = planFeature.Limit,
                                                   Unit = planFeature.Unit,
                                                   Description = planFeature.Description,
@@ -62,10 +66,34 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       Type = planFeature.Feature.Type,
                                                   },
                                               })
-                                              .OrderByDescending(x => x.EditedDate)
+                                              .OrderByDescending(x => x.Plan.DisplayOrder)
                                               .ToListAsync(cancellationToken);
 
-            return Result<List<PlanFeatureListItemDto>>.Successful(planFeature);
+            var plansIds = planFeatures.Select(x => x.Plan.Id).ToList();
+            var plans = await _dbContext.Plans
+                              .AsNoTracking()
+                               .Where(p => p.ProductId == productId &&
+                                           !plansIds.Contains(p.Id))
+                               .Select(plan => new PlanFeatureListItemDto
+                               {
+                                   Plan = new PlanItemDto
+                                   {
+                                       Id = plan.Id,
+                                       Name = plan.Name,
+                                       DisplayOrder = plan.DisplayOrder,
+                                   },
+                               })
+                               .ToListAsync(cancellationToken);
+            if (plans.Any())
+            {
+                planFeatures.AddRange(plans);
+                planFeatures = planFeatures.OrderBy(x => x.Plan.DisplayOrder).ToList();
+            }
+
+
+
+
+            return Result<List<PlanFeatureListItemDto>>.Successful(planFeatures);
         }
 
         public async Task<Result<CreatedResult<Guid>>> CreatePlanFeatureAsync(CreatePlanFeatureModel model, Guid productId, CancellationToken cancellationToken = default)
