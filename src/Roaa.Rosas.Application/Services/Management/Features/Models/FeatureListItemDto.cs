@@ -11,5 +11,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features.Models
         public FeatureReset Reset { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
+        public bool IsSubscribed { get; set; }
     }
 }

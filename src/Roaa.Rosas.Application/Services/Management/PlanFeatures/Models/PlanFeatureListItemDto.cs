@@ -18,6 +18,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures.Models
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public FeatureType Type { get; set; }
+        public bool IsSubscribed { get; set; }
     }
     public record PlanItemDto
     {

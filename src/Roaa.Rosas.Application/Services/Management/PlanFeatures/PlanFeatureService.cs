@@ -67,6 +67,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       Id = planFeature.Feature.Id,
                                                       Name = planFeature.Feature.Name,
                                                       Type = planFeature.Feature.Type,
+                                                      IsSubscribed = planFeature.Feature.IsSubscribed,
                                                   },
                                               })
                                               .OrderBy(x => x.Plan.DisplayOrder)
@@ -191,8 +192,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             return Result.Successful();
         }
 
-
-
         public async Task<Result> DeletePlanFeatureAsync(Guid planFeatureId, Guid productId, CancellationToken cancellationToken = default)
         {
             #region Validation 
@@ -223,7 +222,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
 
             return Result.Successful();
         }
-
 
         private async Task<bool> UpdatingOrDeletingIsAllowedAsync(Guid featureId, CancellationToken cancellationToken = default)
         {

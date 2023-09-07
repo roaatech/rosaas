@@ -9,9 +9,10 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices.Models
         public PlanCycle Cycle { get; set; }
         public decimal Price { get; set; }
         public string Description { get; set; } = string.Empty;
-        public bool IsSubscribed { get; set; }
         public LookupItemDto<Guid> Plan { get; set; } = new();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
+        public bool IsPublished { get; set; }
+        public bool IsSubscribed { get; set; }
     }
 }
