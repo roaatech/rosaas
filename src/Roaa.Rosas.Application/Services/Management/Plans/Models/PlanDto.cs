@@ -11,6 +11,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans.Models
         public int DisplayOrder { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
+        public bool IsPublished { get; set; }
+        public bool IsSubscribed { get; set; }
 
     }
 }

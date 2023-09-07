@@ -18,6 +18,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
 
         Task<Result> UpdatePlanAsync(Guid id, UpdatePlanModel model, Guid productId, CancellationToken cancellationToken = default);
 
+        Task<Result> PublishPlanAsync(Guid id, PublishPlanModel model, Guid productId, CancellationToken cancellationToken = default);
+
         Task<Result> DeletePlanAsync(Guid id, Guid productId, CancellationToken cancellationToken = default);
     }
 }

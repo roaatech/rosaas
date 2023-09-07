@@ -7,6 +7,7 @@
         public string Description { get; set; } = string.Empty;
         public FeatureType Type { get; set; }
         public FeatureReset Reset { get; set; }
+        public bool IsSubscribed { get; set; }
         public virtual Product Product { get; set; }
         public virtual ICollection<PlanFeature> Plans { get; set; }
         public virtual ICollection<SubscriptionFeature>? SubscriptionFeatures { get; set; }

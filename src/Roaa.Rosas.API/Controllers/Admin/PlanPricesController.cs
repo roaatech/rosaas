@@ -54,6 +54,15 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         }
 
 
+
+        [HttpPost("{planPriceId}/publish")]
+        public async Task<IActionResult> PublishPlanFeatureAsync([FromBody] PublishPlanPriceModel model, [FromRoute] Guid id, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _planPriceService.PublishPlanPriceAsync(id, model, productId, cancellationToken));
+        }
+
+
+
         [HttpDelete("{planPriceId}")]
         public async Task<IActionResult> DeletePlanFeatureAsync([FromRoute] Guid planPriceId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {

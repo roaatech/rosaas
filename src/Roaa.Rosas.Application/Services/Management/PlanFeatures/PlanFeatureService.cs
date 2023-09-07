@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures.Models;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures.Validators;
+using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
@@ -53,6 +54,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       Id = planFeature.PlanId,
                                                       Name = planFeature.Plan.Name,
                                                       DisplayOrder = planFeature.Plan.DisplayOrder,
+                                                      IsPublished = planFeature.Plan.IsPublished,
+                                                      IsSubscribed = planFeature.Plan.IsSubscribed,
                                                   },
                                                   Limit = planFeature.Limit,
                                                   Unit = planFeature.Unit,
@@ -66,7 +69,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       Type = planFeature.Feature.Type,
                                                   },
                                               })
-                                              .OrderByDescending(x => x.Plan.DisplayOrder)
+                                              .OrderBy(x => x.Plan.DisplayOrder)
                                               .ToListAsync(cancellationToken);
 
             var plansIds = planFeatures.Select(x => x.Plan.Id).ToList();
@@ -109,6 +112,22 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             {
                 return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourceAlreadyExists, _identityContextService.Locale);
             }
+
+            if (!await _dbContext.Features.Where(x => x.Id == model.FeatureId && x.ProductId == productId).AnyAsync())
+            {
+                return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale, nameof(model.FeatureId));
+            }
+
+            var plan = await _dbContext.Plans.Where(x => x.Id == model.PlanId && x.ProductId == productId).SingleOrDefaultAsync();
+            if (plan is null)
+            {
+                return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale, nameof(model.PlanId));
+            }
+
+            if (plan.IsSubscribed)
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale, nameof(model.PlanId));
+            }
             #endregion
 
             var date = DateTime.UtcNow;
@@ -143,16 +162,21 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var planFeature = await _dbContext.PlanFeatures.Where(x => x.Id == planFeatureId).SingleOrDefaultAsync();
+            var planFeature = await _dbContext.PlanFeatures
+                                              .Include(x => x.Plan)
+                                              .Where(x => x.Id == planFeatureId)
+                                              .SingleOrDefaultAsync();
             if (planFeature is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await UpdatingOrDeletingIsAllowedAsync(planFeatureId, cancellationToken))
+            if (planFeature.Plan.IsSubscribed)
             {
-                return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale, "Plan");
             }
+
+
             #endregion
             PlanFeature featureBeforeUpdate = planFeature.DeepCopy();
 
@@ -172,19 +196,28 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
         public async Task<Result> DeletePlanFeatureAsync(Guid planFeatureId, Guid productId, CancellationToken cancellationToken = default)
         {
             #region Validation 
-            var feature = await _dbContext.PlanFeatures.Where(x => x.Id == planFeatureId).SingleOrDefaultAsync();
-            if (feature is null)
+            var planFeature = await _dbContext.PlanFeatures
+                                              .Include(x => x.Plan)
+                                              .Where(x => x.Id == planFeatureId)
+                                              .SingleOrDefaultAsync();
+            if (planFeature is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await UpdatingOrDeletingIsAllowedAsync(planFeatureId, cancellationToken))
+
+            if (planFeature.Plan.IsSubscribed)
             {
-                return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale, "Plan");
             }
+
+            //if (!await UpdatingOrDeletingIsAllowedAsync(planFeatureId, cancellationToken))
+            //{
+            //    return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+            //}
             #endregion
 
-            _dbContext.PlanFeatures.Remove(feature);
+            _dbContext.PlanFeatures.Remove(planFeature);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

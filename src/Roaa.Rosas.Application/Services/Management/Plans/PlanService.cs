@@ -57,6 +57,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               CreatedDate = plan.CreationDate,
                                               EditedDate = plan.ModificationDate,
                                               Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
+                                              IsPublished = plan.IsPublished,
+                                              IsSubscribed = plan.IsSubscribed,
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "Description", "Name", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
@@ -83,6 +85,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   CreatedDate = plan.CreationDate,
                                                   EditedDate = plan.ModificationDate,
                                                   Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
+                                                  IsPublished = plan.IsPublished,
+                                                  IsSubscribed = plan.IsSubscribed,
                                               })
                                               .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
@@ -121,6 +125,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               CreatedDate = plan.CreationDate,
                                               EditedDate = plan.ModificationDate,
                                               Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
+                                              IsPublished = plan.IsPublished,
+                                              IsSubscribed = plan.IsSubscribed,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -182,6 +188,11 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
+            if (plan.IsSubscribed)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
+            }
+
             #endregion
             Plan planBeforeUpdate = plan.DeepCopy();
 
@@ -190,6 +201,26 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             plan.DisplayOrder = model.DisplayOrder;
             plan.ModifiedByUserId = _identityContextService.UserId;
             plan.ModificationDate = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
+
+        public async Task<Result> PublishPlanAsync(Guid id, PublishPlanModel model, Guid productId, CancellationToken cancellationToken = default)
+        {
+            #region Validation 
+
+            var plan = await _dbContext.Plans.Where(x => x.Id == id && x.ProductId == productId).SingleOrDefaultAsync();
+            if (plan is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
+            #endregion 
+
+            plan.IsPublished = model.IsPublished;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -207,11 +238,24 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await DeletingIsAllowedAsync(id, cancellationToken))
+            if (plan.IsSubscribed)
             {
-                return Result.Fail(ErrorMessage.DeletingIsNotAllowed, _identityContextService.Locale);
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
+
             #endregion
+
+            var planFeatures = await _dbContext.PlanFeatures.Where(x => x.PlanId == id).ToListAsync(cancellationToken);
+            if (planFeatures.Any())
+            {
+                _dbContext.PlanFeatures.RemoveRange(planFeatures);
+            }
+
+            var planPrices = await _dbContext.PlanPrices.Where(x => x.PlanId == id).ToListAsync(cancellationToken);
+            if (planPrices.Any())
+            {
+                _dbContext.PlanPrices.RemoveRange(planPrices);
+            }
 
             _dbContext.Plans.Remove(plan);
 
@@ -223,7 +267,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
         private async Task<bool> DeletingIsAllowedAsync(Guid planId, CancellationToken cancellationToken = default)
         {
             return !await _dbContext.PlanFeatures
-                                    .Where(x => x.PlanId == planId)
+                                    .Where(x => x.PlanId == planId && x.Plan.IsPublished)
                                     .AnyAsync(cancellationToken);
 
         }
