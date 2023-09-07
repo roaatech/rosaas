@@ -61,21 +61,22 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         var planPriceIds = request.Subscriptions.Select(x => x.PlanPriceId).ToList();
 
         var plansInfo = await _dbContext.PlanPrices
-                                                         .Where(x => planPriceIds.Contains(x.Id))
-                                                         .Select(x => new PlanInfoModel
-                                                         {
-                                                             PlanPriceId = x.Id,
-                                                             PlanId = x.PlanId,
-                                                             IsPublished = x.Plan.IsPublished,
-                                                             PlanCycle = x.Cycle,
-                                                             Product = new ProductUrlListItem
-                                                             {
-                                                                 Id = x.Plan.ProductId,
-                                                                 Url = x.Plan.Product.DefaultHealthCheckUrl
-                                                             },
+                                        .AsNoTracking()
+                                        .Where(x => planPriceIds.Contains(x.Id))
+                                        .Select(x => new PlanInfoModel
+                                        {
+                                            PlanPriceId = x.Id,
+                                            PlanId = x.PlanId,
+                                            IsPublished = x.Plan.IsPublished,
+                                            PlanCycle = x.Cycle,
+                                            Product = new ProductUrlListItem
+                                            {
+                                                Id = x.Plan.ProductId,
+                                                Url = x.Plan.Product.DefaultHealthCheckUrl
+                                            },
 
-                                                         })
-                                                         .ToListAsync(cancellationToken);
+                                        })
+                                        .ToListAsync(cancellationToken);
 
         if (plansInfo is null || !plansInfo.Any())
         {
@@ -158,18 +159,19 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         var planIds = request.Subscriptions.Select(x => x.PlanId).ToList();
         var featuresInfo = await _dbContext.PlanFeatures
-                                                         .Where(x => planIds.Contains(x.Id))
-                                                         .Select(x => new FeatureInfoModel
-                                                         {
-                                                             PlanFeatureId = x.Id,
-                                                             FeatureId = x.FeatureId,
-                                                             Unit = x.Unit,
-                                                             PlanId = x.PlanId,
-                                                             Limit = x.Limit,
-                                                             Type = x.Feature.Type,
-                                                             Reset = x.Feature.Reset,
-                                                         })
-                                                         .ToListAsync(cancellationToken);
+                                            .AsNoTracking()
+                                            .Where(x => planIds.Contains(x.PlanId))
+                                            .Select(x => new FeatureInfoModel
+                                            {
+                                                PlanFeatureId = x.Id,
+                                                FeatureId = x.FeatureId,
+                                                Unit = x.Unit,
+                                                PlanId = x.PlanId,
+                                                Limit = x.Limit,
+                                                Type = x.Feature.Type,
+                                                Reset = x.Feature.Reset,
+                                            })
+                                            .ToListAsync(cancellationToken);
 
         foreach (var item in plansInfo)
         {
@@ -193,6 +195,31 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         _dbContext.TenantProcessHistory.AddRange(processHistory);
 
         _dbContext.TenantHealthStatuses.AddRange(healthStatuses);
+
+
+
+        var featuresIds = tenant.Subscriptions.SelectMany(x => x.SubscriptionFeatures.Select(x => x.FeatureId).ToList()).ToList();
+        var plansPricesIds = tenant.Subscriptions.Select(x => x.PlanPriceId).ToList();
+
+        var plans = await _dbContext.Plans.Where(x => planIds.Contains(x.Id)).ToListAsync(cancellationToken);
+        foreach (var plan in plans)
+        {
+            plan.IsSubscribed = true;
+        }
+
+        var features = await _dbContext.Features.Where(x => featuresIds.Contains(x.Id)).ToListAsync(cancellationToken);
+        foreach (var feature in features)
+        {
+            feature.IsSubscribed = true;
+        }
+
+
+        var planPrices = await _dbContext.PlanPrices.Where(x => plansPricesIds.Contains(x.Id)).ToListAsync(cancellationToken);
+        foreach (var planPrice in planPrices)
+        {
+            planPrice.IsSubscribed = true;
+        }
+
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

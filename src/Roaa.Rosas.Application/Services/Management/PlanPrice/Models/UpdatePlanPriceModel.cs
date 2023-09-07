@@ -7,6 +7,5 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices.Models
         public PlanCycle Cycle { get; set; }
         public decimal Price { get; set; }
         public string Description { get; set; } = string.Empty;
-
     }
 }

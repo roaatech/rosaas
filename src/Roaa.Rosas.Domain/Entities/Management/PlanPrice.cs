@@ -6,6 +6,8 @@
         public PlanCycle Cycle { get; set; }
         public decimal Price { get; set; }
         public string Description { get; set; } = string.Empty;
+        public bool IsPublished { get; set; }
+        public bool IsSubscribed { get; set; }
         public virtual Plan? Plan { get; set; }
         public virtual ICollection<Subscription>? Subscriptions { get; set; }
     }

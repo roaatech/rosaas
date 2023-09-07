@@ -183,10 +183,15 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await UpdatingOrDeletingIsAllowedAsync(id, cancellationToken))
+            if (feature.IsSubscribed)
             {
-                return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
+
+            //if (!await UpdatingOrDeletingIsAllowedAsync(id, cancellationToken))
+            //{
+            //    return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+            //}
             #endregion
             Feature featureBeforeUpdate = feature.DeepCopy();
 
@@ -214,16 +219,17 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await UpdatingOrDeletingIsAllowedAsync(id, cancellationToken))
+            if (feature.IsSubscribed)
             {
-                return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
+            #endregion 
 
-            if (!await DeletingIsAllowedAsync(id, cancellationToken))
+            var planFeatures = await _dbContext.PlanFeatures.Where(x => x.FeatureId == id).ToListAsync(cancellationToken);
+            if (planFeatures.Any())
             {
-                return Result.Fail(ErrorMessage.DeletingIsNotAllowed, _identityContextService.Locale);
+                _dbContext.PlanFeatures.RemoveRange(planFeatures);
             }
-            #endregion
 
             _dbContext.Features.Remove(feature);
 

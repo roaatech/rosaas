@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.PlanPrices.Models;
 using Roaa.Rosas.Application.Services.Management.PlanPrices.Validators;
+using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
@@ -52,6 +53,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                                   Plan = new LookupItemDto<Guid>(planPrice.Plan.Id, planPrice.Plan.Name),
                                                   Cycle = planPrice.Cycle,
                                                   Price = planPrice.Price,
+                                                  IsSubscribed = planPrice.IsSubscribed,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
                                                   EditedDate = planPrice.ModificationDate,
@@ -110,9 +112,9 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await UpdatingOrDeletingIsAllowedAsync(planPriceId, cancellationToken))
+            if (planPrice.IsSubscribed)
             {
-                return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
             #endregion
             PlanPrice featureBeforeUpdate = planPrice.DeepCopy();
@@ -127,25 +129,43 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
 
             return Result.Successful();
         }
+        public async Task<Result> PublishPlanPriceAsync(Guid planPriceId, PublishPlanPriceModel model, Guid productId, CancellationToken cancellationToken = default)
+        {
+            #region Validation 
+
+            var planPrice = await _dbContext.PlanPrices.Where(x => x.Id == planPriceId).SingleOrDefaultAsync();
+            if (planPrice is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
+            #endregion
+
+            planPrice.IsPublished = model.IsPublished;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
 
 
 
         public async Task<Result> DeletePlanPriceAsync(Guid planPriceId, Guid productId, CancellationToken cancellationToken = default)
         {
             #region Validation 
-            var feature = await _dbContext.PlanPrices.Where(x => x.Id == planPriceId).SingleOrDefaultAsync();
-            if (feature is null)
+            var planPrice = await _dbContext.PlanPrices.Where(x => x.Id == planPriceId).SingleOrDefaultAsync();
+            if (planPrice is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
-            if (!await UpdatingOrDeletingIsAllowedAsync(planPriceId, cancellationToken))
+            if (planPrice.IsSubscribed)
             {
-                return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
             #endregion
 
-            _dbContext.PlanPrices.Remove(feature);
+            _dbContext.PlanPrices.Remove(planPrice);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

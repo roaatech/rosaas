@@ -70,6 +70,11 @@ namespace Roaa.Rosas.Application.SystemMessages
            Ar = "الحذف غير مسموح به")]
         DeletingIsNotAllowed = 3005,
 
+        [Localization(
+           En = "Modification or deletion is not allowed for this resource due to an existing subscription",
+           Ar = "لا يمكن التعديل أو الحذف لوجود اشتراك")]
+        ModificationOrIsNotAllowedDueToSubscription = 3006,
+
 
     }
 }
