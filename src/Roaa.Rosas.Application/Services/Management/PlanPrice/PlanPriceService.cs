@@ -54,6 +54,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                                   Cycle = planPrice.Cycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
+                                                  IsPublished = planPrice.IsPublished,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
                                                   EditedDate = planPrice.ModificationDate,

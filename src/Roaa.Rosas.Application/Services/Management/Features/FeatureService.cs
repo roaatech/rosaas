@@ -83,6 +83,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                                   Type = feature.Type,
                                                   CreatedDate = feature.CreationDate,
                                                   EditedDate = feature.ModificationDate,
+                                                  IsSubscribed = feature.IsSubscribed,
                                               })
                                               .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
@@ -121,6 +122,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               Type = feature.Type,
                                               CreatedDate = feature.CreationDate,
                                               EditedDate = feature.ModificationDate,
+                                              IsSubscribed = feature.IsSubscribed,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
