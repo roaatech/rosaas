@@ -47,10 +47,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                      EditedDate = tenant.ModificationDate,
                                                      Subscriptions = tenant.Subscriptions.Select(subscription => new SubscriptionDto
                                                      {
-                                                         Id = subscription.ProductId,
+                                                         Product = new Common.Models.LookupItemDto<Guid>
+                                                         {
+                                                             Id = subscription.Product.Id,
+                                                             Name = subscription.Product.Name,
+                                                         },
                                                          ProductId = subscription.ProductId,
                                                          SubscriptionId = subscription.Id,
-                                                         Name = subscription.Product.Name,
                                                          ProductName = subscription.Product.Name,
                                                          Status = subscription.Status,
                                                          CreatedDate = subscription.CreationDate,

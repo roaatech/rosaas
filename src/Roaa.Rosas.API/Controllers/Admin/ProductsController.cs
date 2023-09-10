@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -15,18 +17,21 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         private readonly IProductService _productService;
         private readonly IIdentityContextService _identityContextService;
         private readonly IWebHostEnvironment _environment;
+        private readonly ISender _mediator;
         #endregion
 
         #region Corts
         public ProductsController(ILogger<ProductsController> logger,
                                 IWebHostEnvironment environment,
                                 IIdentityContextService identityContextService,
-                               IProductService productService)
+                               IProductService productService,
+                                ISender mediator)
         {
             _logger = logger;
             _environment = environment;
             _identityContextService = identityContextService;
             _productService = productService;
+            _mediator = mediator;
         }
         #endregion
 
@@ -72,6 +77,14 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         {
             return EmptyResult(await _productService.DeleteProductAsync(id, cancellationToken));
         }
+
+
+        [HttpGet("{id}/Tenants/{tenantId}")]
+        public async Task<IActionResult> GetSubscriptionDetailsAsync([FromRoute] Guid tenantId, [FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _mediator.Send(new GetSubscriptionDetailsQuery(tenantId, id), cancellationToken));
+        }
+
         #endregion
 
 
