@@ -1,4 +1,6 @@
-﻿using Roaa.Rosas.Domain.Enums;
+﻿using Roaa.Rosas.Common.Models;
+using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantById
@@ -18,19 +20,23 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
     {
         public Guid SubscriptionId { get; set; }
         public Guid ProductId { get; set; }
-        public Guid Id { get; set; }
         public string? ProductName { get; set; }
-        public string? Name { get; set; }
         public string HealthCheckUrl { get; set; } = string.Empty;
         public bool HealthCheckUrlIsOverridden { get; set; }
         public TenantStatus Status { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public object Metadata { get; set; } = new();
+        public LookupItemDto<Guid> Product { get; set; } = new();
         public ProductTenantHealthStatusDto HealthCheckStatus { get; set; } = new();
         public IEnumerable<ActionResultModel> Actions { get; set; } = new List<ActionResultModel>();
     }
-
+    public record PlanPriceDto
+    {
+        public Guid Id { get; set; }
+        public PlanCycle Cycle { get; set; }
+        public decimal Price { get; set; }
+    }
     public class ProductTenantHealthStatusDto
     {
         public bool ShowHealthStatus { get; set; } = true;
