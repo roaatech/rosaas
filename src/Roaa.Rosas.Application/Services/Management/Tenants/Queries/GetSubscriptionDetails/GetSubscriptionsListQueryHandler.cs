@@ -31,6 +31,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                  .Select(subscription => new SubscriptionDetailsDto
                                                  {
                                                      SubscriptionId = subscription.Id,
+                                                     StartDate = subscription.StartDate,
+                                                     EndDate = subscription.EndDate,
                                                      Plan = new Common.Models.LookupItemDto<Guid>
                                                      {
                                                          Id = subscription.Plan.Id,

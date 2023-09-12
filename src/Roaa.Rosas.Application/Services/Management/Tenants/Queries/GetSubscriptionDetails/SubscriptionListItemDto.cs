@@ -6,6 +6,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
     public record SubscriptionDetailsDto
     {
         public Guid SubscriptionId { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public LookupItemDto<Guid> Plan { get; set; } = new();
         public PlanPriceDto PlanPrice { get; set; } = new();
         public IEnumerable<SubscriptionFeatureDto> SubscriptionFeatures { get; set; } = new List<SubscriptionFeatureDto>();
