@@ -19,6 +19,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures.Models
         public string Name { get; set; } = string.Empty;
         public FeatureType Type { get; set; }
         public bool IsSubscribed { get; set; }
+        public FeatureReset Reset { get; set; }
     }
     public record PlanItemDto
     {
