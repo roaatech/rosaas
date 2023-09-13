@@ -34,21 +34,21 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #region Actions   
 
         [HttpGet()]
-        public async Task<IActionResult> GetPlanFeaturesListByProductIdAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetPlanPricesListByProductIdAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
             return ListResult(await _planPriceService.GetPlanPricesListByProductIdAsync(productId, cancellationToken));
         }
 
 
         [HttpPost()]
-        public async Task<IActionResult> CreatePlanFeatureAsync([FromBody] CreatePlanPriceModel model, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CreatePlanPriceAsync([FromBody] CreatePlanPriceModel model, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
             return ItemResult(await _planPriceService.CreatePlanPriceAsync(model, productId, cancellationToken));
         }
 
 
         [HttpPut("{planPriceId}")]
-        public async Task<IActionResult> UpdatePlanFeatureAsync([FromBody] UpdatePlanPriceModel model, [FromRoute] Guid planPriceId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdatePlanPriceAsync([FromBody] UpdatePlanPriceModel model, [FromRoute] Guid planPriceId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _planPriceService.UpdatePlanPriceAsync(planPriceId, model, productId, cancellationToken));
         }
@@ -56,9 +56,9 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpPost("{planPriceId}/publish")]
-        public async Task<IActionResult> PublishPlanFeatureAsync([FromBody] PublishPlanPriceModel model, [FromRoute] Guid id, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> DeletePlanPriceAsync([FromBody] PublishPlanPriceModel model, [FromRoute] Guid planPriceId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _planPriceService.PublishPlanPriceAsync(id, model, productId, cancellationToken));
+            return EmptyResult(await _planPriceService.PublishPlanPriceAsync(planPriceId, model, productId, cancellationToken));
         }
 
 
