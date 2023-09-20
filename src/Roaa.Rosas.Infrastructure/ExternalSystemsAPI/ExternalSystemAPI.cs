@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.ResponseMessages;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
@@ -129,21 +128,21 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
                 Url = url,
             };
 
-            // temp - for test operations
-            if (!_environment.IsProductionEnvironment() && isCheckHealthStatus)
-            {
+            //// temp - for test operations
+            //if (!_environment.IsProductionEnvironment() && isCheckHealthStatus)
+            //{
 
-                if (_tenantName.Contains("-x0"))
-                {
-                    var res = Result<ExternalSystemResultModel<T>>.Fail("custom error");
-                    res.WithData(data);
-                    return res;
-                }
-                return Result<ExternalSystemResultModel<T>>.Successful(data);
-            }
+            //    if (_tenantName.Contains("-x0"))
+            //    {
+            //        var res = Result<ExternalSystemResultModel<T>>.Fail("custom error");
+            //        res.WithData(data);
+            //        return res;
+            //    }
+            //    return Result<ExternalSystemResultModel<T>>.Successful(data);
+            //}
 
 
-            return Result<ExternalSystemResultModel<T>>.Successful(data);
+            //return Result<ExternalSystemResultModel<T>>.Successful(data);
 
 
             if (requestResult.Success)
