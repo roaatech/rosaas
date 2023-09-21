@@ -316,11 +316,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
         public async Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(JobTask jobTask, string tenantHhealthCheckUrl, CancellationToken cancellationToken)
         {
             string tenantName = _backgroundWorkerStore.GetTenantName(jobTask.TenantId);
+            string productsAPIKey = _backgroundWorkerStore.GetProductAPIKey(jobTask.ProductId);
 
 
             var requestResult = await _externalSystemAPI.CheckTenantHealthStatusAsync(new ExternalSystemRequestModel<CheckTenantHealthStatusModel>
             {
                 BaseUrl = tenantHhealthCheckUrl,
+                ApiKey = productsAPIKey,
                 TenantId = jobTask.TenantId,
                 Data = new()
                 {
