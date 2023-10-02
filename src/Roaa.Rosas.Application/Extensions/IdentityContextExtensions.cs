@@ -18,6 +18,10 @@ namespace Roaa.Rosas.Application.Extensions
         public static UserType GetUserType(this IIdentityContextService identityContext)
         {
             var value = identityContext.GetClaim(SystemConsts.Clients.Claims.ClaimType);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return UserType.RosasSystem;
+            }
             var ss = value.ToPascalCaseNamingStrategy();
             var type = Helpers.ParseEnum<UserType>(value.ToPascalCaseNamingStrategy());
             return type;

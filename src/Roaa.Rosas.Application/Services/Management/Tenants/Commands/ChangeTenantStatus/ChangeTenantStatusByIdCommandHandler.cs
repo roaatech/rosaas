@@ -39,7 +39,7 @@ public class ChangeTenantStatusByIdCommandHandler : IRequestHandler<ChangeTenant
     public async Task<Result<List<TenantStatusChangedResultDto>>> Handle(ChangeTenantStatusByIdCommand request, CancellationToken cancellationToken)
     {
 
-        return await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel(request.TenantId, request.Status, request.ProductId), cancellationToken);
+        return await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel(request.TenantId, request.Status, request.ProductId, request.Notes), cancellationToken);
     }
 
     #endregion

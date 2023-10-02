@@ -28,6 +28,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public int UpdatesCount { get; set; } = 1;
 
         public bool Enabled { get; set; } = true;
+
+        public string Notes { get; set; } = string.Empty;
     }
 
     public enum TenantProcessType
@@ -40,6 +42,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
         UnhealthStatus,
         ExternalSystemSuccessfullyInformed,
         FailedToInformExternalSystem,
+        SuspendingThePaymentStatusForTheSubscriberDueToNonRenewalOfTheSubscription,
+
     }
 
     public class TenantProcessData

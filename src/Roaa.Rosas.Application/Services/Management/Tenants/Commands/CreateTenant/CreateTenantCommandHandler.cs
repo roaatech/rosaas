@@ -65,6 +65,8 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                         .Where(x => planPriceIds.Contains(x.Id))
                                         .Select(x => new PlanInfoModel
                                         {
+                                            PlanName = x.Plan.Name,
+                                            Price = x.Price,
                                             PlanPriceId = x.Id,
                                             PlanId = x.PlanId,
                                             IsPublished = x.Plan.IsPublished,
@@ -227,7 +229,17 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     }
     private Tenant BuildTenantEntity(CreateTenantCommand model, List<PlanInfoModel> plansInfo, Process initialProcess)
     {
+        plansInfo?.ForEach(x =>
+        {
+            // var subscriptionCycleId = Guid.NewGuid();
+            x.GeneratedSubscriptionCycleId = Guid.NewGuid();
+            x.GeneratedSubscriptionId = Guid.NewGuid();
 
+            x.Features?.ForEach(f =>
+            {
+                f.GeneratedSubscriptionFeatureCycleId = Guid.NewGuid();
+            });
+        });
 
         var id = Guid.NewGuid();
 
@@ -242,7 +254,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             ModificationDate = _date,
             Subscriptions = plansInfo.Select(item => new Subscription
             {
-                Id = Guid.NewGuid(),
+                Id = item.GeneratedSubscriptionId,
                 StartDate = _date,
                 EndDate = PlanCycleManager.FromKey(item.PlanCycle).GetExpiryDate(_date),
                 TenantId = id,
@@ -256,9 +268,32 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 ModificationDate = _date,
                 HealthCheckUrl = item.Product.Url,
                 HealthCheckUrlIsOverridden = false,
+                IsPaid = true,
+                SubscriptionCycleId = item.GeneratedSubscriptionCycleId,
+                SubscriptionCycles = new List<SubscriptionCycle>()
+                {
+                    new SubscriptionCycle()
+                     {
+                        Id = item.GeneratedSubscriptionCycleId,
+                        StartDate = _date,
+                        EndDate = PlanCycleManager.FromKey(item.PlanCycle).GetExpiryDate(_date),
+                        TenantId = id,
+                        PlanId = item.PlanId,
+                        PlanPriceId = item.PlanPriceId,
+                        ProductId = item.Product.Id,
+                        Cycle = item.PlanCycle,
+                        PlanName = item.PlanName,
+                        CreatedByUserId = _identityContextService.GetActorId(),
+                        ModifiedByUserId = _identityContextService.GetActorId(),
+                        CreationDate = _date,
+                        ModificationDate = _date,
+                        Price = item.Price,
+                     }
+                },
                 SubscriptionFeatures = item.Features.Select(f => new SubscriptionFeature
                 {
                     Id = Guid.NewGuid(),
+                    SubscriptionFeatureCycleId = f.GeneratedSubscriptionFeatureCycleId,
                     StartDate = _date,
                     EndDate = FeatureResetManager.FromKey(f.Reset).GetExpiryDate(_date),
                     FeatureId = f.FeatureId,
@@ -268,10 +303,36 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                     ModifiedByUserId = _identityContextService.GetActorId(),
                     CreationDate = _date,
                     ModificationDate = _date,
+                    SubscriptionFeatureCycles = new List<SubscriptionFeatureCycle>()
+                    {
+                        new SubscriptionFeatureCycle()
+                        {
+                            Id = f.GeneratedSubscriptionFeatureCycleId,
+                            StartDate = _date,
+                            EndDate =  FeatureResetManager.FromKey(f.Reset).GetExpiryDate(_date),
+                            FeatureId = f.FeatureId,
+                            Limit = f.Limit,
+                            Reset = f.Reset,
+                            Type = f.Type,
+                            Unit = f.Unit,
+                            TotalUsage = f.Limit is null ? null : 0,
+                            RemainingUsage = f.Limit,
+                            Cycle = item.PlanCycle,
+                            FeatureName = f.Name,
+                            PlanFeatureId = f.PlanFeatureId,
+                            CreatedByUserId = _identityContextService.GetActorId(),
+                            ModifiedByUserId = _identityContextService.GetActorId(),
+                            CreationDate = _date,
+                            ModificationDate = _date,
+                            SubscriptionCycleId = item.GeneratedSubscriptionCycleId,
+                            SubscriptionId = item.GeneratedSubscriptionId,
+                        }
+                    },
                 }).ToList()
             }).ToList(),
         };
     }
+
     private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<Subscription> subscriptions)
     {
         return subscriptions.Select(item => new TenantHealthStatus

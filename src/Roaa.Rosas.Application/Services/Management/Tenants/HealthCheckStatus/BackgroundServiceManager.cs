@@ -38,11 +38,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
                                     .Where(x => x.Status == TenantStatus.Active ||
                                                 x.Status == TenantStatus.CreatedAsActive)
                                     .OrderBy(x => x.ModificationDate)
-                                    .Select(x => new { x.Id, x.ProductId, x.TenantId, x.Tenant.UniqueName })
+                                    .Select(x => new { x.Id, x.ProductId, x.TenantId, x.Tenant.UniqueName, x.Product.ApiKey })
                                     .ToListAsync();
 
 
-            activeSubscriptions.ForEach(x => _store.AddTenantsNames(x.TenantId, x.UniqueName));
+            activeSubscriptions.ForEach(x =>
+            {
+                _store.AddTenantsNames(x.TenantId, x.UniqueName);
+                _store.AddProductAPIKey(x.ProductId, x.ApiKey);
+            });
 
             var tasks = await _dbContext
                                      .JobTasks

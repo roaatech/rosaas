@@ -2,9 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Common.Extensions;
+using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionDetails
 {
     public class GetSubscriptionDetailsQueryHandler : IRequestHandler<GetSubscriptionDetailsQuery, Result<SubscriptionDetailsDto>>
     {
@@ -31,9 +32,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                  .Select(subscription => new SubscriptionDetailsDto
                                                  {
                                                      SubscriptionId = subscription.Id,
+                                                     CurrentSubscriptionCycleId = subscription.SubscriptionCycleId,
                                                      StartDate = subscription.StartDate,
                                                      EndDate = subscription.EndDate,
-                                                     Plan = new Common.Models.LookupItemDto<Guid>
+                                                     Plan = new LookupItemDto<Guid>
                                                      {
                                                          Id = subscription.Plan.Id,
                                                          Name = subscription.Plan.Name,
@@ -44,21 +46,50 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                          Cycle = subscription.PlanPrice.Cycle,
                                                          Price = subscription.PlanPrice.Price,
                                                      },
-                                                     SubscriptionFeatures = subscription.SubscriptionFeatures.Select(x => new SubscriptionFeatureDto
+                                                     SubscriptionCycles = subscription.SubscriptionCycles.Select(SubscriptionCycle => new SubscriptionCycleDto
                                                      {
-                                                         EndDate = x.EndDate,
-                                                         StartDate = x.StartDate,
-                                                         RemainingUsage = x.RemainingUsage,
+                                                         Id = SubscriptionCycle.Id,
+                                                         StartDate = SubscriptionCycle.StartDate,
+                                                         EndDate = SubscriptionCycle.EndDate,
+                                                         Cycle = SubscriptionCycle.Cycle,
+                                                         Price = SubscriptionCycle.Price,
+                                                         Plan = new LookupItemDto<Guid>(SubscriptionCycle.PlanId, SubscriptionCycle.PlanName),
+
+                                                     }),
+                                                     SubscriptionFeatures = subscription.SubscriptionFeatures.Select(subscriptionFeature => new SubscriptionFeatureDto
+                                                     {
+                                                         Id = subscriptionFeature.Id,
+                                                         CurrentSubscriptionFeatureCycleId = subscriptionFeature.SubscriptionFeatureCycleId,
+                                                         EndDate = subscriptionFeature.EndDate,
+                                                         StartDate = subscriptionFeature.StartDate,
+                                                         RemainingUsage = subscriptionFeature.RemainingUsage,
                                                          Feature = new FeatureDto
                                                          {
-                                                             Id = x.Feature.Id,
-                                                             Name = x.Feature.Name,
-                                                             Description = x.Feature.Description,
-                                                             Type = x.Feature.Type,
-                                                             Reset = x.Feature.Reset,
-                                                             Limit = x.PlanFeature.Limit,
-                                                             Unit = x.PlanFeature.Unit,
-                                                         }
+                                                             Id = subscriptionFeature.Feature.Id,
+                                                             Name = subscriptionFeature.Feature.Name,
+                                                             Description = subscriptionFeature.Feature.Description,
+                                                             Type = subscriptionFeature.Feature.Type,
+                                                             Reset = subscriptionFeature.Feature.Reset,
+                                                             Limit = subscriptionFeature.PlanFeature.Limit,
+                                                             Unit = subscriptionFeature.PlanFeature.Unit,
+                                                         },
+                                                         Type = subscriptionFeature.Feature.Type,
+                                                         Reset = subscriptionFeature.Feature.Reset,
+                                                         Limit = subscriptionFeature.PlanFeature.Limit,
+                                                         Unit = subscriptionFeature.PlanFeature.Unit,
+                                                         SubscriptionFeaturesCycles = subscriptionFeature.SubscriptionFeatureCycles.Select(featureCycle => new SubscriptionFeatureCycleDto
+                                                         {
+                                                             Id = featureCycle.Id,
+                                                             StartDate = featureCycle.StartDate,
+                                                             EndDate = featureCycle.EndDate,
+                                                             Feature = new LookupItemDto<Guid>(featureCycle.FeatureId, featureCycle.FeatureName),
+                                                             Limit = featureCycle.Limit,
+                                                             Reset = featureCycle.Reset,
+                                                             Type = featureCycle.Type,
+                                                             Unit = featureCycle.Unit,
+                                                             RemainingUsage = featureCycle.RemainingUsage,
+                                                             TotalUsage = featureCycle.TotalUsage,
+                                                         }),
                                                      })
                                                  })
                                                  .SingleOrDefaultAsync(cancellationToken);

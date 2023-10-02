@@ -63,7 +63,10 @@ namespace Roaa.Rosas.Authorization.Utilities
 
         public string GetClaim(string claimType)
         {
-            var value = HttpContext.User.Identity.GetClaim(claimType);
+            string value = string.Empty;
+
+            if (CheckIsAuthenticated())
+                value = HttpContext.User.Identity.GetClaim(claimType);
 
             return value;
         }

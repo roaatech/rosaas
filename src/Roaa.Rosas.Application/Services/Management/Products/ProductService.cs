@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Products.Validators;
+using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
@@ -223,6 +224,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             product.DeletionUrl = model.DeletionEndpoint;
             product.ApiKey = model.ApiKey;
             product.ModificationDate = DateTime.UtcNow;
+
+            product.AddDomainEvent(new ProductUpdatedEvent(product, productBeforeUpdate));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

@@ -10,10 +10,11 @@ namespace Roaa.Rosas.Application.JWT
         #region Props
         public static readonly UserTypeManager SuperAdmin = new SuperAdminType();
         public static readonly UserTypeManager ExternalSystem = new ExternalSystemType();
+        public static readonly UserTypeManager RosasSystem = new RosasSystemType();
         #endregion
 
         #region Corts
-        protected UserTypeManager(UserType sign) : base(sign)
+        protected UserTypeManager(UserType userType) : base(userType)
         {
         }
         #endregion
@@ -22,9 +23,20 @@ namespace Roaa.Rosas.Application.JWT
         public abstract Guid GetActorId(IIdentityContextService identityContext);
         #endregion
 
-
-
         #region inners  
+        private sealed class RosasSystemType : UserTypeManager
+        {
+            #region Corts
+            public RosasSystemType() : base(UserType.RosasSystem) { }
+            #endregion
+
+            #region overrides 
+            public override Guid GetActorId(IIdentityContextService identityContext)
+            {
+                return Guid.Empty;
+            }
+            #endregion
+        }
 
         private sealed class SuperAdminType : UserTypeManager
         {

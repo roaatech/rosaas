@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionDetails;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Framework.Controllers.Common;
