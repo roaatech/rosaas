@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
+using Roaa.Rosas.Application.Services.Management.Tenants;
+using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Handlers
+namespace Roaa.Rosas.Application.Services.Management.Products
 {
     public class ProductUpdatedHandler : IInternalDomainEventHandler<ProductUpdatedEvent>
     {

@@ -225,7 +225,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             product.ApiKey = model.ApiKey;
             product.ModificationDate = DateTime.UtcNow;
 
-            product.AddDomainEvent(new ProductUpdatedEvent(productBeforeUpdate, product));
+            product.AddDomainEvent(new ProductUpdatedEvent(product, productBeforeUpdate));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
