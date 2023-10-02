@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.ResponseMessages;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
@@ -35,7 +34,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> CreateTenantAsync(ExternalSystemRequestModel<CreateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
 
             var result = await _requestBroker.PostAsync<dynamic, CreateTenantModel>(request, cancellationToken);
 
@@ -45,7 +44,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> ActivateTenantAsync(ExternalSystemRequestModel<ActivateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
 
             var result = await _requestBroker.PostAsync<dynamic, ActivateTenantModel>(request, cancellationToken);
 
@@ -55,7 +54,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> DeactivateTenantAsync(ExternalSystemRequestModel<DeactivateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
 
             var result = await _requestBroker.PostAsync<dynamic, DeactivateTenantModel>(request, cancellationToken);
 
@@ -65,7 +64,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> DeleteTenantAsync(ExternalSystemRequestModel<DeleteTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
 
             var result = await _requestBroker.PostAsync<dynamic, DeleteTenantModel>(request, cancellationToken);
 
@@ -76,7 +75,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> InformTheTenantUnavailableAsync(ExternalSystemRequestModel<InformTheTenantUnavailableModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.TenantId, cancellationToken: cancellationToken);
+            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
 
             var result = await _requestBroker.PostAsync<dynamic, InformTheTenantUnavailableModel>(request, cancellationToken);
 
@@ -129,21 +128,21 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
                 Url = url,
             };
 
-            // temp - for test operations
-            if (!_environment.IsProductionEnvironment() && isCheckHealthStatus)
-            {
+            //// temp - for test operations
+            //if (!_environment.IsProductionEnvironment() && isCheckHealthStatus)
+            //{
 
-                if (_tenantName.Contains("-x0"))
-                {
-                    var res = Result<ExternalSystemResultModel<T>>.Fail("custom error");
-                    res.WithData(data);
-                    return res;
-                }
-                return Result<ExternalSystemResultModel<T>>.Successful(data);
-            }
+            //    if (_tenantName.Contains("-x0"))
+            //    {
+            //        var res = Result<ExternalSystemResultModel<T>>.Fail("custom error");
+            //        res.WithData(data);
+            //        return res;
+            //    }
+            //    return Result<ExternalSystemResultModel<T>>.Successful(data);
+            //}
 
 
-            return Result<ExternalSystemResultModel<T>>.Successful(data);
+            //return Result<ExternalSystemResultModel<T>>.Successful(data);
 
 
             if (requestResult.Success)

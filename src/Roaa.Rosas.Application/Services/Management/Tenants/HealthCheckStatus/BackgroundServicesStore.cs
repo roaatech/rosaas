@@ -30,6 +30,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 
         private Dictionary<Guid, string> tenantsNames = new();
 
+        private Dictionary<Guid, string> productsAPIKeys = new();
+
         private List<TenantHealthCheckProcessModel> tenantsProcesses = new();
 
         public string GetTenantName(Guid tenantId)
@@ -43,6 +45,23 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
             {
                 tenantsNames.Add(tenantId, tenantName);
             }
+        }
+        public string GetProductAPIKey(Guid productId)
+        {
+            return productsAPIKeys[productId];
+        }
+
+        public void AddProductAPIKey(Guid productId, string apiKey)
+        {
+            if (!productsAPIKeys.TryGetValue(productId, out string val))
+            {
+                productsAPIKeys.Add(productId, apiKey);
+            }
+        }
+
+        public void RemoveProductAPIKey(Guid productId)
+        {
+            productsAPIKeys.Remove(productId);
         }
 
         public Guid? GetTenantProcess(Guid tenantId, Guid productId)
