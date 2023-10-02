@@ -54,7 +54,7 @@ public class ChangeTenantStatusCommandHandler : IRequestHandler<ChangeTenantStat
         }
 
 
-        return await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel(tenantId, request.Status, request.ProductId), cancellationToken);
+        return await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel(tenantId, request.Status, request.ProductId, request.Notes), cancellationToken);
 
     }
 

@@ -42,4 +42,8 @@
 		<ProjectReference Include="..\Roaa.Rosas.Infrastructure\Roaa.Rosas.Infrastructure.csproj" />
 	</ItemGroup>
 
+
+
+	<ProjectExtensions><VisualStudio><UserProperties tempkey_1jwk__JsonSchema="https://docs.renovatebot.com/renovate-schema.json" /></VisualStudio></ProjectExtensions>
+
 </Project>

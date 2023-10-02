@@ -1,4 +1,5 @@
-﻿using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
+﻿using Roaa.Rosas.Application.BackgroundServices;
+using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
 using Roaa.Rosas.Domain.Models.Options;
 
@@ -14,6 +15,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddSingleton<IAvailableTenantChecker, AvailableTenantChecker>();
             services.AddSingleton<IInaccessibleTenantChecker, InaccessibleTenantChecker>();
             services.AddSingleton<IUnavailableTenantChecker, UnavailableTenantChecker>();
+            services.AddSingleton<ISubscriptionWorker, SubscriptionWorker>();
             services.AddSingleton<BackgroundServicesStore>();
             services.AddScoped<BackgroundServiceManager>();
 
@@ -21,6 +23,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddHostedService<AvailableTenantChecker>();
             services.AddHostedService<UnavailableTenantChecker>();
             services.AddHostedService<Informer>();
+            services.AddHostedService<SubscriptionWorker>();
         }
 
 

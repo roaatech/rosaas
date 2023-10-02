@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionDetails
 {
     public record GetSubscriptionDetailsQuery : IRequest<Result<SubscriptionDetailsDto>>
     {

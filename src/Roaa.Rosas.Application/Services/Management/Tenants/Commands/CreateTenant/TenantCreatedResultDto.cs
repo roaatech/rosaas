@@ -33,16 +33,21 @@ public record ProductTenantCreatedResultDto
 
 public record PlanInfoModel
 {
+    public string PlanName { get; set; } = string.Empty;
+    public decimal Price { get; set; }
     public Guid PlanPriceId { get; set; }
     public Guid PlanId { get; set; }
     public bool IsPublished { get; set; }
     public PlanCycle PlanCycle { get; set; }
+    public Guid GeneratedSubscriptionCycleId { get; set; }
+    public Guid GeneratedSubscriptionId { get; set; }
     public ProductUrlListItem Product { get; set; } = new();
     public List<FeatureInfoModel> Features { get; set; } = new();
 }
 
 public record FeatureInfoModel
 {
+    public Guid GeneratedSubscriptionFeatureCycleId { get; set; }
     public Guid PlanFeatureId { get; set; }
     public Guid PlanId { get; set; }
     public Guid FeatureId { get; set; }
@@ -50,4 +55,5 @@ public record FeatureInfoModel
     public FeatureType Type { get; set; }
     public FeatureUnit? Unit { get; set; }
     public FeatureReset Reset { get; set; }
+    public string Name { get; set; } = string.Empty;
 }

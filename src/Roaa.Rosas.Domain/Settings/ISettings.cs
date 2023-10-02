@@ -1,4 +1,4 @@
-﻿namespace Roaa.Rosas.Application.Interfaces
+﻿namespace Roaa.Rosas.Domain.Settings
 {
     public interface ISettings
     {

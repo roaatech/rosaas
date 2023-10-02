@@ -1,5 +1,5 @@
-﻿using Roaa.Rosas.Application.Interfaces;
-using Roaa.Rosas.Common.Models.Results;
+﻿using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Domain.Settings;
 
 namespace Roaa.Rosas.Application.Services.Management.Settings
 {

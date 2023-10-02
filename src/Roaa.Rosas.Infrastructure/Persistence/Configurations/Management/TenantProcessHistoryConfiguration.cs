@@ -19,6 +19,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.OwnerType).IsRequired();
             builder.Property(r => r.Enabled).IsRequired();
             builder.Property(r => r.ProcessDate).IsRequired();
+            builder.Property(r => r.Notes).IsRequired(true).HasMaxLength(500);
             builder.Property(r => r.TimeStamp).IsRequired().HasConversion(
                v => v.Ticks,
                v => new DateTime(v)

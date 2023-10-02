@@ -74,6 +74,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 Action = WorkflowAction.Ok,
                 TenantId = model.TenantId,
                 ProductId = model.ProductId,
+                Notes = model.Notes,
                 EditorBy = _identityContextService.GetActorId(),
             });
 
@@ -151,6 +152,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     subscription.Status = nextProcess.NextStatus;
                     subscription.ModifiedByUserId = model.EditorBy;
                     subscription.ModificationDate = date;
+                    subscription.Notes = model.Notes;
 
                     if (nextProcess.CurrentStatus == Domain.Enums.TenantStatus.Active)
                     {
@@ -169,7 +171,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                         OwnerType = _identityContextService.GetUserType(),
                         Created = date,
                         TimeStamp = date,
-                        Message = nextProcess.Message
+                        Message = nextProcess.Message,
                     };
 
                     _dbContext.TenantStatusHistory.Add(statusHistory);
@@ -194,6 +196,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                         ProcessType = TenantProcessType.StatusChanged,
                         Enabled = true,
                         Data = System.Text.Json.JsonSerializer.Serialize(processData),
+                        Notes = model.Notes,
                     };
 
                     _dbContext.TenantProcessHistory.Add(processHistory);

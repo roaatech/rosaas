@@ -18,6 +18,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.HasOne(b => b.HealthCheckStatus).WithOne(p => p.Subscription).HasForeignKey<TenantHealthStatus>(e => e.Id).OnDelete(DeleteBehavior.Restrict);
             builder.Property(r => r.HealthCheckUrl).IsRequired(true).HasMaxLength(250);
             builder.Property(r => r.HealthCheckUrlIsOverridden).IsRequired(true);
+            builder.Property(r => r.IsPaid).IsRequired(true);
+            builder.Property(r => r.Notes).IsRequired(true).HasMaxLength(500);
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.ModifiedByUserId).IsRequired();
             builder.Property(r => r.StartDate).IsRequired();
