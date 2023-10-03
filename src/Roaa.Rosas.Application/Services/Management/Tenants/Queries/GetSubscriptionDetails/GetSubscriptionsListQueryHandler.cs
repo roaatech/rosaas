@@ -80,6 +80,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                          SubscriptionFeaturesCycles = subscriptionFeature.SubscriptionFeatureCycles.Select(featureCycle => new SubscriptionFeatureCycleDto
                                                          {
                                                              Id = featureCycle.Id,
+                                                             SubscriptionCycleId = featureCycle.SubscriptionCycleId,
                                                              StartDate = featureCycle.StartDate,
                                                              EndDate = featureCycle.EndDate,
                                                              Feature = new LookupItemDto<Guid>(featureCycle.FeatureId, featureCycle.FeatureName),
