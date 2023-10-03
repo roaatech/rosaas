@@ -49,6 +49,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
     public class SubscriptionFeatureCycleDto
     {
         public Guid Id { get; set; }
+        public Guid SubscriptionCycleId { get; set; }
         public LookupItemDto<Guid> Feature { get; set; } = new();
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }

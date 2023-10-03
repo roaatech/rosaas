@@ -42,7 +42,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         UnhealthStatus,
         ExternalSystemSuccessfullyInformed,
         FailedToInformExternalSystem,
-        SuspendingThePaymentStatusForTheSubscriberDueToNonRenewalOfTheSubscription,
+        SuspendingThePaymentStatusForTheTenantDueToNonRenewalOfTheSubscription,
 
     }
 
