@@ -170,6 +170,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                                 Unit = x.Unit,
                                                 PlanId = x.PlanId,
                                                 Limit = x.Limit,
+                                                Name = x.Feature.Name,
                                                 Type = x.Feature.Type,
                                                 Reset = x.Feature.Reset,
                                             })
