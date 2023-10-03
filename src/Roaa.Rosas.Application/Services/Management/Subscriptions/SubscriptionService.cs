@@ -88,7 +88,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                         OwnerType = UserType.RosasSystem,
                         ProcessDate = date,
                         TimeStamp = date,
-                        ProcessType = TenantProcessType.SuspendingThePaymentStatusForTheSubscriberDueToNonRenewalOfTheSubscription,
+                        ProcessType = TenantProcessType.SuspendingThePaymentStatusForTenantSubscriptionDueToNonRenewalOfTheSubscription,
                         Enabled = true,
                         Notes = subscription.Notes
                     };
