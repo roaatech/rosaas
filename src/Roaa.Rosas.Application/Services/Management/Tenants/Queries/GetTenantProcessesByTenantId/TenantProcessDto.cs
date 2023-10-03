@@ -18,6 +18,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
 
         public string Data { get; set; } = string.Empty;
 
+        public string Notes { get; set; } = string.Empty;
+
         public Guid? OwnerId { get; set; }
 
         public UserType OwnerType { get; set; }

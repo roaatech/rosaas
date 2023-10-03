@@ -41,6 +41,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
                                                         OwnerId = x.OwnerId,
                                                         OwnerType = x.OwnerType,
                                                         Data = x.Data,
+                                                        Notes = x.Notes,
                                                         ProcessDate = x.TimeStamp,
                                                         ProcessType = x.ProcessType,
                                                         UpdatesCount = x.UpdatesCount,
