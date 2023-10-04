@@ -16,6 +16,7 @@
         public virtual ICollection<Subscription>? Subscriptions { get; set; }
         public virtual ICollection<Feature>? Features { get; set; }
         public virtual ICollection<Plan>? Plans { get; set; }
+        public virtual ICollection<Specification>? Specifications { get; set; }
     }
 
 }

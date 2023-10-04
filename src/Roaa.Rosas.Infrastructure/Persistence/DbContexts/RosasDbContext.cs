@@ -60,6 +60,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<SubscriptionFeatureCycle> SubscriptionFeatureCycles { get; set; }
         public DbSet<TenantHealthStatus> TenantHealthStatuses { get; set; }
         public DbSet<ExternalSystemDispatch> ExternalSystemDispatches { get; set; }
+        public DbSet<Specification> Specifications { get; set; }
+        public DbSet<SpecificationValue> SpecificationValues { get; set; }
         public DbSet<Feature> Features { get; set; }
         public DbSet<Plan> Plans { get; set; }
         public DbSet<PlanFeature> PlanFeatures { get; set; }
