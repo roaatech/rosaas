@@ -329,7 +329,20 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                             SubscriptionId = item.GeneratedSubscriptionId,
                         }
                     },
-                }).ToList()
+                }).ToList(),
+                SpecificationsValues = model.Subscriptions.Where(s => s.ProductId == item.Product.Id)
+                                                          .SelectMany(x => x.Specifications).Select(x => new SpecificationValue
+                                                          {
+                                                              Id = Guid.NewGuid(),
+                                                              TenantId = id,
+                                                              SpecificationId = x.SpecificationId,
+                                                              Data = x.Value,
+                                                              CreatedByUserId = _identityContextService.GetActorId(),
+                                                              ModifiedByUserId = _identityContextService.GetActorId(),
+                                                              CreationDate = _date,
+                                                              ModificationDate = _date,
+                                                          }).ToList(),
+
             }).ToList(),
         };
     }

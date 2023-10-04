@@ -70,7 +70,21 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                              Duration = subscription.HealthCheckStatus.Duration,
                                                              HealthyCount = subscription.HealthCheckStatus.HealthyCount,
                                                              UnhealthyCount = subscription.HealthCheckStatus.UnhealthyCount,
-                                                         }
+                                                         },
+                                                         Specifications = subscription.SpecificationsValues.Select(specVal => new SpecificationListItemDto
+                                                         {
+                                                             Id = specVal.Specification.Id,
+                                                             DisplayName = specVal.Specification.DisplayName,
+                                                             Description = specVal.Specification.Description,
+                                                             Name = specVal.Specification.Name,
+                                                             DataType = specVal.Specification.DataType,
+                                                             FieldType = specVal.Specification.FieldType,
+                                                             IsRequired = specVal.Specification.IsRequired,
+                                                             IsUserEditable = specVal.Specification.IsUserEditable,
+                                                             ValidationFailureDescription = specVal.Specification.ValidationFailureDescription,
+                                                             RegularExpression = specVal.Specification.RegularExpression,
+                                                             Value = specVal.Data,
+                                                         })
                                                      }),
                                                  })
                                                  .SingleOrDefaultAsync(cancellationToken);

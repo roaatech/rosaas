@@ -4,12 +4,16 @@
     {
         public Guid TenantId { get; set; }
 
-        public Guid FieldId { get; set; }
+        public Guid SpecificationId { get; set; }
+
+        public Guid SubscriptionId { get; set; }
 
         public string Data { get; set; } = string.Empty;
 
         public virtual Tenant? Tenant { get; set; }
 
-        public virtual Specification? Field { get; set; }
+        public virtual Specification? Specification { get; set; }
+
+        public virtual Subscription? Subscription { get; set; }
     }
 }

@@ -774,13 +774,16 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .IsUnicode(true)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<Guid>("FieldId")
-                        .HasColumnType("char(36)");
-
                     b.Property<DateTime>("ModificationDate")
                         .HasColumnType("datetime");
 
                     b.Property<Guid>("ModifiedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SpecificationId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SubscriptionId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("TenantId")
@@ -788,7 +791,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FieldId");
+                    b.HasIndex("SpecificationId");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("rosas_specification_values", (string)null);
                 });
@@ -1423,19 +1430,27 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SpecificationValue", b =>
                 {
-                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Specification", "Field")
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Specification", "Specification")
                         .WithMany("Values")
-                        .HasForeignKey("FieldId")
+                        .HasForeignKey("SpecificationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
+                        .WithMany("SpecificationsValues")
+                        .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Roaa.Rosas.Domain.Entities.Management.Tenant", "Tenant")
                         .WithMany("SpecificationsValues")
-                        .HasForeignKey("FieldId")
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Field");
+                    b.Navigation("Specification");
+
+                    b.Navigation("Subscription");
 
                     b.Navigation("Tenant");
                 });
@@ -1585,6 +1600,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Subscription", b =>
                 {
                     b.Navigation("HealthCheckStatus");
+
+                    b.Navigation("SpecificationsValues");
 
                     b.Navigation("SubscriptionCycles");
 

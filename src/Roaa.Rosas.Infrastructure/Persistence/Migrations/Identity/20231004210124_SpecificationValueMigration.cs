@@ -58,7 +58,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     TenantId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    FieldId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    SpecificationId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    SubscriptionId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Data = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     CreationDate = table.Column<DateTime>(type: "datetime", nullable: false),
@@ -70,14 +71,20 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                 {
                     table.PrimaryKey("PK_rosas_specification_values", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_rosas_specification_values_rosas_specifications_FieldId",
-                        column: x => x.FieldId,
+                        name: "FK_rosas_specification_values_rosas_specifications_Specificatio~",
+                        column: x => x.SpecificationId,
                         principalTable: "rosas_specifications",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_rosas_specification_values_rosas_tenants_FieldId",
-                        column: x => x.FieldId,
+                        name: "FK_rosas_specification_values_rosas_subscriptions_SubscriptionId",
+                        column: x => x.SubscriptionId,
+                        principalTable: "rosas_subscriptions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_rosas_specification_values_rosas_tenants_TenantId",
+                        column: x => x.TenantId,
                         principalTable: "rosas_tenants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -85,9 +92,19 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_rosas_specification_values_FieldId",
+                name: "IX_rosas_specification_values_SpecificationId",
                 table: "rosas_specification_values",
-                column: "FieldId");
+                column: "SpecificationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_rosas_specification_values_SubscriptionId",
+                table: "rosas_specification_values",
+                column: "SubscriptionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_rosas_specification_values_TenantId",
+                table: "rosas_specification_values",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_rosas_specifications_ProductId",
