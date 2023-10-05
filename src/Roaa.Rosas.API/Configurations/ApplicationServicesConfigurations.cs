@@ -11,6 +11,7 @@ using Roaa.Rosas.Application.Services.Management.PlanPrices;
 using Roaa.Rosas.Application.Services.Management.Plans;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Settings;
+using Roaa.Rosas.Application.Services.Management.Specifications;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings;
@@ -68,6 +69,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<ITenantHealthCheckService, TenantHealthCheckService>();
             services.AddScoped<ITenantHealthCheckSettingsService, TenantHealthCheckSettingsService>();
             services.AddScoped<ISubscriptionService, SubscriptionService>();
+            services.AddScoped<ISpecificationService, SpecificationService>();
 
             services.AddMediatRAServices();
 

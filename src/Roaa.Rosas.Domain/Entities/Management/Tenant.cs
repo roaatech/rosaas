@@ -6,5 +6,6 @@
         public string Title { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
         public virtual ICollection<Subscription> Subscriptions { get; set; }
+        public virtual ICollection<SpecificationValue>? SpecificationsValues { get; set; }
     }
 }

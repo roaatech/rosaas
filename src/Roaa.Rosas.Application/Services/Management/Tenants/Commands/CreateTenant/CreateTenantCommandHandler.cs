@@ -15,7 +15,6 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
-using Roaa.Rosas.Domain.Models.ExternalSystems;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 
@@ -141,19 +140,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
 
     #region Utilities   
-    private async Task<Result<ExternalSystemResultModel<dynamic>>> CallExternalSystemToCreateTenantResourecesAsync(Tenant tenant, ProductUrlListItem item, CancellationToken cancellationToken)
-    {
-        return await _externalSystemAPI.CreateTenantAsync(new ExternalSystemRequestModel<CreateTenantModel>
-        {
-            BaseUrl = item.Url,
-            TenantId = tenant.Id,
-            Data = new()
-            {
-                TenantName = tenant.UniqueName,
-            }
-        }, cancellationToken);
-    }
-
 
     private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand request, List<PlanInfoModel> plansInfo, CancellationToken cancellationToken = default)
     {
@@ -170,6 +156,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                                 Unit = x.Unit,
                                                 PlanId = x.PlanId,
                                                 Limit = x.Limit,
+                                                Name = x.Feature.Name,
                                                 Type = x.Feature.Type,
                                                 Reset = x.Feature.Reset,
                                             })
@@ -328,7 +315,20 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                             SubscriptionId = item.GeneratedSubscriptionId,
                         }
                     },
-                }).ToList()
+                }).ToList(),
+                SpecificationsValues = model.Subscriptions.Where(s => s.ProductId == item.Product.Id)
+                                                          .SelectMany(x => x.Specifications).Select(x => new SpecificationValue
+                                                          {
+                                                              Id = Guid.NewGuid(),
+                                                              TenantId = id,
+                                                              SpecificationId = x.SpecificationId,
+                                                              Data = x.Value,
+                                                              CreatedByUserId = _identityContextService.GetActorId(),
+                                                              ModifiedByUserId = _identityContextService.GetActorId(),
+                                                              CreationDate = _date,
+                                                              ModificationDate = _date,
+                                                          }).ToList(),
+
             }).ToList(),
         };
     }

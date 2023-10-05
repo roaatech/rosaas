@@ -33,6 +33,8 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<SubscriptionFeatureCycle> SubscriptionFeatureCycles { get; }
         public DbSet<TenantHealthStatus> TenantHealthStatuses { get; }
         public DbSet<ExternalSystemDispatch> ExternalSystemDispatches { get; }
+        public DbSet<Specification> Specifications { get; }
+        public DbSet<SpecificationValue> SpecificationValues { get; set; }
         public DbSet<Feature> Features { get; }
         public DbSet<Plan> Plans { get; }
         public DbSet<PlanFeature> PlanFeatures { get; }
