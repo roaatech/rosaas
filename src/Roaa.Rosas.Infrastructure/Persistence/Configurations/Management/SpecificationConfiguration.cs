@@ -31,10 +31,17 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
                           ConvertLocalizedStringToJson<LocalizedString>(),
                           ConvertJsonToLocalizedString<LocalizedString>()
                    );
-            builder.Property(r => r.FieldType).IsRequired();
+            builder.Property(r => r.InputType).IsRequired();
             builder.Property(r => r.DataType).IsRequired();
             builder.Property(r => r.RegularExpression).IsRequired(false).HasMaxLength(250).IsUnicode();
-            builder.Property(r => r.ValidationFailureDescription).IsRequired(false).HasMaxLength(250).IsUnicode();
+            builder.Property(r => r.ValidationFailureDescription)
+                 .HasMaxLength(250)
+                 .IsRequired(false)
+                 .IsUnicode()
+                 .HasConversion(
+                         ConvertLocalizedStringToJson<LocalizedString>(),
+                         ConvertJsonToLocalizedString<LocalizedString>()
+                  );
             builder.Property(r => r.IsRequired).IsRequired();
             builder.Property(r => r.IsUserEditable).IsRequired();
             builder.Property(r => r.IsPublished).IsRequired();

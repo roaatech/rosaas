@@ -56,7 +56,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                                                 Description = field.Description,
                                                 Name = field.Name,
                                                 DataType = field.DataType,
-                                                FieldType = field.FieldType,
+                                                InputType = field.InputType,
                                                 IsRequired = field.IsRequired,
                                                 IsUserEditable = field.IsUserEditable,
                                                 ValidationFailureDescription = field.ValidationFailureDescription,
@@ -101,7 +101,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                 DisplayName = model.DisplayName,
                 Description = model.Description,
                 DataType = model.DataType,
-                FieldType = model.FieldType,
+                InputType = model.InputType,
                 IsRequired = model.IsRequired,
                 IsUserEditable = model.IsUserEditable,
                 ValidationFailureDescription = model.ValidationFailureDescription,
@@ -153,7 +153,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             field.DisplayName = model.DisplayName;
             field.Description = model.Description;
             field.DataType = model.DataType;
-            field.FieldType = model.FieldType;
+            field.InputType = model.InputType;
             field.IsRequired = model.IsRequired;
             field.IsUserEditable = model.IsUserEditable;
             field.ValidationFailureDescription = model.ValidationFailureDescription;

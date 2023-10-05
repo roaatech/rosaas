@@ -15,7 +15,6 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
-using Roaa.Rosas.Domain.Models.ExternalSystems;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 
@@ -141,19 +140,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
 
     #region Utilities   
-    private async Task<Result<ExternalSystemResultModel<dynamic>>> CallExternalSystemToCreateTenantResourecesAsync(Tenant tenant, ProductUrlListItem item, CancellationToken cancellationToken)
-    {
-        return await _externalSystemAPI.CreateTenantAsync(new ExternalSystemRequestModel<CreateTenantModel>
-        {
-            BaseUrl = item.Url,
-            TenantId = tenant.Id,
-            Data = new()
-            {
-                TenantName = tenant.UniqueName,
-            }
-        }, cancellationToken);
-    }
-
 
     private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand request, List<PlanInfoModel> plansInfo, CancellationToken cancellationToken = default)
     {

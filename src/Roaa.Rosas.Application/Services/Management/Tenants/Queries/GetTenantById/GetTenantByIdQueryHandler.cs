@@ -78,7 +78,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                              Description = specVal.Specification.Description,
                                                              Name = specVal.Specification.Name,
                                                              DataType = specVal.Specification.DataType,
-                                                             FieldType = specVal.Specification.FieldType,
+                                                             InputType = specVal.Specification.InputType,
                                                              IsRequired = specVal.Specification.IsRequired,
                                                              IsUserEditable = specVal.Specification.IsUserEditable,
                                                              ValidationFailureDescription = specVal.Specification.ValidationFailureDescription,

@@ -11,7 +11,7 @@ using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 {
     [DbContext(typeof(RosasDbContext))]
-    [Migration("20231004210124_SpecificationValueMigration")]
+    [Migration("20231005094006_SpecificationValueMigration")]
     partial class SpecificationValueMigration
     {
         /// <inheritdoc />
@@ -706,7 +706,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .IsUnicode(true)
                         .HasColumnType("varchar(150)");
 
-                    b.Property<int>("FieldType")
+                    b.Property<int>("InputType")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsPublished")

@@ -14,9 +14,9 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public LocalizedString Description { get; set; } = new();
 
-        public SpecificationType FieldType { get; set; }
+        public SpecificationInputType InputType { get; set; }
 
-        public FieldDataType DataType { get; set; }
+        public SpecificationDataType DataType { get; set; }
 
         public bool IsRequired { get; set; }
 
@@ -24,7 +24,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public string? RegularExpression { get; set; }
 
-        public string? ValidationFailureDescription { get; set; }
+        public LocalizedString? ValidationFailureDescription { get; set; }
 
         public bool IsPublished { get; set; }
 
@@ -35,11 +35,11 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public virtual ICollection<SpecificationValue>? Values { get; set; }
     }
 
-    public enum SpecificationType
+    public enum SpecificationInputType
     {
-        Checkbox = 1,
+        Text = 1,
+        Checkbox,
         DatePicker,
-        Text,
         Number,
         OneChoiceDropdownList,
         MultichoiceDropdownList,
@@ -51,7 +51,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
     }
 
 
-    public enum FieldDataType
+    public enum SpecificationDataType
     {
         Text = 1,
         Html,

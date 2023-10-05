@@ -11,9 +11,9 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications.Models
 
         public LocalizedString Description { get; set; } = new();
 
-        public SpecificationType FieldType { get; set; }
+        public SpecificationInputType InputType { get; set; }
 
-        public FieldDataType DataType { get; set; }
+        public SpecificationDataType DataType { get; set; }
 
         public bool IsRequired { get; set; }
 
@@ -21,6 +21,6 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications.Models
 
         public string? RegularExpression { get; set; }
 
-        public string? ValidationFailureDescription { get; set; }
+        public LocalizedString? ValidationFailureDescription { get; set; }
     }
 }

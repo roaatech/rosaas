@@ -25,7 +25,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Description = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    FieldType = table.Column<int>(type: "int", nullable: false),
+                    InputType = table.Column<int>(type: "int", nullable: false),
                     DataType = table.Column<int>(type: "int", nullable: false),
                     IsRequired = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsUserEditable = table.Column<bool>(type: "tinyint(1)", nullable: false),

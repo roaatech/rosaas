@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications.Validators
 
             RuleFor(x => x.DisplayName).Must(localizedName => ValidationHelper.ValidateLocalizedName(localizedName)).WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
-            RuleFor(x => x.FieldType).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            RuleFor(x => x.InputType).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
 
             RuleFor(x => x.DataType).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
         }

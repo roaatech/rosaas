@@ -703,7 +703,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .IsUnicode(true)
                         .HasColumnType("varchar(150)");
 
-                    b.Property<int>("FieldType")
+                    b.Property<int>("InputType")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsPublished")
