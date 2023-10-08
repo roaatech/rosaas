@@ -214,7 +214,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         return tenant;
     }
-    private Tenant BuildTenantEntity(CreateTenantCommand model, List<PlanInfoModel> plansInfo, Process initialProcess)
+    private Tenant BuildTenantEntity(CreateTenantCommand model, List<PlanInfoModel> plansInfo, Workflow initialProcess)
     {
         plansInfo?.ForEach(x =>
         {
@@ -347,7 +347,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         });
     }
 
-    private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(Guid tenantId, ICollection<Subscription> subscriptions, Process initialProcess)
+    private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(Guid tenantId, ICollection<Subscription> subscriptions, Workflow initialProcess)
     {
 
 
@@ -366,7 +366,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             Message = initialProcess.Message
         });
     }
-    private IEnumerable<TenantProcessHistory> BuildTenantProcessHistoryEntities(Guid tenantId, ICollection<Subscription> subscriptions, Process initialProcess)
+    private IEnumerable<TenantProcessHistory> BuildTenantProcessHistoryEntities(Guid tenantId, ICollection<Subscription> subscriptions, Workflow initialProcess)
     {
 
 

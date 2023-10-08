@@ -30,5 +30,6 @@
         Weekly = 2,
         Monthly = 3,
         Annual = 4,
+        Daily = 5
     }
 }

@@ -31,11 +31,18 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 
         public async Task Handle(TenantCreatedInStoreEvent @event, CancellationToken cancellationToken)
         {
-            var process = await _workflow.GetNextProcessActionAsync(@event.Status, _identityContextService.GetUserType());
+
+            // Getting the next status of the workflow 
+            var workflow = await _workflow.GetNextProcessActionAsync(@event.Status, _identityContextService.GetUserType());
+
+
+
+
+            // moving the tenant to the next status of its workflow
             var result = await _tenantService.SetTenantNextStatusAsync(new SetTenantNextStatusModel
             {
                 TenantId = @event.Tenant.Id,
-                Status = process.NextStatus,
+                Status = workflow.NextStatus,
                 Action = Domain.Entities.Management.WorkflowAction.Ok,
                 UserType = _identityContextService.GetUserType(),
                 EditorBy = _identityContextService.UserId,
@@ -46,8 +53,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             {
                 foreach (var resultItem in result.Data)
                 {
+                    // Tenant's status manager's finding 
                     var statusManager = TenantStatusManager.FromKey(resultItem.ProductTenant.Status);
 
+                    // Event triggering 
                     await statusManager.PublishEventAsync(_publisher, resultItem.ProductTenant, resultItem.Process.CurrentStatus, cancellationToken);
                 }
             }

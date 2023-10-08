@@ -39,14 +39,24 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 
         public async Task Handle(TenantPreDeletingEvent @event, CancellationToken cancellationToken)
         {
+
+            // External System's url preparation
             Expression<Func<Product, ProductApiModel>> selector = x => new ProductApiModel(x.ApiKey, x.DeletionUrl);
 
             var urlItemResult = await _productService.GetProductEndpointByIdAsync(@event.ProductTenant.ProductId, selector, cancellationToken);
 
+
+
+
+            // Unique Name tenant retrieving   
             Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
 
             var tenantResult = await _tenantService.GetByIdAsync(@event.ProductTenant.TenantId, tenantSelector, cancellationToken);
 
+
+
+
+            // External System calling to delete the tenant resorces  
             var callingResult = await _externalSystemAPI.DeleteTenantAsync(new ExternalSystemRequestModel<DeleteTenantModel>
             {
                 BaseUrl = urlItemResult.Data.Url,
@@ -58,17 +68,25 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 }
             }, cancellationToken);
 
+
+
+
+            // Getting the next status of the workflow 
             var action = callingResult.Success ? WorkflowAction.Ok : WorkflowAction.Cancel;
 
-            var process = await _workflow.GetNextProcessActionAsync(@event.ProductTenant.Status, UserType.ExternalSystem, action);
+            var workflow = await _workflow.GetNextProcessActionAsync(@event.ProductTenant.Status, UserType.ExternalSystem, action);
 
+
+
+
+            // moving the tenant to the next status of its workflow 
             await _tenantService.SetTenantNextStatusAsync(new SetTenantNextStatusModel
             {
                 TenantId = @event.ProductTenant.TenantId,
                 ProductId = @event.ProductTenant.ProductId,
-                Status = process.NextStatus,
-                Action = process.Action,
-                UserType = process.OwnerType,
+                Status = workflow.NextStatus,
+                Action = workflow.Action,
+                UserType = workflow.OwnerType,
                 EditorBy = _identityContextService.UserId,
             });
         }
