@@ -39,39 +39,38 @@ namespace Roaa.Rosas.Domain.Entities.Management
         MetadataUpdated,
         StatusChanged,
         HealthyStatus,
-        UnhealthStatus,
+        UnhealthyStatus,
         ExternalSystemSuccessfullyInformed,
         FailedToInformExternalSystem,
         SuspendingThePaymentStatusForTenantSubscriptionDueToNonRenewalOfTheSubscription,
 
     }
 
-    public class TenantProcessData
+    public record TenantProcessedData
     {
 
-        public class TenantMetadataUpdatedProcessData
-        {
-            public dynamic UpdatedData { get; set; } = string.Empty;
+    }
+    public record TenantMetadataUpdatedProcessedData : TenantProcessedData
+    {
+        public dynamic UpdatedData { get; set; } = string.Empty;
 
-            public string OldData { get; set; } = string.Empty;
-        }
-        public class TenantDataUpdatedProcessData
-        {
-            public TenantInfoProcessData UpdatedData { get; set; } = new();
+        public string OldData { get; set; } = string.Empty;
+    }
+    public record TenantDataUpdatedProcessedData : TenantProcessedData
+    {
+        public TenantInfoProcessedData UpdatedData { get; set; } = new();
 
-            public TenantInfoProcessData OldData { get; set; } = new();
-        }
-        public class TenantInfoProcessData
-        {
-            public string Title { get; set; } = string.Empty;
-        }
-        public class TenantStatusChangedProcessData
-        {
-            public TenantStatus Status { get; set; }
+        public TenantInfoProcessedData OldData { get; set; } = new();
+    }
+    public record TenantInfoProcessedData : TenantProcessedData
+    {
+        public string Title { get; set; } = string.Empty;
+    }
+    public record TenantStatusChangedProcessedData : TenantProcessedData
+    {
+        public TenantStatus Status { get; set; }
 
-            public TenantStatus PreviousStatus { get; set; }
-
-        }
+        public TenantStatus PreviousStatus { get; set; }
 
     }
 }

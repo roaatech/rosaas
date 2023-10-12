@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
-using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models;
@@ -21,6 +21,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
         private readonly BackgroundServicesStore _backgroundWorkerStore;
         private readonly IExternalSystemAPI _externalSystemAPI;
         private readonly IRosasDbContext _dbContext;
+        private readonly IPublisher _publisher;
         #endregion
 
 
@@ -28,12 +29,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
         public TenantHealthCheckService(ILogger<TenantHealthCheckService> logger,
                                         BackgroundServicesStore backgroundWorkerStore,
                                         IExternalSystemAPI externalSystemAPI,
-                                        IRosasDbContext dbContext)
+                                        IRosasDbContext dbContext,
+                                        IPublisher publisher)
         {
             _logger = logger;
             _externalSystemAPI = externalSystemAPI;
             _dbContext = dbContext;
             _backgroundWorkerStore = backgroundWorkerStore;
+            _publisher = publisher;
         }
         #endregion
 
@@ -108,75 +111,42 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             var res = await _dbContext.Database.ExecuteSqlRawAsync(commandText, paramItems, cancellationToken);
         }
 
-        public async Task AddTenantProcessHistoryAsHealthyStatusAsync(JobTask jobTask, CancellationToken cancellationToken)
-        {
-            await AddTenantProcessHistoryAsync(jobTask, TenantProcessType.HealthyStatus, true, cancellationToken);
-        }
 
-        public async Task AddTenantProcessHistoryAsUnhealthyStatusAsync(JobTask jobTask, CancellationToken cancellationToken)
-        {
-            await AddTenantProcessHistoryAsync(jobTask, TenantProcessType.UnhealthStatus, true, cancellationToken);
-        }
 
-        private async Task<Guid> AddTenantProcessHistoryAsync(JobTask jobTask, TenantProcessType processType, bool enabled, CancellationToken cancellationToken)
+        public async Task<Guid> PublishTenantProcessingCompletedEventAsync(JobTask jobTask, TenantProcessType processType, CancellationToken cancellationToken)
         {
-            var date = DateTime.UtcNow;
-            var status = await _dbContext.Subscriptions
+            var subscription = await _dbContext.Subscriptions
                                       .Where(x => x.TenantId == jobTask.TenantId &&
                                                   x.ProductId == jobTask.ProductId &&
                                                   x.Id == jobTask.SubscriptionId)
-                                      .Select(x => x.Status)
                                       .SingleOrDefaultAsync(cancellationToken);
 
-            var processHistory = new TenantProcessHistory
-            {
-                Id = Guid.NewGuid(),
-                TenantId = jobTask.TenantId,
-                ProductId = jobTask.ProductId,
-                SubscriptionId = jobTask.SubscriptionId,
-                OwnerType = UserType.RosasSystem,
-                Status = status,
-                ProcessDate = date,
-                TimeStamp = date,
-                ProcessType = processType,
-                Enabled = enabled,
-            };
+            await _publisher.Publish(new TenantProcessingCompletedEvent<TenantProcessedData>(
+                                        processType,
+                                        true,
+                                        null,
+                                        out Guid processId,
+                                        subscription));
 
-            _dbContext.TenantProcessHistory.Add(processHistory);
+            _backgroundWorkerStore.AddTenantProcess(jobTask.TenantId, jobTask.ProductId, processId);
 
-            await _dbContext.SaveChangesAsync();
-
-            _backgroundWorkerStore.AddTenantProcess(jobTask.TenantId, jobTask.ProductId, processHistory.Id);
-
-            return processHistory.Id;
+            return processId;
         }
 
-        public async Task AddTenantProcessHistoryAsExternalSystemInformedAsync(JobTask jobTask, bool success, CancellationToken cancellationToken)
+        public async Task PublishTenantProcessingCompletedEventAsExternalSystemInformedAsync(JobTask jobTask, bool success, CancellationToken cancellationToken)
         {
-            var date = DateTime.UtcNow;
-            var status = await _dbContext.Subscriptions
-                                     .Where(x => x.TenantId == jobTask.TenantId &&
-                                                 x.ProductId == jobTask.ProductId &&
+            var subscription = await _dbContext.Subscriptions
+                                      .Where(x => x.TenantId == jobTask.TenantId &&
+                                                  x.ProductId == jobTask.ProductId &&
                                                   x.Id == jobTask.SubscriptionId)
-                                     .Select(x => x.Status)
-                                     .SingleOrDefaultAsync(cancellationToken);
-            var processHistory = new TenantProcessHistory
-            {
-                Id = Guid.NewGuid(),
-                TenantId = jobTask.TenantId,
-                ProductId = jobTask.ProductId,
-                SubscriptionId = jobTask.SubscriptionId,
-                OwnerType = UserType.RosasSystem,
-                Status = status,
-                ProcessDate = date,
-                TimeStamp = date,
-                ProcessType = success ? TenantProcessType.ExternalSystemSuccessfullyInformed : TenantProcessType.FailedToInformExternalSystem,
-                Enabled = true,
-            };
+                                      .SingleOrDefaultAsync(cancellationToken);
 
-            _dbContext.TenantProcessHistory.Add(processHistory);
-
-            await _dbContext.SaveChangesAsync();
+            await _publisher.Publish(new TenantProcessingCompletedEvent<TenantProcessedData>(
+                                       success ? TenantProcessType.ExternalSystemSuccessfullyInformed : TenantProcessType.FailedToInformExternalSystem,
+                                        true,
+                                        null,
+                                        out _,
+                                        subscription));
         }
 
         public async Task UpdateTenantProcessHistoryAsHealthCheckStatusAsync(JobTask jobTask, CancellationToken cancellationToken)
@@ -187,11 +157,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             {
                 if (jobTask.Type == JobTaskType.Unavailable)
                 {
-                    processId = await AddTenantProcessHistoryAsync(jobTask, TenantProcessType.UnhealthStatus, true, cancellationToken);
+                    processId = await PublishTenantProcessingCompletedEventAsync(jobTask, TenantProcessType.UnhealthyStatus, cancellationToken);
                 }
                 else
                 {
-                    processId = await AddTenantProcessHistoryAsync(jobTask, TenantProcessType.HealthyStatus, true, cancellationToken);
+                    processId = await PublishTenantProcessingCompletedEventAsync(jobTask, TenantProcessType.HealthyStatus, cancellationToken);
                 }
             }
             else
@@ -268,11 +238,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             _dbContext.ExternalSystemDispatches.Add(entity);
 
             await _dbContext.SaveChangesAsync();
-
-
-
-
-
         }
 
         public TenantHealthCheckHistory AddTenantHealthCheckHistoryToDbContext(JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable)

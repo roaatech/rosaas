@@ -171,17 +171,22 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         var statusHistory = BuildTenantStatusHistoryEntities(tenant.Id, tenant.Subscriptions, initialProcess);
 
-        var processHistory = BuildTenantProcessHistoryEntities(tenant.Id, tenant.Subscriptions, initialProcess);
-
         var healthStatuses = BuildProductTenantHealthStatusEntities(tenant.Subscriptions);
 
+
+        tenant.AddDomainEvent(new TenantProcessingCompletedEvent<TenantProcessedData>(
+                                 TenantProcessType.RecordCreated,
+                                 true,
+                                 null,
+                                 out _,
+                                 tenant.Subscriptions.ToArray()));
+
         tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Subscriptions.First().Status));
+
 
         _dbContext.Tenants.Add(tenant);
 
         _dbContext.TenantStatusHistory.AddRange(statusHistory);
-
-        _dbContext.TenantProcessHistory.AddRange(processHistory);
 
         _dbContext.TenantHealthStatuses.AddRange(healthStatuses);
 
@@ -364,24 +369,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             Created = _date,
             TimeStamp = _date,
             Message = initialProcess.Message
-        });
-    }
-    private IEnumerable<TenantProcessHistory> BuildTenantProcessHistoryEntities(Guid tenantId, ICollection<Subscription> subscriptions, Workflow initialProcess)
-    {
-
-
-        return subscriptions.Select(subscription => new TenantProcessHistory
-        {
-            Id = Guid.NewGuid(),
-            TenantId = tenantId,
-            ProductId = subscription.ProductId,
-            SubscriptionId = subscription.Id,
-            Status = initialProcess.NextStatus,
-            OwnerId = _identityContextService.GetActorId(),
-            OwnerType = _identityContextService.GetUserType(),
-            ProcessDate = _date,
-            TimeStamp = _date,
-            ProcessType = TenantProcessType.RecordCreated
         });
     }
     private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)

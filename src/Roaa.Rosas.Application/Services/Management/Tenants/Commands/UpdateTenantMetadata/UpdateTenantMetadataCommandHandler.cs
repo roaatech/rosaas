@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 using Roaa.Rosas.Authorization.Utilities;
@@ -8,7 +7,6 @@ using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
-using static Roaa.Rosas.Domain.Entities.Management.TenantProcessData;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
 
@@ -52,7 +50,7 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
         }
         #endregion 
 
-        var processData = new TenantMetadataUpdatedProcessData
+        var processData = new TenantMetadataUpdatedProcessedData
         {
             OldData = subscription.Metadata,
             UpdatedData = request.Metadata,
@@ -60,25 +58,15 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
 
         subscription.Metadata = System.Text.Json.JsonSerializer.Serialize(request.Metadata);
 
-        var processHistory = new TenantProcessHistory
-        {
-            Id = Guid.NewGuid(),
-            TenantId = subscription.TenantId,
-            ProductId = subscription.ProductId,
-            SubscriptionId = subscription.Id,
-            Status = subscription.Status,
-            OwnerId = _identityContextService.GetActorId(),
-            OwnerType = _identityContextService.GetUserType(),
-            ProcessDate = date,
-            TimeStamp = date,
-            ProcessType = TenantProcessType.MetadataUpdated,
-            Enabled = true,
-            Data = System.Text.Json.JsonSerializer.Serialize(processData),
-        };
-
-        _dbContext.TenantProcessHistory.Add(processHistory);
+        subscription.AddDomainEvent(new TenantProcessingCompletedEvent<TenantMetadataUpdatedProcessedData>(
+            TenantProcessType.MetadataUpdated,
+            true,
+            processData,
+            out _,
+            subscription));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
         _backgroundServicesStore.RemoveTenantProcess(subscription.TenantId, subscription.ProductId);
 
         return Result.Successful();

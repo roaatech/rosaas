@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices.abstruct;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
+using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices
 {
@@ -61,13 +62,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.B
 
                         if (isAvailable)
                         {
-                            await _tenantHealthCheckService.AddTenantProcessHistoryAsHealthyStatusAsync(jobTask, cancellationToken);
+                            await _tenantHealthCheckService.PublishTenantProcessingCompletedEventAsync(jobTask, TenantProcessType.HealthyStatus, cancellationToken);
 
                             await _tenantHealthCheckService.RemoveUnavailableJobTaskAsync(jobTask, cancellationToken);
 
                             await _tenantHealthCheckService.AddInaccessibleJobTaskAsync(jobTask, cancellationToken);
-
-
                         }
                         else
                         {

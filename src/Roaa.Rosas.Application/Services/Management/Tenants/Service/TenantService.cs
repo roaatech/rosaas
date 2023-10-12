@@ -14,7 +14,6 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using System.Linq.Expressions;
-using static Roaa.Rosas.Domain.Entities.Management.TenantProcessData;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 {
@@ -188,30 +187,19 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                     _dbContext.TenantStatusHistory.Add(statusHistory);
 
-                    var processData = new TenantStatusChangedProcessData
+                    var processData = new TenantStatusChangedProcessedData
                     {
                         PreviousStatus = workfolw.CurrentStatus,
                         Status = workfolw.NextStatus,
                     };
 
-                    var processHistory = new TenantProcessHistory
-                    {
-                        Id = Guid.NewGuid(),
-                        TenantId = subscription.TenantId,
-                        ProductId = subscription.ProductId,
-                        SubscriptionId = subscription.Id,
-                        Status = workfolw.NextStatus,
-                        OwnerId = _identityContextService.GetActorId(),
-                        OwnerType = _identityContextService.GetUserType(),
-                        ProcessDate = date,
-                        TimeStamp = date,
-                        ProcessType = TenantProcessType.StatusChanged,
-                        Enabled = true,
-                        Data = System.Text.Json.JsonSerializer.Serialize(processData),
-                        Notes = model.Notes,
-                    };
-
-                    _dbContext.TenantProcessHistory.Add(processHistory);
+                    subscription.AddDomainEvent(new TenantProcessingCompletedEvent<TenantStatusChangedProcessedData>(
+                                                                    TenantProcessType.StatusChanged,
+                                                                    true,
+                                                                    processData,
+                                                                    model.Notes,
+                                                                    out _,
+                                                                    subscriptions));
 
                     results.Add(new SetTenantNextStatusResult(subscription, workfolw));
                 }
