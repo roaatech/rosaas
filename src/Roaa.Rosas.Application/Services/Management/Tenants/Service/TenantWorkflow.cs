@@ -315,33 +315,3 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
     }
 
 }
-/*   
-                    Super Admin
-                    pre-creating                        11/8/22, 4:38 PM
-                    ROSAS - Super Admin created a tenant record in ROSAS. 
-
-
-                    Super Admin
-                    pre-creating                        11/8/22, 4:38 PM
-                    ROSAS - Super Admin called the external system ({name}) to create the tenant resources for it. 
-
-
-                    OSOS
-                    creating                            11/8/22, 4:38 PM
-                    The external system ({name}) creates the tenant resources. 
-
-
-                    OSOS
-                    pre-creating                        11/8/22, 4:38 PM
-                    The external system ({name}) failed to receive the request. 
-
-
-                    OSOS
-                    activ                               11/8/22, 4:38 PM
-                    The external system created the tenant resources. 
-
-            
-                    Super Admin
-                    activating                          11/8/22, 4:38 PM
-                    ROSAS - Super Admin set the tenant's status as {status}.
- */
