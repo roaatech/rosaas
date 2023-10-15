@@ -18,5 +18,6 @@
         Week = 2,
         Month = 3,
         Year = 4,
+        Day = 5
     }
 }

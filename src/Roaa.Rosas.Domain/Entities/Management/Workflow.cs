@@ -3,7 +3,7 @@ using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Domain.Entities.Management
 {
-    public record Process
+    public record Workflow
     {
         public WorkflowAction Action { get; set; }
         public TenantStatus NextStatus { get; set; }

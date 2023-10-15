@@ -34,9 +34,22 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> CreateTenantAsync(ExternalSystemRequestModel<CreateTenantModel> model, CancellationToken cancellationToken = default)
         {
-            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
 
-            var result = await _requestBroker.PostAsync<dynamic, CreateTenantModel>(request, cancellationToken);
+
+            model.Data.Specifications = model.Data.Specifications ?? new Dictionary<string, dynamic>();
+            model.Data.Specifications.Add("tenantName", model.Data.TenantName);
+
+            var requestModel = new ExternalSystemRequestModel<Dictionary<string, dynamic>>
+            {
+                ApiKey = model.ApiKey,
+                BaseUrl = model.BaseUrl,
+                TenantId = model.TenantId,
+                Data = model.Data.Specifications
+            };
+
+            var request = await BuildRequestModelAsync(requestModel, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
+
+            var result = await _requestBroker.PostAsync<dynamic, Dictionary<string, dynamic>>(request, cancellationToken);
 
             return RetrieveResult(result, request.Uri);
         }

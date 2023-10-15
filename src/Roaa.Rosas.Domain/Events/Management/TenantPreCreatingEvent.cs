@@ -6,12 +6,12 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants
 {
     public class TenantPreCreatingEvent : BaseInternalEvent
     {
-        public Subscription ProductTenant { get; set; }
+        public Subscription Subscription { get; set; }
         public TenantStatus PreviousStatus { get; set; }
 
-        public TenantPreCreatingEvent(Subscription productTenant, TenantStatus previousStatus)
+        public TenantPreCreatingEvent(Subscription Subscription, TenantStatus previousStatus)
         {
-            ProductTenant = productTenant;
+            this.Subscription = Subscription;
             PreviousStatus = previousStatus;
         }
     }

@@ -6,6 +6,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
     public abstract class FeatureResetManager : Enumeration<FeatureResetManager, FeatureReset>
     {
         #region Props
+
+        public static readonly FeatureResetManager Daily = new DailyFeatureReset();
         public static readonly FeatureResetManager Never = new NeverFeatureReset();
         public static readonly FeatureResetManager Weekly = new WeeklyFeatureReset();
         public static readonly FeatureResetManager Monthly = new MonthlyFeatureReset();
@@ -25,6 +27,21 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
 
 
         #region inners  
+        private sealed class DailyFeatureReset : FeatureResetManager
+        {
+            #region Corts
+            public DailyFeatureReset() : base(FeatureReset.Daily) { }
+            #endregion 
+
+            #region overrides  
+            public override DateTime? GetExpiryDate(DateTime startDate)
+            {
+                return startDate.AddDays(1);
+            }
+            #endregion
+        }
+
+
 
         private sealed class NeverFeatureReset : FeatureResetManager
         {

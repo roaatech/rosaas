@@ -4,7 +4,7 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantSt
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.DeleteTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenant;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantSpecifications;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantById;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantProcessesByTenantId;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsLookupList;
@@ -72,14 +72,6 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         }
 
 
-
-        [HttpGet($"/{PrefixSuperAdminMainApiRoute}/products/{{productId}}/subscriptions")]
-        public async Task<IActionResult> GetSubscriptionsListAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
-        {
-            return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(productId), cancellationToken));
-        }
-
-
         [HttpPost()]
         public async Task<IActionResult> CreateTenantAsync([FromBody] CreateTenantCommand command, CancellationToken cancellationToken = default)
         {
@@ -105,6 +97,14 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         {
             return EmptyResult(await _mediator.Send(new DeleteTenantCommand(model.Id), cancellationToken));
         }
+
+
+        [HttpPut("{id}/Products/{productId}/Specifications")]
+        public async Task<IActionResult> UpdateTenantSpecificationsAsync([FromBody] List<UpdateSpecificationValueModel> model, [FromRoute] Guid productId, [FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new UpdateTenantSpecificationsCommand(id, productId, model), cancellationToken));
+        }
+
         #endregion 
     }
 }

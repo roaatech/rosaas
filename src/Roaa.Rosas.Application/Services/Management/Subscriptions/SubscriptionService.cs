@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
-using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
@@ -78,22 +78,15 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     subscription.ModificationDate = date;
                     subscription.Notes = "Note By System: Suspending the payment status for the tenant due to non-renewal of the subscription.";
 
-                    var processHistory = new TenantProcessHistory
-                    {
-                        Id = Guid.NewGuid(),
-                        TenantId = subscription.TenantId,
-                        ProductId = subscription.ProductId,
-                        SubscriptionId = subscription.Id,
-                        Status = subscription.Status,
-                        OwnerType = UserType.RosasSystem,
-                        ProcessDate = date,
-                        TimeStamp = date,
-                        ProcessType = TenantProcessType.SuspendingThePaymentStatusForTenantSubscriptionDueToNonRenewalOfTheSubscription,
-                        Enabled = true,
-                        Notes = subscription.Notes
-                    };
-                    _dbContext.TenantProcessHistory.Add(processHistory);
                 }
+
+                subscriptions[0].AddDomainEvent(new TenantProcessingCompletedEvent<TenantProcessedData>(
+                                                    TenantProcessType.SuspendingThePaymentStatusForTenantSubscriptionDueToNonRenewalOfTheSubscription,
+                                                    true,
+                                                    null,
+                                                    out _,
+                                                    subscriptions));
+
                 await _dbContext.SaveChangesAsync();
             }
 

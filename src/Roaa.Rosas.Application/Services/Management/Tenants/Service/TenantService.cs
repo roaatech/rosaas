@@ -14,7 +14,6 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using System.Linq.Expressions;
-using static Roaa.Rosas.Domain.Entities.Management.TenantProcessData;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 {
@@ -63,6 +62,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
             return Result<T>.Successful(result);
         }
+
+
 
         public async Task<Result<List<TenantStatusChangedResultDto>>> ChangeTenantStatusAsync(ChangeTenantStatusModel model, CancellationToken cancellationToken)
         {
@@ -118,23 +119,33 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             return Result<List<TenantStatusChangedResultDto>>.Successful(results);
         }
 
+
+
         public async Task<Result<List<SetTenantNextStatusResult>>> SetTenantNextStatusAsync(SetTenantNextStatusModel model, CancellationToken cancellationToken = default)
         {
+
+            // Subscriptions retrieving preparations
             Expression<Func<Subscription, bool>> predicate = x => x.TenantId == model.TenantId;
             if (model.ProductId is not null)
             {
                 predicate = x => x.TenantId == model.TenantId && x.ProductId == model.ProductId;
             }
 
+
+            // Subscriptions retrieving  
             var subscriptions = await _dbContext.Subscriptions.Where(predicate).ToListAsync(cancellationToken);
+
+
+            // Subscriptions validation   
             if (subscriptions is null || !subscriptions.Any())
             {
                 return Result<List<SetTenantNextStatusResult>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
 
-            var nextProcesses = await _workflow.GetNextProcessActionsAsync(subscriptions.Select(x => x.Status).ToList(), model.Status, model.UserType, model.Action);
-            if (nextProcesses is null || !nextProcesses.Any())
+            // Getting the next status of the subscriptions' workflow
+            var workflows = await _workflow.GetNextProcessActionsAsync(subscriptions.Select(x => x.Status).ToList(), model.Status, model.UserType, model.Action);
+            if (workflows is null || !workflows.Any())
             {
                 return Result<List<SetTenantNextStatusResult>>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale);
             }
@@ -146,15 +157,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
             foreach (var subscription in subscriptions)
             {
-                var nextProcess = nextProcesses.Where(x => x.CurrentStatus == subscription.Status).FirstOrDefault();
-                if (nextProcess is not null)
+                var workfolw = workflows.Where(x => x.CurrentStatus == subscription.Status).FirstOrDefault();
+                if (workfolw is not null)
                 {
-                    subscription.Status = nextProcess.NextStatus;
+                    subscription.Status = workfolw.NextStatus;
                     subscription.ModifiedByUserId = model.EditorBy;
                     subscription.ModificationDate = date;
                     subscription.Notes = model.Notes;
 
-                    if (nextProcess.CurrentStatus == Domain.Enums.TenantStatus.Active)
+                    if (workfolw.CurrentStatus == Domain.Enums.TenantStatus.Active)
                     {
                         subscription.AddDomainEvent(new ActiveTenantStatusUpdated(subscription));
                     }
@@ -165,43 +176,32 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                         TenantId = subscription.TenantId,
                         ProductId = subscription.ProductId,
                         SubscriptionId = subscription.Id,
-                        Status = nextProcess.NextStatus,
-                        PreviousStatus = nextProcess.CurrentStatus,
+                        Status = workfolw.NextStatus,
+                        PreviousStatus = workfolw.CurrentStatus,
                         OwnerId = _identityContextService.GetActorId(),
                         OwnerType = _identityContextService.GetUserType(),
                         Created = date,
                         TimeStamp = date,
-                        Message = nextProcess.Message,
+                        Message = workfolw.Message,
                     };
 
                     _dbContext.TenantStatusHistory.Add(statusHistory);
 
-                    var processData = new TenantStatusChangedProcessData
+                    var processData = new TenantStatusChangedProcessedData
                     {
-                        PreviousStatus = nextProcess.CurrentStatus,
-                        Status = nextProcess.NextStatus,
+                        PreviousStatus = workfolw.CurrentStatus,
+                        Status = workfolw.NextStatus,
                     };
 
-                    var processHistory = new TenantProcessHistory
-                    {
-                        Id = Guid.NewGuid(),
-                        TenantId = subscription.TenantId,
-                        ProductId = subscription.ProductId,
-                        SubscriptionId = subscription.Id,
-                        Status = nextProcess.NextStatus,
-                        OwnerId = _identityContextService.GetActorId(),
-                        OwnerType = _identityContextService.GetUserType(),
-                        ProcessDate = date,
-                        TimeStamp = date,
-                        ProcessType = TenantProcessType.StatusChanged,
-                        Enabled = true,
-                        Data = System.Text.Json.JsonSerializer.Serialize(processData),
-                        Notes = model.Notes,
-                    };
+                    subscription.AddDomainEvent(new TenantProcessingCompletedEvent<TenantStatusChangedProcessedData>(
+                                                                    TenantProcessType.StatusChanged,
+                                                                    true,
+                                                                    processData,
+                                                                    model.Notes,
+                                                                    out _,
+                                                                    subscriptions));
 
-                    _dbContext.TenantProcessHistory.Add(processHistory);
-
-                    results.Add(new SetTenantNextStatusResult(subscription, nextProcess));
+                    results.Add(new SetTenantNextStatusResult(subscription, workfolw));
                 }
             }
 

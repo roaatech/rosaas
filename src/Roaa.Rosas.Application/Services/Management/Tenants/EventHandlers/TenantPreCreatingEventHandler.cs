@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
+using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service.Models;
@@ -20,6 +22,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
         private readonly IExternalSystemAPI _externalSystemAPI;
         private readonly IProductService _productService;
         private readonly ITenantService _tenantService;
+        private readonly IRosasDbContext _dbContext;
 
         public TenantPreCreatingEventHandler(
                                             ITenantWorkflow workflow,
@@ -27,6 +30,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                                             IExternalSystemAPI externalSystemAPI,
                                             IProductService productService,
                                             ITenantService tenantService,
+                                            IRosasDbContext dbContext,
                                             ILogger<TenantPreCreatingEventHandler> logger)
         {
             _workflow = workflow;
@@ -34,41 +38,66 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             _externalSystemAPI = externalSystemAPI;
             _productService = productService;
             _tenantService = tenantService;
+            _dbContext = dbContext;
             _logger = logger;
         }
 
         public async Task Handle(TenantPreCreatingEvent @event, CancellationToken cancellationToken)
         {
+
+            // External System's url preparation
             Expression<Func<Product, ProductApiModel>> selector = x => new ProductApiModel(x.ApiKey, x.CreationUrl);
 
-            var urlItemResult = await _productService.GetProductEndpointByIdAsync(@event.ProductTenant.ProductId, selector, cancellationToken);
+            var urlItemResult = await _productService.GetProductEndpointByIdAsync(@event.Subscription.ProductId, selector, cancellationToken);
 
+
+
+
+            // Unique Name tenant retrieving  
             Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
 
-            var tenantResult = await _tenantService.GetByIdAsync(@event.ProductTenant.TenantId, tenantSelector, cancellationToken);
+            var tenantResult = await _tenantService.GetByIdAsync(@event.Subscription.TenantId, tenantSelector, cancellationToken);
 
+            var specifications = await _dbContext.SpecificationValues
+                                            .Where(x => x.SubscriptionId == @event.Subscription.Id)
+                                            .Include(x => x.Specification)
+                                            .ToDictionaryAsync<SpecificationValue, string, dynamic>(val => val.Specification.Name, val => val.Value);
+
+
+
+            // External System calling to create the tenant resorces 
             var callingResult = await _externalSystemAPI.CreateTenantAsync(new ExternalSystemRequestModel<CreateTenantModel>
             {
                 BaseUrl = urlItemResult.Data.Url,
                 ApiKey = urlItemResult.Data.ApiKey,
-                TenantId = @event.ProductTenant.TenantId,
+                TenantId = @event.Subscription.TenantId,
                 Data = new()
                 {
                     TenantName = tenantResult.Data,
+                    Specifications = specifications,
+
                 }
             }, cancellationToken);
 
+
+
+
+            // Getting the next status of the workflow 
             var action = callingResult.Success ? WorkflowAction.Ok : WorkflowAction.Cancel;
 
-            var process = await _workflow.GetNextProcessActionAsync(@event.ProductTenant.Status, UserType.ExternalSystem, action);
+            var workflow = await _workflow.GetNextProcessActionAsync(@event.Subscription.Status, UserType.ExternalSystem, action);
 
+
+
+
+            // moving the tenant to the next status of its workflow 
             await _tenantService.SetTenantNextStatusAsync(new SetTenantNextStatusModel
             {
-                TenantId = @event.ProductTenant.TenantId,
-                ProductId = @event.ProductTenant.ProductId,
-                Status = process.NextStatus,
-                Action = process.Action,
-                UserType = process.OwnerType,
+                TenantId = @event.Subscription.TenantId,
+                ProductId = @event.Subscription.ProductId,
+                Status = workflow.NextStatus,
+                Action = workflow.Action,
+                UserType = workflow.OwnerType,
                 EditorBy = _identityContextService.UserId,
             });
         }

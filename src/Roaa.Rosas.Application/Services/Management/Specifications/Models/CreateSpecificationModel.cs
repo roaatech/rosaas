@@ -19,6 +19,8 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications.Models
 
         public bool IsUserEditable { get; set; }
 
+        public bool IsPublished { get; set; }
+
         public string? RegularExpression { get; set; }
 
         public LocalizedString? ValidationFailureDescription { get; set; }

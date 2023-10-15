@@ -7,41 +7,41 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
     public interface ITenantWorkflow
     {
-        Task<Process> GetNextProcessActionAsync(TenantStatus currentStatus,
+        Task<Workflow> GetNextProcessActionAsync(TenantStatus currentStatus,
                                                                           UserType userType,
                                                                           WorkflowAction action = WorkflowAction.Ok,
                                                                           WorkflowTrack track = WorkflowTrack.Normal);
 
-        Task<ICollection<Process>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
+        Task<ICollection<Workflow>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
                                                                         UserType ownerType,
                                                                          WorkflowAction action = WorkflowAction.Ok,
                                                                         WorkflowTrack track = WorkflowTrack.Normal);
 
-        Task<ICollection<Process>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
+        Task<ICollection<Workflow>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
                                                           TenantStatus nextStatus,
                                                           UserType ownerType,
                                                           WorkflowAction action = WorkflowAction.Ok,
                                                           WorkflowTrack track = WorkflowTrack.Normal);
 
-        Task<Process> GetNextProcessActionAsync(TenantStatus currentStatus,
+        Task<Workflow> GetNextProcessActionAsync(TenantStatus currentStatus,
                                                              TenantStatus nextStatus,
                                                              UserType ownerType,
                                                              WorkflowAction action = WorkflowAction.Ok,
                                                              WorkflowTrack track = WorkflowTrack.Normal);
 
-        Task<ICollection<Process>> GetProcessActionsAsync(TenantStatus currentStatus,
+        Task<ICollection<Workflow>> GetProcessActionsAsync(TenantStatus currentStatus,
                                                                           UserType userType,
                                                                           WorkflowTrack track = WorkflowTrack.Normal);
     }
     public class TenantWorkflow : ITenantWorkflow
     {
-        private readonly List<Process> Workflow;
+        private readonly List<Workflow> _workflow;
 
         public TenantWorkflow()
         {
-            Workflow = new List<Process>
+            _workflow = new List<Workflow>
             {
-                new Process()
+                new Workflow()
                 {
                     CurrentStatus = TenantStatus.None,
                     OwnerType = UserType.SuperAdmin,
@@ -51,7 +51,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "ROSAS - created a tenant record in ROSAS's database",
                 },
 
-                new Process()
+                new Workflow()
                 {
                     CurrentStatus = TenantStatus.RecordCreated,
                     OwnerType = UserType.SuperAdmin,
@@ -61,7 +61,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "ROSAS - called the external system to create the tenant resources for it",
                 },
 
-                new Process()
+                new Workflow()
                 {/************************************************************************************************************************************/
                     
                     CurrentStatus = TenantStatus.PreCreating,
@@ -71,7 +71,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "The external system failed to receive the request",
                 },/***********************************************************************************************************************************/
                
-                   new Process()
+                   new Workflow()
                 {
                     CurrentStatus = TenantStatus.PreCreating,
                     OwnerType = UserType.ExternalSystem,
@@ -80,7 +80,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "The external system is creating the tenant resources",
                 },
 
-                   new Process()
+                   new Workflow()
                 {
                     CurrentStatus = TenantStatus.Creating,
                     OwnerType = UserType.ExternalSystem,
@@ -90,7 +90,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 },
 
 
-                new Process()
+                new Workflow()
                 {
                     CurrentStatus = TenantStatus.CreatedAsActive,
                     OwnerType = UserType.SuperAdmin,
@@ -101,7 +101,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 },
 
 
-                new Process()
+                new Workflow()
                 {
                     CurrentStatus = TenantStatus.CreatedAsActive,
                     OwnerType = UserType.SuperAdmin,
@@ -111,7 +111,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "ROSAS - called the external system to delete the tenant resources",
                 },
 
-                new Process()
+                new Workflow()
                 {/************************************************************************************************************************************/
                   
                     CurrentStatus = TenantStatus.PreDeactivating,
@@ -122,7 +122,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 },/***********************************************************************************************************************************/
                
 
-                  new Process()
+                  new Workflow()
                 {
                     CurrentStatus = TenantStatus.Active,
                     OwnerType = UserType.SuperAdmin,
@@ -132,7 +132,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "ROSAS - called the external system to deactivate the tenant resources",
                 },
 
-                  new Process()
+                  new Workflow()
                 {/************************************************************************************************************************************/
                     CurrentStatus = TenantStatus.PreDeactivating,
                     OwnerType = UserType.ExternalSystem,
@@ -142,7 +142,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 },/***********************************************************************************************************************************/
                
 
-                  new Process()
+                  new Workflow()
                 {
                     CurrentStatus = TenantStatus.PreDeactivating,
                     OwnerType = UserType.ExternalSystem,
@@ -151,7 +151,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "The external system is deactivating the tenant resources",
                 },
 
-                new Process()
+                new Workflow()
                 {
                     OwnerType = UserType.ExternalSystem,
                     Action = WorkflowAction.Ok,
@@ -160,7 +160,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "The external system deactivated the tenant",
                 },
 
-                new Process()
+                new Workflow()
                 {
                     CurrentStatus = TenantStatus.Deactive,
                     OwnerType = UserType.SuperAdmin,
@@ -170,7 +170,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "ROSAS - called the external system to activate the tenant resources",
                 },
 
-                  new Process()
+                  new Workflow()
                 {/************************************************************************************************************************************/
                    
                     CurrentStatus = TenantStatus.PreActivating,
@@ -182,7 +182,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                
 
 
-                 new Process()
+                 new Workflow()
                 {
                     CurrentStatus = TenantStatus.PreActivating,
                     OwnerType = UserType.ExternalSystem,
@@ -191,7 +191,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "The external system is activating the tenant resources",
                 },
 
-                new Process()
+                new Workflow()
                 {
                     CurrentStatus = TenantStatus.Activating,
                     OwnerType = UserType.ExternalSystem,
@@ -200,7 +200,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "The external system activated the tenant",
                 },
 
-                   new Process()
+                   new Workflow()
                 {
                     CurrentStatus = TenantStatus.Active,
                     OwnerType = UserType.SuperAdmin,
@@ -210,7 +210,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "ROSAS - called the external system to delete the tenant resources",
                 },
 
-                  new Process()
+                  new Workflow()
                 {/************************************************************************************************************************************/
                    
                     CurrentStatus = TenantStatus.PreDeleting,
@@ -221,7 +221,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 },/***********************************************************************************************************************************/
                
 
-                new Process()
+                new Workflow()
                 {
                     CurrentStatus = TenantStatus.Deactive,
                     OwnerType = UserType.SuperAdmin,
@@ -231,7 +231,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "ROSAS - called the external system to delete the tenant resources",
                 },
 
-                new Process()
+                new Workflow()
                 {/************************************************************************************************************************************/
                    
                     CurrentStatus = TenantStatus.PreDeleting,
@@ -242,7 +242,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 },/***********************************************************************************************************************************/
                
 
-                new Process()
+                new Workflow()
                 {
                     CurrentStatus = TenantStatus.PreDeleting,
                     OwnerType = UserType.ExternalSystem,
@@ -250,7 +250,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     NextStatus = TenantStatus.Deleting,
                     Message = "The external system is deleting the tenant resources",
                 },
-                  new Process()
+                  new Workflow()
                 {
                     OwnerType = UserType.ExternalSystem,
                     Action = WorkflowAction.Ok,
@@ -264,84 +264,54 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
 
 
-        public async Task<Process> GetNextProcessActionAsync(TenantStatus currentStatus,
+        public async Task<Workflow> GetNextProcessActionAsync(TenantStatus currentStatus,
                                                                          UserType ownerType,
                                                                           WorkflowAction action = WorkflowAction.Ok,
                                                                          WorkflowTrack track = WorkflowTrack.Normal)
         {
-            return Workflow.Where(p => p.CurrentStatus == currentStatus && p.OwnerType == ownerType && p.Action == action && p.Track == track).SingleOrDefault();
+            return _workflow.Where(p => p.CurrentStatus == currentStatus && p.OwnerType == ownerType && p.Action == action && p.Track == track).SingleOrDefault();
         }
 
-        public async Task<ICollection<Process>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
+        public async Task<ICollection<Workflow>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
                                                                         UserType ownerType,
                                                                          WorkflowAction action = WorkflowAction.Ok,
                                                                         WorkflowTrack track = WorkflowTrack.Normal)
         {
-            return Workflow.Where(p => currentStatuses.Contains(p.CurrentStatus) && p.OwnerType == ownerType && p.Action == action && p.Track == track).ToList();
+            return _workflow.Where(p => currentStatuses.Contains(p.CurrentStatus) && p.OwnerType == ownerType && p.Action == action && p.Track == track).ToList();
         }
 
-        public async Task<ICollection<Process>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
+        public async Task<ICollection<Workflow>> GetNextProcessActionsAsync(List<TenantStatus> currentStatuses,
                                                            TenantStatus nextStatus,
                                                            UserType ownerType,
                                                            WorkflowAction action = WorkflowAction.Ok,
                                                            WorkflowTrack track = WorkflowTrack.Normal)
         {
-            return Workflow.Where(p => currentStatuses.Contains(p.CurrentStatus) &&
+            return _workflow.Where(p => currentStatuses.Contains(p.CurrentStatus) &&
                                        p.NextStatus == nextStatus &&
                                        p.OwnerType == ownerType &&
                                        p.Action == action &&
                                        p.Track == track).ToList();
         }
-        public async Task<Process> GetNextProcessActionAsync(TenantStatus currentStatus,
+        public async Task<Workflow> GetNextProcessActionAsync(TenantStatus currentStatus,
                                                              TenantStatus nextStatus,
                                                              UserType ownerType,
                                                              WorkflowAction action = WorkflowAction.Ok,
                                                              WorkflowTrack track = WorkflowTrack.Normal)
         {
-            return Workflow.Where(p => p.CurrentStatus == currentStatus &&
+            return _workflow.Where(p => p.CurrentStatus == currentStatus &&
                                        p.NextStatus == nextStatus &&
                                        p.OwnerType == ownerType &&
                                        p.Action == action &&
                                        p.Track == track).SingleOrDefault();
         }
 
-        public async Task<ICollection<Process>> GetProcessActionsAsync(TenantStatus currentStatus,
+        public async Task<ICollection<Workflow>> GetProcessActionsAsync(TenantStatus currentStatus,
                                                                           UserType userType,
                                                                           WorkflowTrack track = WorkflowTrack.Normal)
         {
-            return Workflow.Where(p => p.CurrentStatus == currentStatus && p.OwnerType == userType && p.Track == track).ToList();
+            return _workflow.Where(p => p.CurrentStatus == currentStatus && p.OwnerType == userType && p.Track == track).ToList();
         }
 
     }
 
 }
-/*   
-                    Super Admin
-                    pre-creating                        11/8/22, 4:38 PM
-                    ROSAS - Super Admin created a tenant record in ROSAS. 
-
-
-                    Super Admin
-                    pre-creating                        11/8/22, 4:38 PM
-                    ROSAS - Super Admin called the external system ({name}) to create the tenant resources for it. 
-
-
-                    OSOS
-                    creating                            11/8/22, 4:38 PM
-                    The external system ({name}) creates the tenant resources. 
-
-
-                    OSOS
-                    pre-creating                        11/8/22, 4:38 PM
-                    The external system ({name}) failed to receive the request. 
-
-
-                    OSOS
-                    activ                               11/8/22, 4:38 PM
-                    The external system created the tenant resources. 
-
-            
-                    Super Admin
-                    activating                          11/8/22, 4:38 PM
-                    ROSAS - Super Admin set the tenant's status as {status}.
- */

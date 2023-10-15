@@ -9,9 +9,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
     public interface ITenantHealthCheckService
     {
         Task AddTenantHealthCheckStatusAsync(Type backgroundServiceType, JobTask jobTask, double duration, string healthCheckUrl, bool isAvailable, CancellationToken cancellationToken);
-        Task AddTenantProcessHistoryAsHealthyStatusAsync(JobTask jobTask, CancellationToken cancellationToken);
-        Task AddTenantProcessHistoryAsUnhealthyStatusAsync(JobTask jobTask, CancellationToken cancellationToken);
-        Task AddTenantProcessHistoryAsExternalSystemInformedAsync(JobTask jobTask, bool success, CancellationToken cancellationToken);
+        Task<Guid> PublishTenantProcessingCompletedEventAsync(JobTask jobTask, TenantProcessType processType, CancellationToken cancellationToken);
+        Task PublishTenantProcessingCompletedEventAsExternalSystemInformedAsync(JobTask jobTask, bool success, CancellationToken cancellationToken);
         Task UpdateTenantProcessHistoryAsHealthCheckStatusAsync(JobTask jobTask, CancellationToken cancellationToken);
         Task ResetTenantHealthStatusCountersAsync(JobTask jobTask, CancellationToken cancellationToken);
 

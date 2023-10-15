@@ -104,6 +104,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                 InputType = model.InputType,
                 IsRequired = model.IsRequired,
                 IsUserEditable = model.IsUserEditable,
+                IsPublished = model.IsPublished,
                 ValidationFailureDescription = model.ValidationFailureDescription,
                 RegularExpression = model.RegularExpression,
                 CreatedByUserId = _identityContextService.UserId,
@@ -160,6 +161,11 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             field.RegularExpression = model.RegularExpression;
             field.ModifiedByUserId = _identityContextService.UserId;
             field.ModificationDate = DateTime.UtcNow;
+            if (model.IsPublished.HasValue)
+            {
+
+                field.IsPublished = model.IsPublished.Value;
+            }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -205,6 +211,35 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             field.IsPublished = model.IsPublished;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
+        public async Task<Result> SetSpecificationsAsSubscribedAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            var specificationIds = await _dbContext.SpecificationValues
+                                        .Where(x => x.TenantId == tenantId)
+                                        .Select(x => x.SpecificationId)
+                                        .ToListAsync();
+
+            return await SetSpecificationsAsSubscribedAsync(specificationIds, cancellationToken);
+        }
+        public async Task<Result> SetSpecificationsAsSubscribedAsync(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            var specifications = await _dbContext.Specifications
+                                        .Where(x => ids.Contains(x.Id) &&
+                                                   !x.IsSubscribed
+                                                    )
+                                        .ToListAsync();
+            if (specifications.Any())
+            {
+                foreach (var specification in specifications)
+                {
+                    specification.IsSubscribed = true;
+                }
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
 
             return Result.Successful();
         }

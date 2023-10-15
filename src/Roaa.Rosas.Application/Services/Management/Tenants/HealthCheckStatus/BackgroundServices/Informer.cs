@@ -59,12 +59,12 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.B
 
                         if (success)
                         {
-                            await _tenantHealthCheckService.AddTenantProcessHistoryAsExternalSystemInformedAsync(jobTask, success, cancellationToken);
+                            await _tenantHealthCheckService.PublishTenantProcessingCompletedEventAsExternalSystemInformedAsync(jobTask, success, cancellationToken);
                             await _tenantHealthCheckService.RemoveJobTaskAsync(jobTask, cancellationToken);
                         }
                         else
                         {
-                            await _tenantHealthCheckService.AddTenantProcessHistoryAsExternalSystemInformedAsync(jobTask, success, cancellationToken);
+                            await _tenantHealthCheckService.PublishTenantProcessingCompletedEventAsExternalSystemInformedAsync(jobTask, success, cancellationToken);
                         }
                     }
                     else

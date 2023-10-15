@@ -83,7 +83,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                              IsUserEditable = specVal.Specification.IsUserEditable,
                                                              ValidationFailureDescription = specVal.Specification.ValidationFailureDescription,
                                                              RegularExpression = specVal.Specification.RegularExpression,
-                                                             Value = specVal.Data,
+                                                             Value = specVal.Value,
                                                          })
                                                      }),
                                                  })
