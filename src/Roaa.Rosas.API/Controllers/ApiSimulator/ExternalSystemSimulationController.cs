@@ -78,6 +78,8 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         public record TenantModel
         {
             public string TenantName { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+            public string Phone { get; set; } = string.Empty;
         }
     }
 }

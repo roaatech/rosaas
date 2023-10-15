@@ -6,5 +6,6 @@ namespace Roaa.Rosas.Domain.Models.ExternalSystems
     {
         [JsonProperty(PropertyName = "tenantName")]
         public string TenantName { get; set; } = string.Empty;
+        public Dictionary<string, dynamic> Specifications { get; set; } = new();
     }
 }
