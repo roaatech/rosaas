@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionDetails;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -85,6 +86,12 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
             return ItemResult(await _mediator.Send(new GetSubscriptionDetailsQuery(tenantId, id), cancellationToken));
         }
 
+
+        [HttpGet("{id}/subscriptions")]
+        public async Task<IActionResult> GetSubscriptionsListAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(productId), cancellationToken));
+        }
         #endregion
 
 

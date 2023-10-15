@@ -96,6 +96,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
 
         public LocalizedString? ValidationFailureDescription { get; set; }
 
-        public string Value { get; set; } = string.Empty;
+        public string? Value { get; set; }
     }
 }

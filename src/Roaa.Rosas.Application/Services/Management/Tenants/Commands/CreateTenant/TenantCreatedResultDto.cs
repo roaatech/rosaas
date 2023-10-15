@@ -43,6 +43,7 @@ public record PlanInfoModel
     public Guid GeneratedSubscriptionId { get; set; }
     public ProductUrlListItem Product { get; set; } = new();
     public List<FeatureInfoModel> Features { get; set; } = new();
+    public List<SpecificationInfoModel> Specifications { get; set; } = new();
 }
 
 public record FeatureInfoModel
@@ -56,4 +57,9 @@ public record FeatureInfoModel
     public FeatureUnit? Unit { get; set; }
     public FeatureReset Reset { get; set; }
     public string Name { get; set; } = string.Empty;
+}
+public record SpecificationInfoModel
+{
+    public Guid SpecificationId { get; set; }
+    public Guid ProductId { get; set; }
 }

@@ -145,7 +145,8 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     {
         var initialProcess = await _workflow.GetNextProcessActionAsync(TenantStatus.None, _identityContextService.GetUserType());
 
-        var planIds = request.Subscriptions.Select(x => x.PlanId).ToList();
+        var planIds = request.Subscriptions.Select(x => x.PlanId)
+                                           .ToList();
         var featuresInfo = await _dbContext.PlanFeatures
                                             .AsNoTracking()
                                             .Where(x => planIds.Contains(x.PlanId))
@@ -162,9 +163,24 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                             })
                                             .ToListAsync(cancellationToken);
 
+
+
+        var productsIds = request.Subscriptions.Select(x => x.ProductId)
+                                               .ToList();
+        var specifications = await _dbContext.Specifications
+                                         .Where(x => productsIds.Contains(x.ProductId) &&
+                                                     x.IsPublished)
+                                         .Select(x => new SpecificationInfoModel
+                                         {
+                                             ProductId = x.ProductId,
+                                             SpecificationId = x.Id,
+                                         })
+                                         .ToListAsync();
+
         foreach (var item in plansInfo)
         {
             item.Features = featuresInfo.Where(x => x.PlanId == item.PlanId).ToList();
+            item.Specifications = specifications.Where(x => x.ProductId == item.Product.Id).ToList();
         }
 
         var tenant = BuildTenantEntity(request, plansInfo, initialProcess);
@@ -321,18 +337,22 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                         }
                     },
                 }).ToList(),
-                SpecificationsValues = model.Subscriptions.Where(s => s.ProductId == item.Product.Id)
-                                                          .SelectMany(x => x.Specifications).Select(x => new SpecificationValue
-                                                          {
-                                                              Id = Guid.NewGuid(),
-                                                              TenantId = id,
-                                                              SpecificationId = x.SpecificationId,
-                                                              Data = x.Value,
-                                                              CreatedByUserId = _identityContextService.GetActorId(),
-                                                              ModifiedByUserId = _identityContextService.GetActorId(),
-                                                              CreationDate = _date,
-                                                              ModificationDate = _date,
-                                                          }).ToList(),
+                SpecificationsValues = item.Specifications.Select(x => new SpecificationValue
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = id,
+                    SpecificationId = x.SpecificationId,
+                    Value = model.Subscriptions.Where(s => s.ProductId == item.Product.Id)
+                                              .Select(s => s.Specifications)
+                                              .SingleOrDefault()?
+                                              .Where(s => s.SpecificationId == x.SpecificationId)
+                                              .SingleOrDefault()?
+                                              .Value,
+                    CreatedByUserId = _identityContextService.GetActorId(),
+                    ModifiedByUserId = _identityContextService.GetActorId(),
+                    CreationDate = _date,
+                    ModificationDate = _date,
+                }).ToList(),
 
             }).ToList(),
         };

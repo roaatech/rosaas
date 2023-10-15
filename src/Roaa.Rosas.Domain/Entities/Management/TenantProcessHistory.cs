@@ -43,6 +43,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         ExternalSystemSuccessfullyInformed,
         FailedToInformExternalSystem,
         SuspendingThePaymentStatusForTenantSubscriptionDueToNonRenewalOfTheSubscription,
+        SpecificationsUpdated,
 
     }
 
@@ -57,6 +58,13 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public string OldData { get; set; } = string.Empty;
     }
     public record TenantDataUpdatedProcessedData : TenantProcessedData
+    {
+        public TenantInfoProcessedData UpdatedData { get; set; } = new();
+
+        public TenantInfoProcessedData OldData { get; set; } = new();
+    }
+
+    public record SpecificationsUpdatedProcessedData : TenantProcessedData
     {
         public TenantInfoProcessedData UpdatedData { get; set; } = new();
 

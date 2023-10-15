@@ -8,7 +8,7 @@
 
         public Guid SubscriptionId { get; set; }
 
-        public string Data { get; set; } = string.Empty;
+        public string? Value { get; set; }
 
         public virtual Tenant? Tenant { get; set; }
 

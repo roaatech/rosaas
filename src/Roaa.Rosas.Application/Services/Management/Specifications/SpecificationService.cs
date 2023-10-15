@@ -104,6 +104,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                 InputType = model.InputType,
                 IsRequired = model.IsRequired,
                 IsUserEditable = model.IsUserEditable,
+                IsPublished = model.IsPublished,
                 ValidationFailureDescription = model.ValidationFailureDescription,
                 RegularExpression = model.RegularExpression,
                 CreatedByUserId = _identityContextService.UserId,
@@ -160,6 +161,11 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             field.RegularExpression = model.RegularExpression;
             field.ModifiedByUserId = _identityContextService.UserId;
             field.ModificationDate = DateTime.UtcNow;
+            if (model.IsPublished.HasValue)
+            {
+
+                field.IsPublished = model.IsPublished.Value;
+            }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

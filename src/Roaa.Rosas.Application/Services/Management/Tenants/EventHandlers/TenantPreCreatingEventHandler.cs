@@ -58,10 +58,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 
             var tenantResult = await _tenantService.GetByIdAsync(@event.Subscription.TenantId, tenantSelector, cancellationToken);
 
-            var specifications = _dbContext.SpecificationValues
+            var specifications = await _dbContext.SpecificationValues
                                             .Where(x => x.SubscriptionId == @event.Subscription.Id)
                                             .Include(x => x.Specification)
-                                            .ToDictionary<SpecificationValue, string, dynamic>(val => val.Specification.Name, val => val.Data);
+                                            .ToDictionaryAsync<SpecificationValue, string, dynamic>(val => val.Specification.Name, val => val.Value);
 
 
 

@@ -76,5 +76,11 @@ namespace Roaa.Rosas.Application.SystemMessages
         ModificationOrIsNotAllowedDueToSubscription = 3006,
 
 
+        [Localization(
+       En = "You can not duplicate specifications ids",
+       Ar = "لا يمكنك تكرار معرفات المحددات ")]
+        SpecificationsIdsDuplicated = 3007,
+
+
     }
 }
