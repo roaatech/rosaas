@@ -215,6 +215,35 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             return Result.Successful();
         }
 
+        public async Task<Result> SetSpecificationsAsSubscribedAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            var specificationIds = await _dbContext.SpecificationValues
+                                        .Where(x => x.TenantId == tenantId)
+                                        .Select(x => x.SpecificationId)
+                                        .ToListAsync();
+
+            return await SetSpecificationsAsSubscribedAsync(specificationIds, cancellationToken);
+        }
+        public async Task<Result> SetSpecificationsAsSubscribedAsync(List<Guid> ids, CancellationToken cancellationToken = default)
+        {
+            var specifications = await _dbContext.Specifications
+                                        .Where(x => ids.Contains(x.Id) &&
+                                                   !x.IsSubscribed
+                                                    )
+                                        .ToListAsync();
+            if (specifications.Any())
+            {
+                foreach (var specification in specifications)
+                {
+                    specification.IsSubscribed = true;
+                }
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return Result.Successful();
+        }
+
 
         private async Task<bool> EnsureUniqueNameAsync(Guid productId, string name, Guid? id, CancellationToken cancellationToken = default)
         {
