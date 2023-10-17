@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
@@ -19,7 +18,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
         #region Props 
         private readonly ILogger<PlanFeatureService> _logger;
         private readonly IRosasDbContext _dbContext;
-        private readonly IWebHostEnvironment _environment;
         private readonly IIdentityContextService _identityContextService;
         #endregion
 
@@ -28,12 +26,10 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
         public PlanFeatureService(
             ILogger<PlanFeatureService> logger,
             IRosasDbContext dbContext,
-            IWebHostEnvironment environment,
             IIdentityContextService identityContextService)
         {
             _logger = logger;
             _dbContext = dbContext;
-            _environment = environment;
             _identityContextService = identityContextService;
         }
 
@@ -211,10 +207,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 return Result<CreatedResult<Guid>>.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale, "Plan");
             }
 
-            //if (!await UpdatingOrDeletingIsAllowedAsync(planFeatureId, cancellationToken))
-            //{
-            //    return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
-            //}
             #endregion
 
             _dbContext.PlanFeatures.Remove(planFeature);
@@ -224,10 +216,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             return Result.Successful();
         }
 
-        private async Task<bool> UpdatingOrDeletingIsAllowedAsync(Guid featureId, CancellationToken cancellationToken = default)
-        {
-            return true;
-        }
         #endregion
     }
 }

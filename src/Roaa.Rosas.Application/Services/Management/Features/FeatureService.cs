@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
@@ -20,7 +19,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features
         #region Props 
         private readonly ILogger<FeatureService> _logger;
         private readonly IRosasDbContext _dbContext;
-        private readonly IWebHostEnvironment _environment;
         private readonly IIdentityContextService _identityContextService;
         #endregion
 
@@ -29,12 +27,10 @@ namespace Roaa.Rosas.Application.Services.Management.Features
         public FeatureService(
             ILogger<FeatureService> logger,
             IRosasDbContext dbContext,
-            IWebHostEnvironment environment,
             IIdentityContextService identityContextService)
         {
             _logger = logger;
             _dbContext = dbContext;
-            _environment = environment;
             _identityContextService = identityContextService;
         }
 
@@ -189,11 +185,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             {
                 return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
-
-            //if (!await UpdatingOrDeletingIsAllowedAsync(id, cancellationToken))
-            //{
-            //    return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
-            //}
             #endregion
             Feature featureBeforeUpdate = feature.DeepCopy();
 
@@ -238,19 +229,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Successful();
-        }
-
-        private async Task<bool> DeletingIsAllowedAsync(Guid featureId, CancellationToken cancellationToken = default)
-        {
-            return !await _dbContext.PlanFeatures
-                                    .Where(x => x.FeatureId == featureId)
-                                    .AnyAsync(cancellationToken);
-
-        }
-
-        private async Task<bool> UpdatingOrDeletingIsAllowedAsync(Guid featureId, CancellationToken cancellationToken = default)
-        {
-            return true;
         }
         #endregion
     }
