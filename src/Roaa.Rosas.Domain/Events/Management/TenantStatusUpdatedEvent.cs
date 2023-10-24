@@ -2,18 +2,24 @@
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants
+namespace Roaa.Rosas.Domain.Events.Management
 {
     public class TenantStatusUpdatedEvent : BaseInternalEvent
     {
-        public Tenant Tenant { get; set; }
-        public TenantStatus OldStatus { get; set; }
+        public Subscription Subscription { get; set; }
+        public Workflow Workflow { get; set; }
+        public TenantStatus PreviousStatus { get; set; }
+        public TenantStep PreviousStep { get; set; }
+        public string Notes { get; set; } = string.Empty;
 
 
-        public TenantStatusUpdatedEvent(Tenant tenant, TenantStatus oldStatus)
+        public TenantStatusUpdatedEvent(Subscription subscription, Workflow workflow, TenantStatus previousStatus, TenantStep previousStep, string notes = "")
         {
-            Tenant = tenant;
-            OldStatus = oldStatus;
+            Subscription = subscription;
+            Workflow = workflow;
+            PreviousStatus = previousStatus;
+            PreviousStep = previousStep;
+            Notes = notes;
         }
     }
 }

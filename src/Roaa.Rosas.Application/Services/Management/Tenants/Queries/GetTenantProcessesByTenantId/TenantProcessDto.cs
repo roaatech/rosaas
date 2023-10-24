@@ -14,6 +14,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
 
         public TenantStatus Status { get; set; }
 
+        public TenantStep Step { get; set; }
+
         public TenantProcessType ProcessType { get; set; }
 
         public string Data { get; set; } = string.Empty;

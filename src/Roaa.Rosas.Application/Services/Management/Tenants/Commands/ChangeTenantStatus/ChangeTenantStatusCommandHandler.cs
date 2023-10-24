@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
-using Roaa.Rosas.Application.Services.Management.Tenants.Service.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
@@ -53,9 +52,7 @@ public class ChangeTenantStatusCommandHandler : IRequestHandler<ChangeTenantStat
             return Result<List<TenantStatusChangedResultDto>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(request.TenantName));
         }
 
-
-        return await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel(tenantId, request.Status, request.ProductId, request.Notes), cancellationToken);
-
+        return await _tenantService.SetTenantNextStatusAsync(tenantId, request.Status, request.ProductId, request.Notes, cancellationToken);
     }
 
     #endregion

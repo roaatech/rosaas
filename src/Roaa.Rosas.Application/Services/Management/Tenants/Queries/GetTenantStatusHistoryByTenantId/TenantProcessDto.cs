@@ -1,4 +1,5 @@
 ﻿using Roaa.Rosas.Common.Enums;
+using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantStatusHistoryByTenantId
@@ -9,7 +10,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantSt
 
         public TenantStatus Status { get; set; }
 
+        public TenantStep Step { get; set; }
+
         public TenantStatus PreviousStatus { get; set; }
+
+        public TenantStep PreviousStep { get; set; }
 
         public Guid OwnerId { get; set; }
 

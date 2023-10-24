@@ -10,6 +10,8 @@
 
         public bool IsHealthy { get; set; }
 
+        //    public HealthStatus HealthStatus { get; set; }
+
         public string HealthCheckUrl { get; set; } = string.Empty;
 
         public int Duration { get; set; }
@@ -22,7 +24,17 @@
 
         public int UnhealthyCount { get; set; }
 
+        public bool IsChecked { get; set; } = false;
+
         public virtual Subscription? Subscription { get; set; }
+    }
+
+    public enum HealthStatus
+    {
+        Healthy,
+        Warning,
+        Unhealthy,
+
     }
 
 }

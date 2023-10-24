@@ -2,11 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 {
@@ -48,7 +48,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             foreach (var subscription in subscriptions)
             {
                 await _mediator.Send(new ChangeTenantStatusByIdCommand(subscription.TenantId,
-                                                                       TenantStatus.PreDeactivating,
+                                                                       TenantStatus.SendingDeactivationRequest,
                                                                        subscription.ProductId,
                                                                        "Note By System: Deactivating the tenant due to non-payment of the subscription."),
                                     cancellationToken);
@@ -80,7 +80,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
                 }
 
-                subscriptions[0].AddDomainEvent(new TenantProcessingCompletedEvent<TenantProcessedData>(
+                subscriptions[0].AddDomainEvent(new TenantProcessingCompletedEvent(
                                                     TenantProcessType.SuspendingThePaymentStatusForTenantSubscriptionDueToNonRenewalOfTheSubscription,
                                                     true,
                                                     null,

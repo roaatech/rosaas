@@ -15,11 +15,13 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.ProductId).IsRequired();
             builder.Property(r => r.SubscriptionId).IsRequired();
             builder.Property(r => r.Status).IsRequired();
+            builder.Property(r => r.Step).IsRequired();
             builder.Property(r => r.ProcessType).IsRequired();
             builder.Property(r => r.OwnerType).IsRequired();
+            builder.Property(r => r.Data).IsRequired(false);
+            builder.Property(r => r.Notes).IsRequired(false).HasMaxLength(500);
             builder.Property(r => r.Enabled).IsRequired();
             builder.Property(r => r.ProcessDate).IsRequired();
-            builder.Property(r => r.Notes).IsRequired(true).HasMaxLength(500);
             builder.Property(r => r.TimeStamp).IsRequired().HasConversion(
                v => v.Ticks,
                v => new DateTime(v)

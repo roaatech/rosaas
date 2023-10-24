@@ -7,6 +7,7 @@ using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenant;
 
@@ -49,11 +50,6 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
 
         DateTime date = DateTime.UtcNow;
 
-        var processData = new TenantDataUpdatedProcessedData
-        {
-            OldData = new TenantInfoProcessedData { Title = tenant.Title },
-            UpdatedData = new TenantInfoProcessedData { Title = request.Title },
-        };
 
         tenant.Title = request.Title;
         tenant.ModifiedByUserId = _identityContextService.UserId;
@@ -62,7 +58,14 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
         var subscriptions = await _dbContext.Subscriptions.Where(x => x.TenantId == tenant.Id).ToListAsync();
 
         tenant.AddDomainEvent(new TenantUpdatedEvent(tenantBeforeUpdate, tenant));
-        tenant.AddDomainEvent(new TenantProcessingCompletedEvent<TenantDataUpdatedProcessedData>(TenantProcessType.DataUpdated, true, processData, out _, subscriptions));
+
+        tenant.AddDomainEvent(new TenantProcessingCompletedEvent(TenantProcessType.DataUpdated,
+                                                                 true,
+                                                                  new TenantDataUpdatedProcessedData(new TenantInfoProcessedDataModel(title: request.Title),
+                                                                                                     new TenantInfoProcessedDataModel(title: tenantBeforeUpdate.Title))
+                                                                                                    .Serialize(),
+                                                                 out _,
+                                                                 subscriptions));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

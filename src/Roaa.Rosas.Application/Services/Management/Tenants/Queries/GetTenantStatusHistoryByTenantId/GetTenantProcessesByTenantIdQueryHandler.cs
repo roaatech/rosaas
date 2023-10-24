@@ -36,7 +36,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantSt
                                                   {
                                                       TenantId = x.TenantId,
                                                       Status = x.Status,
+                                                      Step = x.Step,
                                                       PreviousStatus = x.PreviousStatus,
+                                                      PreviousStep = x.PreviousStep,
                                                       OwnerId = x.OwnerId,
                                                       OwnerType = x.OwnerType,
                                                       Message = x.Message,

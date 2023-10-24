@@ -1,7 +1,7 @@
 ﻿using Roaa.Rosas.Domain.Common;
 using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants
+namespace Roaa.Rosas.Domain.Events.Management
 {
     public class ProductUpdatedEvent : BaseInternalEvent
     {

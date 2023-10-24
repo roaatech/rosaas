@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Products.Validators;
-using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
@@ -13,6 +12,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Events.Management;
 using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Products

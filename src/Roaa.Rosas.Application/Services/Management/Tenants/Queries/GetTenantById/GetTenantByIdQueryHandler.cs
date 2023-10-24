@@ -56,6 +56,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                          SubscriptionId = subscription.Id,
                                                          ProductName = subscription.Product.Name,
                                                          Status = subscription.Status,
+                                                         Step = subscription.Step,
                                                          CreatedDate = subscription.CreationDate,
                                                          EditedDate = subscription.ModificationDate,
                                                          Metadata = subscription.Metadata,
@@ -70,6 +71,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                              Duration = subscription.HealthCheckStatus.Duration,
                                                              HealthyCount = subscription.HealthCheckStatus.HealthyCount,
                                                              UnhealthyCount = subscription.HealthCheckStatus.UnhealthyCount,
+                                                             IsChecked = subscription.HealthCheckStatus.IsChecked,
                                                          },
                                                          Specifications = subscription.SpecificationsValues.Select(specVal => new SpecificationListItemDto
                                                          {
@@ -93,12 +95,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                 foreach (var subscription in tenant.Subscriptions)
                 {
                     // Set Actions
-                    var flows = await _workflow.GetProcessActionsAsync(subscription.Status, _identityContextService.GetUserType());
+                    var flows = await _workflow.GetProcessActionsAsync(currentStatus: subscription.Status,
+                                                                       currentStep: subscription.Step,
+                                                                       userType: _identityContextService.GetUserType());
                     subscription.Actions = flows.ToActionsResults();
                     subscription.HealthCheckUrl = subscription.HealthCheckUrl.Replace("{name}", tenant.UniqueName);
 
                     // Set ShowHealthStatus
-                    subscription.HealthCheckStatus.ShowHealthStatus = IsMustShowHealthStatus(subscription.HealthCheckStatus, subscription.Status, tenant.CreatedDate);
+                    subscription.HealthCheckStatus.ShowHealthStatus = IsMustShowHealthStatus(subscription.HealthCheckStatus, subscription.Status);
 
                     // Try retrieve last External System Dispatch if existed
                     subscription.HealthCheckStatus.ExternalSystemDispatch = await TryGetExternalSystemDispatchesAsync(subscription.ProductId, tenant.Id, cancellationToken);
@@ -125,7 +129,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                .FirstOrDefaultAsync(stoppingToken);
         }
 
-        private bool IsMustShowHealthStatus(ProductTenantHealthStatusDto healthCheckStatus, TenantStatus tenantStatus, DateTime tenantCreatedDate)
+        private bool IsMustShowHealthStatus(ProductTenantHealthStatusDto healthCheckStatus, TenantStatus tenantStatus)
         {
             if (tenantStatus != TenantStatus.Active && tenantStatus != TenantStatus.CreatedAsActive)
             {
@@ -133,9 +137,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
             }
 
             healthCheckStatus.ShowHealthStatus = true;
-            if (!healthCheckStatus.IsHealthy &&
-            healthCheckStatus.CheckDate == tenantCreatedDate &&
-                healthCheckStatus.LastCheckDate == tenantCreatedDate)
+            if (!healthCheckStatus.IsChecked)
             {
                 healthCheckStatus.ShowHealthStatus = false;
             }

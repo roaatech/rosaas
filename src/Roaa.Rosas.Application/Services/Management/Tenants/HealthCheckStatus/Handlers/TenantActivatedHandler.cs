@@ -5,6 +5,7 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Handlers
 {
@@ -34,9 +35,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
                 var jobTask = new JobTask
                 {
                     Id = Guid.NewGuid(),
-                    SubscriptionId = @event.Subscription.Id,
-                    ProductId = @event.Subscription.ProductId,
-                    TenantId = @event.Subscription.TenantId,
+                    SubscriptionId = @event.SubscriptionId,
+                    ProductId = @event.ProductId,
+                    TenantId = @event.TenantId,
                     Created = date,
                     Type = JobTaskType.Available,
                 };
@@ -44,20 +45,24 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
                 await _tenantHealthCheckService.ResetTenantHealthStatusCountersAsync(jobTask, cancellationToken);
 
                 var tenantName = await _dbContext.Tenants
-                               .Where(x => x.Id == @event.Subscription.TenantId)
+                               .Where(x => x.Id == @event.TenantId)
                                .Select(x => x.UniqueName)
                                .SingleOrDefaultAsync(cancellationToken);
 
                 _backgroundWorkerStore.AddAvailableTenantTask(jobTask, tenantName);
 
                 _logger.LogInformation($"The job task added to {nameof(AvailableTenantChecker)} Background Service with info: TenantId:{{0}}, ProductId:{{1}}",
-                      @event.Subscription.TenantId,
-                      @event.Subscription.ProductId);
+                                          @event.TenantId,
+                                          @event.ProductId);
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred on {0} while processing the Event Handler related to the tenant [TenantId:{1}], [ProductId:{2}]", GetType().Name, @event.Subscription.TenantId, @event.Subscription.ProductId);
+                _logger.LogError(ex,
+                                "An error occurred on {0} while processing the Event Handler related to the tenant [TenantId:{1}], [ProductId:{2}]",
+                                GetType().Name,
+                                @event.TenantId,
+                                @event.ProductId);
             }
 
         }

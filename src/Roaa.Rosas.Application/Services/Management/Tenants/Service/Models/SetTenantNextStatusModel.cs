@@ -11,6 +11,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service.Models
         public Guid EditorBy { get; init; }
         public WorkflowAction Action { get; init; }
         public TenantStatus Status { get; init; }
+        public TenantStep? Step { get; init; }
         public UserType UserType { get; init; }
         public string Notes { get; init; } = string.Empty;
     }

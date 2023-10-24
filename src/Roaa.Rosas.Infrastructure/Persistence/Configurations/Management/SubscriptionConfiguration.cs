@@ -19,6 +19,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.HealthCheckUrl).IsRequired(true).HasMaxLength(250);
             builder.Property(r => r.HealthCheckUrlIsOverridden).IsRequired(true);
             builder.Property(r => r.IsPaid).IsRequired(true);
+            builder.Property(r => r.Status).IsRequired();
+            builder.Property(r => r.Step).IsRequired();
             builder.Property(r => r.Notes).IsRequired(true).HasMaxLength(500);
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.ModifiedByUserId).IsRequired();

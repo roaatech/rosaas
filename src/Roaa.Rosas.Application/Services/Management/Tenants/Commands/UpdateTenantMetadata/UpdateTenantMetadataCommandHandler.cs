@@ -7,6 +7,7 @@ using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
 
@@ -48,20 +49,16 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
         {
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
         }
-        #endregion 
+        #endregion
 
-        var processData = new TenantMetadataUpdatedProcessedData
-        {
-            OldData = subscription.Metadata,
-            UpdatedData = request.Metadata,
-        };
+        var metadataBeforeUpdate = subscription.Metadata;
 
         subscription.Metadata = System.Text.Json.JsonSerializer.Serialize(request.Metadata);
 
-        subscription.AddDomainEvent(new TenantProcessingCompletedEvent<TenantMetadataUpdatedProcessedData>(
+        subscription.AddDomainEvent(new TenantProcessingCompletedEvent(
             TenantProcessType.MetadataUpdated,
             true,
-            processData,
+            new TenantMetadataUpdatedProcessedData(request.Metadata, metadataBeforeUpdate).Serialize(),
             out _,
             subscription));
 

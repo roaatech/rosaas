@@ -8,6 +8,7 @@ using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
 using System.Linq.Expressions;
@@ -73,6 +74,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                             {
                                 new MySqlParameter($"@{nameof(hs.HealthCheckUrl)}", healthCheckUrl),
                                 new MySqlParameter($"@{nameof(hs.IsHealthy)}", isAvailable),
+                                new MySqlParameter($"@{nameof(hs.IsChecked)}", true),
                                 new MySqlParameter($"@{nameof(hs.Duration)}", duration),
                                 new MySqlParameter($"@{nameof(hs.LastCheckDate)}",  date),
                                 new MySqlParameter($"@{nameof(hs.TenantId)}", jobTask.TenantId),
@@ -101,6 +103,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                         SET     {partOfQuery}
                                                 {nameof(hs.HealthCheckUrl)} = @{nameof(hs.HealthCheckUrl)} , 
                                                 {nameof(hs.IsHealthy)} = @{nameof(hs.IsHealthy)} ,  
+                                                {nameof(hs.IsChecked)} = @{nameof(hs.IsChecked)} ,  
                                                 {nameof(hs.Duration)} = @{nameof(hs.Duration)} ,  
                                                 {nameof(hs.LastCheckDate)} = @{nameof(hs.LastCheckDate)}
                                         WHERE   {nameof(hs.TenantId)} =  @{nameof(hs.TenantId)}  
@@ -121,7 +124,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                                   x.Id == jobTask.SubscriptionId)
                                       .SingleOrDefaultAsync(cancellationToken);
 
-            await _publisher.Publish(new TenantProcessingCompletedEvent<TenantProcessedData>(
+            await _publisher.Publish(new TenantProcessingCompletedEvent(
                                         processType,
                                         true,
                                         null,
@@ -141,7 +144,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                                   x.Id == jobTask.SubscriptionId)
                                       .SingleOrDefaultAsync(cancellationToken);
 
-            await _publisher.Publish(new TenantProcessingCompletedEvent<TenantProcessedData>(
+            await _publisher.Publish(new TenantProcessingCompletedEvent(
                                        success ? TenantProcessType.ExternalSystemSuccessfullyInformed : TenantProcessType.FailedToInformExternalSystem,
                                         true,
                                         null,
@@ -307,6 +310,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
                                                .Select(x => x.HealthCheckUrl)
                                                .SingleOrDefaultAsync(cancellationToken) ?? string.Empty;
         }
+
         public async Task AddAvailableTenantTaskAsync(JobTask jobTask, CancellationToken cancellationToken)
         {
             _backgroundWorkerStore.AddAvailableTenantTask(new JobTask

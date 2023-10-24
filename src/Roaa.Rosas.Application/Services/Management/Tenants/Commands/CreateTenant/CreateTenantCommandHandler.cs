@@ -15,6 +15,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 
@@ -118,7 +119,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         var updatedStatuses = await _dbContext.Subscriptions
                                          .Where(x => x.TenantId == tenant.Id)
-                                         .Select(x => new { x.Status, x.ProductId })
+                                         .Select(x => new { x.Status, x.Step, x.ProductId })
                                          .ToListAsync(cancellationToken);
 
         List<ProductTenantCreatedResultDto> productTenantCreatedResults = new();
@@ -127,7 +128,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             productTenantCreatedResults.Add(new ProductTenantCreatedResultDto(
             item.ProductId,
             item.Status,
-            (await _workflow.GetProcessActionsAsync(item.Status, _identityContextService.GetUserType()))
+            (await _workflow.GetProcessActionsAsync(currentStatus: item.Status,
+                                                    currentStep: item.Step,
+                                                    userType: _identityContextService.GetUserType()))
                             .ToActionsResults()));
         }
 
@@ -143,7 +146,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
     private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand request, List<PlanInfoModel> plansInfo, CancellationToken cancellationToken = default)
     {
-        var initialProcess = await _workflow.GetNextProcessActionAsync(TenantStatus.None, _identityContextService.GetUserType());
+        var initialProcess = await _workflow.GetNextProcessActionAsync(currentStatus: TenantStatus.None,
+                                                                       currentStep: TenantStep.None,
+                                                                       userType: _identityContextService.GetUserType());
 
         var planIds = request.Subscriptions.Select(x => x.PlanId)
                                            .ToList();
@@ -190,14 +195,14 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         var healthStatuses = BuildProductTenantHealthStatusEntities(tenant.Subscriptions);
 
 
-        tenant.AddDomainEvent(new TenantProcessingCompletedEvent<TenantProcessedData>(
+        tenant.AddDomainEvent(new TenantProcessingCompletedEvent(
                                  TenantProcessType.RecordCreated,
                                  true,
                                  null,
                                  out _,
                                  tenant.Subscriptions.ToArray()));
 
-        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Subscriptions.First().Status));
+        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Subscriptions.First().Status, tenant.Subscriptions.First().Step));
 
 
         _dbContext.Tenants.Add(tenant);
@@ -231,7 +236,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         }
 
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        var res = await _dbContext.SaveChangesAsync(cancellationToken);
 
         return tenant;
     }
@@ -270,6 +275,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 PlanPriceId = item.PlanPriceId,
                 ProductId = item.Product.Id,
                 Status = initialProcess.NextStatus,
+                Step = initialProcess.NextStep,
                 CreatedByUserId = _identityContextService.GetActorId(),
                 ModifiedByUserId = _identityContextService.GetActorId(),
                 CreationDate = _date,
@@ -366,9 +372,10 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             SubscriptionId = item.Id,
             ProductId = item.ProductId,
             TenantId = item.TenantId,
-            LastCheckDate = item.ModificationDate,
-            CheckDate = item.ModificationDate,
+            LastCheckDate = item.CreationDate,
+            CheckDate = item.CreationDate,
             IsHealthy = false,
+            IsChecked = false,
         });
     }
 
@@ -383,7 +390,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             ProductId = subscription.ProductId,
             SubscriptionId = subscription.Id,
             Status = initialProcess.NextStatus,
+            Step = initialProcess.NextStep,
             PreviousStatus = initialProcess.CurrentStatus,
+            PreviousStep = initialProcess.CurrentStep,
             OwnerId = _identityContextService.GetActorId(),
             OwnerType = _identityContextService.GetUserType(),
             Created = _date,
