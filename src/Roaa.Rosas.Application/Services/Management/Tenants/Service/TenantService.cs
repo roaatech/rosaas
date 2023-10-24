@@ -68,7 +68,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
 
 
-        public async Task<Result<List<TenantStatusChangedResultDto>>> SetTenantNextStatusAsync(Guid tenantId, TenantStatus status, Guid? productId, string notes, CancellationToken cancellationToken)
+        public async Task<Result<List<TenantStatusChangedResultDto>>> SetTenantNextStatusAsync(Guid tenantId, TenantStatus status, Guid? productId, WorkflowAction action, string notes, CancellationToken cancellationToken)
         {
             var stepStatus = await _workflow.GetStepStatusAsync(status, cancellationToken);
 
@@ -78,7 +78,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 UserType = _identityContextService.GetUserType(),
                 Status = status,
                 Step = null,
-                Action = WorkflowAction.Ok,
+                Action = action,
                 TenantId = tenantId,
                 ProductId = productId,
                 Notes = notes,

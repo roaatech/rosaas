@@ -8,6 +8,7 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantMetada
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantStatusByName;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.ResponseMessages;
+using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Education.API.Models.Common.Responses;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -60,6 +61,13 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         public async Task<IActionResult> DeactivateTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Deactive, _identityContextService.GetProductId(), string.Empty), cancellationToken));
+        }
+
+
+        [HttpPost("{name}/failure")]
+        public async Task<IActionResult> SetTenantToFailureStateAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Failure, _identityContextService.GetProductId(), WorkflowAction.Cancel, string.Empty), cancellationToken));
         }
 
 

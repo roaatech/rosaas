@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
     {
         Task<Result<T>> GetByIdAsync<T>(Guid tenantId, Expression<Func<Tenant, T>> selector, CancellationToken cancellationToken = default);
 
-        Task<Result<List<TenantStatusChangedResultDto>>> SetTenantNextStatusAsync(Guid tenantId, TenantStatus status, Guid? productId, string notes, CancellationToken cancellationToken = default);
+        Task<Result<List<TenantStatusChangedResultDto>>> SetTenantNextStatusAsync(Guid tenantId, TenantStatus status, Guid? productId, WorkflowAction action, string notes, CancellationToken cancellationToken = default);
 
         Task<Result<List<SetTenantNextStatusResult>>> SetTenantNextStatusAsync(SetTenantNextStatusModel model, CancellationToken cancellationToken = default);
     }

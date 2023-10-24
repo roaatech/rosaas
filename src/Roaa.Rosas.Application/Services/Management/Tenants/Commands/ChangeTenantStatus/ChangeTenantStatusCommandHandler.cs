@@ -52,7 +52,7 @@ public class ChangeTenantStatusCommandHandler : IRequestHandler<ChangeTenantStat
             return Result<List<TenantStatusChangedResultDto>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(request.TenantName));
         }
 
-        return await _tenantService.SetTenantNextStatusAsync(tenantId, request.Status, request.ProductId, request.Notes, cancellationToken);
+        return await _tenantService.SetTenantNextStatusAsync(tenantId, request.Status, request.ProductId, request.Action, request.Notes, cancellationToken);
     }
 
     #endregion
