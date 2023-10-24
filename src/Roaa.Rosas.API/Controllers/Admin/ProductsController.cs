@@ -16,8 +16,6 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #region Props 
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductService _productService;
-        private readonly IIdentityContextService _identityContextService;
-        private readonly IWebHostEnvironment _environment;
         private readonly ISender _mediator;
         #endregion
 
@@ -29,8 +27,6 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
                                 ISender mediator)
         {
             _logger = logger;
-            _environment = environment;
-            _identityContextService = identityContextService;
             _productService = productService;
             _mediator = mediator;
         }
@@ -88,9 +84,9 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpGet("{id}/subscriptions")]
-        public async Task<IActionResult> GetSubscriptionsListAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetSubscriptionsListAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(productId), cancellationToken));
+            return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(id), cancellationToken));
         }
         #endregion
 
