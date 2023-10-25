@@ -159,7 +159,6 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 ModifiedByUserId = _identityContextService.UserId,
                 CreationDate = date,
                 ModificationDate = date,
-                IsPublished = true,
             };
 
             _dbContext.Plans.Add(plan);

@@ -37,6 +37,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                     SubscriptionId = subscription.Id,
                     Status = subscription.Status,
                     Step = subscription.Step,
+                    ExpectedResourceStatus = subscription.ExpectedResourceStatus,
                     OwnerId = _identityContextService.GetActorId(),
                     OwnerType = _identityContextService.GetUserType(),
                     ProcessDate = date,

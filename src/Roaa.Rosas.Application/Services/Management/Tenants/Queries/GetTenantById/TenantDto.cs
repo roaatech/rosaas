@@ -32,6 +32,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
         public LookupItemDto<Guid> Product { get; set; } = new();
         public ProductTenantHealthStatusDto HealthCheckStatus { get; set; } = new();
         public IEnumerable<ActionResultModel> Actions { get; set; } = new List<ActionResultModel>();
+        public ExpectedTenantResourceStatus ExpectedResourceStatus { get; set; }
 
         public IEnumerable<SpecificationListItemDto> Specifications { get; set; } = new List<SpecificationListItemDto>();
     }

@@ -12,6 +12,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service.Models
         public WorkflowAction Action { get; init; }
         public TenantStatus Status { get; init; }
         public TenantStep? Step { get; init; }
+        public ExpectedTenantResourceStatus? ExpectedResourceStatus { get; set; }
         public UserType UserType { get; init; }
         public string Notes { get; init; } = string.Empty;
     }

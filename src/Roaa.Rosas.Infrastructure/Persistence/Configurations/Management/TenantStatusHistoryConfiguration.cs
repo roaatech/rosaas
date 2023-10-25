@@ -18,6 +18,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.PreviousStatus).IsRequired();
             builder.Property(r => r.Step).IsRequired();
             builder.Property(r => r.PreviousStep).IsRequired();
+            builder.Property(r => r.ExpectedResourceStatus).IsRequired();
             builder.Property(r => r.OwnerId).IsRequired();
             builder.Property(r => r.OwnerType).IsRequired();
             builder.Property(r => r.Created).IsRequired();

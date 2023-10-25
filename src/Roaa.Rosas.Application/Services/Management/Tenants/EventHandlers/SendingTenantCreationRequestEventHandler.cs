@@ -85,7 +85,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             // Getting the next status of the workflow 
             var action = callingResult.Success ? WorkflowAction.Ok : WorkflowAction.Cancel;
 
-            var workflow = await _workflow.GetNextProcessActionAsync(currentStatus: @event.Status,
+            var workflow = await _workflow.GetNextStageAsync(expectedResourceStatus: @event.ExpectedResourceStatus,
+                                                                       currentStatus: @event.Status,
                                                                        currentStep: @event.Step,
                                                                        userType: UserType.ExternalSystem,
                                                                        action: action);

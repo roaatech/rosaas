@@ -12,14 +12,16 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
         Task<StepStatus> GetStepStatusAsync(TenantStatus status, CancellationToken cancellationToken = default);
         Task<WorkflowEvent> GetWorkflowEventByIdAsync(WorkflowEventEnum friendlyId, CancellationToken cancellationToken = default);
 
-        Task<Workflow> GetNextProcessActionAsync(TenantStatus currentStatus,
+        Task<Workflow> GetNextStageAsync(ExpectedTenantResourceStatus expectedResourceStatus,
+            TenantStatus currentStatus,
                                                  TenantStep currentStep,
                                                  UserType userType,
                                                  WorkflowAction action = WorkflowAction.Ok,
                                                  WorkflowTrack track = WorkflowTrack.Normal,
                                                  CancellationToken cancellationToken = default);
 
-        Task<Workflow> GetNextProcessActionAsync(TenantStatus currentStatus,
+        Task<Workflow> GetNextStageAsync(ExpectedTenantResourceStatus expectedResourceStatus,
+            TenantStatus currentStatus,
                                                  TenantStep currentStep,
                                                  TenantStatus nextStatus,
                                                  UserType userType,
@@ -27,11 +29,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                  WorkflowTrack track = WorkflowTrack.Normal,
                                                  CancellationToken cancellationToken = default);
 
-        Task<ICollection<Workflow>> GetProcessActionsAsync(TenantStatus currentStatus,
+        Task<List<Workflow>> GetNextStagesAsync(ExpectedTenantResourceStatus expectedResourceStatus,
+            TenantStatus currentStatus,
                                                            TenantStep currentStep,
                                                            UserType userType,
                                                            WorkflowTrack track = WorkflowTrack.Normal,
                                                            CancellationToken cancellationToken = default);
+
+
+
+        Task<List<Workflow>> GetAllStagesAsync(CancellationToken cancellationToken = default);
+
+
+        Task<List<Workflow>> FindDuplicatesStagesAsync(CancellationToken cancellationToken = default);
+
     }
 
 
@@ -128,7 +139,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 },
                 new StepStatus()
                 {
-                     Status = TenantStatus.Deactive,
+                     Status = TenantStatus.Inactive,
                      Step = TenantStep.Deactivation,
                 },
                 new StepStatus()
@@ -157,6 +168,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             {
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.None,
                     CurrentStatus = TenantStatus.None,
                     OwnerType = UserType.SuperAdmin,
@@ -169,6 +181,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.RecordCreated,
                     OwnerType = UserType.SuperAdmin,
@@ -183,6 +196,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 new Workflow()
                 {/************************************************************************************************************************************/
                     
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.SendingCreationRequest,
                     OwnerType = UserType.ExternalSystem,
@@ -194,6 +208,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                
                    new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.SendingCreationRequest,
                     OwnerType = UserType.ExternalSystem,
@@ -205,6 +220,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                    new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.Creating,
                     OwnerType = UserType.ExternalSystem,
@@ -218,6 +234,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.CreatedAsActive,
                     OwnerType = UserType.SuperAdmin,
@@ -232,6 +249,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.CreatedAsActive,
                     OwnerType = UserType.SuperAdmin,
@@ -246,18 +264,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 new Workflow()
                 {/************************************************************************************************************************************/
                   
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deactivation,
                     CurrentStatus = TenantStatus.SendingDeactivationRequest,
                     OwnerType = UserType.ExternalSystem,
                     Action = WorkflowAction.Cancel,
-                    NextStep = TenantStep.Creation,
-                    NextStatus = TenantStatus.CreatedAsActive,
+                    NextStep = TenantStep.Deactivation,
+                    NextStatus = TenantStatus.Failure,
                     Message = "The external system failed to receive the request",
                 },/***********************************************************************************************************************************/
                
 
                   new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Activation,
                     CurrentStatus = TenantStatus.Active,
                     OwnerType = UserType.SuperAdmin,
@@ -269,21 +289,22 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantDeactivationRequestEvent },
                 },
 
-                  new Workflow()
-                {/************************************************************************************************************************************/
+                //  new Workflow()
+                //{/************************************************************************************************************************************/
                    
-                    CurrentStep = TenantStep.Deactivation,
-                    CurrentStatus = TenantStatus.SendingDeactivationRequest,
-                    OwnerType = UserType.ExternalSystem,
-                    Action = WorkflowAction.Cancel,
-                    NextStep = TenantStep.Activation,
-                    NextStatus = TenantStatus.Active,
-                    Message = "The external system failed to receive the request",
-                },/***********************************************************************************************************************************/
+                //    CurrentStep = TenantStep.Deactivation,
+                //    CurrentStatus = TenantStatus.SendingDeactivationRequest,
+                //    OwnerType = UserType.ExternalSystem,
+                //    Action = WorkflowAction.Cancel,
+                //    NextStep = TenantStep.Activation,
+                //    NextStatus = TenantStatus.Active,
+                //    Message = "The external system failed to receive the request",
+                //},/***********************************************************************************************************************************/
                
 
                   new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deactivation,
                     CurrentStatus = TenantStatus.SendingDeactivationRequest,
                     OwnerType = UserType.ExternalSystem,
@@ -295,19 +316,21 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deactivation,
                     CurrentStatus = TenantStatus.Deactivating,
                     OwnerType = UserType.ExternalSystem,
                     Action = WorkflowAction.Ok,
                     NextStep = TenantStep.Deactivation,
-                    NextStatus = TenantStatus.Deactive,
+                    NextStatus = TenantStatus.Inactive,
                     Message = "The external system deactivated the tenant",
                 },
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Deactivation,
-                    CurrentStatus = TenantStatus.Deactive,
+                    CurrentStatus = TenantStatus.Inactive,
                     OwnerType = UserType.SuperAdmin,
                     Action = WorkflowAction.Ok,
                     NextStep = TenantStep.Activation,
@@ -320,19 +343,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                   new Workflow()
                 {/************************************************************************************************************************************/
                    
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Activation,
                     CurrentStatus = TenantStatus.SendingActivationRequest,
                     OwnerType = UserType.ExternalSystem,
                     Action = WorkflowAction.Cancel,
-                    NextStep = TenantStep.Deactivation,
-                    NextStatus = TenantStatus.Deactive,
+                    NextStep = TenantStep.Activation,
+                    NextStatus = TenantStatus.Failure,
                     Message = "The external system failed to receive the request",
                 },/***********************************************************************************************************************************/
+                
                
-
-
                  new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Activation,
                     CurrentStatus = TenantStatus.SendingActivationRequest,
                     OwnerType = UserType.ExternalSystem,
@@ -344,6 +368,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Activation,
                     CurrentStatus = TenantStatus.Activating,
                     OwnerType = UserType.ExternalSystem,
@@ -356,6 +381,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                    new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Activation,
                     CurrentStatus = TenantStatus.Active,
                     OwnerType = UserType.SuperAdmin,
@@ -370,20 +396,22 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                   new Workflow()
                 {/************************************************************************************************************************************/
                    
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deletion,
                     CurrentStatus = TenantStatus.SendingDeletionRequest,
                     OwnerType = UserType.ExternalSystem,
                     Action = WorkflowAction.Cancel,
-                    NextStep = TenantStep.Activation,
-                    NextStatus = TenantStatus.Active,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.Failure,
                     Message = "The external system failed to receive the request",
                 },/***********************************************************************************************************************************/
                
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Deactivation,
-                    CurrentStatus = TenantStatus.Deactive,
+                    CurrentStatus = TenantStatus.Inactive,
                     OwnerType = UserType.SuperAdmin,
                     Action = WorkflowAction.Ok,
                     NextStep = TenantStep.Deletion,
@@ -393,21 +421,23 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantDeletionRequestEvent },
                 },
 
-                new Workflow()
+                 new Workflow()
                 {/************************************************************************************************************************************/
                    
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Deletion,
                     CurrentStatus = TenantStatus.SendingDeletionRequest,
                     OwnerType = UserType.ExternalSystem,
                     Action = WorkflowAction.Cancel,
-                    NextStep = TenantStep.Deactivation,
-                    NextStatus = TenantStatus.Deactive,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.Failure,
                     Message = "The external system failed to receive the request",
                 },/***********************************************************************************************************************************/
                
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Deletion,
                     CurrentStatus = TenantStatus.SendingDeletionRequest,
                     OwnerType = UserType.ExternalSystem,
@@ -416,8 +446,22 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     NextStatus = TenantStatus.Deleting,
                     Message = "The external system is deleting the tenant resources",
                 },
+
+                new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.SendingDeletionRequest,
+                    OwnerType = UserType.ExternalSystem,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.Deleting,
+                    Message = "The external system is deleting the tenant resources",
+                },
+
                   new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Deletion,
                     CurrentStatus = TenantStatus.Deleting,
                     OwnerType = UserType.ExternalSystem,
@@ -427,8 +471,18 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "The external system deleted the tenant",
                 },
 
-
-
+                  new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.Deleting,
+                    OwnerType = UserType.ExternalSystem,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.Deleted,
+                    Message = "The external system deleted the tenant",
+                },
+                   
 
                   //-----------------------------------------------------------------------------------------------//
 
@@ -437,6 +491,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                  new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.SendingCreationRequest,
                     OwnerType = UserType.SuperAdmin,
@@ -452,6 +507,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                  new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Activation,
                     CurrentStatus = TenantStatus.SendingActivationRequest,
                     OwnerType = UserType.SuperAdmin,
@@ -466,6 +522,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                  new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deactivation,
                     CurrentStatus = TenantStatus.SendingDeactivationRequest,
                     OwnerType = UserType.SuperAdmin,
@@ -481,6 +538,21 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                  new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.SendingDeletionRequest,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.Deleting,
+                    Name = "Re-Send Deletion Request",
+                    Message = "",
+                },
+
+
+                 new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deletion,
                     CurrentStatus = TenantStatus.SendingDeletionRequest,
                     OwnerType = UserType.SuperAdmin,
@@ -498,6 +570,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.Creating,
                     OwnerType = UserType.ExternalSystem,
@@ -510,6 +583,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Activation,
                     CurrentStatus = TenantStatus.Activating,
                     OwnerType = UserType.ExternalSystem,
@@ -522,6 +596,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deactivation,
                     CurrentStatus = TenantStatus.Deactivating,
                     OwnerType = UserType.ExternalSystem,
@@ -534,6 +609,19 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.Deleting,
+                    OwnerType = UserType.ExternalSystem,
+                    Action = WorkflowAction.Cancel,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.Failure,
+                    Message = "",
+                },
+
+                new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Deletion,
                     CurrentStatus = TenantStatus.Deleting,
                     OwnerType = UserType.ExternalSystem,
@@ -550,8 +638,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
 
 
-                    new Workflow()
+               new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.Failure,
                     OwnerType = UserType.SuperAdmin,
@@ -566,6 +655,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Activation,
                     CurrentStatus = TenantStatus.Failure,
                     OwnerType = UserType.SuperAdmin,
@@ -580,6 +670,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                   new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deactivation,
                     CurrentStatus = TenantStatus.Failure,
                     OwnerType = UserType.SuperAdmin,
@@ -594,6 +685,22 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                   new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.SendingDeletionRequest,
+                    Name = "Re-Delete",
+                    Message = "",
+                    Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantDeletionRequestEvent },
+                },
+
+
+                  new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deletion,
                     CurrentStatus = TenantStatus.Failure,
                     OwnerType = UserType.SuperAdmin,
@@ -606,6 +713,75 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 },
 
                   
+
+                  
+           //-----------------------------------------------------------------------------------------------//
+             //------------------------------------------------------------------------------------------//
+                 //----------------------------------------------------------------------------------//
+                     //---------------------------------------------------------------------------//
+                         //--------------------------------------------------------------------//
+                             //-------------------------------------------------------------//
+                                 //-----------------------------------------------------//
+                                     //---------------------------------------------//
+                                         //-------------------------------------//
+
+                   
+                new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
+                    CurrentStep = TenantStep.Activation,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deactivation,
+                    NextStatus = TenantStatus.Inactive,
+                    Name = "Undo Activation",
+                    Message = "",
+                },
+
+
+                  new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
+                    CurrentStep = TenantStep.Deactivation,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Activation,
+                    NextStatus = TenantStatus.Active,
+                    Name = "Undo Deactivation",
+                    Message = "",
+                },
+
+
+                  new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deactivation,
+                    NextStatus = TenantStatus.Inactive,
+                    Name = "Undo Deletion",
+                    Message = "",
+                },
+
+
+                  new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Activation,
+                    NextStatus = TenantStatus.Active,
+                    Name = "Undo Deletion",
+                    Message = "",
+                },
+
+                  
            //-----------------------------------------------------------------------------------------------//
            //-----------------------------------------------------------------------------------------------//
            //-----------------------------------------------------------------------------------------------//
@@ -614,6 +790,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.Failure,
                     OwnerType = UserType.ExternalSystem,
@@ -627,6 +804,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Activation,
                     CurrentStatus = TenantStatus.Failure,
                     OwnerType = UserType.ExternalSystem,
@@ -640,18 +818,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
                     CurrentStep = TenantStep.Deactivation,
                     CurrentStatus = TenantStatus.Failure,
                     OwnerType = UserType.ExternalSystem,
                     Action = WorkflowAction.Ok,
                     NextStep = TenantStep.Deactivation,
-                    NextStatus = TenantStatus.Deactive,
+                    NextStatus = TenantStatus.Inactive,
                     Message = "",
                 },
 
 
                 new Workflow()
                 {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
                     CurrentStep = TenantStep.Deletion,
                     CurrentStatus = TenantStatus.Failure,
                     OwnerType = UserType.ExternalSystem,
@@ -661,6 +841,88 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Message = "",
                 },
 
+                new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.ExternalSystem,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.Deleted,
+                    Message = "",
+                },
+
+
+
+           //-----------------------------------------------------------------------------------------------//
+           //-----------------------------------------------------------------------------------------------//
+           //-----------------------------------------------------------------------------------------------//
+           //-----------------------------------------------------------------------------------------------//
+           //-----------------------------------------------------------------------------------------------//
+
+
+
+            
+
+                new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
+                    CurrentStep = TenantStep.Activation,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.SendingDeletionRequest,
+                    Name = "Delete",
+                    Message = "",
+                    Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantDeletionRequestEvent  },
+                },
+
+
+                  new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
+                    CurrentStep = TenantStep.Deactivation,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deletion,
+                    NextStatus = TenantStatus.SendingDeletionRequest,
+                    Name = "Delete",
+                    Message = "",
+                    Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantDeletionRequestEvent },
+                },
+
+
+                  new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deactivation,
+                    NextStatus = TenantStatus.SendingDeactivationRequest,
+                    Name = "Deactivate",
+                    Message = "",
+                    Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantDeactivationRequestEvent },
+                },
+
+
+                new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Inactive,
+                    CurrentStep = TenantStep.Deletion,
+                    CurrentStatus = TenantStatus.Failure,
+                    OwnerType = UserType.SuperAdmin,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Activation,
+                    NextStatus = TenantStatus.SendingActivationRequest,
+                    Name = "Activate",
+                    Message = "",
+                    Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantActivationRequestEvent },
+                },
             };
 
         }
@@ -674,14 +936,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             return _workflowEvents.Where(x => x.FriendlyId == friendlyId).SingleOrDefault();
         }
 
-        public async Task<Workflow> GetNextProcessActionAsync(TenantStatus currentStatus,
+        public async Task<Workflow> GetNextStageAsync(ExpectedTenantResourceStatus expectedResourceStatus, TenantStatus currentStatus,
                                                              TenantStep currentStep,
                                                              UserType ownerType,
                                                              WorkflowAction action = WorkflowAction.Ok,
                                                              WorkflowTrack track = WorkflowTrack.Normal,
                                                              CancellationToken cancellationToken = default)
         {
-            return _workflow.Where(x => x.CurrentStatus == currentStatus &&
+            return _workflow.Where(x => x.ExpectedResourceStatus == expectedResourceStatus &&
+                                        x.CurrentStatus == currentStatus &&
                                         x.CurrentStep == currentStep &&
                                         x.OwnerType == ownerType &&
                                         x.Action == action &&
@@ -689,7 +952,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
         }
 
 
-        public async Task<Workflow> GetNextProcessActionAsync(TenantStatus currentStatus,
+        public async Task<Workflow> GetNextStageAsync(ExpectedTenantResourceStatus expectedResourceStatus, TenantStatus currentStatus,
                                                               TenantStep currentStep,
                                                               TenantStatus nextStatus,
                                                               UserType ownerType,
@@ -697,36 +960,58 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                               WorkflowTrack track = WorkflowTrack.Normal,
                                                               CancellationToken cancellationToken = default)
         {
-            return _workflow.Where(x => x.CurrentStatus == currentStatus &&
+            return _workflow.Where(x => x.ExpectedResourceStatus == expectedResourceStatus &&
+                                        x.CurrentStatus == currentStatus &&
                                         x.CurrentStep == currentStep &&
                                         x.NextStatus == nextStatus &&
                                         x.OwnerType == ownerType &&
                                         x.Action == action &&
                                         x.Track == track).SingleOrDefault();
         }
-        //public async Task<Workflow> GetNextProcessActionAsync(TenantStatus currentStatus,
-        //                                                     TenantStatus nextStatus, 
-        //                                                     UserType ownerType,
-        //                                                     WorkflowAction action = WorkflowAction.Ok,
-        //                                                     WorkflowTrack track = WorkflowTrack.Normal)
-        //{
-        //    return _workflow.Where(p => p.CurrentStatus == currentStatus &&
-        //                               p.NextStatus == nextStatus &&
-        //                               p.OwnerType == ownerType &&
-        //                               p.Action == action &&
-        //                               p.Track == track).SingleOrDefault();
-        //}
 
-        public async Task<ICollection<Workflow>> GetProcessActionsAsync(TenantStatus currentStatus,
+        public async Task<List<Workflow>> GetNextStagesAsync(ExpectedTenantResourceStatus expectedResourceStatus, TenantStatus currentStatus,
                                                                          TenantStep currentStep,
                                                                           UserType userType,
                                                                           WorkflowTrack track = WorkflowTrack.Normal,
                                                                           CancellationToken cancellationToken = default)
         {
-            return _workflow.Where(x => x.CurrentStatus == currentStatus &&
+            return _workflow.Where(x => x.ExpectedResourceStatus == expectedResourceStatus &&
+                                        x.CurrentStatus == currentStatus &&
                                         x.CurrentStep == currentStep &&
                                         x.OwnerType == userType &&
                                         x.Track == track).ToList();
+        }
+        public async Task<List<Workflow>> FindDuplicatesStagesAsync(CancellationToken cancellationToken = default)
+        {
+
+            var Keys = _workflow.GroupBy(i => new
+            {
+                i.ExpectedResourceStatus,
+                i.CurrentStatus,
+                i.CurrentStep,
+                i.NextStatus,
+                i.OwnerType,
+                i.Action,
+                i.Track
+            })
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToList();
+
+            return Keys.Select(key => _workflow.Where(x => x.ExpectedResourceStatus == key.ExpectedResourceStatus &&
+                                                    x.CurrentStatus == key.CurrentStatus &&
+                                                    x.CurrentStep == key.CurrentStep &&
+                                                    x.NextStatus == key.NextStatus &&
+                                                    x.OwnerType == key.OwnerType &&
+                                                    x.Action == key.Action &&
+                                                    x.Track == key.Track)
+                                        .ToList())
+                .SelectMany(x => x)
+                .ToList();
+        }
+        public async Task<List<Workflow>> GetAllStagesAsync(CancellationToken cancellationToken = default)
+        {
+            return _workflow;
         }
 
     }

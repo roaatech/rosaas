@@ -16,6 +16,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.SubscriptionId).IsRequired();
             builder.Property(r => r.Status).IsRequired();
             builder.Property(r => r.Step).IsRequired();
+            builder.Property(r => r.ExpectedResourceStatus).IsRequired();
             builder.Property(r => r.ProcessType).IsRequired();
             builder.Property(r => r.OwnerType).IsRequired();
             builder.Property(r => r.Data).IsRequired(false);

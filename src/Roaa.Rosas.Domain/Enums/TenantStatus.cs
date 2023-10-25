@@ -20,7 +20,7 @@
 
         SendingDeactivationRequest = 8,
         Deactivating = 9,
-        Deactive = 10,
+        Inactive = 10,
 
 
         SendingDeletionRequest = 11,
@@ -39,5 +39,13 @@
         Activation = 2,
         Deactivation = 3,
         Deletion = 4,
+    }
+    public enum ExpectedTenantResourceStatus
+    {
+        None = -1,
+
+        Active = 2,
+        Inactive = 3,
+        Deleted = 4,
     }
 }

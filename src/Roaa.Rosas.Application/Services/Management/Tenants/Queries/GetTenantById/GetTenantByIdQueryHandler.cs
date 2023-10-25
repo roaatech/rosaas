@@ -57,6 +57,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                          ProductName = subscription.Product.Name,
                                                          Status = subscription.Status,
                                                          Step = subscription.Step,
+                                                         ExpectedResourceStatus = subscription.ExpectedResourceStatus,
                                                          CreatedDate = subscription.CreationDate,
                                                          EditedDate = subscription.ModificationDate,
                                                          Metadata = subscription.Metadata,
@@ -95,10 +96,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                 foreach (var subscription in tenant.Subscriptions)
                 {
                     // Set Actions
-                    var flows = await _workflow.GetProcessActionsAsync(currentStatus: subscription.Status,
+                    var stages = await _workflow.GetNextStagesAsync(expectedResourceStatus: subscription.ExpectedResourceStatus, currentStatus: subscription.Status,
                                                                        currentStep: subscription.Step,
                                                                        userType: _identityContextService.GetUserType());
-                    subscription.Actions = flows.ToActionsResults();
+                    subscription.Actions = stages.ToActionsResults();
                     subscription.HealthCheckUrl = subscription.HealthCheckUrl.Replace("{name}", tenant.UniqueName);
 
                     // Set ShowHealthStatus

@@ -52,7 +52,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
         private async Task SetTenantNextStatusAsync(TenantCreatedInStoreEvent @event, CancellationToken cancellationToken)
         {
             // Getting the next status of the workflow  
-            var workflow = await _workflow.GetNextProcessActionAsync(currentStatus: @event.Status,
+            var workflow = await _workflow.GetNextStageAsync(expectedResourceStatus: @event.ExpectedResourceStatus,
+                                                                       currentStatus: @event.Status,
                                                                      currentStep: @event.Step,
                                                                      userType: _identityContextService.GetUserType());
 

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 
@@ -10,9 +11,11 @@ using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 {
     [DbContext(typeof(RosasDbContext))]
-    partial class RosasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231025080732_ExpectedResourceStatusMigration")]
+    partial class ExpectedResourceStatusMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1228,9 +1231,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<bool>("Enabled")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("ExpectedResourceStatus")
-                        .HasColumnType("int");
-
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
@@ -1281,9 +1281,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime");
-
-                    b.Property<int>("ExpectedResourceStatus")
-                        .HasColumnType("int");
 
                     b.Property<string>("Message")
                         .IsRequired()

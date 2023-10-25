@@ -15,6 +15,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public TenantStep Step { get; set; }
 
+        public ExpectedTenantResourceStatus ExpectedResourceStatus { get; set; }
+
         public TenantProcessType ProcessType { get; set; }
 
         public string? Data { get; set; }

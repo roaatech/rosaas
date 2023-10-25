@@ -13,6 +13,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public Guid TenantId { get; set; }
         public TenantStatus Status { get; set; }
         public TenantStep Step { get; set; }
+        public ExpectedTenantResourceStatus ExpectedResourceStatus { get; set; } = ExpectedTenantResourceStatus.None;
         public string HealthCheckUrl { get; set; } = string.Empty;
         public bool HealthCheckUrlIsOverridden { get; set; }
         public bool IsPaid { get; set; }

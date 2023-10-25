@@ -119,19 +119,20 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         var updatedStatuses = await _dbContext.Subscriptions
                                          .Where(x => x.TenantId == tenant.Id)
-                                         .Select(x => new { x.Status, x.Step, x.ProductId })
+                                         .Select(x => new { x.Status, x.Step, x.ExpectedResourceStatus, x.ProductId })
                                          .ToListAsync(cancellationToken);
 
         List<ProductTenantCreatedResultDto> productTenantCreatedResults = new();
         foreach (var item in updatedStatuses)
         {
+            var stages = await _workflow.GetNextStagesAsync(expectedResourceStatus: item.ExpectedResourceStatus,
+                                                         currentStatus: item.Status,
+                                                      currentStep: item.Step,
+                                                      userType: _identityContextService.GetUserType());
             productTenantCreatedResults.Add(new ProductTenantCreatedResultDto(
             item.ProductId,
             item.Status,
-            (await _workflow.GetProcessActionsAsync(currentStatus: item.Status,
-                                                    currentStep: item.Step,
-                                                    userType: _identityContextService.GetUserType()))
-                            .ToActionsResults()));
+            stages.ToActionsResults()));
         }
 
 
@@ -146,7 +147,8 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
     private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand request, List<PlanInfoModel> plansInfo, CancellationToken cancellationToken = default)
     {
-        var initialProcess = await _workflow.GetNextProcessActionAsync(currentStatus: TenantStatus.None,
+        var initialProcess = await _workflow.GetNextStageAsync(expectedResourceStatus: ExpectedTenantResourceStatus.None,
+                                                                       currentStatus: TenantStatus.None,
                                                                        currentStep: TenantStep.None,
                                                                        userType: _identityContextService.GetUserType());
 
@@ -202,7 +204,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                  out _,
                                  tenant.Subscriptions.ToArray()));
 
-        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Subscriptions.First().Status, tenant.Subscriptions.First().Step));
+        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Subscriptions.First().ExpectedResourceStatus, tenant.Subscriptions.First().Status, tenant.Subscriptions.First().Step));
 
 
         _dbContext.Tenants.Add(tenant);

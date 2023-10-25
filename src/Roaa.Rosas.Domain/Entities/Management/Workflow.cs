@@ -11,6 +11,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public TenantStep CurrentStep { get; set; }
         public TenantStep NextStep { get; set; }
         public UserType OwnerType { get; set; }
+        public ExpectedTenantResourceStatus? ExpectedResourceStatus { get; set; }
         public string Message { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public WorkflowTrack Track { get; set; } = WorkflowTrack.Normal;

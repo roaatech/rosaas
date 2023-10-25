@@ -47,20 +47,20 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         [HttpPost("{name}/created")]
         public async Task<IActionResult> SetTenantAsCreatedAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.CreatedAsActive, _identityContextService.GetProductId(), string.Empty), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.CreatedAsActive, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Active, string.Empty), cancellationToken));
         }
 
         [HttpPost("{name}/active")]
         public async Task<IActionResult> ActivateTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Active, _identityContextService.GetProductId(), string.Empty), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Active, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Active, string.Empty), cancellationToken));
         }
 
 
         [HttpPost("{name}/inactive")]
         public async Task<IActionResult> DeactivateTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Deactive, _identityContextService.GetProductId(), string.Empty), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Inactive, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Inactive, string.Empty), cancellationToken));
         }
 
 
@@ -74,7 +74,7 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         [HttpPost("{name}/deleted")]
         public async Task<IActionResult> DeleteTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Deleted, _identityContextService.GetProductId(), string.Empty), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Deleted, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Deleted, string.Empty), cancellationToken));
         }
 
 

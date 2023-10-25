@@ -68,7 +68,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
 
 
-        public async Task<Result<List<TenantStatusChangedResultDto>>> SetTenantNextStatusAsync(Guid tenantId, TenantStatus status, Guid? productId, WorkflowAction action, string notes, CancellationToken cancellationToken)
+        public async Task<Result<List<TenantStatusChangedResultDto>>> SetTenantNextStatusAsync(Guid tenantId,
+                                                                                               TenantStatus status,
+                                                                                               Guid? productId,
+                                                                                               WorkflowAction action,
+                                                                                               ExpectedTenantResourceStatus? expectedResourceStatus,
+                                                                                               string notes,
+                                                                                               CancellationToken cancellationToken = default)
         {
             var stepStatus = await _workflow.GetStepStatusAsync(status, cancellationToken);
 
@@ -82,6 +88,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 TenantId = tenantId,
                 ProductId = productId,
                 Notes = notes,
+                ExpectedResourceStatus = expectedResourceStatus,
                 EditorBy = _identityContextService.GetActorId(),
             });
 
@@ -93,7 +100,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
             var dtos = (await Task.WhenAll(result.Data.Select(async item =>
             {
-                var action = (await _workflow.GetProcessActionsAsync(item.Subscription.Status, item.Subscription.Step, _identityContextService.GetUserType())).ToActionsResults();
+                var action = (await _workflow.GetNextStagesAsync(item.Subscription.ExpectedResourceStatus, item.Subscription.Status, item.Subscription.Step, _identityContextService.GetUserType())).ToActionsResults();
                 return new TenantStatusChangedResultDto(item.Subscription.ProductId, item.Subscription.Status, action);
             })))
             .Where(result => result != null)
@@ -132,7 +139,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
             var workflows = (await Task.WhenAll(subscriptions.Select(async subscription =>
             {
-                return await _workflow.GetNextProcessActionAsync(currentStatus: subscription.Status,
+                return await _workflow.GetNextStageAsync(expectedResourceStatus: subscription.ExpectedResourceStatus, currentStatus: subscription.Status,
                                                                  currentStep: subscription.Step,
                                                                  nextStatus: model.Status,
                                                                  userType: model.UserType,
@@ -145,7 +152,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             {
                 return Result<List<SetTenantNextStatusResult>>.Fail(ErrorMessage.NotAllowedChangeStatus, _identityContextService.Locale);
             }
-            #endregion 
+            #endregion
 
             List<SetTenantNextStatusResult> results = new();
 
@@ -162,6 +169,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     subscription.ModifiedByUserId = model.EditorBy;
                     subscription.ModificationDate = date;
                     subscription.Notes = model.Notes;
+                    subscription.ExpectedResourceStatus = model.ExpectedResourceStatus.HasValue ? model.ExpectedResourceStatus.Value : subscription.ExpectedResourceStatus;
+
+
 
                     results.Add(new SetTenantNextStatusResult(subscription, workfolw));
 

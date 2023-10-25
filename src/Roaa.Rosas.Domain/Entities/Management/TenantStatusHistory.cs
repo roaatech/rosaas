@@ -19,6 +19,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public TenantStep PreviousStep { get; set; }
 
+        public ExpectedTenantResourceStatus ExpectedResourceStatus { get; set; }
+
         public Guid OwnerId { get; set; }
 
         public UserType OwnerType { get; set; }
