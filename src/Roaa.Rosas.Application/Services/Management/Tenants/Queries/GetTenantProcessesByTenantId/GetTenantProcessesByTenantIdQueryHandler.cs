@@ -42,7 +42,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
                                                         OwnerId = x.OwnerId,
                                                         OwnerType = x.OwnerType,
                                                         Data = x.Data ?? string.Empty,
-                                                        //Notes = x.Notes.Select(x => new ProcessNoteModel
+                                                        //Notes = x.Notes == null ? new() : x.Notes.Select(x => new ProcessNoteModel
                                                         //{
                                                         //    OwnerType = x.OwnerType,
                                                         //    Text = x.Text,
