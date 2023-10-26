@@ -16,7 +16,6 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         private readonly IWebHostEnvironment _environment;
         private readonly IRequestBroker _requestBroker;
         private readonly IRosasDbContext _dbContext;
-        private string _tenantName = string.Empty;
 
 
         public ExternalSystemAPI(IRequestBroker requestBroker,
@@ -101,8 +100,6 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
             var result = await _requestBroker.GetAsync<dynamic, CheckTenantHealthStatusModel>(request, cancellationToken);
 
-            _tenantName = model.Data.TenantName;
-
             return RetrieveResult(result, request.Uri, true);
         }
 
@@ -139,6 +136,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
             {
                 DurationInMillisecond = requestResult.DurationInMillisecond,
                 Url = url,
+                SerializedResponseContent = requestResult.SerializedResponseContent,
             };
 
             //// temp - for test operations
@@ -163,7 +161,7 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
                 return Result<ExternalSystemResultModel<T>>.Successful(data);
             }
 
-            var errors = requestResult.Errors.Select(x => x.Value.Select(val => MessageDetail.Error(val, x.Key))).SelectMany(x => x).ToList();
+            var errors = requestResult.Errors?.Select(x => x.Value?.Select(val => MessageDetail.Error(val, x.Key)))?.SelectMany(x => x).ToList();
 
             var result = Result<ExternalSystemResultModel<T>>.Fail(errors);
             result.WithData(data);

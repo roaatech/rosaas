@@ -47,34 +47,34 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         [HttpPost("{name}/created")]
         public async Task<IActionResult> SetTenantAsCreatedAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.CreatedAsActive, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Active, string.Empty), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.CreatedAsActive, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Active, null), cancellationToken));
         }
 
         [HttpPost("{name}/active")]
         public async Task<IActionResult> ActivateTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Active, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Active, string.Empty), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Active, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Active, null), cancellationToken));
         }
 
 
         [HttpPost("{name}/inactive")]
         public async Task<IActionResult> DeactivateTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Inactive, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Inactive, string.Empty), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Inactive, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Inactive, null), cancellationToken));
         }
 
 
         [HttpPost("{name}/failure")]
-        public async Task<IActionResult> SetTenantToFailureStateAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> SetTenantToFailureStateAsync([FromRoute] string name, [FromBody] dynamic model, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Failure, _identityContextService.GetProductId(), WorkflowAction.Cancel, string.Empty), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Failure, _identityContextService.GetProductId(), WorkflowAction.Cancel, model), cancellationToken));
         }
 
 
         [HttpPost("{name}/deleted")]
         public async Task<IActionResult> DeleteTenantAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Deleted, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Deleted, string.Empty), cancellationToken));
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Deleted, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Deleted, null), cancellationToken));
         }
 
 

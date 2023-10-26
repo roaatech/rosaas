@@ -1,8 +1,8 @@
-﻿using Roaa.Rosas.Application.Interfaces;
-using Roaa.Rosas.Application.Services.Management.Products;
+﻿using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models;
+using Roaa.Rosas.Domain.Models.ExternalSystems;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services
 {

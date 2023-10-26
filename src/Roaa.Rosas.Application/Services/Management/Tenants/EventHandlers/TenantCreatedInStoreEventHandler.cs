@@ -66,6 +66,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 Action = Domain.Entities.Management.WorkflowAction.Ok,
                 UserType = _identityContextService.GetUserType(),
                 EditorBy = _identityContextService.UserId,
+                ExpectedResourceStatus = null,
             }, cancellationToken);
         }
 

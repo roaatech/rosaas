@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Infrastructure.Persistence.Configurations.Shared;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
 {
-    public class TenantProcessHistoryConfiguration : IEntityTypeConfiguration<TenantProcessHistory>
+    public class TenantProcessHistoryConfiguration : BaseEntityConfiguration<TenantProcessHistory>, IEntityTypeConfiguration<TenantProcessHistory>
     {
         #region Configure 
         public void Configure(EntityTypeBuilder<TenantProcessHistory> builder)
@@ -20,13 +21,20 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.ProcessType).IsRequired();
             builder.Property(r => r.OwnerType).IsRequired();
             builder.Property(r => r.Data).IsRequired(false);
-            builder.Property(r => r.Notes).IsRequired(false).HasMaxLength(500);
             builder.Property(r => r.Enabled).IsRequired();
             builder.Property(r => r.ProcessDate).IsRequired();
             builder.Property(r => r.TimeStamp).IsRequired().HasConversion(
                v => v.Ticks,
                v => new DateTime(v)
            );
+            builder.Property(r => r.Notes)
+                  .HasMaxLength(1000)
+                  .IsRequired(false)
+                  .IsUnicode()
+                  .HasConversion(
+                          ConvertLocalizedStringToJson<List<ProcessNote>>(),
+                          ConvertJsonToLocalizedString<List<ProcessNote>>()
+                   );
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

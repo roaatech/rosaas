@@ -76,7 +76,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                 {
                     subscription.IsPaid = false;
                     subscription.ModificationDate = date;
-                    subscription.Notes = "Note By System: Suspending the payment status for the tenant due to non-renewal of the subscription.";
+                    subscription.Comment = "Note By System: Suspending the payment status for the tenant due to non-renewal of the subscription.";
 
                 }
 

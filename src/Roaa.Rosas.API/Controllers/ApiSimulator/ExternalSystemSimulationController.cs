@@ -30,7 +30,7 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         public async Task<IActionResult> CreateTenantAsync(TenantModel model, CancellationToken cancellationToken = default)
         {
             var info = Request;
-            return Ok();
+            return Ok(model);
         }
 
 
@@ -38,7 +38,7 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         public async Task<IActionResult> ActivateTenantAsync(TenantModel model, CancellationToken cancellationToken = default)
         {
             var info = Request;
-            return Ok();
+            return Ok(model);
         }
 
 
@@ -46,7 +46,7 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         public async Task<IActionResult> DeactivateTenantAsync(TenantModel model, CancellationToken cancellationToken = default)
         {
             var info = Request;
-            return Ok();
+            return Ok(model);
         }
 
 
@@ -54,7 +54,7 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         public async Task<IActionResult> DeleteTenantAsync(TenantModel model, CancellationToken cancellationToken = default)
         {
             var info = Request;
-            return Ok();
+            return Ok(model);
         }
 
 
@@ -62,14 +62,14 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         public async Task<IActionResult> HealthCheckAsync(string name, CancellationToken cancellationToken = default)
         {
             var info = Request;
-            return Ok();
+            return Ok(name);
         }
 
         [HttpPost("health-status-unhealthy")]
         public async Task<IActionResult> InformHealthStatusUnhealthyAsync(TenantModel model, CancellationToken cancellationToken = default)
         {
             var info = Request;
-            return Ok();
+            return Ok(model);
         }
         #endregion
 

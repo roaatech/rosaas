@@ -16,6 +16,7 @@ using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Events.Management;
+using Roaa.Rosas.Domain.Models;
 using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
@@ -73,7 +74,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                                                                Guid? productId,
                                                                                                WorkflowAction action,
                                                                                                ExpectedTenantResourceStatus? expectedResourceStatus,
-                                                                                               string notes,
+                                                                                               string comment,
+                                                                                               dynamic? receivedRequestBody,
                                                                                                CancellationToken cancellationToken = default)
         {
             var stepStatus = await _workflow.GetStepStatusAsync(status, cancellationToken);
@@ -87,9 +89,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 Action = action,
                 TenantId = tenantId,
                 ProductId = productId,
-                Notes = notes,
+                Comment = comment,
                 ExpectedResourceStatus = expectedResourceStatus,
                 EditorBy = _identityContextService.GetActorId(),
+                ReceivedRequest = receivedRequestBody is null ? null : new ReceivedRequestModel(receivedRequestBody),
             });
 
             if (!result.Success)
@@ -160,22 +163,29 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
             foreach (var subscription in subscriptions)
             {
-                var workfolw = workflows.Where(x => x.CurrentStatus == subscription.Status).FirstOrDefault();
+                var workflow = workflows.Where(x => x.CurrentStatus == subscription.Status).FirstOrDefault();
 
-                if (workfolw is not null)
+                if (workflow is not null)
                 {
-                    subscription.Status = workfolw.NextStatus;
-                    subscription.Step = workfolw.NextStep;
+                    subscription.Status = workflow.NextStatus;
+                    subscription.Step = workflow.NextStep;
                     subscription.ModifiedByUserId = model.EditorBy;
                     subscription.ModificationDate = date;
-                    subscription.Notes = model.Notes;
+                    subscription.Comment = model.Comment;
                     subscription.ExpectedResourceStatus = model.ExpectedResourceStatus.HasValue ? model.ExpectedResourceStatus.Value : subscription.ExpectedResourceStatus;
 
 
 
-                    results.Add(new SetTenantNextStatusResult(subscription, workfolw));
+                    results.Add(new SetTenantNextStatusResult(subscription, workflow));
 
-                    subscription.AddDomainEvent(new TenantStatusUpdatedEvent(subscription, workfolw, workfolw.CurrentStatus, workfolw.CurrentStep, model.Notes));
+                    subscription.AddDomainEvent(new TenantStatusUpdatedEvent(subscription: subscription,
+                                                                             workflow: workflow,
+                                                                             previousStatus: workflow.CurrentStatus,
+                                                                             previousStep: workflow.CurrentStep,
+                                                                             comment: model.Comment,
+                                                                             systemComment: workflow.Message,
+                                                                             dispatchedRequest: model.DispatchedRequest,
+                                                                             receivedRequest: model.ReceivedRequest));
                 }
 
             }

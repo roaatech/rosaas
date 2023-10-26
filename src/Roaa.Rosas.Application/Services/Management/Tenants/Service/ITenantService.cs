@@ -16,7 +16,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                                                   Guid? productId,
                                                                                   WorkflowAction action,
                                                                                   ExpectedTenantResourceStatus? expectedResourceStatus,
-                                                                                  string notes,
+                                                                                  string comment,
+                                                                                  dynamic? receivedRequestBody,
                                                                                   CancellationToken cancellationToken = default);
 
         Task<Result<List<SetTenantNextStatusResult>>> SetTenantNextStatusAsync(SetTenantNextStatusModel model, CancellationToken cancellationToken = default);

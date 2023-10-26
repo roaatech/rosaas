@@ -7,27 +7,30 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
 
 public record ChangeTenantStatusByIdCommand : IRequest<Result<List<TenantStatusChangedResultDto>>>
 {
-    public ChangeTenantStatusByIdCommand(Guid tenantId, TenantStatus status, Guid? productId, WorkflowAction action, string notes)
+    public Guid TenantId { get; init; }
+    public Guid? ProductId { get; init; }
+    public TenantStatus Status { get; init; }
+    public WorkflowAction Action { get; init; } = WorkflowAction.Ok;
+    public string Comment { get; init; } = string.Empty;
+
+
+    public ChangeTenantStatusByIdCommand() { }
+
+    public ChangeTenantStatusByIdCommand(Guid tenantId, TenantStatus status, Guid? productId, WorkflowAction action, string comment)
     {
         TenantId = tenantId;
         ProductId = productId;
         Status = status;
         Action = action;
-        Notes = notes;
+        Comment = comment;
     }
-    public ChangeTenantStatusByIdCommand(Guid tenantId, TenantStatus status, Guid? productId, string notes)
+
+    public ChangeTenantStatusByIdCommand(Guid tenantId, TenantStatus status, Guid? productId, string comment)
     {
         TenantId = tenantId;
         ProductId = productId;
         Status = status;
-        Notes = notes;
+        Comment = comment;
     }
-    public ChangeTenantStatusByIdCommand() { }
-
-    public Guid TenantId { get; init; }
-    public Guid? ProductId { get; init; }
-    public TenantStatus Status { get; init; }
-    public WorkflowAction Action { get; init; } = WorkflowAction.Ok;
-    public string Notes { get; init; } = string.Empty;
 }
 

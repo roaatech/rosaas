@@ -1,5 +1,6 @@
 ﻿using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Domain.Entities.Management
 {
@@ -33,8 +34,24 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public bool Enabled { get; set; } = true;
 
-        public string? Notes { get; set; }
+        public List<ProcessNote>? Notes { get; set; }
     }
+
+    public class ProcessNote
+    {
+        public ProcessNote(UserType ownerType, string text)
+        {
+            OwnerType = ownerType;
+            Text = text;
+        }
+        public ProcessNote()
+        {
+        }
+        public UserType OwnerType { get; set; }
+
+        public string Text { get; set; } = string.Empty;
+    }
+
 
     public enum TenantProcessType
     {
@@ -92,6 +109,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         {
             return Serialize(this);
         }
+
     }
 
     public class SpecificationsUpdatedProcessedData : BaseTenantProcessedData
@@ -113,7 +131,35 @@ namespace Roaa.Rosas.Domain.Entities.Management
         }
     }
 
+
     public class TenantStatusChangedProcessedData : BaseTenantProcessedData
+    {
+        public DispatchedRequestProcessedDataModel? DispatchedRequest { get; set; }
+
+        public dynamic? ReceivedRequest { get; set; }
+
+        public StatusInfoProcessedDataModel Status { get; set; }
+
+        public TenantStatusChangedProcessedData(TenantStatus status,
+                                                TenantStep step,
+                                                TenantStatus previousStatus,
+                                                TenantStep previousStep,
+                                                DispatchedRequestModel? dispatchedRequest,
+                                                dynamic? receivedRequest)
+        {
+            Status = new StatusInfoProcessedDataModel(status, step, previousStatus, previousStep);
+            DispatchedRequest = Map(dispatchedRequest);
+            ReceivedRequest = receivedRequest;
+        }
+
+        public override string Serialize()
+        {
+            return Serialize(this);
+        }
+    }
+
+
+    public class StatusInfoProcessedDataModel
     {
 
         public TenantStatusChangedAsLabelsProcessedDataModel Label { get; set; } = new();
@@ -123,7 +169,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
 
 
-        public TenantStatusChangedProcessedData(TenantStatus status, TenantStep step, TenantStatus previousStatus, TenantStep previousStep)
+        public StatusInfoProcessedDataModel(TenantStatus status, TenantStep step, TenantStatus previousStatus, TenantStep previousStep)
         {
 
             Label = new TenantStatusChangedAsLabelsProcessedDataModel
@@ -141,13 +187,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
                 PreviousStep = previousStep,
             };
         }
-
-        public override string Serialize()
-        {
-            return Serialize(this);
-        }
     }
-
 
 
     public abstract class BaseTenantProcessedData
@@ -156,6 +196,17 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public string Serialize(dynamic data)
         {
             return System.Text.Json.JsonSerializer.Serialize(data);
+        }
+        public DispatchedRequestProcessedDataModel? Map(DispatchedRequestModel? dispatchedRequest)
+        {
+            if (dispatchedRequest is null) return null;
+
+            return new DispatchedRequestProcessedDataModel
+            {
+                DurationInMillisecond = dispatchedRequest.DurationInMillisecond,
+                RequestUrl = dispatchedRequest.Url,
+                ResponseContent = string.IsNullOrWhiteSpace(dispatchedRequest.SerializedResponseContent) ? null : System.Text.Json.JsonSerializer.Deserialize<dynamic>(dispatchedRequest.SerializedResponseContent),
+            };
         }
     }
 
@@ -191,5 +242,12 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public TenantStatus PreviousStatus { get; set; }
 
         public TenantStep PreviousStep { get; set; }
+    }
+
+    public class DispatchedRequestProcessedDataModel
+    {
+        public double DurationInMillisecond { get; set; }
+        public string RequestUrl { get; set; } = string.Empty;
+        public dynamic ResponseContent { get; set; } = string.Empty;
     }
 }

@@ -65,8 +65,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             statusHistory.AddDomainEvent(new TenantProcessingCompletedEvent(
                                                             TenantProcessType.StatusChanged,
                                                             true,
-                                                            new TenantStatusChangedProcessedData(@event.Subscription.Status, @event.Subscription.Step, @event.PreviousStatus, @event.PreviousStep).Serialize(),
-                                                            @event.Notes,
+                                                             new TenantStatusChangedProcessedData(@event.Subscription.Status,
+                                                                                                 @event.Subscription.Step,
+                                                                                                 @event.PreviousStatus,
+                                                                                                 @event.PreviousStep,
+                                                                                                 @event.DispatchedRequest,
+                                                                                                 @event.ReceivedRequest?.RequestBody
+                                                                                                 ).Serialize(),
+                                                            @event.Comment,
+                                                            @event.SystemComment,
                                                             out _,
                                                             @event.Subscription));
             if (@event.Workflow.Events is not null)

@@ -27,6 +27,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
         {
             DateTime date = DateTime.UtcNow;
 
+
+            var notes = new List<ProcessNote>();
+            if (!string.IsNullOrWhiteSpace(@event.Comment))
+                notes.Add(new ProcessNote(Common.Enums.UserType.SuperAdmin, @event.Comment));
+            if (!string.IsNullOrWhiteSpace(@event.SystemComment))
+                notes.Add(new ProcessNote(Common.Enums.UserType.RosasSystem, @event.SystemComment));
+
             foreach (var subscription in @event.Subscriptions)
             {
                 var processHistory = new TenantProcessHistory
@@ -45,7 +52,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                     ProcessType = @event.ProcessType,
                     Enabled = @event.Enabled,
                     Data = @event.ProcessedData,
-                    Notes = @event.Notes,
+                    Notes = notes,
                 };
 
                 _dbContext.TenantProcessHistory.Add(processHistory);

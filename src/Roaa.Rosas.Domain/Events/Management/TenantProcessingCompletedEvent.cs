@@ -10,7 +10,8 @@ namespace Roaa.Rosas.Domain.Events.Management
         public string? ProcessedData { get; set; }
         public bool Enabled { get; set; }
         public Guid ProcessId { get; set; }
-        public string Notes { get; set; } = string.Empty;
+        public string Comment { get; set; } = string.Empty;
+        public string SystemComment { get; set; } = string.Empty;
 
 
 
@@ -24,7 +25,7 @@ namespace Roaa.Rosas.Domain.Events.Management
             ProcessId = processId;
         }
 
-        public TenantProcessingCompletedEvent(TenantProcessType processType, bool enabled, string? processedData, string notes, out Guid processId, params Subscription[] subscriptions)
+        public TenantProcessingCompletedEvent(TenantProcessType processType, bool enabled, string? processedData, string comment, string systemComment, out Guid processId, params Subscription[] subscriptions)
         {
             Subscriptions = subscriptions.ToList();
             ProcessedData = processedData;
@@ -32,7 +33,8 @@ namespace Roaa.Rosas.Domain.Events.Management
             Enabled = enabled;
             processId = Guid.NewGuid();
             ProcessId = processId;
-            Notes = notes;
+            Comment = comment;
+            SystemComment = systemComment;
         }
 
         public TenantProcessingCompletedEvent(TenantProcessType processType, bool enabled, string? processedData, out Guid processId, List<Subscription> subscriptions)
@@ -45,7 +47,7 @@ namespace Roaa.Rosas.Domain.Events.Management
             ProcessId = processId;
         }
 
-        public TenantProcessingCompletedEvent(TenantProcessType processType, bool enabled, string? processedData, string notes, out Guid processId, List<Subscription> subscriptions)
+        public TenantProcessingCompletedEvent(TenantProcessType processType, bool enabled, string? processedData, string comment, string systemComment, out Guid processId, List<Subscription> subscriptions)
         {
             Subscriptions = subscriptions;
             ProcessedData = processedData;
@@ -53,9 +55,13 @@ namespace Roaa.Rosas.Domain.Events.Management
             Enabled = enabled;
             processId = Guid.NewGuid();
             ProcessId = processId;
-            Notes = notes;
+            Comment = comment;
+            SystemComment = systemComment;
         }
 
 
     }
+
+
+
 }

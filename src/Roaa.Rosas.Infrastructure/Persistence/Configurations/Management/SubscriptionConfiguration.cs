@@ -22,7 +22,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.Status).IsRequired(true);
             builder.Property(r => r.Step).IsRequired(true);
             builder.Property(r => r.ExpectedResourceStatus).IsRequired(true);
-            builder.Property(r => r.Notes).IsRequired(true).HasMaxLength(500);
+            builder.Property(r => r.Comment).IsRequired(true).HasMaxLength(500);
             builder.Property(r => r.CreatedByUserId).IsRequired(true);
             builder.Property(r => r.ModifiedByUserId).IsRequired(true);
             builder.Property(r => r.StartDate).IsRequired(true);

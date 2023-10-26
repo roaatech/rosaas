@@ -18,7 +18,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public bool HealthCheckUrlIsOverridden { get; set; }
         public bool IsPaid { get; set; }
         public string Metadata { get; set; } = string.Empty;
-        public string Notes { get; set; } = string.Empty;
+        public string Comment { get; set; } = string.Empty;
         public virtual Plan? Plan { get; set; }
         public virtual PlanPrice? PlanPrice { get; set; }
         public virtual Tenant? Tenant { get; set; }

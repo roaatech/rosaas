@@ -91,6 +91,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 Action = workflow.Action,
                 UserType = workflow.OwnerType,
                 EditorBy = _identityContextService.UserId,
+                DispatchedRequest = new DispatchedRequestModel(callingResult.Data.DurationInMillisecond, callingResult.Data.Url, callingResult.Data.SerializedResponseContent),
+                ExpectedResourceStatus = null,
             });
         }
     }

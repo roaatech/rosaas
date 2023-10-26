@@ -7,22 +7,22 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
 
 public record ChangeTenantStatusCommand : IRequest<Result<List<TenantStatusChangedResultDto>>>
 {
-    public ChangeTenantStatusCommand(string tenantName, TenantStatus status, Guid? productId, WorkflowAction action, string notes)
+    public ChangeTenantStatusCommand(string tenantName, TenantStatus status, Guid? productId, WorkflowAction action, dynamic requestBody)
     {
         TenantName = tenantName;
         ProductId = productId;
         Status = status;
         Action = action;
-        Notes = notes;
+        RequestBody = requestBody;
     }
 
-    public ChangeTenantStatusCommand(string tenantName, TenantStatus status, Guid? productId, ExpectedTenantResourceStatus expectedResourceStatus, string notes)
+    public ChangeTenantStatusCommand(string tenantName, TenantStatus status, Guid? productId, ExpectedTenantResourceStatus expectedResourceStatus, dynamic? requestBody)
     {
         TenantName = tenantName;
         ProductId = productId;
         ExpectedResourceStatus = expectedResourceStatus;
         Status = status;
-        Notes = notes;
+        RequestBody = requestBody;
     }
 
     public ChangeTenantStatusCommand() { }
@@ -32,6 +32,6 @@ public record ChangeTenantStatusCommand : IRequest<Result<List<TenantStatusChang
     public TenantStatus Status { get; init; }
     public ExpectedTenantResourceStatus? ExpectedResourceStatus { get; set; }
     public WorkflowAction Action { get; init; } = WorkflowAction.Ok;
-    public string Notes { get; init; } = string.Empty;
+    public dynamic? RequestBody { get; init; } = string.Empty;
 }
 
