@@ -8,6 +8,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
+using Roaa.Rosas.Domain.Models.TenantProcessHistoryData;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenant;
 
@@ -61,8 +62,8 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
 
         tenant.AddDomainEvent(new TenantProcessingCompletedEvent(TenantProcessType.DataUpdated,
                                                                  true,
-                                                                  new TenantDataUpdatedProcessedData(new TenantInfoProcessedDataModel(title: request.Title),
-                                                                                                     new TenantInfoProcessedDataModel(title: tenantBeforeUpdate.Title))
+                                                                  new ProcessedDataOfTenantModel(new ProcessedTenantModel(title: request.Title),
+                                                                                                     new ProcessedTenantModel(title: tenantBeforeUpdate.Title))
                                                                                                     .Serialize(),
                                                                  out _,
                                                                  subscriptions));

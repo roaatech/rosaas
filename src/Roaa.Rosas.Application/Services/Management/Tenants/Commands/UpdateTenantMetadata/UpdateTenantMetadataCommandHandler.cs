@@ -8,6 +8,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
+using Roaa.Rosas.Domain.Models.TenantProcessHistoryData;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
 
@@ -58,7 +59,7 @@ public class UpdateTenantMetadataCommandHandler : IRequestHandler<UpdateTenantMe
         subscription.AddDomainEvent(new TenantProcessingCompletedEvent(
             TenantProcessType.MetadataUpdated,
             true,
-            new TenantMetadataUpdatedProcessedData(request.Metadata, metadataBeforeUpdate).Serialize(),
+            new ProcessedDataOfTenantMetadataModel(request.Metadata, metadataBeforeUpdate).Serialize(),
             out _,
             subscription));
 

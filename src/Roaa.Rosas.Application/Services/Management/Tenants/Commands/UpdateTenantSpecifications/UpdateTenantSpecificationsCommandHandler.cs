@@ -8,6 +8,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
+using Roaa.Rosas.Domain.Models.TenantProcessHistoryData;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantSpecifications;
 
@@ -71,7 +72,7 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
                                                    .Where(x => x.TenantId == request.TenantId &&
                                                                x.Subscription.ProductId == request.ProductId)
                                                    .ToListAsync();
-        var data = new List<UpdatedSpecificationValueProcessedDataModel>();
+        var data = new List<ProcessedTenantSpecificationValueModel>();
         var newSpecificationsValues = new List<SpecificationValue>();
 
         // set tenant's specifications values to specifications that previously had no value
@@ -92,7 +93,7 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
             };
             newSpecificationsValues.Add(specificationValue);
 
-            data.Add(new UpdatedSpecificationValueProcessedDataModel
+            data.Add(new ProcessedTenantSpecificationValueModel
             {
                 Name = specification.SpecificationName,
                 UpdatedValue = specificationValue.Value,
@@ -104,7 +105,7 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
         foreach (var specificationValue in tenantSpecificationsValues.Where(x => request.Specifications.Select(s => s.SpecificationId).Contains(x.SpecificationId)))
         {
             var updatedValue = request.Specifications.Where(x => x.SpecificationId == specificationValue.SpecificationId).SingleOrDefault()?.Value;
-            data.Add(new UpdatedSpecificationValueProcessedDataModel
+            data.Add(new ProcessedTenantSpecificationValueModel
             {
                 Name = specificationsIds.Where(x => x.SpecificationId == specificationValue.SpecificationId).Select(s => s.SpecificationName).SingleOrDefault(),
                 UpdatedValue = updatedValue,
@@ -120,7 +121,7 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
         var processingCompletedEvent = new TenantProcessingCompletedEvent(
                                                             processType: TenantProcessType.SpecificationsUpdated,
                                                             enabled: true,
-                                                            processedData: new SpecificationsUpdatedProcessedData(data).Serialize(),
+                                                            processedData: new ProcessedDataOfTenantSpecificationsModel(data).Serialize(),
                                                             processId: out _,
                                                             subscriptions: subscription);
 

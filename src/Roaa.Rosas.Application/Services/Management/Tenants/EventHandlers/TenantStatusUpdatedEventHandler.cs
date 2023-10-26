@@ -8,6 +8,7 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
+using Roaa.Rosas.Domain.Models.TenantProcessHistoryData;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 {
@@ -65,7 +66,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             statusHistory.AddDomainEvent(new TenantProcessingCompletedEvent(
                                                             TenantProcessType.StatusChanged,
                                                             true,
-                                                             new TenantStatusChangedProcessedData(@event.Subscription.Status,
+                                                             new ProcessedDataOfTenantStatusModel(@event.Subscription.Status,
                                                                                                  @event.Subscription.Step,
                                                                                                  @event.PreviousStatus,
                                                                                                  @event.PreviousStep,
