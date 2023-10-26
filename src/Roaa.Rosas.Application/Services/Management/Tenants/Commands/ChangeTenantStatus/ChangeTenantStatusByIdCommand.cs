@@ -12,6 +12,7 @@ public record ChangeTenantStatusByIdCommand : IRequest<Result<List<TenantStatusC
     public TenantStatus Status { get; init; }
     public WorkflowAction Action { get; init; } = WorkflowAction.Ok;
     public string Comment { get; init; } = string.Empty;
+    public string SystemComment { get; init; } = string.Empty;
 
 
     public ChangeTenantStatusByIdCommand() { }
@@ -25,12 +26,12 @@ public record ChangeTenantStatusByIdCommand : IRequest<Result<List<TenantStatusC
         Comment = comment;
     }
 
-    public ChangeTenantStatusByIdCommand(Guid tenantId, TenantStatus status, Guid? productId, string comment)
+    public ChangeTenantStatusByIdCommand(Guid tenantId, TenantStatus status, Guid? productId, string systemComment)
     {
         TenantId = tenantId;
         ProductId = productId;
         Status = status;
-        Comment = comment;
+        SystemComment = systemComment;
     }
 }
 

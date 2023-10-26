@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                 await _mediator.Send(new ChangeTenantStatusByIdCommand(subscription.TenantId,
                                                                        TenantStatus.SendingDeactivationRequest,
                                                                        subscription.ProductId,
-                                                                       "Note By System: Deactivating the tenant due to non-payment of the subscription."),
+                                                                       "Deactivating the tenant due to non-payment of the subscription."),
                                     cancellationToken);
 
             }
@@ -62,6 +62,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
         public async Task<Result> SuspendPaymentStatusForSubscriptionDueToNonRenewalAsync(CancellationToken cancellationToken = default)
         {
+            string systemComment = "Suspending the payment status for the tenant due to non-renewal of the subscription.";
             var date = DateTime.UtcNow;
             var subscriptions = await _dbContext.Subscriptions
                                                 .Where(x => x.StartDate <= date &&
@@ -76,16 +77,18 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                 {
                     subscription.IsPaid = false;
                     subscription.ModificationDate = date;
-                    subscription.Comment = "Note By System: Suspending the payment status for the tenant due to non-renewal of the subscription.";
+                    subscription.Comment = systemComment;
 
                 }
 
                 subscriptions[0].AddDomainEvent(new TenantProcessingCompletedEvent(
-                                                    TenantProcessType.SuspendingThePaymentStatusForTenantSubscriptionDueToNonRenewalOfTheSubscription,
-                                                    true,
-                                                    null,
-                                                    out _,
-                                                    subscriptions));
+                                                   processType: TenantProcessType.SuspendingThePaymentStatusForTenantSubscriptionDueToNonRenewalOfTheSubscription,
+                                                   enabled: true,
+                                                   processedData: null,
+                                                   comment: string.Empty,
+                                                   systemComment: systemComment,
+                                                   processId: out _,
+                                                   subscriptions: subscriptions));
 
                 await _dbContext.SaveChangesAsync();
             }
