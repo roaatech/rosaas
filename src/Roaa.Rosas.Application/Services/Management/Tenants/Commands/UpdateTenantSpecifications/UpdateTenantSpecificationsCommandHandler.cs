@@ -91,7 +91,6 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
                 ModificationDate = date,
             };
             newSpecificationsValues.Add(specificationValue);
-            _dbContext.SpecificationValues.Add(specificationValue);
 
             data.Add(new UpdatedSpecificationValueProcessedDataModel
             {
@@ -127,6 +126,8 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
 
         if (newSpecificationsValues.Any())
         {
+
+            _dbContext.SpecificationValues.AddRange(newSpecificationsValues);
             newSpecificationsValues[0].AddDomainEvent(processingCompletedEvent);
         }
         else
