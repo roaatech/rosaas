@@ -62,9 +62,12 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
 
         tenant.AddDomainEvent(new TenantProcessingCompletedEvent(TenantProcessType.DataUpdated,
                                                                  true,
-                                                                  new ProcessedDataOfTenantModel(new ProcessedTenantModel(title: request.Title),
-                                                                                                     new ProcessedTenantModel(title: tenantBeforeUpdate.Title))
-                                                                                                    .Serialize(),
+                                                                  new ProcessedDataOfTenantModel(new ProcessedTenantPropertyValueModel
+                                                                  {
+                                                                      Name = nameof(tenant.Title),
+                                                                      PreviousValue = tenantBeforeUpdate.Title,
+                                                                      UpdatedValue = tenant.Title,
+                                                                  }).Serialize(),
                                                                  out _,
                                                                  subscriptions));
 

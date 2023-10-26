@@ -2,33 +2,30 @@
 {
     public class ProcessedDataOfTenantModel : BaseProcessedDataOfTenant
     {
-
-        public ProcessedTenantModel UpdatedData { get; set; } = new(string.Empty);
-
-        public ProcessedTenantModel OldData { get; set; } = new(string.Empty);
-
-
-        public ProcessedDataOfTenantModel(ProcessedTenantModel updatedData, ProcessedTenantModel oldData)
+        public List<ProcessedTenantPropertyValueModel> Properties { get; set; }
+        public ProcessedDataOfTenantModel(List<ProcessedTenantPropertyValueModel> properties)
         {
-            UpdatedData = updatedData;
-            OldData = oldData;
+            Properties = properties;
         }
-
+        public ProcessedDataOfTenantModel(params ProcessedTenantPropertyValueModel[] properties)
+        {
+            Properties = properties.ToList();
+        }
         public override string Serialize()
         {
             return Serialize(this);
         }
 
     }
-    public class ProcessedTenantModel
+    public class ProcessedTenantPropertyValueModel
     {
-
-
-        public string Title { get; set; } = string.Empty;
-
-        public ProcessedTenantModel(string title)
-        {
-            Title = title;
-        }
+        public string Name { get; set; } = string.Empty;
+        public string PreviousValue { get; set; } = string.Empty;
+        public string UpdatedValue { get; set; } = string.Empty;
     }
+
+
+
 }
+
+
