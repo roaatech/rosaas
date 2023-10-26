@@ -6,12 +6,12 @@ public record UpdateTenantSpecificationsCommand : IRequest<Result>
 {
     public UpdateTenantSpecificationsCommand(Guid id, Guid productId, List<UpdateSpecificationValueModel> specifications)
     {
-        Id = id;
+        TenantId = id;
         ProductId = productId;
         Specifications = specifications;
     }
 
-    public Guid Id { get; set; }
+    public Guid TenantId { get; set; }
     public Guid ProductId { get; set; }
     public List<UpdateSpecificationValueModel> Specifications { get; set; } = new();
 }

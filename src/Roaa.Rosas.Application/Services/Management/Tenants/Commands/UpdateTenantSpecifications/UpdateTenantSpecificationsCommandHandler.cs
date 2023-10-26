@@ -5,7 +5,9 @@ using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantSpecifications;
 
@@ -36,9 +38,15 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
     {
 
         #region Validation
+        var subscription = await _dbContext.Subscriptions
+                                  .Where(x => x.ProductId == request.ProductId &&
+                                               x.TenantId == request.TenantId)
+                                  .SingleOrDefaultAsync(cancellationToken);
 
-
-
+        if (subscription is null)
+        {
+            return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+        }
         #endregion
 
         DateTime date = DateTime.UtcNow;
@@ -60,34 +68,71 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
 
 
         var tenantSpecificationsValues = await _dbContext.SpecificationValues
-                                                   .Where(x => x.TenantId == request.Id &&
+                                                   .Where(x => x.TenantId == request.TenantId &&
                                                                x.Subscription.ProductId == request.ProductId)
                                                    .ToListAsync();
+        var data = new List<UpdatedSpecificationValueProcessedDataModel>();
+        var newSpecificationsValues = new List<SpecificationValue>();
 
+        // set tenant's specifications values to specifications that previously had no value
         foreach (var specification in specificationsIds.Where(x => !tenantSpecificationsValues.Select(x => x.SpecificationId).Contains(x.SpecificationId)).ToList())
         {
-            _dbContext.SpecificationValues.Add(new SpecificationValue
+            var specificationValue = new SpecificationValue
             {
                 Id = Guid.NewGuid(),
-                TenantId = request.Id,
+                TenantId = request.TenantId,
                 SpecificationId = specification.SpecificationId,
                 Value = request.Specifications.Where(x => x.SpecificationId == specification.SpecificationId)
-                                              .SingleOrDefault()?
-                                              .Value,
+                                               .SingleOrDefault()?
+                                               .Value,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
                 CreationDate = date,
                 ModificationDate = date,
+            };
+            newSpecificationsValues.Add(specificationValue);
+            _dbContext.SpecificationValues.Add(specificationValue);
+
+            data.Add(new UpdatedSpecificationValueProcessedDataModel
+            {
+                Name = specification.SpecificationName,
+                UpdatedValue = specificationValue.Value,
             });
         }
 
+
+        // update tenant's specifications values.
         foreach (var specificationValue in tenantSpecificationsValues.Where(x => request.Specifications.Select(s => s.SpecificationId).Contains(x.SpecificationId)))
         {
-            specificationValue.Value = request.Specifications.Where(x => x.SpecificationId == specificationValue.SpecificationId).SingleOrDefault()?.Value;
+            var updatedValue = request.Specifications.Where(x => x.SpecificationId == specificationValue.SpecificationId).SingleOrDefault()?.Value;
+            data.Add(new UpdatedSpecificationValueProcessedDataModel
+            {
+                Name = specificationsIds.Where(x => x.SpecificationId == specificationValue.SpecificationId).Select(s => s.SpecificationName).SingleOrDefault(),
+                UpdatedValue = updatedValue,
+                PreviousValue = specificationValue.Value,
+            });
+            specificationValue.Value = updatedValue;
             specificationValue.ModifiedByUserId = _identityContextService.UserId;
             specificationValue.ModificationDate = date;
+
         }
         #endregion
+
+        var processingCompletedEvent = new TenantProcessingCompletedEvent(
+                                                            processType: TenantProcessType.SpecificationsUpdated,
+                                                            enabled: true,
+                                                            processedData: new SpecificationsUpdatedProcessedData(data).Serialize(),
+                                                            processId: out _,
+                                                            subscriptions: subscription);
+
+        if (newSpecificationsValues.Any())
+        {
+            newSpecificationsValues[0].AddDomainEvent(processingCompletedEvent);
+        }
+        else
+        {
+            tenantSpecificationsValues[0].AddDomainEvent(processingCompletedEvent);
+        }
 
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -97,4 +142,3 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
     }
     #endregion
 }
-

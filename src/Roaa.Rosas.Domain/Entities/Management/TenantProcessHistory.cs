@@ -114,15 +114,11 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
     public class SpecificationsUpdatedProcessedData : BaseTenantProcessedData
     {
-        public TenantInfoProcessedDataModel UpdatedData { get; set; } = new(string.Empty);
 
-        public TenantInfoProcessedDataModel OldData { get; set; } = new(string.Empty);
-
-
-        public SpecificationsUpdatedProcessedData(TenantInfoProcessedDataModel updatedData, TenantInfoProcessedDataModel oldData)
+        public List<UpdatedSpecificationValueProcessedDataModel> Specifications { get; set; }
+        public SpecificationsUpdatedProcessedData(List<UpdatedSpecificationValueProcessedDataModel> specifications)
         {
-            UpdatedData = updatedData;
-            OldData = oldData;
+            Specifications = specifications;
         }
 
         public override string Serialize()
@@ -130,7 +126,6 @@ namespace Roaa.Rosas.Domain.Entities.Management
             return Serialize(this);
         }
     }
-
 
     public class TenantStatusChangedProcessedData : BaseTenantProcessedData
     {
@@ -249,5 +244,11 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public double DurationInMillisecond { get; set; }
         public string RequestUrl { get; set; } = string.Empty;
         public dynamic ResponseContent { get; set; } = string.Empty;
+    }
+    public class UpdatedSpecificationValueProcessedDataModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string PreviousValue { get; set; } = string.Empty;
+        public string UpdatedValue { get; set; } = string.Empty;
     }
 }

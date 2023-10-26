@@ -10,7 +10,7 @@ public partial class UpdateTenantSpecificationsCommandValidator : AbstractValida
 {
     public UpdateTenantSpecificationsCommandValidator(IIdentityContextService identityContextService)
     {
-        RuleFor(x => x.Id).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        RuleFor(x => x.TenantId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
         RuleFor(x => x.ProductId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 

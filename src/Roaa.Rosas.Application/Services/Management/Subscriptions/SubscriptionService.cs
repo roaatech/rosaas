@@ -51,7 +51,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                                        TenantStatus.SendingDeactivationRequest,
                                                                        subscription.ProductId,
                                                                        "Deactivating the tenant due to non-payment of the subscription."),
-                                    cancellationToken);
+                                         cancellationToken);
 
             }
             return Result.Successful();
