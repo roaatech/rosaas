@@ -4,8 +4,10 @@ using Newtonsoft.Json;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantMetadataByName;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantStatusByName;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentByNameAndProductId;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.ResponseMessages;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -35,8 +37,19 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         #endregion
 
 
-        #region Actions   
+        #region Actions  
 
+        [HttpGet()]
+        public async Task<IActionResult> GetTenantsSubscriptionsListAsync(CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(_identityContextService.GetProductId()), cancellationToken));
+        }
+
+        [HttpGet("{name}")]
+        public async Task<IActionResult> GetTenantsSubscriptionsListAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _mediator.Send(new GetTenentByNameAndProductIdQuery(name, _identityContextService.GetProductId()), cancellationToken));
+        }
 
         [HttpGet("{name}/status")]
         public async Task<IActionResult> GetTenantStatusByIdAsync([FromRoute] string name, CancellationToken cancellationToken = default)
