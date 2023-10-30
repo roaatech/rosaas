@@ -14,7 +14,14 @@ namespace Roaa.Rosas.Domain.Events.Management
         public TenantStep PreviousStep { get; set; }
         public ExpectedTenantResourceStatus ExpectedResourceStatus { get; set; }
 
-        public SendingRequestBaseEvent(Guid tenantId, Guid productId, Guid subscriptionId, ExpectedTenantResourceStatus expectedResourceStatus, TenantStatus status, TenantStep step, TenantStatus previousStatus, TenantStep previousStep)
+        public SendingRequestBaseEvent(Guid tenantId,
+                                       Guid productId,
+                                       Guid subscriptionId,
+                                       ExpectedTenantResourceStatus expectedResourceStatus,
+                                       TenantStatus status,
+                                       TenantStep step,
+                                       TenantStatus previousStatus,
+                                       TenantStep previousStep)
         {
             TenantId = tenantId;
             ProductId = productId;
