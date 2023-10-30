@@ -10,5 +10,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
         Task<Result> ResetSubscriptionsFeaturesAsync(CancellationToken cancellationToken = default);
 
+        Task<Result> Temp__RenewSubscriptionsAsync(Guid subscriptionId, CancellationToken cancellationToken = default);
+
     }
 }
