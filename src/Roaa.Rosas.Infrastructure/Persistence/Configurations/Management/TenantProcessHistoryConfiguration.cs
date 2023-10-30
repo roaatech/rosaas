@@ -32,8 +32,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
                   .IsRequired(false)
                   .IsUnicode()
                   .HasConversion(
-                          ConvertLocalizedStringToJson<List<ProcessNote>>(),
-                          ConvertJsonToLocalizedString<List<ProcessNote>>()
+                          ConvertLocalizedStringToJson<ICollection<ProcessNote>>(),
+                          ConvertJsonToLocalizedString<ICollection<ProcessNote>>()
                    );
             builder.Ignore(r => r.DomainEvents);
         }

@@ -1,7 +1,6 @@
 ﻿using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
-using Roaa.Rosas.Domain.Models.ExternalSystems;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantProcessesByTenantId
 {
@@ -21,7 +20,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
 
         public string Data { get; set; } = string.Empty;
 
-        public List<ProcessNoteModel> Notes { get; set; } = new();
+        public IEnumerable<ProcessNote>? Notes { get; set; }
 
         public Guid? OwnerId { get; set; }
 

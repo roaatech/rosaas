@@ -33,7 +33,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public bool Enabled { get; set; } = true;
 
-        public List<ProcessNote>? Notes { get; set; }
+        public virtual ICollection<ProcessNote> Notes { get; set; } = new List<ProcessNote>();
     }
 
     public class ProcessNote
