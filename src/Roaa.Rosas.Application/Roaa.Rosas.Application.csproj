@@ -7,6 +7,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="BackgroundServices\NewFolder\**" />
+	  <EmbeddedResource Remove="BackgroundServices\NewFolder\**" />
+	  <None Remove="BackgroundServices\NewFolder\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="FluentValidation" Version="11.3.0" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.3.0" />
 		<PackageReference Include="IdentityServer4" Version="4.1.2" />
@@ -19,11 +25,6 @@
 		<ProjectReference Include="..\Roaa.Rosas.Authorization\Roaa.Rosas.Authorization.csproj" />
 		<ProjectReference Include="..\Roaa.Rosas.Domain\Roaa.Rosas.Domain.csproj" />
 		<ProjectReference Include="..\Roaa.Rosas.RequestBroker\Roaa.Rosas.RequestBroker.csproj" />
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <Folder Include="BackgroundServices\NewFolder\" />
 	</ItemGroup>
 
 
