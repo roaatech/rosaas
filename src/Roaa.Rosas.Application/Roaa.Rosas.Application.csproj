@@ -22,4 +22,9 @@
 	</ItemGroup>
 
 
+	<ItemGroup>
+	  <Folder Include="BackgroundServices\NewFolder\" />
+	</ItemGroup>
+
+
 </Project>

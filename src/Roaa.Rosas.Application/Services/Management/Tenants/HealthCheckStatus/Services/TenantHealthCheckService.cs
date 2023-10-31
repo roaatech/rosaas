@@ -92,7 +92,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             }
 
 
-            if (backgroundServiceType == typeof(AvailableTenantChecker) && !isAvailable)
+            if (backgroundServiceType == typeof(AvailableTenantHealthCheckWorker) && !isAvailable)
             {
                 paramItems.Add(new MySqlParameter($"@{nameof(hs.CheckDate)}", date));
 

@@ -6,11 +6,11 @@ using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices
 {
-    public class InaccessibleTenantChecker : BaseWorker, IInaccessibleTenantChecker
+    public class InaccessibleTenantHealthCheckWorker : BaseWorker, IInaccessibleTenantChecker
     {
         protected override TimeSpan _period { get; set; }
 
-        public InaccessibleTenantChecker(ILogger<InaccessibleTenantChecker> logger,
+        public InaccessibleTenantHealthCheckWorker(ILogger<InaccessibleTenantHealthCheckWorker> logger,
                                           IServiceScopeFactory serviceScopeFactory,
                                           BackgroundServicesStore backgroundWorkerStore)
             : base(logger, serviceScopeFactory, backgroundWorkerStore)

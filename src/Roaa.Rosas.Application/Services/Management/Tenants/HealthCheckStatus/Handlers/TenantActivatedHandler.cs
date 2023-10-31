@@ -51,7 +51,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
 
                 _backgroundWorkerStore.AddAvailableTenantTask(jobTask, tenantName);
 
-                _logger.LogInformation($"The job task added to {nameof(AvailableTenantChecker)} Background Service with info: TenantId:{{0}}, ProductId:{{1}}",
+                _logger.LogInformation($"The job task added to {nameof(AvailableTenantHealthCheckWorker)} Background Service with info: TenantId:{{0}}, ProductId:{{1}}",
                                           @event.TenantId,
                                           @event.ProductId);
 
