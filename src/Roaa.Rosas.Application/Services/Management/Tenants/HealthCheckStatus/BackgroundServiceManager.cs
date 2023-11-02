@@ -71,7 +71,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
             _logger.LogInformation("There are [{0}] {1} job tasks added to {2} Background Service.",
               unavailabeTasks.Count,
               JobTaskType.Unavailable,
-              nameof(UnavailableTenantChecker));
+              nameof(UnavailableTenantHealthCheckWorker));
 
             unavailabeTasks.ForEach(task => _store.AddUnavailableTenantTask(task));
 
@@ -89,7 +89,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
             _logger.LogInformation("There are [{0}] {1} job tasks added to {2} Background Service.",
               inaccessibleTasks.Count,
               JobTaskType.Inaccessible,
-              nameof(InaccessibleTenantChecker));
+              nameof(InaccessibleTenantHealthCheckWorker));
 
             inaccessibleTasks.ForEach(task => _store.AddInaccessibleTenantTask(task));
 
@@ -107,7 +107,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
             _logger.LogInformation("There are [{0}] {1} job tasks added to {2} Background Service.",
               informerTasks.Count,
               JobTaskType.Informer,
-              nameof(Informer));
+              nameof(InformerHealthCheckWorker));
 
             informerTasks.ForEach(task => _store.AddInformerTask(task));
 
@@ -144,7 +144,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
             _logger.LogInformation("There are [{0}] {1} job tasks added to {2} Background Service.",
               activeSubscriptions.Count,
               JobTaskType.Available,
-              nameof(AvailableTenantChecker));
+              nameof(AvailableTenantHealthCheckWorker));
 
             activeSubscriptions.ForEach(subscription => _store.AddAvailableTenantTask(new JobTask
             {

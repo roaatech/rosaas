@@ -12,6 +12,8 @@ namespace Roaa.Rosas.RequestBroker.Models
 
         public double DurationInMillisecond { get; set; }
 
+        public string SerializedResponseContent { get; set; } = string.Empty;
+
         public Dictionary<string, List<string>> Errors { get; set; }
     }
 }

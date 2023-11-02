@@ -14,10 +14,5 @@ namespace Roaa.Rosas.Application.Interfaces
         Task<Result<ExternalSystemResultModel<dynamic>>> CheckTenantHealthStatusAsync(ExternalSystemRequestModel<CheckTenantHealthStatusModel> model, CancellationToken cancellationToken = default);
     }
 
-    public class ExternalSystemResultModel<T>
-    {
-        public double DurationInMillisecond { get; set; }
-        public string Url { get; set; } = string.Empty;
-    }
 
 }

@@ -25,12 +25,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
         public string HealthCheckUrl { get; set; } = string.Empty;
         public bool HealthCheckUrlIsOverridden { get; set; }
         public TenantStatus Status { get; set; }
+        public TenantStep Step { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public object Metadata { get; set; } = new();
         public LookupItemDto<Guid> Product { get; set; } = new();
         public ProductTenantHealthStatusDto HealthCheckStatus { get; set; } = new();
         public IEnumerable<ActionResultModel> Actions { get; set; } = new List<ActionResultModel>();
+        public ExpectedTenantResourceStatus ExpectedResourceStatus { get; set; }
 
         public IEnumerable<SpecificationListItemDto> Specifications { get; set; } = new List<SpecificationListItemDto>();
     }
@@ -43,6 +45,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
     public class ProductTenantHealthStatusDto
     {
         public bool ShowHealthStatus { get; set; } = true;
+
+        public bool IsChecked { get; set; } = true;
 
         public bool IsHealthy { get; set; }
 

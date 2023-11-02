@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
@@ -20,7 +19,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
         #region Props 
         private readonly ILogger<PlanPriceService> _logger;
         private readonly IRosasDbContext _dbContext;
-        private readonly IWebHostEnvironment _environment;
         private readonly IIdentityContextService _identityContextService;
         #endregion
 
@@ -29,12 +27,10 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
         public PlanPriceService(
             ILogger<PlanPriceService> logger,
             IRosasDbContext dbContext,
-            IWebHostEnvironment environment,
             IIdentityContextService identityContextService)
         {
             _logger = logger;
             _dbContext = dbContext;
-            _environment = environment;
             _identityContextService = identityContextService;
         }
 
@@ -174,10 +170,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
         }
 
 
-        private async Task<bool> UpdatingOrDeletingIsAllowedAsync(Guid planPriceId, CancellationToken cancellationToken = default)
-        {
-            return true;
-        }
         #endregion
     }
 }

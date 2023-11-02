@@ -805,6 +805,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("char(36)");
 
@@ -813,6 +818,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime");
+
+                    b.Property<int>("ExpectedResourceStatus")
+                        .HasColumnType("int");
 
                     b.Property<string>("HealthCheckUrl")
                         .IsRequired()
@@ -835,11 +843,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
                     b.Property<Guid>("PlanId")
                         .HasColumnType("char(36)");
 
@@ -853,6 +856,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasColumnType("datetime");
 
                     b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Step")
                         .HasColumnType("int");
 
                     b.Property<Guid>("SubscriptionCycleId")
@@ -1184,6 +1190,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<int>("HealthyCount")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsChecked")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("IsHealthy")
                         .HasColumnType("tinyint(1)");
 
@@ -1214,16 +1223,18 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Data")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<bool>("Enabled")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<int>("ExpectedResourceStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
+                        .HasMaxLength(1000)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(1000)");
 
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("char(36)");
@@ -1241,6 +1252,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasColumnType("char(36)");
 
                     b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Step")
                         .HasColumnType("int");
 
                     b.Property<Guid>("SubscriptionId")
@@ -1269,6 +1283,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime");
 
+                    b.Property<int>("ExpectedResourceStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -1282,10 +1299,16 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<int>("PreviousStatus")
                         .HasColumnType("int");
 
+                    b.Property<int>("PreviousStep")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Step")
                         .HasColumnType("int");
 
                     b.Property<Guid>("SubscriptionId")

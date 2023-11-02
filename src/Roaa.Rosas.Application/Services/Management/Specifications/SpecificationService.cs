@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
@@ -19,7 +18,6 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
         #region Props 
         private readonly ILogger<SpecificationService> _logger;
         private readonly IRosasDbContext _dbContext;
-        private readonly IWebHostEnvironment _environment;
         private readonly IIdentityContextService _identityContextService;
         #endregion
 
@@ -28,12 +26,10 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
         public SpecificationService(
             ILogger<SpecificationService> logger,
             IRosasDbContext dbContext,
-            IWebHostEnvironment environment,
             IIdentityContextService identityContextService)
         {
             _logger = logger;
             _dbContext = dbContext;
-            _environment = environment;
             _identityContextService = identityContextService;
         }
 

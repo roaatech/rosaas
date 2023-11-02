@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
-using Roaa.Rosas.Application.Services.Management.Tenants;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Products
 {

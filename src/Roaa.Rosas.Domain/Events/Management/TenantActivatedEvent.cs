@@ -1,18 +1,13 @@
-﻿using Roaa.Rosas.Domain.Common;
-using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Enums;
+﻿using Roaa.Rosas.Domain.Enums;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants
+namespace Roaa.Rosas.Domain.Events.Management
 {
-    public class TenantActivatedEvent : BaseInternalEvent
+    public class TenantActivatedEvent : SendingRequestBaseEvent
     {
-        public Subscription Subscription { get; set; }
-        public TenantStatus PreviousStatus { get; set; }
-
-        public TenantActivatedEvent(Subscription subscription, TenantStatus previousStatus)
+        public TenantActivatedEvent(Guid tenantId, Guid productId, Guid subscriptionId, ExpectedTenantResourceStatus expectedResourceStatus, TenantStatus status, TenantStep step, TenantStatus previousStatus, TenantStep previousStep)
+            : base(tenantId, productId, subscriptionId, expectedResourceStatus, status, step, previousStatus, previousStep)
         {
-            Subscription = subscription;
-            PreviousStatus = previousStatus;
+
         }
     }
 }

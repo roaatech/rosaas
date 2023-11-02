@@ -6,11 +6,11 @@ using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Servi
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices
 {
-    public class Informer : BaseWorker
+    public class InformerHealthCheckWorker : BaseWorker
     {
         protected override TimeSpan _period { get; set; } = TimeSpan.FromSeconds(60 * 1);
 
-        public Informer(ILogger<Informer> logger,
+        public InformerHealthCheckWorker(ILogger<InformerHealthCheckWorker> logger,
                                   IServiceScopeFactory serviceScopeFactory,
                                   BackgroundServicesStore backgroundWorkerStore)
        : base(logger, serviceScopeFactory, backgroundWorkerStore)

@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
-using Roaa.Rosas.Application.Services.Management.Tenants.Service.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 
@@ -38,8 +37,14 @@ public class ChangeTenantStatusByIdCommandHandler : IRequestHandler<ChangeTenant
     #region Handler   
     public async Task<Result<List<TenantStatusChangedResultDto>>> Handle(ChangeTenantStatusByIdCommand request, CancellationToken cancellationToken)
     {
-
-        return await _tenantService.ChangeTenantStatusAsync(new ChangeTenantStatusModel(request.TenantId, request.Status, request.ProductId, request.Notes), cancellationToken);
+        return await _tenantService.SetTenantNextStatusAsync(tenantId: request.TenantId,
+                                                            status: request.Status,
+                                                            productId: request.ProductId,
+                                                            action: request.Action,
+                                                            expectedResourceStatus: null,
+                                                            comment: request.Comment,
+                                                            receivedRequestBody: null,
+                                                            cancellationToken: cancellationToken);
     }
 
     #endregion

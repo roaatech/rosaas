@@ -3,16 +3,17 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Handlers
 {
-    public class ActiveTenantStatusUpdatedHandler : IInternalDomainEventHandler<ActiveTenantStatusUpdated>
+    public class StatusOfActiveTenantIsUpdatedHandler : IInternalDomainEventHandler<StatusOfActiveTenantIsUpdated>
     {
-        private readonly ILogger<ActiveTenantStatusUpdatedHandler> _logger;
+        private readonly ILogger<StatusOfActiveTenantIsUpdatedHandler> _logger;
         private readonly BackgroundServicesStore _backgroundWorkerStore;
         private readonly IRosasDbContext _dbContext;
 
-        public ActiveTenantStatusUpdatedHandler(ILogger<ActiveTenantStatusUpdatedHandler> logger,
+        public StatusOfActiveTenantIsUpdatedHandler(ILogger<StatusOfActiveTenantIsUpdatedHandler> logger,
                                                          BackgroundServicesStore backgroundWorkerStore,
                                                          IRosasDbContext dbContext)
         {
@@ -21,7 +22,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
             _dbContext = dbContext;
         }
 
-        public async Task Handle(ActiveTenantStatusUpdated @event, CancellationToken cancellationToken)
+        public async Task Handle(StatusOfActiveTenantIsUpdated @event, CancellationToken cancellationToken)
         {
             try
             {

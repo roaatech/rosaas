@@ -38,9 +38,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
                                                         ProductId = x.ProductId,
                                                         SubscriptionId = x.SubscriptionId,
                                                         Status = x.Status,
+                                                        Step = x.Step,
                                                         OwnerId = x.OwnerId,
                                                         OwnerType = x.OwnerType,
-                                                        Data = x.Data,
+                                                        Data = x.Data ?? string.Empty,
+                                                        //Notes = x.Notes.Select(x => new ProcessNoteModel
+                                                        //{
+                                                        //    OwnerType = x.OwnerType,
+                                                        //    Text = x.Text,
+                                                        //}),
                                                         Notes = x.Notes,
                                                         ProcessDate = x.TimeStamp,
                                                         ProcessType = x.ProcessType,

@@ -19,13 +19,16 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.HealthCheckUrl).IsRequired(true).HasMaxLength(250);
             builder.Property(r => r.HealthCheckUrlIsOverridden).IsRequired(true);
             builder.Property(r => r.IsPaid).IsRequired(true);
-            builder.Property(r => r.Notes).IsRequired(true).HasMaxLength(500);
-            builder.Property(r => r.CreatedByUserId).IsRequired();
-            builder.Property(r => r.ModifiedByUserId).IsRequired();
-            builder.Property(r => r.StartDate).IsRequired();
-            builder.Property(r => r.EndDate).IsRequired();
-            builder.Property(r => r.CreationDate).IsRequired();
-            builder.Property(r => r.ModificationDate).IsRequired();
+            builder.Property(r => r.Status).IsRequired(true);
+            builder.Property(r => r.Step).IsRequired(true);
+            builder.Property(r => r.ExpectedResourceStatus).IsRequired(true);
+            builder.Property(r => r.Comment).IsRequired(true).HasMaxLength(500);
+            builder.Property(r => r.CreatedByUserId).IsRequired(true);
+            builder.Property(r => r.ModifiedByUserId).IsRequired(true);
+            builder.Property(r => r.StartDate).IsRequired(true);
+            builder.Property(r => r.EndDate).IsRequired(true);
+            builder.Property(r => r.CreationDate).IsRequired(true);
+            builder.Property(r => r.ModificationDate).IsRequired(true);
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

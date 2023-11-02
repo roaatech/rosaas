@@ -6,19 +6,19 @@ using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices
 {
-
-    public class AvailableTenantChecker : BaseWorker, IAvailableTenantChecker
+    public class UnavailableTenantHealthCheckWorker : BaseWorker, IUnavailableTenantChecker
     {
         protected override TimeSpan _period { get; set; }
 
-        public AvailableTenantChecker(ILogger<AvailableTenantChecker> logger,
+        public UnavailableTenantHealthCheckWorker(ILogger<UnavailableTenantHealthCheckWorker> logger,
                                   IServiceScopeFactory serviceScopeFactory,
                                   BackgroundServicesStore backgroundWorkerStore)
             : base(logger, serviceScopeFactory, backgroundWorkerStore)
         {
             SetPeriod();
-            //  _period = TimeSpan.FromSeconds(10);
         }
+
+
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
@@ -40,38 +40,37 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.B
 
         private async Task CheckAsync(CancellationToken cancellationToken = default)
         {
-            _backgroundWorkerStore.RefillAvailableTenantTask();
+            _backgroundWorkerStore.RefillUnavailableTenantTask();
 
             using var scope = _serviceScopeFactory.CreateScope();
             _tenantHealthCheckService = scope.ServiceProvider.GetRequiredService<ITenantHealthCheckService>();
 
-            while (!_backgroundWorkerStore.AvailableTenantsTasks.IsCompleted)
+            while (!_backgroundWorkerStore.UnavailableTenantsTasks.IsCompleted)
             {
                 try
                 {
                     Log($"#Try to take a job Task");
 
-                    if (_backgroundWorkerStore.AvailableTenantsTasks.TryTake(out var jobTask) &&
+                    if (_backgroundWorkerStore.UnavailableTenantsTasks.TryTake(out var jobTask) &&
                         _backgroundWorkerStore.MakeSureIsNotRemoved(jobTask))
                     {
                         tenantId = jobTask.TenantId;
                         productId = jobTask.ProductId;
-
                         Log($"##Took the JobTask, for the tenant: [TenantId:{{0}}], [ProductId:{{1}}]", jobTask.TenantId, jobTask.ProductId);
 
                         var isAvailable = await CheckTenantHealthStatusAndRecordResultAsync(jobTask, cancellationToken);
 
                         if (isAvailable)
                         {
-                            await _tenantHealthCheckService.UpdateTenantProcessHistoryAsHealthCheckStatusAsync(jobTask, cancellationToken);
+                            await _tenantHealthCheckService.PublishTenantProcessingCompletedEventAsync(jobTask, TenantProcessType.HealthyStatus, cancellationToken);
+
+                            await _tenantHealthCheckService.RemoveUnavailableJobTaskAsync(jobTask, cancellationToken);
+
+                            await _tenantHealthCheckService.AddInaccessibleJobTaskAsync(jobTask, cancellationToken);
                         }
                         else
                         {
-                            await _tenantHealthCheckService.AddInaccessibleJobTaskAsync(jobTask, cancellationToken);
-
-                            await _tenantHealthCheckService.RemoveAvailableJobTaskAsync(jobTask, cancellationToken);
-
-                            await _tenantHealthCheckService.PublishTenantProcessingCompletedEventAsync(jobTask, TenantProcessType.UnhealthyStatus, cancellationToken);
+                            await _tenantHealthCheckService.UpdateTenantProcessHistoryAsHealthCheckStatusAsync(jobTask, cancellationToken);
                         }
                     }
                     else
@@ -91,10 +90,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.B
             }
         }
 
-
-        public async Task RestartAsync(CancellationToken cancellationToken = default)
+        public async Task RestartAsync(CancellationToken token = default)
         {
-            var timePeriod = ToSeconds(_backgroundWorkerStore.Settings.AvailableCheckTimePeriod);
+            var timePeriod = ToSeconds(_backgroundWorkerStore.Settings.UnavailableCheckTimePeriod);
 
             if (IsPeriodUpdated(timePeriod))
             {
@@ -102,18 +100,17 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.B
 
                 Log("Will be restarted after its time period updated. It's will execute its work every [{0}] seconds", timePeriod);
 
-                await base.StartAsync(cancellationToken);
+                await base.StartAsync(token);
             }
         }
 
-
         public void SetPeriod()
         {
-            _period = TimeSpan.FromMinutes(_backgroundWorkerStore.Settings.AvailableCheckTimePeriod);
+            _period = TimeSpan.FromMinutes(_backgroundWorkerStore.Settings.UnavailableCheckTimePeriod);
         }
     }
 
-    public interface IAvailableTenantChecker
+    public interface IUnavailableTenantChecker
     {
         Task RestartAsync(CancellationToken token = default);
     }

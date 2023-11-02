@@ -184,13 +184,15 @@ namespace Roaa.Rosas.RequestBroker
 
         private async Task<HandledResponse<TResult>> HandleResponse<TResult>(HttpResponseMessage response, string uri, DateTime startTime)
         {
+            var content = await response.Content.ReadAsStringAsync();
             HandledResponse<TResult> handledResponse = new HandledResponse<TResult>
             {
-                Content = await response.Content.ReadAsStringAsync(),
+                Content = content,
                 Result = new RequestResult<TResult>()
                 {
                     DurationInMillisecond = (DateTime.UtcNow - startTime).TotalMilliseconds,
                     StatusCode = response.StatusCode,
+                    SerializedResponseContent = content,
                 },
 
             };

@@ -32,7 +32,7 @@ namespace Roaa.Rosas.API.Configurations
 }
 
 
-
+//dotnet ef migrations remove --force  --context RosasDbContext  --project src\Roaa.Rosas.Infrastructure --startup-project src\Roaa.Rosas.API  
 
 //dotnet ef migrations add "InitIdentityDbMigration" --context RosasDbContext --project src\Roaa.Rosas.Infrastructure --startup-project src\Roaa.Rosas.API --output-dir Persistence\Migrations\Identity
 //dotnet ef migrations add "InitIdentityServerConfigurationDbMigration" --context IdentityServerConfigurationDbContext --project src\Roaa.Rosas.Infrastructure --startup-project src\Roaa.Rosas.API --output-dir Persistence\Migrations\IdentityServerConfiguration

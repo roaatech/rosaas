@@ -12,17 +12,17 @@ namespace Roaa.Rosas.Framework.Configurations
                                                            IWebHostEnvironment environment,
                                                            RootOptions rootOptions)
         {
-            services.AddSingleton<IAvailableTenantChecker, AvailableTenantChecker>();
-            services.AddSingleton<IInaccessibleTenantChecker, InaccessibleTenantChecker>();
-            services.AddSingleton<IUnavailableTenantChecker, UnavailableTenantChecker>();
+            services.AddSingleton<IAvailableTenantChecker, AvailableTenantHealthCheckWorker>();
+            services.AddSingleton<IInaccessibleTenantChecker, InaccessibleTenantHealthCheckWorker>();
+            services.AddSingleton<IUnavailableTenantChecker, UnavailableTenantHealthCheckWorker>();
             services.AddSingleton<ISubscriptionWorker, SubscriptionWorker>();
             services.AddSingleton<BackgroundServicesStore>();
             services.AddScoped<BackgroundServiceManager>();
 
-            services.AddHostedService<InaccessibleTenantChecker>();
-            services.AddHostedService<AvailableTenantChecker>();
-            services.AddHostedService<UnavailableTenantChecker>();
-            services.AddHostedService<Informer>();
+            services.AddHostedService<InaccessibleTenantHealthCheckWorker>();
+            services.AddHostedService<AvailableTenantHealthCheckWorker>();
+            services.AddHostedService<UnavailableTenantHealthCheckWorker>();
+            services.AddHostedService<InformerHealthCheckWorker>();
             services.AddHostedService<SubscriptionWorker>();
         }
 

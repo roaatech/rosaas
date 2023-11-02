@@ -30,8 +30,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                  .Select(x => new SubscriptionListItemDto
                                                  {
                                                      SubscriptionId = x.Id,
-                                                     Id = x.Tenant.Id,
-                                                     TenantId = x.Tenant.Id,
+                                                     TenantId = x.TenantId,
                                                      UniqueName = x.Tenant.UniqueName,
                                                      HealthCheckUrl = x.HealthCheckUrl,
                                                      HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
