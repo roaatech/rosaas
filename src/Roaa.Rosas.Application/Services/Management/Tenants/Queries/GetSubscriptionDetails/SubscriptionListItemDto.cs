@@ -9,6 +9,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public Guid CurrentSubscriptionCycleId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public DateTime? LastResetDate { get; set; }
+        public DateTime? LastLimitsResetDate { get; set; }
         public LookupItemDto<Guid> Plan { get; set; } = new();
         public PlanPriceDto PlanPrice { get; set; } = new();
         public IEnumerable<SubscriptionFeatureDto> SubscriptionFeatures { get; set; } = new List<SubscriptionFeatureDto>();

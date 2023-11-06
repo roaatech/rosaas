@@ -10,6 +10,7 @@
         public string ActivationUrl { get; set; } = string.Empty;
         public string DeactivationUrl { get; set; } = string.Empty;
         public string DeletionUrl { get; set; } = string.Empty;
+        public string? ResetUrl { get; set; }
         public string ApiKey { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
         public virtual Client? Client { get; set; }

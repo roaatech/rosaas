@@ -35,6 +35,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      CurrentSubscriptionCycleId = subscription.SubscriptionCycleId,
                                                      StartDate = subscription.StartDate,
                                                      EndDate = subscription.EndDate,
+                                                     LastResetDate = subscription.LastResetDate,
+                                                     LastLimitsResetDate = subscription.LastLimitsResetDate,
                                                      Plan = new LookupItemDto<Guid>
                                                      {
                                                          Id = subscription.Plan.Id,

@@ -29,6 +29,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public object Metadata { get; set; } = new();
+        public DateTime? LastResetDate { get; set; }
+        public DateTime? LastLimitsResetDate { get; set; }
         public LookupItemDto<Guid> Product { get; set; } = new();
         public ProductTenantHealthStatusDto HealthCheckStatus { get; set; } = new();
         public IEnumerable<ActionResultModel> Actions { get; set; } = new List<ActionResultModel>();

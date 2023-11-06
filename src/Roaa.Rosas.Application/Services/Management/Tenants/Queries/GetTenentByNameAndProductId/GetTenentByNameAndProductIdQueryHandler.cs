@@ -45,6 +45,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
                                              IsPaid = subscription.IsPaid,
                                              EndDate = subscription.EndDate,
                                              StartDate = subscription.StartDate,
+                                             LastResetDate = subscription.LastResetDate,
+                                             LastLimitsResetDate = subscription.LastLimitsResetDate,
                                              Plan = new Common.Models.LookupItemDto<Guid>(subscription.PlanId, subscription.Plan.Name),
                                              CreatedDate = subscription.Tenant.CreationDate,
                                              EditedDate = subscription.Tenant.ModificationDate,
