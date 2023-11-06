@@ -111,7 +111,6 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         {
             var product = await _dbContext.Products
                                           .AsNoTracking()
-                                          .Include(x => x.Client)
                                           .Where(x => x.Id == id)
                                           .Select(product => new ProductDto
                                           {
@@ -127,6 +126,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               DeactivationEndpoint = product.DeactivationUrl,
                                               DeletionEndpoint = product.DeletionUrl,
                                               ApiKey = product.ApiKey,
+                                              SubscriptionResetUrl = product.ResetUrl,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -166,6 +166,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 DeactivationUrl = model.DeactivationEndpoint,
                 DeletionUrl = model.DeletionEndpoint,
                 ApiKey = model.ApiKey,
+                ResetUrl = model.SubscriptionResetUrl,
                 CreationDate = date,
                 ModificationDate = date,
             };
@@ -219,6 +220,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             product.DeactivationUrl = model.DeactivationEndpoint;
             product.DeletionUrl = model.DeletionEndpoint;
             product.ApiKey = model.ApiKey;
+            product.ResetUrl = model.SubscriptionResetUrl;
             product.ModificationDate = DateTime.UtcNow;
 
             product.AddDomainEvent(new ProductUpdatedEvent(product, productBeforeUpdate));

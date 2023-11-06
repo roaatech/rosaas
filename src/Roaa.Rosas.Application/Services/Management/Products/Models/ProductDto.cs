@@ -17,6 +17,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
         public string DeactivationEndpoint { get; set; } = string.Empty;
         public string DeletionEndpoint { get; set; } = string.Empty;
         public string ApiKey { get; set; } = string.Empty;
+        public string? SubscriptionResetUrl { get; set; }
 
     }
 }
