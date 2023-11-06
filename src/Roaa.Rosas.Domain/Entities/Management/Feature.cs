@@ -20,12 +20,14 @@
     }
     public enum FeatureUnit
     {
-        K = 1,
+        item = 1,
         MB = 2,
         GB = 3,
+        K = 4,
     }
     public enum FeatureReset
     {
+        //Non-Resettable
         Never = 1,
         Weekly = 2,
         Monthly = 3,
