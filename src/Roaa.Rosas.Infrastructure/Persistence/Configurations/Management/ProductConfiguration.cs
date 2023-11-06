@@ -21,7 +21,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.DeactivationUrl).IsRequired(false).HasMaxLength(250);
             builder.Property(r => r.DeletionUrl).IsRequired(false).HasMaxLength(250);
             builder.Property(r => r.ApiKey).IsRequired(false).HasMaxLength(250);
-            builder.Property(r => r.ResetUrl).IsRequired(false).HasMaxLength(250);
+            builder.Property(r => r.SubscriptionResetUrl).IsRequired(false).HasMaxLength(250);
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.ModifiedByUserId).IsRequired();
             builder.Property(r => r.CreationDate).IsRequired();
