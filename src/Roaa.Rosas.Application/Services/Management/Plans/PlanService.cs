@@ -48,6 +48,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                           {
                                               Id = plan.Id,
                                               Name = plan.Name,
+                                              Title = plan.Title,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
@@ -76,6 +77,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               {
                                                   Id = plan.Id,
                                                   Name = plan.Name,
+                                                  Title = plan.Title,
                                                   Description = plan.Description,
                                                   DisplayOrder = plan.DisplayOrder,
                                                   CreatedDate = plan.CreationDate,
@@ -98,7 +100,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               .Select(plan => new LookupItemDto<Guid>
                                               {
                                                   Id = plan.Id,
-                                                  Name = plan.Name,
+                                                  Name = plan.Title,
                                               })
                                                .OrderBy(x => x.Name)
                                               .ToListAsync(cancellationToken);
@@ -116,6 +118,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                           {
                                               Id = plan.Id,
                                               Name = plan.Name,
+                                              Title = plan.Title,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
@@ -142,6 +145,12 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             {
                 return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, "productId");
             }
+
+            if (!await EnsureUniqueNameAsync(productId, model.Name))
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+            }
+
             #endregion
 
 
@@ -153,6 +162,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 Id = id,
                 ProductId = model.ProductId,
                 Name = model.Name,
+                Title = model.Title,
                 Description = model.Description,
                 DisplayOrder = model.DisplayOrder,
                 CreatedByUserId = _identityContextService.UserId,
@@ -188,14 +198,20 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
 
+            if (!await EnsureUniqueNameAsync(productId, model.Name, id))
+            {
+                return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+            }
             #endregion
             Plan planBeforeUpdate = plan.DeepCopy();
 
             plan.Name = model.Name;
+            plan.Title = model.Title;
             plan.Description = model.Description;
             plan.DisplayOrder = model.DisplayOrder;
             plan.ModifiedByUserId = _identityContextService.UserId;
             plan.ModificationDate = DateTime.UtcNow;
+
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -267,5 +283,15 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
 
         }
         #endregion
+
+
+        private async Task<bool> EnsureUniqueNameAsync(Guid productId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
+        {
+            return !await _dbContext.Plans
+                                    .Where(x => x.Id != id &&
+                                               x.ProductId == productId &&
+                                                uniqueName.ToLower().Equals(x.Name))
+                                    .AnyAsync(cancellationToken);
+        }
     }
 }

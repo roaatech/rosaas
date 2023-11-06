@@ -50,6 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             {
                 Id = feature.Id,
                 Name = feature.Name,
+                Title = feature.Title,
                 Description = feature.Description,
                 Reset = feature.Reset,
                 Type = feature.Type,
@@ -74,6 +75,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               {
                                                   Id = feature.Id,
                                                   Name = feature.Name,
+                                                  Title = feature.Title,
                                                   Description = feature.Description,
                                                   Reset = feature.Reset,
                                                   Type = feature.Type,
@@ -95,7 +97,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               .Select(feature => new LookupItemDto<Guid>
                                               {
                                                   Id = feature.Id,
-                                                  Name = feature.Name,
+                                                  Name = feature.Title,
                                               })
                                                .OrderBy(x => x.Name)
                                               .ToListAsync(cancellationToken);
@@ -113,6 +115,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                           {
                                               Id = feature.Id,
                                               Name = feature.Name,
+                                              Title = feature.Title,
                                               Description = feature.Description,
                                               Reset = feature.Reset,
                                               Type = feature.Type,
@@ -139,6 +142,10 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, "productId");
             }
 
+            if (!await EnsureUniqueNameAsync(productId, model.Name))
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+            }
             #endregion
 
 
@@ -150,6 +157,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 Id = id,
                 ProductId = productId,
                 Name = model.Name,
+                Title = model.Title,
                 Description = model.Description,
                 Reset = model.Reset,
                 Type = model.Type,
@@ -185,15 +193,23 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             {
                 return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
+
+            if (!await EnsureUniqueNameAsync(productId, model.Name, id))
+            {
+                return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+            }
+
             #endregion
             Feature featureBeforeUpdate = feature.DeepCopy();
 
             feature.Name = model.Name;
+            feature.Title = model.Title;
             feature.Description = model.Description;
             feature.Reset = model.Reset;
             feature.Type = model.Type;
             feature.ModifiedByUserId = _identityContextService.UserId;
             feature.ModificationDate = DateTime.UtcNow;
+
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -231,5 +247,17 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             return Result.Successful();
         }
         #endregion
+
+
+
+
+        private async Task<bool> EnsureUniqueNameAsync(Guid productId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
+        {
+            return !await _dbContext.Features
+                                    .Where(x => x.Id != id &&
+                                               x.ProductId == productId &&
+                                                uniqueName.ToLower().Equals(x.Name))
+                                    .AnyAsync(cancellationToken);
+        }
     }
 }

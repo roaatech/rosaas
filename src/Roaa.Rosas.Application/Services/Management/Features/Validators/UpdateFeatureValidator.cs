@@ -13,6 +13,11 @@ namespace Roaa.Rosas.Application.Services.Management.Features.Validators
         {
             RuleFor(x => x.Name).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
+            RuleFor(x => x.Name).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+
+            RuleFor(x => x.Title).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+
+
             RuleFor(x => x.Reset).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
 
             RuleFor(x => x.Type).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
