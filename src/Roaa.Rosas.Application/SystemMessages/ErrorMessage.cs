@@ -86,5 +86,12 @@ namespace Roaa.Rosas.Application.SystemMessages
                En = "You are not allowed to change the tenant's status",
                Ar = "لا يسمح لكم بتغيير حالة المستأجر")]
         NotAllowedChangeStatus = 3008,
+
+
+        [Localization(
+               En = "The Subscription Rest Url is not existed",
+               Ar = "عنوان رابط إعادة تعيين الاشتراك غير موجود")]
+        RestUrlNotExist = 3009,
+
     }
 }
