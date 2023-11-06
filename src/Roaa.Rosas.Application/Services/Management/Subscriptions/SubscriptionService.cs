@@ -7,6 +7,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Events.Management;
+using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 {
@@ -110,25 +111,45 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
         {
             var date = DateTime.UtcNow;
             var subscriptionFeatures = await _dbContext.SubscriptionFeatures
+                                                        .Include(x => x.Feature)
                                                         .Where(x => x.Subscription.StartDate <= date &&
                                                                    x.Subscription.EndDate > date &&
                                                                   x.Subscription.IsPaid &&
+                                                                   x.RemainingUsage != null &&
                                                                    x.StartDate <= date &&
+                                                                   x.EndDate != null &&
                                                                   x.EndDate < date)
                                                        .ToListAsync();
+            return await ResetSubscriptionsFeaturesAsync(subscriptionFeatures: subscriptionFeatures,
+                                                         comment: null,
+                                                         systemComment: "Reset by the System",
+                                                         cancellationToken: cancellationToken);
+        }
+
+
+        public async Task<Result> ResetSubscriptionsFeaturesAsync(List<SubscriptionFeature> subscriptionFeatures, string? comment, string? systemComment, CancellationToken cancellationToken = default)
+        {
+            var date = DateTime.UtcNow;
 
             if (subscriptionFeatures.Any())
             {
-                var cyclesIds = subscriptionFeatures.Select(x => x.SubscriptionFeatureCycleId).ToList();
+                var featureCyclesIds = subscriptionFeatures
+                                                .Select(x => x.SubscriptionFeatureCycleId)
+                                                .ToList();
 
-                var cycles = await _dbContext.SubscriptionFeatureCycles
-                                                           .Where(x => cyclesIds.Contains(x.Id))
+                var featureCycles = await _dbContext.SubscriptionFeatureCycles
+                                                           .Where(x => featureCyclesIds.Contains(x.Id))
                                                            .ToListAsync();
 
+                // Adds a new cycle to the subscription's features
                 foreach (var subscriptionFeature in subscriptionFeatures)
                 {
-                    var cycle = cycles.Where(x => x.Id == subscriptionFeature.SubscriptionFeatureCycleId).FirstOrDefault();
+                    var cycle = featureCycles
+                                    .Where(x => x.Id == subscriptionFeature.SubscriptionFeatureCycleId)
+                                    .FirstOrDefault();
 
+
+                    // Adds a new cycle to the current subscription's feature 
                     var subscriptionFeatureCycle = new SubscriptionFeatureCycle()
                     {
                         Id = Guid.NewGuid(),
@@ -153,6 +174,8 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                         ModificationDate = date,
                     };
 
+
+                    // update the subscription's feature by the new cycle of current subscription's feature 
                     subscriptionFeature.SubscriptionFeatureCycleId = subscriptionFeatureCycle.Id;
                     subscriptionFeature.StartDate = subscriptionFeatureCycle.StartDate;
                     subscriptionFeature.EndDate = subscriptionFeatureCycle.EndDate;
@@ -161,11 +184,47 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     _dbContext.SubscriptionFeatureCycles.Add(subscriptionFeatureCycle);
                 }
 
+
+
+                // retrieving the subscriptions 
+                var subscriptionsIds = subscriptionFeatures.Select(x => x.SubscriptionId).Distinct().ToList();
+
+
+                var subscriptions = await _dbContext.Subscriptions
+                                                    .Where(x => subscriptionsIds.Contains(x.Id))
+                                                    .ToListAsync();
+
+                // update the LastLimitsResetDate property value of subscription's 
+                foreach (var subscription in subscriptions)
+                {
+
+
+                    subscription.LastLimitsResetDate = date;
+
+                    var subscriptionFeatureItems = subscriptionFeatures
+                                                        .Where(x => x.SubscriptionId == subscription.Id)
+                                                        .Select(x => new SubscriptionFeatureItemModel(
+                                                                                        subscriptionFeatureId: x.Id,
+                                                                                        name: x.Feature?.Name ?? ""))
+                                                        .ToList();
+
+                    subscription.AddDomainEvent(new SubscriptionFeaturesLimitsResetEvent(
+                                                                 subscriptionFeatures: subscriptionFeatureItems,
+                                                                 subscription: subscription,
+                                                                 comment: comment,
+                                                                 systemComment: systemComment));
+
+                }
+
+
+
                 await _dbContext.SaveChangesAsync();
             }
 
             return Result.Successful();
         }
+
+
 
         public async Task<Result> Temp__RenewSubscriptionsAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
         {
