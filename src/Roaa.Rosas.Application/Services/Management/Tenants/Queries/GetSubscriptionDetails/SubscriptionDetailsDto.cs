@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public DateTime EndDate { get; set; }
         public DateTime? LastResetDate { get; set; }
         public DateTime? LastLimitsResetDate { get; set; }
-        public LookupItemDto<Guid> Plan { get; set; } = new();
+        public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public PlanPriceDto PlanPrice { get; set; } = new();
         public SubscriptionAutoRenewalDto? AutoRenewal { get; set; }
         public IEnumerable<SubscriptionFeatureDto> SubscriptionFeatures { get; set; } = new List<SubscriptionFeatureDto>();
@@ -29,7 +29,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
     public class SubscriptionCycleDto
     {
         public Guid Id { get; set; }
-        public LookupItemDto<Guid> Plan { get; set; } = new();
+        public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public PlanCycle Cycle { get; set; }
         public decimal Price { get; set; }
         public DateTime StartDate { get; set; }
@@ -62,7 +62,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
     {
         public Guid Id { get; set; }
         public Guid SubscriptionCycleId { get; set; }
-        public LookupItemDto<Guid> Feature { get; set; } = new();
+        public CustomLookupItemDto<Guid> Feature { get; set; } = new();
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public FeatureType Type { get; set; }
@@ -75,6 +75,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
     public class FeatureDto
     {
         public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public FeatureType Type { get; set; }
