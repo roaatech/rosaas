@@ -13,8 +13,18 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public DateTime? LastLimitsResetDate { get; set; }
         public LookupItemDto<Guid> Plan { get; set; } = new();
         public PlanPriceDto PlanPrice { get; set; } = new();
+        public SubscriptionAutoRenewalDto? AutoRenewal { get; set; }
         public IEnumerable<SubscriptionFeatureDto> SubscriptionFeatures { get; set; } = new List<SubscriptionFeatureDto>();
         public IEnumerable<SubscriptionCycleDto> SubscriptionCycles { get; set; } = new List<SubscriptionCycleDto>();
+    }
+
+    public class SubscriptionAutoRenewalDto
+    {
+        public PlanCycle Cycle { get; set; }
+        public decimal Price { get; set; }
+        public string? Comment { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime EditedDate { get; set; }
     }
     public class SubscriptionCycleDto
     {

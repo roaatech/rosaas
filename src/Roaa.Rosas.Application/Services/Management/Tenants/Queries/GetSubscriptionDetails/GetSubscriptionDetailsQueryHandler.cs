@@ -93,7 +93,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                              RemainingUsage = featureCycle.RemainingUsage,
                                                              TotalUsage = featureCycle.TotalUsage,
                                                          }),
-                                                     })
+                                                     }),
+                                                     AutoRenewal = subscription.AutoRenewal == null ? null : new SubscriptionAutoRenewalDto
+                                                     {
+                                                         Cycle = subscription.AutoRenewal.Cycle,
+                                                         Price = subscription.AutoRenewal.Price,
+                                                         EditedDate = subscription.AutoRenewal.ModificationDate,
+                                                         CreatedDate = subscription.AutoRenewal.CreationDate,
+                                                     },
                                                  })
                                                  .SingleOrDefaultAsync(cancellationToken);
 
