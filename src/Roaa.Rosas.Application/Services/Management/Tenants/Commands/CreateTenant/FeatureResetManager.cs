@@ -46,7 +46,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
         private sealed class NeverFeatureReset : FeatureResetManager
         {
             #region Corts
-            public NeverFeatureReset() : base(FeatureReset.Never) { }
+            public NeverFeatureReset() : base(FeatureReset.NonResettable) { }
             #endregion 
 
             #region overrides  

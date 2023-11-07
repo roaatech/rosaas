@@ -28,8 +28,7 @@
     }
     public enum FeatureReset
     {
-        //Non-Resettable
-        Never = 1,
+        NonResettable = 1,
         Weekly = 2,
         Monthly = 3,
         Annual = 4,
