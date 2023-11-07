@@ -53,12 +53,12 @@ public class ResetSubscriptionCommandHandler : IRequestHandler<ResetSubscription
 
 
     #region Handler   
-    public async Task<Result> Handle(ResetSubscriptionCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ResetSubscriptionCommand command, CancellationToken cancellationToken)
     {
 
         var subscription = await _dbContext.Subscriptions
-                                               .Where(x => x.ProductId == request.ProductId &&
-                                                           x.TenantId == request.TenantId)
+                                               .Where(x => x.ProductId == command.ProductId &&
+                                                           x.TenantId == command.TenantId)
                                                .SingleOrDefaultAsync();
 
         if (subscription is null)
@@ -69,7 +69,7 @@ public class ResetSubscriptionCommandHandler : IRequestHandler<ResetSubscription
         // External System's url preparation
         Expression<Func<Product, ProductApiModel>> selector = x => new ProductApiModel(x.ApiKey, x.SubscriptionResetUrl);
 
-        var urlItemResult = await _productService.GetProductEndpointByIdAsync(request.ProductId, selector, cancellationToken);
+        var urlItemResult = await _productService.GetProductEndpointByIdAsync(command.ProductId, selector, cancellationToken);
 
         if (!urlItemResult.Success || (urlItemResult.Success && string.IsNullOrWhiteSpace(urlItemResult.Data.Url)))
         {
@@ -80,7 +80,7 @@ public class ResetSubscriptionCommandHandler : IRequestHandler<ResetSubscription
         // Unique Name tenant retrieving  
         Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
 
-        var tenantResult = await _tenantService.GetByIdAsync(request.TenantId, tenantSelector, cancellationToken);
+        var tenantResult = await _tenantService.GetByIdAsync(command.TenantId, tenantSelector, cancellationToken);
 
 
 
@@ -91,7 +91,7 @@ public class ResetSubscriptionCommandHandler : IRequestHandler<ResetSubscription
             {
                 BaseUrl = urlItemResult.Data.Url,
                 ApiKey = urlItemResult.Data.ApiKey,
-                TenantId = request.TenantId,
+                TenantId = command.TenantId,
                 Data = new()
                 {
                     TenantName = tenantResult.Data,
@@ -113,7 +113,7 @@ public class ResetSubscriptionCommandHandler : IRequestHandler<ResetSubscription
                                                 processType: callingResult.Success ? TenantProcessType.SubscriptionReset : TenantProcessType.SubscriptionResetFailure,
                                                 enabled: true,
                                                 processedData: processedData,
-                                                comment: request.Comment,
+                                                comment: command.Comment,
                                                 systemComment: string.Empty,
                                                 processId: out _,
                                                 subscription);
