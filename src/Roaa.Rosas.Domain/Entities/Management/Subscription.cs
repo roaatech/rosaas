@@ -26,6 +26,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public virtual Tenant? Tenant { get; set; }
         public virtual Product? Product { get; set; }
         public virtual TenantHealthStatus? HealthCheckStatus { get; set; }
+        public virtual SubscriptionAutoRenewal? AutoRenewal { get; set; }
         public virtual ICollection<SubscriptionFeature>? SubscriptionFeatures { get; set; }
         public virtual ICollection<SubscriptionCycle>? SubscriptionCycles { get; set; }
         public virtual ICollection<SpecificationValue>? SpecificationsValues { get; set; }
