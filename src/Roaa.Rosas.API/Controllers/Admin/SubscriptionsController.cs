@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CancelSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -45,6 +47,20 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
         [HttpPost("Features/Reset")]
         public async Task<IActionResult> ResetSubscriptionFeaturesLimitsAsync([FromBody] ResetSubscriptionFeatureLimitCommand command, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(command, cancellationToken));
+        }
+
+
+        [HttpPost("AutoRenewal")]
+        public async Task<IActionResult> SetSubscriptionAutoRenewalAsync([FromBody] SetSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(command, cancellationToken));
+        }
+
+
+        [HttpDelete("AutoRenewal")]
+        public async Task<IActionResult> CancelSubscriptionAutoRenewalAsync([FromBody] CancelSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(command, cancellationToken));
         }
