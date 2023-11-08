@@ -46,7 +46,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               .Select(planPrice => new PlanPriceListItemDto
                                               {
                                                   Id = planPrice.Id,
-                                                  Plan = new CustomLookupItemDto<Guid>(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.Title),
+                                                  Plan = new CustomLookupItemDto<Guid>(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName),
                                                   Cycle = planPrice.Cycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,

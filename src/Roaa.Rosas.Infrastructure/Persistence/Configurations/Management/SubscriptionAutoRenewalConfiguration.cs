@@ -16,7 +16,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.PlanId).IsRequired();
             builder.Property(r => r.PlanPriceId).IsRequired();
             builder.Property(r => r.SubscriptionId).IsRequired();
-            builder.Property(r => r.Cycle).IsRequired();
+            builder.Property(r => r.PlanCycle).IsRequired();
             builder.Property(r => r.Price).HasPrecision(8, 2).IsRequired();
             builder.Property(r => r.Comment).HasMaxLength(500);
             builder.Property(r => r.CreatedByUserId).IsRequired(true);

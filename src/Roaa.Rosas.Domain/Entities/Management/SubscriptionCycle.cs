@@ -2,7 +2,7 @@
 {
     public class SubscriptionCycle : BaseAuditableEntity
     {
-        public string PlanName { get; set; } = string.Empty;
+        public string PlanDisplayName { get; set; } = string.Empty;
         public PlanCycle Cycle { get; set; }
         public decimal Price { get; set; }
         public Guid SubscriptionId { get; set; }

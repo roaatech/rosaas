@@ -25,7 +25,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public UserType OwnerType { get; set; }
 
-        public DateTime Created { get; set; }
+        public DateTime CreationDate { get; set; }
 
         public DateTime TimeStamp { get; set; }
 

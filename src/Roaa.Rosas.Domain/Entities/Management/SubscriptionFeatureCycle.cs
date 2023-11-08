@@ -4,7 +4,7 @@
     {
         public Guid SubscriptionFeatureId { get; set; }
         public Guid SubscriptionCycleId { get; set; }
-        public string FeatureName { get; set; } = string.Empty;
+        public string FeatureDisplayName { get; set; } = string.Empty;
         public Guid PlanFeatureId { get; set; }
         public Guid FeatureId { get; set; }
         public Guid SubscriptionId { get; set; }

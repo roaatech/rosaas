@@ -14,7 +14,7 @@
 
         public string HealthCheckUrl { get; set; } = string.Empty;
 
-        public DateTime Created { get; set; }
+        public DateTime CreationDate { get; set; }
 
         public DateTime TimeStamp { get; set; }
 

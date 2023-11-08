@@ -52,7 +52,7 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
         DateTime date = DateTime.UtcNow;
 
 
-        tenant.Title = request.Title;
+        tenant.DisplayName = request.Title;
         tenant.ModifiedByUserId = _identityContextService.UserId;
         tenant.ModificationDate = date;
 
@@ -64,9 +64,9 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
                                                                  true,
                                                                   new ProcessedDataOfTenantModel(new ProcessedTenantPropertyValueModel
                                                                   {
-                                                                      Name = nameof(tenant.Title),
-                                                                      PreviousValue = tenantBeforeUpdate.Title,
-                                                                      UpdatedValue = tenant.Title,
+                                                                      Name = nameof(tenant.DisplayName),
+                                                                      PreviousValue = tenantBeforeUpdate.DisplayName,
+                                                                      UpdatedValue = tenant.DisplayName,
                                                                   }).Serialize(),
                                                                  out _,
                                                                  subscriptions));

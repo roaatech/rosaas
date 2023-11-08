@@ -3,7 +3,7 @@
     public class Feature : BaseAuditableEntity
     {
         public Guid ProductId { get; set; }
-        public string Title { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public FeatureType Type { get; set; }

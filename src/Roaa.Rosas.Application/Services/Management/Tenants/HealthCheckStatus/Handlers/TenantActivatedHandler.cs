@@ -38,7 +38,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
                     SubscriptionId = @event.SubscriptionId,
                     ProductId = @event.ProductId,
                     TenantId = @event.TenantId,
-                    Created = date,
+                    CreationDate = date,
                     Type = JobTaskType.Available,
                 };
 

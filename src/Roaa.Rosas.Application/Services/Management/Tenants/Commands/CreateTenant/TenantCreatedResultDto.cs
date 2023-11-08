@@ -33,7 +33,7 @@ public record ProductTenantCreatedResultDto
 
 public record PlanInfoModel
 {
-    public string PlanName { get; set; } = string.Empty;
+    public string PlanDisplayName { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public Guid PlanPriceId { get; set; }
     public Guid PlanId { get; set; }
@@ -56,7 +56,7 @@ public record FeatureInfoModel
     public FeatureType Type { get; set; }
     public FeatureUnit? Unit { get; set; }
     public FeatureReset Reset { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
 }
 public record SpecificationInfoModel
 {

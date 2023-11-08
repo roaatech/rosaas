@@ -48,7 +48,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                           {
                                               Id = plan.Id,
                                               Name = plan.Name,
-                                              Title = plan.Title,
+                                              Title = plan.DisplayName,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
@@ -77,7 +77,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               {
                                                   Id = plan.Id,
                                                   Name = plan.Name,
-                                                  Title = plan.Title,
+                                                  Title = plan.DisplayName,
                                                   Description = plan.Description,
                                                   DisplayOrder = plan.DisplayOrder,
                                                   CreatedDate = plan.CreationDate,
@@ -100,7 +100,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               .Select(plan => new LookupItemDto<Guid>
                                               {
                                                   Id = plan.Id,
-                                                  Name = plan.Title,
+                                                  Name = plan.DisplayName,
                                               })
                                                .OrderBy(x => x.Name)
                                               .ToListAsync(cancellationToken);
@@ -118,7 +118,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                           {
                                               Id = plan.Id,
                                               Name = plan.Name,
-                                              Title = plan.Title,
+                                              Title = plan.DisplayName,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
@@ -162,7 +162,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 Id = id,
                 ProductId = model.ProductId,
                 Name = model.Name,
-                Title = model.Title,
+                DisplayName = model.Title,
                 Description = model.Description,
                 DisplayOrder = model.DisplayOrder,
                 CreatedByUserId = _identityContextService.UserId,
@@ -206,7 +206,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             Plan planBeforeUpdate = plan.DeepCopy();
 
             plan.Name = model.Name;
-            plan.Title = model.Title;
+            plan.DisplayName = model.Title;
             plan.Description = model.Description;
             plan.DisplayOrder = model.DisplayOrder;
             plan.ModifiedByUserId = _identityContextService.UserId;

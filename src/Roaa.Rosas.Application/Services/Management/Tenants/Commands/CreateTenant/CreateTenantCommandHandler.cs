@@ -65,7 +65,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                         .Where(x => planPriceIds.Contains(x.Id))
                                         .Select(x => new PlanInfoModel
                                         {
-                                            PlanName = x.Plan.Name,
+                                            PlanDisplayName = x.Plan.DisplayName,
                                             Price = x.Price,
                                             PlanPriceId = x.Id,
                                             PlanId = x.PlanId,
@@ -164,7 +164,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                                 Unit = x.Unit,
                                                 PlanId = x.PlanId,
                                                 Limit = x.Limit,
-                                                Name = x.Feature.Name,
+                                                DisplayName = x.Feature.DisplayName,
                                                 Type = x.Feature.Type,
                                                 Reset = x.Feature.Reset,
                                             })
@@ -262,7 +262,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         {
             Id = id,
             UniqueName = model.UniqueName.ToLower(),
-            Title = model.Title,
+            DisplayName = model.Title,
             CreatedByUserId = _identityContextService.GetActorId(),
             ModifiedByUserId = _identityContextService.GetActorId(),
             CreationDate = _date,
@@ -298,7 +298,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                         PlanPriceId = item.PlanPriceId,
                         ProductId = item.Product.Id,
                         Cycle = item.PlanCycle,
-                        PlanName = item.PlanName,
+                        PlanDisplayName = item.PlanDisplayName,
                         CreatedByUserId = _identityContextService.GetActorId(),
                         ModifiedByUserId = _identityContextService.GetActorId(),
                         CreationDate = _date,
@@ -334,7 +334,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                             TotalUsage = f.Limit is null ? null : 0,
                             RemainingUsage = f.Limit,
                             Cycle = item.PlanCycle,
-                            FeatureName = f.Name,
+                            FeatureDisplayName = f.DisplayName,
                             PlanFeatureId = f.PlanFeatureId,
                             CreatedByUserId = _identityContextService.GetActorId(),
                             ModifiedByUserId = _identityContextService.GetActorId(),
@@ -397,7 +397,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             PreviousStep = initialProcess.CurrentStep,
             OwnerId = _identityContextService.GetActorId(),
             OwnerType = _identityContextService.GetUserType(),
-            Created = _date,
+            CreationDate = _date,
             TimeStamp = _date,
             Message = initialProcess.Message
         });

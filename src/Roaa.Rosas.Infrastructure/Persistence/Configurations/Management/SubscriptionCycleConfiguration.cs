@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         {
             builder.ToTableName("RosasSubscriptionCycles");
             builder.HasKey(x => x.Id);
-            builder.Property(r => r.PlanName).IsRequired().HasMaxLength(250).IsUnicode();
+            builder.Property(r => r.PlanDisplayName).IsRequired().HasMaxLength(250).IsUnicode();
             builder.HasOne(b => b.Subscription).WithMany(p => p.SubscriptionCycles).HasForeignKey(f => f.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
             builder.Property(r => r.Cycle).IsRequired();
             builder.Property(r => r.Price).HasPrecision(8, 2).IsRequired();
