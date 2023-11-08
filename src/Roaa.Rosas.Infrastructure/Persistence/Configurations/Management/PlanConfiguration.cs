@@ -12,6 +12,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.ToTableName("RosasPlans");
             builder.HasKey(x => x.Id);
             builder.Property(r => r.Name).IsRequired().HasMaxLength(250).IsUnicode();
+            builder.Property(r => r.Title).IsRequired(false).HasMaxLength(250).IsUnicode();
             builder.Property(r => r.Description).IsRequired(false).HasMaxLength(500).IsUnicode();
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.ModifiedByUserId).IsRequired();

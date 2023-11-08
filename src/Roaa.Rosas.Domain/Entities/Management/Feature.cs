@@ -3,6 +3,7 @@
     public class Feature : BaseAuditableEntity
     {
         public Guid ProductId { get; set; }
+        public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public FeatureType Type { get; set; }
@@ -20,13 +21,14 @@
     }
     public enum FeatureUnit
     {
-        K = 1,
+        item = 1,
         MB = 2,
         GB = 3,
+        K = 4,
     }
     public enum FeatureReset
     {
-        Never = 1,
+        NonResettable = 1,
         Weekly = 2,
         Monthly = 3,
         Annual = 4,

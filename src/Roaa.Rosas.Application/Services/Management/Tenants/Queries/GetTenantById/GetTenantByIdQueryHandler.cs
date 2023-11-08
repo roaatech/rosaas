@@ -60,6 +60,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                          ExpectedResourceStatus = subscription.ExpectedResourceStatus,
                                                          CreatedDate = subscription.CreationDate,
                                                          EditedDate = subscription.ModificationDate,
+                                                         LastResetDate = subscription.LastResetDate,
+                                                         LastLimitsResetDate = subscription.LastLimitsResetDate,
                                                          Metadata = subscription.Metadata,
                                                          HealthCheckUrl = subscription.HealthCheckUrl,
                                                          HealthCheckUrlIsOverridden = subscription.HealthCheckUrlIsOverridden,

@@ -84,6 +84,15 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
         }
 
 
+        public async Task<Result<ExternalSystemResultModel<dynamic>>> ResetTenantAsync(ExternalSystemRequestModel<ResetTenantModel> model, CancellationToken cancellationToken = default)
+        {
+            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
+
+            var result = await _requestBroker.PostAsync<dynamic, ResetTenantModel>(request, cancellationToken);
+
+            return RetrieveResult(result, request.Uri);
+        }
+
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> InformTheTenantUnavailableAsync(ExternalSystemRequestModel<InformTheTenantUnavailableModel> model, CancellationToken cancellationToken = default)
         {

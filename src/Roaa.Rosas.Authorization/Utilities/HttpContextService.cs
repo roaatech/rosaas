@@ -124,13 +124,14 @@ namespace Roaa.Rosas.Authorization.Utilities
         {
             if (locale is null)
             {
-                locale = HttpContext.Request.Headers
-                                            .FirstOrDefault(h => "Accept-Language".Equals(h.Key, StringComparison.OrdinalIgnoreCase))
-                                            .Value
-                                            .ToString()
-                                            .ToLanguageOrDefault();
+                locale = HttpContext?.Request?.Headers
+                                        .FirstOrDefault(h => "Accept-Language".Equals(h.Key, StringComparison.OrdinalIgnoreCase))
+                                        .Value
+                                        .ToString()
+                                        .ToLanguageOrDefault();
+
             }
-            return locale.Value;
+            return locale ?? Constants.DefaultLanguage;
         }
 
         private string GetHostUrl()

@@ -58,6 +58,13 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         }
 
 
+        [HttpPost("reset")]
+        public async Task<IActionResult> ResetTenantAsync(TenantModel model, CancellationToken cancellationToken = default)
+        {
+            var info = Request;
+            return Ok(model);
+        }
+
         [HttpGet("{name}/health-check")]
         public async Task<IActionResult> HealthCheckAsync(string name, CancellationToken cancellationToken = default)
         {

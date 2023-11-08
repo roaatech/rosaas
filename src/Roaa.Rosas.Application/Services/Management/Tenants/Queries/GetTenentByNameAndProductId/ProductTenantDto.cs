@@ -18,7 +18,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
         public DateTime EndDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
-        public LookupItemDto<Guid> Plan { get; set; } = new();
+        public DateTime? LastResetDate { get; set; }
+        public DateTime? LastLimitsResetDate { get; set; }
+        public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public IEnumerable<SpecificationListItemDto> Specifications { get; set; } = new List<SpecificationListItemDto>();
     }
     public record SpecificationListItemDto

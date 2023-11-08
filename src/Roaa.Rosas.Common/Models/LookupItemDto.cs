@@ -13,7 +13,7 @@
         }
         #endregion
 
-         
+
     }
 
     public class LookupItemDto<TId, TName>
@@ -32,7 +32,29 @@
         #endregion
 
         public TId Id { get; set; }
-        public TName? Name { get; set; } 
-         
+        public TName? Name { get; set; }
+
+    }
+
+    public class CustomLookupItemDto<TId>
+    {
+        #region constructors
+        public CustomLookupItemDto()
+        {
+
+        }
+
+        public CustomLookupItemDto(TId id, string name, string title)
+        {
+            Id = id;
+            Name = name;
+            Title = title;
+        }
+        #endregion
+
+        public TId Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+
     }
 }

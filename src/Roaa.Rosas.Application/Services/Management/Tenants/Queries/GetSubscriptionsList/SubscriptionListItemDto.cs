@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public TenantStatus Status { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public LookupItemDto<Guid> Plan { get; set; } = new();
+        public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
     }

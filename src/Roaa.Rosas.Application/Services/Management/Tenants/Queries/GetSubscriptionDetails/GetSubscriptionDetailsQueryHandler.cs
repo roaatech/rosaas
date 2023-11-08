@@ -35,10 +35,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      CurrentSubscriptionCycleId = subscription.SubscriptionCycleId,
                                                      StartDate = subscription.StartDate,
                                                      EndDate = subscription.EndDate,
-                                                     Plan = new LookupItemDto<Guid>
+                                                     LastResetDate = subscription.LastResetDate,
+                                                     LastLimitsResetDate = subscription.LastLimitsResetDate,
+                                                     Plan = new CustomLookupItemDto<Guid>
                                                      {
                                                          Id = subscription.Plan.Id,
                                                          Name = subscription.Plan.Name,
+                                                         Title = subscription.Plan.Title,
                                                      },
                                                      PlanPrice = new PlanPriceDto
                                                      {
@@ -53,7 +56,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                          EndDate = SubscriptionCycle.EndDate,
                                                          Cycle = SubscriptionCycle.Cycle,
                                                          Price = SubscriptionCycle.Price,
-                                                         Plan = new LookupItemDto<Guid>(SubscriptionCycle.PlanId, SubscriptionCycle.PlanName),
+                                                         Plan = new CustomLookupItemDto<Guid>(SubscriptionCycle.PlanId, SubscriptionCycle.PlanName, SubscriptionCycle.PlanName),
 
                                                      }),
                                                      SubscriptionFeatures = subscription.SubscriptionFeatures.Select(subscriptionFeature => new SubscriptionFeatureDto
@@ -67,6 +70,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                          {
                                                              Id = subscriptionFeature.Feature.Id,
                                                              Name = subscriptionFeature.Feature.Name,
+                                                             Title = subscriptionFeature.Feature.Title,
                                                              Description = subscriptionFeature.Feature.Description,
                                                              Type = subscriptionFeature.Feature.Type,
                                                              Reset = subscriptionFeature.Feature.Reset,
@@ -83,7 +87,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                              SubscriptionCycleId = featureCycle.SubscriptionCycleId,
                                                              StartDate = featureCycle.StartDate,
                                                              EndDate = featureCycle.EndDate,
-                                                             Feature = new LookupItemDto<Guid>(featureCycle.FeatureId, featureCycle.FeatureName),
+                                                             Feature = new CustomLookupItemDto<Guid>(featureCycle.FeatureId, featureCycle.FeatureName, featureCycle.FeatureName),
                                                              Limit = featureCycle.Limit,
                                                              Reset = featureCycle.Reset,
                                                              Type = featureCycle.Type,
@@ -91,7 +95,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                              RemainingUsage = featureCycle.RemainingUsage,
                                                              TotalUsage = featureCycle.TotalUsage,
                                                          }),
-                                                     })
+                                                     }),
+                                                     AutoRenewal = subscription.AutoRenewal == null ? null : new SubscriptionAutoRenewalDto
+                                                     {
+                                                         Cycle = subscription.AutoRenewal.Cycle,
+                                                         Price = subscription.AutoRenewal.Price,
+                                                         EditedDate = subscription.AutoRenewal.ModificationDate,
+                                                         CreatedDate = subscription.AutoRenewal.CreationDate,
+                                                     },
                                                  })
                                                  .SingleOrDefaultAsync(cancellationToken);
 

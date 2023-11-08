@@ -64,7 +64,9 @@ namespace Roaa.Rosas.Domain.Entities.Management
         FailedToInformExternalSystem,
         SuspendingThePaymentStatusForTenantSubscriptionDueToNonRenewalOfTheSubscription,
         SpecificationsUpdated,
-
+        SubscriptionReset,
+        SubscriptionResetFailure,
+        SubscriptionFeatureLimitReset,
     }
 
 

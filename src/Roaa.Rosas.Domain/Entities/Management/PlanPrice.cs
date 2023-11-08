@@ -10,6 +10,7 @@
         public bool IsSubscribed { get; set; }
         public virtual Plan? Plan { get; set; }
         public virtual ICollection<Subscription>? Subscriptions { get; set; }
+        public virtual ICollection<SubscriptionAutoRenewal>? SubscriptionAutoRenewals { get; set; }
     }
 
 
