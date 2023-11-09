@@ -36,8 +36,9 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
     public async Task<Result> Handle(SetSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken)
     {
         var planPrice = await _dbContext.PlanPrices
-                                               .Where(x => x.Id == command.PlanPriceId)
-                                               .SingleOrDefaultAsync();
+                                        .Include(p => p.Plan)
+                                        .Where(x => x.Id == command.PlanPriceId)
+                                        .SingleOrDefaultAsync();
         if (planPrice is null)
         {
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.PlanPriceId));
@@ -52,8 +53,8 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
 
         var date = DateTime.UtcNow;
         var autoRenewal = await _dbContext.SubscriptionAutoRenewals
-                              .Where(x => x.Id == command.SubscriptionId)
-                                .SingleOrDefaultAsync();
+                                            .Where(x => x.Id == command.SubscriptionId)
+                                            .SingleOrDefaultAsync();
         if (autoRenewal is null)
         {
             autoRenewal = new SubscriptionAutoRenewal
@@ -62,8 +63,9 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
                 SubscriptionId = command.SubscriptionId,
                 PlanPriceId = command.PlanPriceId,
                 PlanId = planPrice.PlanId,
-                Cycle = planPrice.Cycle,
+                PlanCycle = planPrice.PlanCycle,
                 Price = planPrice.Price,
+                PlanDisplayName = planPrice.Plan.DisplayName,
                 UpcomingAutoRenewalsCount = 1,
                 IsPaid = true,
                 Comment = command.Comment,
@@ -79,19 +81,15 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
         {
             autoRenewal.PlanPriceId = command.PlanPriceId;
             autoRenewal.PlanId = planPrice.PlanId;
-            autoRenewal.Cycle = planPrice.Cycle;
+            autoRenewal.PlanCycle = planPrice.PlanCycle;
             autoRenewal.Price = planPrice.Price;
+            autoRenewal.PlanDisplayName = planPrice.Plan.DisplayName;
             autoRenewal.Comment = command.Comment;
             autoRenewal.ModifiedByUserId = _identityContextService.UserId;
             autoRenewal.ModificationDate = date;
         }
 
-
-
-
         autoRenewal.AddDomainEvent(new SubscriptionAutoRenewalEnabledEvent(autoRenewal, command.Comment));
-
-
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

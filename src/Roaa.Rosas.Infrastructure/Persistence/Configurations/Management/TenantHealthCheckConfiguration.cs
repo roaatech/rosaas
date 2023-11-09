@@ -17,7 +17,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.Duration).IsRequired();
             builder.Property(r => r.IsHealthy).IsRequired();
             builder.Property(r => r.TimeStamp).IsRequired();
-            builder.Property(r => r.Created).IsRequired();
+            builder.Property(r => r.CreationDate).IsRequired();
             builder.Property(r => r.HealthCheckUrl).IsRequired().HasMaxLength(250);
             builder.Property(r => r.TimeStamp).HasConversion(
                 v => v.Ticks,

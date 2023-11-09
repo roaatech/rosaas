@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             {
                 Id = feature.Id,
                 Name = feature.Name,
-                Title = feature.Title,
+                Title = feature.DisplayName,
                 Description = feature.Description,
                 Reset = feature.Reset,
                 Type = feature.Type,
@@ -75,7 +75,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               {
                                                   Id = feature.Id,
                                                   Name = feature.Name,
-                                                  Title = feature.Title,
+                                                  Title = feature.DisplayName,
                                                   Description = feature.Description,
                                                   Reset = feature.Reset,
                                                   Type = feature.Type,
@@ -97,7 +97,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               .Select(feature => new LookupItemDto<Guid>
                                               {
                                                   Id = feature.Id,
-                                                  Name = feature.Title,
+                                                  Name = feature.DisplayName,
                                               })
                                                .OrderBy(x => x.Name)
                                               .ToListAsync(cancellationToken);
@@ -115,7 +115,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                           {
                                               Id = feature.Id,
                                               Name = feature.Name,
-                                              Title = feature.Title,
+                                              Title = feature.DisplayName,
                                               Description = feature.Description,
                                               Reset = feature.Reset,
                                               Type = feature.Type,
@@ -157,9 +157,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 Id = id,
                 ProductId = productId,
                 Name = model.Name,
-                Title = model.Title,
+                DisplayName = model.Title,
                 Description = model.Description,
-                Reset = model.Reset,
+                Reset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset,
                 Type = model.Type,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
@@ -203,9 +203,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             Feature featureBeforeUpdate = feature.DeepCopy();
 
             feature.Name = model.Name;
-            feature.Title = model.Title;
+            feature.DisplayName = model.Title;
             feature.Description = model.Description;
-            feature.Reset = model.Reset;
+            feature.Reset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset;
             feature.Type = model.Type;
             feature.ModifiedByUserId = _identityContextService.UserId;
             feature.ModificationDate = DateTime.UtcNow;

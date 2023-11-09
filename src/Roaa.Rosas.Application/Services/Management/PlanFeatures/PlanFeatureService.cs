@@ -49,12 +49,13 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   {
                                                       Id = planFeature.PlanId,
                                                       Name = planFeature.Plan.Name,
+                                                      Title = planFeature.Plan.DisplayName,
                                                       DisplayOrder = planFeature.Plan.DisplayOrder,
                                                       IsPublished = planFeature.Plan.IsPublished,
                                                       IsSubscribed = planFeature.Plan.IsSubscribed,
                                                   },
                                                   Limit = planFeature.Limit,
-                                                  Unit = planFeature.Unit,
+                                                  Unit = planFeature.FeatureUnit,
                                                   Description = planFeature.Description,
                                                   CreatedDate = planFeature.CreationDate,
                                                   EditedDate = planFeature.ModificationDate,
@@ -62,6 +63,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   {
                                                       Id = planFeature.Feature.Id,
                                                       Name = planFeature.Feature.Name,
+                                                      Title = planFeature.Feature.DisplayName,
                                                       Type = planFeature.Feature.Type,
                                                       IsSubscribed = planFeature.Feature.IsSubscribed,
                                                       Reset = planFeature.Feature.Reset,
@@ -81,6 +83,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                    {
                                        Id = plan.Id,
                                        Name = plan.Name,
+                                       Title = plan.DisplayName,
                                        DisplayOrder = plan.DisplayOrder,
                                    },
                                })
@@ -136,7 +139,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 FeatureId = model.FeatureId,
                 PlanId = model.PlanId,
                 Limit = model.Limit,
-                Unit = model.Unit,
+                FeatureUnit = model.Unit,
                 Description = model.Description,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
@@ -179,7 +182,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             PlanFeature featureBeforeUpdate = planFeature.DeepCopy();
 
             planFeature.Limit = model.Limit;
-            planFeature.Unit = model.Unit;
+            planFeature.FeatureUnit = model.Unit;
             planFeature.Description = model.Description;
             planFeature.ModifiedByUserId = _identityContextService.UserId;
             planFeature.ModificationDate = DateTime.UtcNow;

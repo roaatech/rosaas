@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             {
                 Id = Guid.NewGuid(),
                 TimeStamp = date,
-                Created = date,
+                CreationDate = date,
                 SubscriptionId = jobTask.SubscriptionId,
                 ProductId = jobTask.ProductId,
                 TenantId = jobTask.TenantId,
@@ -250,7 +250,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             {
                 Id = Guid.NewGuid(),
                 TimeStamp = date,
-                Created = date,
+                CreationDate = date,
                 SubscriptionId = jobTask.SubscriptionId,
                 ProductId = jobTask.ProductId,
                 TenantId = jobTask.TenantId,
@@ -269,7 +269,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             var entity = new JobTask
             {
                 Id = Guid.NewGuid(),
-                Created = DateTime.UtcNow,
+                CreationDate = DateTime.UtcNow,
                 SubscriptionId = jobTask.SubscriptionId,
                 ProductId = jobTask.ProductId,
                 TenantId = jobTask.TenantId,
@@ -316,7 +316,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
             _backgroundWorkerStore.AddAvailableTenantTask(new JobTask
             {
                 Id = Guid.NewGuid(),
-                Created = DateTime.UtcNow,
+                CreationDate = DateTime.UtcNow,
                 SubscriptionId = jobTask.SubscriptionId,
                 ProductId = jobTask.ProductId,
                 TenantId = jobTask.TenantId,

@@ -6,7 +6,7 @@
         public Guid ProductId { get; set; }
         public Guid SubscriptionId { get; set; }
         public JobTaskType Type { get; set; }
-        public DateTime Created { get; set; }
+        public DateTime CreationDate { get; set; }
 
     }
 

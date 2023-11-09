@@ -42,7 +42,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantSt
                                                       OwnerId = x.OwnerId,
                                                       OwnerType = x.OwnerType,
                                                       Message = x.Message,
-                                                      Created = x.Created,
+                                                      Created = x.CreationDate,
                                                   })
                                                   .OrderByDescending(x => x.Created)
                                                   .ToListAsync(cancellationToken);

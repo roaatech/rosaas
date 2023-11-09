@@ -38,7 +38,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsP
                                                      {
                                                          Id = tenant.Id,
                                                          UniqueName = tenant.UniqueName,
-                                                         Title = tenant.Title,
+                                                         Title = tenant.DisplayName,
                                                          Subscriptions = tenant.Subscriptions.Select(x => new SubscriptionDto
                                                          {
                                                              ProductId = x.ProductId,

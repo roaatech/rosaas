@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 ExpectedResourceStatus = @event.Subscription.ExpectedResourceStatus,
                 OwnerId = _identityContextService.GetActorId(),
                 OwnerType = _identityContextService.GetUserType(),
-                Created = date,
+                CreationDate = date,
                 TimeStamp = date,
                 Message = @event.Workflow.Message,
             };

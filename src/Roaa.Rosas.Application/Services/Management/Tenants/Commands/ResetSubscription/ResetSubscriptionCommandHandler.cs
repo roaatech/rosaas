@@ -121,7 +121,7 @@ public class ResetSubscriptionCommandHandler : IRequestHandler<ResetSubscription
         {
             var date = DateTime.UtcNow;
 
-            subscription.LastLimitsResetDate = date;
+            subscription.LastResetDate = date;
 
             subscription.AddDomainEvent(tenantProcessingCompletedEvent);
 

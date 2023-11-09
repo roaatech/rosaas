@@ -3,7 +3,7 @@
     public class PlanPrice : BaseAuditableEntity
     {
         public Guid PlanId { get; set; }
-        public PlanCycle Cycle { get; set; }
+        public PlanCycle PlanCycle { get; set; }
         public decimal Price { get; set; }
         public string Description { get; set; } = string.Empty;
         public bool IsPublished { get; set; }

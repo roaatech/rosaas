@@ -42,7 +42,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                  {
                                                      Id = tenant.Id,
                                                      UniqueName = tenant.UniqueName,
-                                                     Title = tenant.Title,
+                                                     Title = tenant.DisplayName,
                                                      CreatedDate = tenant.CreationDate,
                                                      EditedDate = tenant.ModificationDate,
                                                      Subscriptions = tenant.Subscriptions.Select(subscription => new SubscriptionDto

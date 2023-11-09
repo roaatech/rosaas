@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 
@@ -10,9 +11,11 @@ using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 {
     [DbContext(typeof(RosasDbContext))]
-    partial class RosasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231108011024_SubscriptionAutoRenewalHistoryMigration")]
+    partial class SubscriptionAutoRenewalHistoryMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -530,9 +533,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("FeatureId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int?>("FeatureUnit")
-                        .HasColumnType("int");
-
                     b.Property<int?>("Limit")
                         .HasColumnType("int");
 
@@ -544,6 +544,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<Guid>("PlanId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int?>("Unit")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -566,6 +569,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime");
 
+                    b.Property<int>("Cycle")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .IsUnicode(true)
@@ -582,9 +588,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
-
-                    b.Property<int>("PlanCycle")
-                        .HasColumnType("int");
 
                     b.Property<Guid>("PlanId")
                         .HasColumnType("char(36)");
@@ -1085,7 +1088,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<int?>("RemainingUsage")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("StartDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime");
 
                     b.Property<Guid>("SubscriptionFeatureCycleId")
@@ -1117,6 +1120,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime");
 
+                    b.Property<int>("Cycle")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime");
 
@@ -1129,15 +1135,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("FeatureId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("FeatureReset")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FeatureType")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FeatureUnit")
-                        .HasColumnType("int");
-
                     b.Property<int?>("Limit")
                         .HasColumnType("int");
 
@@ -1147,16 +1144,16 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("PlanCycle")
-                        .HasColumnType("int");
-
                     b.Property<Guid>("PlanFeatureId")
                         .HasColumnType("char(36)");
 
                     b.Property<int?>("RemainingUsage")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("StartDate")
+                    b.Property<int>("Reset")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime");
 
                     b.Property<Guid>("SubscriptionCycleId")
@@ -1169,6 +1166,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasColumnType("char(36)");
 
                     b.Property<int?>("TotalUsage")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Unit")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

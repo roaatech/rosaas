@@ -14,8 +14,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.TenantId).IsRequired();
             builder.Property(r => r.ProductId).IsRequired();
             builder.Property(r => r.Type).IsRequired();
-            builder.Property(r => r.Created).IsRequired();
-            builder.Property(r => r.Created).HasConversion(
+            builder.Property(r => r.CreationDate).IsRequired();
+            builder.Property(r => r.CreationDate).HasConversion(
                 v => v.Ticks,
                 v => new DateTime(v)
             );

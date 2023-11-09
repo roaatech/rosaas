@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
 
             var tasks = await _dbContext
                                      .JobTasks
-                                     .OrderBy(x => x.Created)
+                                     .OrderBy(x => x.CreationDate)
                                      .ToListAsync();
 
 
@@ -152,7 +152,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
                 SubscriptionId = subscription.Id,
                 ProductId = subscription.ProductId,
                 TenantId = subscription.TenantId,
-                Created = DateTime.UtcNow,
+                CreationDate = DateTime.UtcNow,
                 Type = JobTaskType.Available,
             }, subscription.UniqueName));
 
