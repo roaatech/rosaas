@@ -38,7 +38,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      EndDate = subscription.EndDate,
                                                      LastResetDate = subscription.LastResetDate,
                                                      LastLimitsResetDate = subscription.LastLimitsResetDate,
-                                                     IsResetableAllowed = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionResetUrl),
+                                                     IsResettableAllowed = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionResetUrl),
                                                      Plan = new CustomLookupItemDto<Guid>
                                                      {
                                                          Id = subscription.Plan.Id,
@@ -111,7 +111,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
 
             if (subscription is not null)
             {
-                subscription.HasSubscriptionFeaturesLimitsResetable = subscription.SubscriptionFeatures
+                subscription.HasSubscriptionFeaturesLimitsResettable = subscription.SubscriptionFeatures
                                                                                     .Select(x => x.Feature.Reset)
                                                                                     .Where(reset => FeatureResetManager.FromKey(reset).IsResettable())
                                                                                     .Any();

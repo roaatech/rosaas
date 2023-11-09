@@ -11,8 +11,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public DateTime EndDate { get; set; }
         public DateTime? LastResetDate { get; set; }
         public DateTime? LastLimitsResetDate { get; set; }
-        public bool HasSubscriptionFeaturesLimitsResetable { get; set; }
-        public bool IsResetableAllowed { get; set; }
+        public bool HasSubscriptionFeaturesLimitsResettable { get; set; }
+        public bool IsResettableAllowed { get; set; }
         public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public PlanPriceDto PlanPrice { get; set; } = new();
         public SubscriptionAutoRenewalDto? AutoRenewal { get; set; }
