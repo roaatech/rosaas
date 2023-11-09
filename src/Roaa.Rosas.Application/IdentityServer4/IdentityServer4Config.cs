@@ -171,9 +171,9 @@ namespace Roaa.Rosas.Application.IdentityServer4
                 },
                 new Client()
                 {
-                    ClientId = SystemConsts.Clients.BetaOsosExternalSystem,
-                    ClientName = "Beta OSOS System",
-                    Description = "Beta OSOS is External System of Roaa Tech client. It's calls the ROSAS API to manage its tenants.",
+                    ClientId = SystemConsts.Clients.ApptomatorExternalSystem,
+                    ClientName = "Apptomator System",
+                    Description = "Apptomator is External System of Roaa Tech client. It's calls the ROSAS API to manage its tenants.",
 
                     // no interactive user, use the clientid/secret for authentication
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
@@ -191,7 +191,7 @@ namespace Roaa.Rosas.Application.IdentityServer4
                     Properties = new Dictionary<string, string>
                     {
                         {SystemConsts.Clients.Properties.RosasClientId , SystemConsts.Clients.Properties.Vlaue.RosasClientId},
-                        {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.BetaOsosProductId},
+                        {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.ApptomatorProductId},
                     },
                     Claims = new List<ClientClaim>
                     {

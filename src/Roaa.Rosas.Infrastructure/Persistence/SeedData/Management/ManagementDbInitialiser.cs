@@ -162,9 +162,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     },
                 new Product
                     {
-                        Id = new Guid(SystemConsts.Clients.Properties.Vlaue.BetaOsosProductId),
+                        Id = new Guid(SystemConsts.Clients.Properties.Vlaue.ApptomatorProductId),
                         ClientId =  new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
-                        Name = "BETA OSOS",
+                        Name = "Apptomator",
                         DefaultHealthCheckUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{name}}/health-check",
                         HealthStatusInformerUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/health-status-unhealthy",
                         CreationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/cerated",
