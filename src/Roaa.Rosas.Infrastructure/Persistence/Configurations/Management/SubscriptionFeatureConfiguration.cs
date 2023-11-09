@@ -16,7 +16,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.HasOne(b => b.Subscription).WithMany(p => p.SubscriptionFeatures).HasForeignKey(f => f.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.ModifiedByUserId).IsRequired();
-            builder.Property(r => r.StartDate).IsRequired();
+            builder.Property(r => r.EndDate).IsRequired(false);
+            builder.Property(r => r.StartDate).IsRequired(false);
             builder.Property(r => r.CreationDate).IsRequired();
             builder.Property(r => r.ModificationDate).IsRequired();
             builder.Ignore(r => r.DomainEvents);

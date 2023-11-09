@@ -23,7 +23,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.Cycle).IsRequired();
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.ModifiedByUserId).IsRequired();
-            builder.Property(r => r.StartDate).IsRequired();
+            builder.Property(r => r.EndDate).IsRequired(false);
+            builder.Property(r => r.StartDate).IsRequired(false);
             builder.Property(r => r.CreationDate).IsRequired();
             builder.Property(r => r.ModificationDate).IsRequired();
             builder.Ignore(r => r.DomainEvents);

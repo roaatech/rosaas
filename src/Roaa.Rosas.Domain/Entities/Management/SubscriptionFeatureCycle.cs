@@ -8,7 +8,7 @@
         public Guid PlanFeatureId { get; set; }
         public Guid FeatureId { get; set; }
         public Guid SubscriptionId { get; set; }
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public FeatureType Type { get; set; }
         public FeatureReset Reset { get; set; }

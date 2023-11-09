@@ -8,7 +8,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
         #region Props
 
         public static readonly FeatureResetManager Daily = new DailyFeatureReset();
-        public static readonly FeatureResetManager Never = new NeverFeatureReset();
+        public static readonly FeatureResetManager NonResettable = new NonResettableFeatureReset();
         public static readonly FeatureResetManager Weekly = new WeeklyFeatureReset();
         public static readonly FeatureResetManager Monthly = new MonthlyFeatureReset();
         public static readonly FeatureResetManager Annual = new AnnualFeatureReset();
@@ -22,6 +22,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
 
         #region abst   
         public abstract DateTime? GetExpiryDate(DateTime startDate);
+        public abstract DateTime? GetStartDate(DateTime startDate);
+        public abstract bool IsResettable();
         #endregion
 
 
@@ -38,21 +40,37 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
             {
                 return startDate.AddDays(1);
             }
+            public override DateTime? GetStartDate(DateTime date)
+            {
+                return date;
+            }
+            public override bool IsResettable()
+            {
+                return true;
+            }
             #endregion
         }
 
 
 
-        private sealed class NeverFeatureReset : FeatureResetManager
+        private sealed class NonResettableFeatureReset : FeatureResetManager
         {
             #region Corts
-            public NeverFeatureReset() : base(FeatureReset.NonResettable) { }
+            public NonResettableFeatureReset() : base(FeatureReset.NonResettable) { }
             #endregion 
 
             #region overrides  
             public override DateTime? GetExpiryDate(DateTime startDate)
             {
                 return null;
+            }
+            public override DateTime? GetStartDate(DateTime date)
+            {
+                return null;
+            }
+            public override bool IsResettable()
+            {
+                return false;
             }
             #endregion
         }
@@ -70,6 +88,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
             {
                 return startDate.AddDays(7);
             }
+            public override DateTime? GetStartDate(DateTime date)
+            {
+                return date;
+            }
+            public override bool IsResettable()
+            {
+                return true;
+            }
             #endregion
         }
 
@@ -85,6 +111,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
             {
                 return startDate.AddMonths(1);
             }
+            public override DateTime? GetStartDate(DateTime date)
+            {
+                return date;
+            }
+            public override bool IsResettable()
+            {
+                return true;
+            }
             #endregion
         }
 
@@ -99,6 +133,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTena
             public override DateTime? GetExpiryDate(DateTime startDate)
             {
                 return startDate.AddYears(1);
+            }
+            public override DateTime? GetStartDate(DateTime date)
+            {
+                return date;
+            }
+            public override bool IsResettable()
+            {
+                return true;
             }
             #endregion
         }

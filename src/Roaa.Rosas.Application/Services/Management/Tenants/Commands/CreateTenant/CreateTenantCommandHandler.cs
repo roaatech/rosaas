@@ -310,7 +310,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 {
                     Id = Guid.NewGuid(),
                     SubscriptionFeatureCycleId = f.GeneratedSubscriptionFeatureCycleId,
-                    StartDate = _date,
+                    StartDate = FeatureResetManager.FromKey(f.Reset).GetStartDate(_date),
                     EndDate = FeatureResetManager.FromKey(f.Reset).GetExpiryDate(_date),
                     FeatureId = f.FeatureId,
                     PlanFeatureId = f.PlanFeatureId,
