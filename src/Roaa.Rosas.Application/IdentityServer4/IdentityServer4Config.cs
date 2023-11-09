@@ -168,7 +168,36 @@ namespace Roaa.Rosas.Application.IdentityServer4
                     {
                         new ClientClaim(SystemConsts.Clients.Claims.ClaimType,SystemConsts.Clients.Claims.ExternalSystem)
                     }
-                }
+                },
+                new Client()
+                {
+                    ClientId = SystemConsts.Clients.BetaOsosExternalSystem,
+                    ClientName = "Beta OSOS System",
+                    Description = "Beta OSOS is External System of Roaa Tech client. It's calls the ROSAS API to manage its tenants.",
+
+                    // no interactive user, use the clientid/secret for authentication
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    RequireClientSecret = true,
+                    AllowAccessTokensViaBrowser = false,
+                    AllowedScopes = { SystemConsts.Scopes.ExternalSystem, },
+                    AccessTokenLifetime = 3600, //in seconds = 1hour
+                    AccessTokenType = AccessTokenType.Jwt,
+
+                     // secret for authentication
+                    ClientSecrets =
+                    {
+                        new Secret("6etAQfTjWnZr4u7ADFJaNdRgUkX83Tav8yBEHKbPeShVmYq3t6wZH3BETA".Sha256())
+                    },
+                    Properties = new Dictionary<string, string>
+                    {
+                        {SystemConsts.Clients.Properties.RosasClientId , SystemConsts.Clients.Properties.Vlaue.RosasClientId},
+                        {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.BetaOsosProductId},
+                    },
+                    Claims = new List<ClientClaim>
+                    {
+                        new ClientClaim(SystemConsts.Clients.Claims.ClaimType,SystemConsts.Clients.Claims.ExternalSystem)
+                    }
+                },
         };
 
             return clients;
