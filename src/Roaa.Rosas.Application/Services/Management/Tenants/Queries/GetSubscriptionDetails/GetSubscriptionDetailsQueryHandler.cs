@@ -48,7 +48,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      PlanPrice = new PlanPriceDto
                                                      {
                                                          Id = subscription.PlanPrice.Id,
-                                                         Cycle = subscription.PlanPrice.Cycle,
+                                                         Cycle = subscription.PlanPrice.PlanCycle,
                                                          Price = subscription.PlanPrice.Price,
                                                      },
                                                      SubscriptionCycles = subscription.SubscriptionCycles.Select(SubscriptionCycle => new SubscriptionCycleDto
@@ -77,12 +77,12 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                              Type = subscriptionFeature.Feature.Type,
                                                              Reset = subscriptionFeature.Feature.Reset,
                                                              Limit = subscriptionFeature.PlanFeature.Limit,
-                                                             Unit = subscriptionFeature.PlanFeature.Unit,
+                                                             Unit = subscriptionFeature.PlanFeature.FeatureUnit,
                                                          },
                                                          Type = subscriptionFeature.Feature.Type,
                                                          Reset = subscriptionFeature.Feature.Reset,
                                                          Limit = subscriptionFeature.PlanFeature.Limit,
-                                                         Unit = subscriptionFeature.PlanFeature.Unit,
+                                                         Unit = subscriptionFeature.PlanFeature.FeatureUnit,
                                                          SubscriptionFeaturesCycles = subscriptionFeature.SubscriptionFeatureCycles.Select(featureCycle => new SubscriptionFeatureCycleDto
                                                          {
                                                              Id = featureCycle.Id,
@@ -91,9 +91,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                              EndDate = featureCycle.EndDate,
                                                              Feature = new CustomLookupItemDto<Guid>(featureCycle.FeatureId, featureCycle.FeatureDisplayName, featureCycle.FeatureDisplayName),
                                                              Limit = featureCycle.Limit,
-                                                             Reset = featureCycle.Reset,
-                                                             Type = featureCycle.Type,
-                                                             Unit = featureCycle.Unit,
+                                                             Reset = featureCycle.FeatureReset,
+                                                             Type = featureCycle.FeatureType,
+                                                             Unit = featureCycle.FeatureUnit,
                                                              RemainingUsage = featureCycle.RemainingUsage,
                                                              TotalUsage = featureCycle.TotalUsage,
                                                          }),

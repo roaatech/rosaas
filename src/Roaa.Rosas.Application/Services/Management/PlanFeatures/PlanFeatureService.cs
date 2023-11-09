@@ -55,7 +55,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       IsSubscribed = planFeature.Plan.IsSubscribed,
                                                   },
                                                   Limit = planFeature.Limit,
-                                                  Unit = planFeature.Unit,
+                                                  Unit = planFeature.FeatureUnit,
                                                   Description = planFeature.Description,
                                                   CreatedDate = planFeature.CreationDate,
                                                   EditedDate = planFeature.ModificationDate,
@@ -139,7 +139,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 FeatureId = model.FeatureId,
                 PlanId = model.PlanId,
                 Limit = model.Limit,
-                Unit = model.Unit,
+                FeatureUnit = model.Unit,
                 Description = model.Description,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
@@ -182,7 +182,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             PlanFeature featureBeforeUpdate = planFeature.DeepCopy();
 
             planFeature.Limit = model.Limit;
-            planFeature.Unit = model.Unit;
+            planFeature.FeatureUnit = model.Unit;
             planFeature.Description = model.Description;
             planFeature.ModifiedByUserId = _identityContextService.UserId;
             planFeature.ModificationDate = DateTime.UtcNow;

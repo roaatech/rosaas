@@ -63,7 +63,7 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
                 SubscriptionId = command.SubscriptionId,
                 PlanPriceId = command.PlanPriceId,
                 PlanId = planPrice.PlanId,
-                PlanCycle = planPrice.Cycle,
+                PlanCycle = planPrice.PlanCycle,
                 Price = planPrice.Price,
                 PlanDisplayName = planPrice.Plan.DisplayName,
                 UpcomingAutoRenewalsCount = 1,
@@ -81,7 +81,7 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
         {
             autoRenewal.PlanPriceId = command.PlanPriceId;
             autoRenewal.PlanId = planPrice.PlanId;
-            autoRenewal.PlanCycle = planPrice.Cycle;
+            autoRenewal.PlanCycle = planPrice.PlanCycle;
             autoRenewal.Price = planPrice.Price;
             autoRenewal.PlanDisplayName = planPrice.Plan.DisplayName;
             autoRenewal.Comment = command.Comment;

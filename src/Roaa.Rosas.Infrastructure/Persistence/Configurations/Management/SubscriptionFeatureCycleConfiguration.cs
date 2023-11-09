@@ -18,9 +18,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.PlanFeatureId).IsRequired();
             builder.Property(r => r.FeatureId).IsRequired();
             builder.Property(r => r.SubscriptionId).IsRequired();
-            builder.Property(r => r.Type).IsRequired();
-            builder.Property(r => r.Reset).IsRequired();
-            builder.Property(r => r.Cycle).IsRequired();
+            builder.Property(r => r.FeatureType).IsRequired();
+            builder.Property(r => r.FeatureReset).IsRequired();
+            builder.Property(r => r.PlanCycle).IsRequired();
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.ModifiedByUserId).IsRequired();
             builder.Property(r => r.EndDate).IsRequired(false);

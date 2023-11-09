@@ -47,7 +47,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               {
                                                   Id = planPrice.Id,
                                                   Plan = new CustomLookupItemDto<Guid>(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName),
-                                                  Cycle = planPrice.Cycle,
+                                                  Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
                                                   IsPublished = planPrice.IsPublished,
@@ -78,7 +78,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             {
                 Id = Guid.NewGuid(),
                 PlanId = model.PlanId,
-                Cycle = model.Cycle,
+                PlanCycle = model.Cycle,
                 Price = model.Price,
                 Description = model.Description,
                 CreatedByUserId = _identityContextService.UserId,
@@ -116,7 +116,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             #endregion
             PlanPrice featureBeforeUpdate = planPrice.DeepCopy();
 
-            planPrice.Cycle = model.Cycle;
+            planPrice.PlanCycle = model.Cycle;
             planPrice.Price = model.Price;
             planPrice.Description = model.Description;
             planPrice.ModifiedByUserId = _identityContextService.UserId;

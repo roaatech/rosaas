@@ -112,7 +112,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
 
 
-                if (featureCycles.Select(x => x.Reset).Where(reset => FeatureResetManager.FromKey(reset).IsResettable()).Any())
+                if (featureCycles.Select(x => x.FeatureReset).Where(reset => FeatureResetManager.FromKey(reset).IsResettable()).Any())
                 {
 
                     var subscriptionsIds = new List<Guid>();
@@ -124,9 +124,9 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                         .Where(x => x.Id == subscriptionFeature.SubscriptionFeatureCycleId)
                                         .FirstOrDefault();
 
-                        if (FeatureResetManager.FromKey(cycle.Reset).IsResettable())
+                        if (FeatureResetManager.FromKey(cycle.FeatureReset).IsResettable())
                         {
-                            var featureResetManager = FeatureResetManager.FromKey(cycle.Reset);
+                            var featureResetManager = FeatureResetManager.FromKey(cycle.FeatureReset);
 
                             // Adds a new cycle to the current subscription's feature 
                             var subscriptionFeatureCycle = new SubscriptionFeatureCycle()
@@ -140,12 +140,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                 FeatureId = cycle.FeatureId,
                                 PlanFeatureId = cycle.PlanFeatureId,
                                 Limit = cycle.Limit,
-                                Reset = cycle.Reset,
-                                Type = cycle.Type,
-                                Unit = cycle.Unit,
+                                FeatureReset = cycle.FeatureReset,
+                                FeatureType = cycle.FeatureType,
+                                FeatureUnit = cycle.FeatureUnit,
                                 TotalUsage = cycle.Limit is null ? null : 0,
                                 RemainingUsage = cycle.Limit,
-                                Cycle = cycle.Cycle,
+                                PlanCycle = cycle.PlanCycle,
                                 FeatureDisplayName = cycle.FeatureDisplayName,
                                 CreatedByUserId = _identityContextService.GetActorId(),
                                 ModifiedByUserId = _identityContextService.GetActorId(),
@@ -413,19 +413,19 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             {
                 Id = Guid.NewGuid(),
                 StartDate = _date,
-                EndDate = FeatureResetManager.FromKey(featureCycle.Reset).GetExpiryDate(_date),
+                EndDate = FeatureResetManager.FromKey(featureCycle.FeatureReset).GetExpiryDate(_date),
                 SubscriptionId = featureCycle.SubscriptionId,
                 SubscriptionCycleId = subscriptionCycleId,
                 SubscriptionFeatureId = subscriptionFeatureId,
                 FeatureId = featureCycle.FeatureId,
                 PlanFeatureId = featureCycle.PlanFeatureId,
                 Limit = featureCycle.Limit,
-                Reset = featureCycle.Reset,
-                Type = featureCycle.Type,
-                Unit = featureCycle.Unit,
+                FeatureReset = featureCycle.FeatureReset,
+                FeatureType = featureCycle.FeatureType,
+                FeatureUnit = featureCycle.FeatureUnit,
                 TotalUsage = featureCycle.Limit is null ? null : 0,
                 RemainingUsage = featureCycle.Limit,
-                Cycle = featureCycle.Cycle,
+                PlanCycle = featureCycle.PlanCycle,
                 FeatureDisplayName = featureCycle.FeatureDisplayName,
                 CreatedByUserId = _identityContextService.GetActorId(),
                 ModifiedByUserId = _identityContextService.GetActorId(),
@@ -478,12 +478,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     {
                         Id = Guid.NewGuid(),
                         StartDate = date,
-                        EndDate = PlanCycleManager.FromKey(subscription.PlanPrice.Cycle).GetExpiryDate(date),
+                        EndDate = PlanCycleManager.FromKey(subscription.PlanPrice.PlanCycle).GetExpiryDate(date),
                         TenantId = subscription.TenantId,
                         PlanId = subscription.PlanId,
                         PlanPriceId = subscription.PlanPriceId,
                         ProductId = subscription.ProductId,
-                        Cycle = subscription.PlanPrice.Cycle,
+                        Cycle = subscription.PlanPrice.PlanCycle,
                         PlanDisplayName = subscription.Plan.DisplayName,
                         CreatedByUserId = subscription.CreatedByUserId,
                         ModifiedByUserId = subscription.ModifiedByUserId,
@@ -515,19 +515,19 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                             {
                                 Id = Guid.NewGuid(),
                                 StartDate = date,
-                                EndDate = FeatureResetManager.FromKey(featureCycle.Reset).GetExpiryDate(date),
+                                EndDate = FeatureResetManager.FromKey(featureCycle.FeatureReset).GetExpiryDate(date),
                                 SubscriptionId = featureCycle.SubscriptionId,
                                 SubscriptionCycleId = subscriptionCycle.Id,
                                 SubscriptionFeatureId = subscriptionFeature.Id,
                                 FeatureId = featureCycle.FeatureId,
                                 PlanFeatureId = featureCycle.PlanFeatureId,
                                 Limit = featureCycle.Limit,
-                                Reset = featureCycle.Reset,
-                                Type = featureCycle.Type,
-                                Unit = featureCycle.Unit,
+                                FeatureReset = featureCycle.FeatureReset,
+                                FeatureType = featureCycle.FeatureType,
+                                FeatureUnit = featureCycle.FeatureUnit,
                                 TotalUsage = featureCycle.Limit is null ? null : 0,
                                 RemainingUsage = featureCycle.Limit,
-                                Cycle = featureCycle.Cycle,
+                                PlanCycle = featureCycle.PlanCycle,
                                 FeatureDisplayName = featureCycle.FeatureDisplayName,
                                 CreatedByUserId = featureCycle.CreatedByUserId,
                                 ModifiedByUserId = featureCycle.ModifiedByUserId,

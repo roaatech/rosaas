@@ -12,7 +12,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.ToTableName("RosasPlanPrices");
             builder.HasKey(x => x.Id);
             builder.Property(r => r.Description).IsRequired(false).HasMaxLength(500).IsUnicode();
-            builder.Property(r => r.Cycle).IsRequired();
+            builder.Property(r => r.PlanCycle).IsRequired();
             builder.Property(r => r.Price).HasPrecision(8, 2).IsRequired();
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.ModifiedByUserId).IsRequired();

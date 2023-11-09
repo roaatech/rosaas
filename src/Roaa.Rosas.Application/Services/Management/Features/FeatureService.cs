@@ -159,7 +159,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 Name = model.Name,
                 DisplayName = model.Title,
                 Description = model.Description,
-                Reset = model.Reset,
+                Reset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset,
                 Type = model.Type,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
@@ -205,7 +205,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             feature.Name = model.Name;
             feature.DisplayName = model.Title;
             feature.Description = model.Description;
-            feature.Reset = model.Reset;
+            feature.Reset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset;
             feature.Type = model.Type;
             feature.ModifiedByUserId = _identityContextService.UserId;
             feature.ModificationDate = DateTime.UtcNow;
