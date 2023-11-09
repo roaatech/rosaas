@@ -49,6 +49,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   {
                                                       Id = planFeature.PlanId,
                                                       Name = planFeature.Plan.Name,
+                                                      Title = planFeature.Plan.DisplayName,
                                                       DisplayOrder = planFeature.Plan.DisplayOrder,
                                                       IsPublished = planFeature.Plan.IsPublished,
                                                       IsSubscribed = planFeature.Plan.IsSubscribed,
@@ -62,6 +63,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   {
                                                       Id = planFeature.Feature.Id,
                                                       Name = planFeature.Feature.Name,
+                                                      Title = planFeature.Feature.DisplayName,
                                                       Type = planFeature.Feature.Type,
                                                       IsSubscribed = planFeature.Feature.IsSubscribed,
                                                       Reset = planFeature.Feature.Reset,
@@ -81,6 +83,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                    {
                                        Id = plan.Id,
                                        Name = plan.Name,
+                                       Title = plan.DisplayName,
                                        DisplayOrder = plan.DisplayOrder,
                                    },
                                })

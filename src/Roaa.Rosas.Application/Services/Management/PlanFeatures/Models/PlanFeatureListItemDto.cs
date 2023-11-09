@@ -16,6 +16,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures.Models
     public record FeatureItemDto
     {
         public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public FeatureType Type { get; set; }
         public bool IsSubscribed { get; set; }
@@ -24,6 +25,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures.Models
     public record PlanItemDto
     {
         public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public int DisplayOrder { get; set; }
         public bool IsPublished { get; set; }
