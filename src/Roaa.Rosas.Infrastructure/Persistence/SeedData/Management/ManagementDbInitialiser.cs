@@ -153,6 +153,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                         ActivationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/active",
                         DeactivationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/inactive",
                         DeletionUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/deleted",
+                        SubscriptionResetUrl  = $"{_identityServerOptions.Url}/external-system-simulator/tenants/reset",
                         ApiKey = "4s0v7yBQEZShYxCq3tlsAgUfXpgW",
                         CreationDate = DateTime.Now,
                         ModificationDate = DateTime.Now,
