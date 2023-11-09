@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
@@ -37,6 +38,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      EndDate = subscription.EndDate,
                                                      LastResetDate = subscription.LastResetDate,
                                                      LastLimitsResetDate = subscription.LastLimitsResetDate,
+                                                     IsResetableAllowed = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionResetUrl),
                                                      Plan = new CustomLookupItemDto<Guid>
                                                      {
                                                          Id = subscription.Plan.Id,
@@ -105,6 +107,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      },
                                                  })
                                                  .SingleOrDefaultAsync(cancellationToken);
+
+
+            if (subscription is not null)
+            {
+                subscription.HasSubscriptionFeaturesLimitsResetable = subscription.SubscriptionFeatures
+                                                                                    .Select(x => x.Feature.Reset)
+                                                                                    .Where(reset => FeatureResetManager.FromKey(reset).IsResettable())
+                                                                                    .Any();
+            }
 
             return Result<SubscriptionDetailsDto>.Successful(subscription);
         }
