@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CancelSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.DowngradeSubscription;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionReset;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpgradeSubscription;
@@ -41,7 +41,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpPost("Reset")]
-        public async Task<IActionResult> ResetSubscriptionAsync([FromBody] ResetSubscriptionCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> ResetSubscriptionAsync([FromBody] PrepareSubscriptionResetCommand command, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(command, cancellationToken));
         }

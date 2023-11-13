@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantMetadataByName;
@@ -57,6 +58,8 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
             return ItemResult(await _mediator.Send(new GetTenantStatusByNameQuery(name, _identityContextService.GetProductId()), cancellationToken));
         }
 
+        #region Status Actions  
+
         [HttpPost("{name}/created")]
         public async Task<IActionResult> SetTenantAsCreatedAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
@@ -90,6 +93,9 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
             return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.Deleted, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Deleted, null), cancellationToken));
         }
 
+        #endregion
+
+        #region Metadata    
 
         [HttpPost("{name}/metadata")]
         public async Task<IActionResult> UpdateTenantMetadataAsync([FromRoute] string name, dynamic metadata, CancellationToken cancellationToken = default)
@@ -111,6 +117,25 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
 
             return Content(JsonConvert.SerializeObject(response), "application/json");
         }
+        #endregion
+
+
+
+        #region Subscription Reset    
+
+        [HttpPost("{name}/subscription/reset")]
+        public async Task<IActionResult> ResetSubscriptionAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new ResetSubscriptionCommand(name, _identityContextService.GetProductId(), true), cancellationToken));
+        }
+
+
+        [HttpPost("{name}/subscription/reset/failure")]
+        public async Task<IActionResult> SetSubscriptionResetAsFailureAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new ResetSubscriptionCommand(name, _identityContextService.GetProductId(), false), cancellationToken));
+        }
+        #endregion
         #endregion
     }
 }
