@@ -7,7 +7,6 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantSt
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
 
@@ -48,8 +47,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             var subscriptions = await _dbContext.Subscriptions
                                                 .Where(x => x.StartDate <= date &&
                                                             x.EndDate < toDate &&
-                                                            (x.Status == TenantStatus.Active ||
-                                                             x.Status == TenantStatus.CreatedAsActive))
+                                                            x.IsActive)
                                                 .ToListAsync();
 
 
@@ -81,12 +79,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             var subscriptionFeatures = await _dbContext.SubscriptionFeatures
                                                         .Include(x => x.Feature)
                                                         .Where(x => x.Subscription.StartDate <= date &&
-                                                                   x.Subscription.EndDate > date &&
-                                                                  x.Subscription.IsPaid &&
-                                                                   x.RemainingUsage != null &&
-                                                                   x.StartDate <= date &&
-                                                                   x.EndDate != null &&
-                                                                  x.EndDate < date)
+                                                                    x.Subscription.EndDate > date &&
+                                                                    x.Subscription.IsActive &&
+                                                                    x.RemainingUsage != null &&
+                                                                    x.StartDate <= date &&
+                                                                    x.EndDate != null &&
+                                                                    x.EndDate < date)
                                                        .ToListAsync();
             return await ResetSubscriptionsFeaturesAsync(subscriptionFeatures: subscriptionFeatures,
                                                          comment: null,
@@ -210,9 +208,8 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             return await _dbContext.Subscriptions
                                                 .Where(x => x.StartDate <= _date &&
                                                             x.EndDate < _date &&
-                                                            x.IsPaid &&
-                                                           (x.Status == TenantStatus.Active ||
-                                                            x.Status == TenantStatus.CreatedAsActive))
+                                                            x.IsActive
+                                                          )
                                                 .ToListAsync(cancellationToken);
         }
         public async Task<Result> RenewOrSetExpiredSubscriptionsAsUnpaidAsync(CancellationToken cancellationToken = default)
@@ -370,7 +367,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
         {
             string systemComment = "Setting the Subscription As Unpaid for the tenant due to non-renewal.";
 
-            SetSubscriptionAsUnpaid(subscription, systemComment, _date);
+            SetSubscriptionAsInactive(subscription, systemComment, _date);
 
             subscription.AddDomainEvent(new SubscriptionWasSetAsUnpaidEvent(subscription, systemComment));
 
@@ -515,9 +512,9 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             subscriptionFeature.RemainingUsage = limit;
         }
 
-        private void SetSubscriptionAsUnpaid(Subscription subscription, string systemComment, DateTime date)
+        private void SetSubscriptionAsInactive(Subscription subscription, string systemComment, DateTime date)
         {
-            subscription.IsPaid = false;
+            subscription.IsActive = false;
             subscription.ModificationDate = date;
             subscription.Comment = systemComment;
         }

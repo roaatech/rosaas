@@ -278,13 +278,13 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 ProductId = item.Product.Id,
                 Status = initialProcess.NextStatus,
                 Step = initialProcess.NextStep,
+                IsActive = true,
                 CreatedByUserId = _identityContextService.GetActorId(),
                 ModifiedByUserId = _identityContextService.GetActorId(),
                 CreationDate = _date,
                 ModificationDate = _date,
                 HealthCheckUrl = item.Product.Url,
                 HealthCheckUrlIsOverridden = false,
-                IsPaid = true,
                 SubscriptionCycleId = item.GeneratedSubscriptionCycleId,
                 SubscriptionCycles = new List<SubscriptionCycle>()
                 {

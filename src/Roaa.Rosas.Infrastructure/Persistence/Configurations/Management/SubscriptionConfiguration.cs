@@ -20,7 +20,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.HasOne(b => b.SubscriptionPlanChanging).WithOne(p => p.Subscription).HasForeignKey<SubscriptionPlanChanging>(e => e.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
             builder.Property(r => r.HealthCheckUrl).IsRequired(true).HasMaxLength(250);
             builder.Property(r => r.HealthCheckUrlIsOverridden).IsRequired(true);
-            builder.Property(r => r.IsPaid).IsRequired(true);
+            builder.Property(r => r.IsActive).IsRequired(true);
             builder.Property(r => r.Status).IsRequired(true);
             builder.Property(r => r.Step).IsRequired(true);
             builder.Property(r => r.ExpectedResourceStatus).IsRequired(true);

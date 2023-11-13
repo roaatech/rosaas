@@ -36,7 +36,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
                                                      Title = x.Tenant.DisplayName,
                                                      Status = x.Status,
-                                                     IsPaid = x.IsPaid,
+                                                     IsActive = x.IsActive,
                                                      EndDate = x.EndDate,
                                                      StartDate = x.StartDate,
                                                      Plan = new Common.Models.CustomLookupItemDto<Guid>(x.PlanId, x.Plan.Name, x.Plan.DisplayName),
