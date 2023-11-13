@@ -50,13 +50,13 @@ public class ResetSubscriptionCommandHandler : IRequestHandler<ResetSubscription
         {
             subscription.LastResetDate = date;
             subscription.SubscriptionResetStatus = SubscriptionResetStatus.Done;
-            subscription.AddDomainEvent(new SubscriptionResetDoneEvent(subscription));
+            subscription.AddDomainEvent(new SubscriptionReseAppliedDoneEvent(subscription));
         }
         else
         {
             subscription.ResetOperationDate = date;
             subscription.SubscriptionResetStatus = SubscriptionResetStatus.Failure;
-            subscription.AddDomainEvent(new SubscriptionResetFailureEvent(subscription));
+            subscription.AddDomainEvent(new SubscriptionResetApplicationFailedEvent(subscription));
         }
 
         await _dbContext.SaveChangesAsync();

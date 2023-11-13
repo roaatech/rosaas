@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CancelSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.DowngradeSubscription;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionReset;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionUpgrade;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAutoRenewal;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpgradeSubscription;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -69,7 +69,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpPost("Upgrade")]
-        public async Task<IActionResult> UpgradeSubscriptionAsync([FromBody] UpgradeSubscriptionCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> PrepareSubscriptionUpgradeAsync([FromBody] PrepareSubscriptionUpgradeCommand command, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(command, cancellationToken));
         }

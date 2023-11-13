@@ -23,6 +23,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public DateTime? ResetOperationDate { get; set; }
         public DateTime? LastLimitsResetDate { get; set; }
         public SubscriptionResetStatus? SubscriptionResetStatus { get; set; }
+        public SubscriptionPlanChangeStatus? SubscriptionPlanChangeStatus { get; set; }
         public virtual Plan? Plan { get; set; }
         public virtual PlanPrice? PlanPrice { get; set; }
         public virtual Tenant? Tenant { get; set; }
@@ -46,4 +47,11 @@ namespace Roaa.Rosas.Domain.Entities.Management
     }
 
 
+    public enum SubscriptionPlanChangeStatus
+    {
+        Pending = 1,
+        InProgress = 2,
+        Done = 3,
+        Failure = 4,
+    }
 }

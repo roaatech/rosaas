@@ -7,4 +7,14 @@ namespace Roaa.Rosas.Domain.Models.ExternalSystems
         [JsonProperty(PropertyName = "tenantName")]
         public string TenantName { get; set; } = string.Empty;
     }
+    public record UpgradeTenantModel
+    {
+        [JsonProperty(PropertyName = "tenantName")]
+        public string TenantName { get; set; } = string.Empty;
+    }
+    public record DowngradeTenantModel
+    {
+        [JsonProperty(PropertyName = "tenantName")]
+        public string TenantName { get; set; } = string.Empty;
+    }
 }

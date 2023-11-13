@@ -93,6 +93,23 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
             return RetrieveResult(result, request.Uri);
         }
 
+        public async Task<Result<ExternalSystemResultModel<dynamic>>> UpgradeTenantAsync(ExternalSystemRequestModel<UpgradeTenantModel> model, CancellationToken cancellationToken = default)
+        {
+            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
+
+            var result = await _requestBroker.PostAsync<dynamic, UpgradeTenantModel>(request, cancellationToken);
+
+            return RetrieveResult(result, request.Uri);
+        }
+
+        public async Task<Result<ExternalSystemResultModel<dynamic>>> DowngradeTenantAsync(ExternalSystemRequestModel<DowngradeTenantModel> model, CancellationToken cancellationToken = default)
+        {
+            var request = await BuildRequestModelAsync(model, model.TenantId, model.Data.TenantName, cancellationToken: cancellationToken);
+
+            var result = await _requestBroker.PostAsync<dynamic, DowngradeTenantModel>(request, cancellationToken);
+
+            return RetrieveResult(result, request.Uri);
+        }
 
         public async Task<Result<ExternalSystemResultModel<dynamic>>> InformTheTenantUnavailableAsync(ExternalSystemRequestModel<InformTheTenantUnavailableModel> model, CancellationToken cancellationToken = default)
         {

@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsUpgradeApplied;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantMetadataByName;
@@ -135,7 +136,28 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         {
             return EmptyResult(await _mediator.Send(new ResetSubscriptionCommand(name, _identityContextService.GetProductId(), false), cancellationToken));
         }
+
         #endregion
+
+
+        #region Subscription Upgrade    
+
+        [HttpPost("{name}/subscription/upgrade")]
+        public async Task<IActionResult> SetSubscriptionAsUpgradeAppliedDoneAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new SetSubscriptionAsUpgradeAppliedCommand(name, _identityContextService.GetProductId(), true), cancellationToken));
+        }
+
+
+        [HttpPost("{name}/subscription/upgrade/failure")]
+        public async Task<IActionResult> SetSubscriptionAsUpgradeApplicationFailedAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new SetSubscriptionAsUpgradeAppliedCommand(name, _identityContextService.GetProductId(), false), cancellationToken));
+        }
+
+        #endregion
+
+
         #endregion
     }
 }

@@ -319,10 +319,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                             subscriptionPlanChanging.Price,
                             subscriptionPlanChanging.PlanDisplayName);
 
-            subscription.AddDomainEvent(new SubscriptionPlanChangeAppliedEvent(
+            subscription.AddDomainEvent(new SubscriptionPlanChangedEvent(
                                           subscription,
                                           subscriptionPlanChanging,
                                           previousSubscriptionCycleId));
+
+            subscription.SubscriptionPlanChangeStatus = SubscriptionPlanChangeStatus.Pending;
 
             _dbContext.SubscriptionPlanChanges.Remove(subscriptionPlanChanging);
 

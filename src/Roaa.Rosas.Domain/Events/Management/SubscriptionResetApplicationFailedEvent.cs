@@ -3,15 +3,15 @@ using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Domain.Events.Management
 {
-    public class SubscriptionResetFailureEvent : BaseInternalEvent
+    public class SubscriptionResetApplicationFailedEvent : BaseInternalEvent
     {
         public Subscription Subscription { get; set; } = new();
 
-        public SubscriptionResetFailureEvent()
+        public SubscriptionResetApplicationFailedEvent()
         {
         }
 
-        public SubscriptionResetFailureEvent(Subscription subscription)
+        public SubscriptionResetApplicationFailedEvent(Subscription subscription)
         {
             Subscription = subscription;
         }

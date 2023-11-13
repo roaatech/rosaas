@@ -30,7 +30,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             var features = @event.SubscriptionFeatures.Select(x => x.Name);
 
             await _publisher.Publish(new TenantProcessingCompletedEvent(
-                                                processType: TenantProcessType.SubscriptionResetDone,
+                                                processType: TenantProcessType.SubscriptionResetAppliedDone,
                                                 enabled: true,
                                                 processedData: new ProcessedDataOfSubscriptionFeatureLimitResetModel(features).Serialize(),
                                                 comment: @event.Comment ?? string.Empty,

@@ -8,12 +8,12 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpgradeSubscription;
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionUpgrade;
 
-public class UpgradeSubscriptionCommandHandler : IRequestHandler<UpgradeSubscriptionCommand, Result>
+public class PrepareSubscriptionUpgradeCommandHandler : IRequestHandler<PrepareSubscriptionUpgradeCommand, Result>
 {
     #region Props 
-    private readonly ILogger<UpgradeSubscriptionCommandHandler> _logger;
+    private readonly ILogger<PrepareSubscriptionUpgradeCommandHandler> _logger;
     private readonly IIdentityContextService _identityContextService;
     private readonly IRosasDbContext _dbContext;
     #endregion
@@ -21,9 +21,9 @@ public class UpgradeSubscriptionCommandHandler : IRequestHandler<UpgradeSubscrip
 
 
     #region Corts
-    public UpgradeSubscriptionCommandHandler(IIdentityContextService identityContextService,
+    public PrepareSubscriptionUpgradeCommandHandler(IIdentityContextService identityContextService,
                                                     IRosasDbContext dbContext,
-                                                    ILogger<UpgradeSubscriptionCommandHandler> logger)
+                                                    ILogger<PrepareSubscriptionUpgradeCommandHandler> logger)
     {
         _identityContextService = identityContextService;
         _dbContext = dbContext;
@@ -33,7 +33,7 @@ public class UpgradeSubscriptionCommandHandler : IRequestHandler<UpgradeSubscrip
 
 
     #region Handler   
-    public async Task<Result> Handle(UpgradeSubscriptionCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(PrepareSubscriptionUpgradeCommand command, CancellationToken cancellationToken)
     {
         if (await _dbContext.SubscriptionPlanChanges
                                     .Where(x => x.Id == command.SubscriptionId)
@@ -43,14 +43,9 @@ public class UpgradeSubscriptionCommandHandler : IRequestHandler<UpgradeSubscrip
         }
 
         var subscription = await _dbContext.Subscriptions
-                              .Where(x => x.Id == command.SubscriptionId)
-                              .Select(x => new
-                              {
-                                  x.PlanPrice.Price,
-                                  x.ProductId,
-                                  x.PlanId,
-                              })
-                              .SingleOrDefaultAsync();
+                                  .Where(x => x.Id == command.SubscriptionId)
+                                  .SingleOrDefaultAsync();
+
         if (subscription is null)
         {
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.SubscriptionId));
@@ -98,6 +93,8 @@ public class UpgradeSubscriptionCommandHandler : IRequestHandler<UpgradeSubscrip
             CreationDate = date,
             ModificationDate = date,
         };
+
+        subscription.SubscriptionPlanChangeStatus = null;
 
         _dbContext.SubscriptionPlanChanges.Add(subscriptionPlanChanging);
 

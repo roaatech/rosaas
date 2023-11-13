@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpgradeSubscription;
-public record UpgradeSubscriptionCommand : IRequest<Result>
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionUpgrade;
+public record PrepareSubscriptionUpgradeCommand : IRequest<Result>
 {
     public Guid SubscriptionId { get; set; }
     public Guid PlanId { get; set; }
@@ -10,9 +10,9 @@ public record UpgradeSubscriptionCommand : IRequest<Result>
     public string? Comment { get; init; }
 
 
-    public UpgradeSubscriptionCommand() { }
+    public PrepareSubscriptionUpgradeCommand() { }
 
-    public UpgradeSubscriptionCommand(Guid subscriptionId, Guid planId, Guid planPriceId, string comment)
+    public PrepareSubscriptionUpgradeCommand(Guid subscriptionId, Guid planId, Guid planPriceId, string comment)
     {
         SubscriptionId = subscriptionId;
         PlanId = planId;
