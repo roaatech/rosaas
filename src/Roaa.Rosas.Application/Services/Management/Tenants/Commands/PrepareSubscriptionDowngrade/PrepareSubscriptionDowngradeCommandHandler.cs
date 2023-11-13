@@ -7,13 +7,14 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.DowngradeSubscription;
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionDowngrade;
 
-public class DowngradeSubscriptionCommandHandler : IRequestHandler<DowngradeSubscriptionCommand, Result>
+public class PrepareSubscriptionDowngradeCommandHandler : IRequestHandler<PrepareSubscriptionDowngradeCommand, Result>
 {
     #region Props 
-    private readonly ILogger<DowngradeSubscriptionCommandHandler> _logger;
+    private readonly ILogger<PrepareSubscriptionDowngradeCommandHandler> _logger;
     private readonly IIdentityContextService _identityContextService;
     private readonly IRosasDbContext _dbContext;
     #endregion
@@ -21,9 +22,9 @@ public class DowngradeSubscriptionCommandHandler : IRequestHandler<DowngradeSubs
 
 
     #region Corts
-    public DowngradeSubscriptionCommandHandler(IIdentityContextService identityContextService,
+    public PrepareSubscriptionDowngradeCommandHandler(IIdentityContextService identityContextService,
                                                     IRosasDbContext dbContext,
-                                                    ILogger<DowngradeSubscriptionCommandHandler> logger)
+                                                    ILogger<PrepareSubscriptionDowngradeCommandHandler> logger)
     {
         _identityContextService = identityContextService;
         _dbContext = dbContext;
@@ -33,7 +34,7 @@ public class DowngradeSubscriptionCommandHandler : IRequestHandler<DowngradeSubs
 
 
     #region Handler   
-    public async Task<Result> Handle(DowngradeSubscriptionCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(PrepareSubscriptionDowngradeCommand command, CancellationToken cancellationToken)
     {
         if (await _dbContext.SubscriptionPlanChanges
                                     .Where(x => x.Id == command.SubscriptionId)
@@ -43,14 +44,9 @@ public class DowngradeSubscriptionCommandHandler : IRequestHandler<DowngradeSubs
         }
 
         var subscription = await _dbContext.Subscriptions
-                              .Where(x => x.Id == command.SubscriptionId)
-                              .Select(x => new
-                              {
-                                  x.PlanPrice.Price,
-                                  x.ProductId,
-                                  x.PlanId,
-                              })
-                              .SingleOrDefaultAsync();
+                                     .Where(x => x.Id == command.SubscriptionId)
+                                     .SingleOrDefaultAsync();
+
         if (subscription is null)
         {
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.SubscriptionId));
@@ -99,9 +95,11 @@ public class DowngradeSubscriptionCommandHandler : IRequestHandler<DowngradeSubs
             ModificationDate = date,
         };
 
-        _dbContext.SubscriptionPlanChanges.Add(subscriptionPlanChanging);
+        subscription.SubscriptionPlanChangeStatus = null;
 
-        // subscriptionPlanChanging.AddDomainEvent(new (subscriptionPlanChanges, command.Comment));
+        subscription.AddDomainEvent(new SubscriptionDowngradeAppliedDoneEvent(subscription));
+
+        _dbContext.SubscriptionPlanChanges.Add(subscriptionPlanChanging);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

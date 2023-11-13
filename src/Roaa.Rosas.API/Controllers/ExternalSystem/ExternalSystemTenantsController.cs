@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsDowngradeApplied;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsUpgradeApplied;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
@@ -153,6 +154,26 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         public async Task<IActionResult> SetSubscriptionAsUpgradeApplicationFailedAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(new SetSubscriptionAsUpgradeAppliedCommand(name, _identityContextService.GetProductId(), false), cancellationToken));
+        }
+
+        #endregion
+
+
+
+
+        #region Subscription Downgrade    
+
+        [HttpPost("{name}/subscription/downgrade")]
+        public async Task<IActionResult> SetSubscriptionAsDowngradeAppliedDoneAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new SetSubscriptionAsDowngradeAppliedCommand(name, _identityContextService.GetProductId(), true), cancellationToken));
+        }
+
+
+        [HttpPost("{name}/subscription/downgrade/failure")]
+        public async Task<IActionResult> SetSubscriptionAsDowngradeApplicationFailedAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new SetSubscriptionAsDowngradeAppliedCommand(name, _identityContextService.GetProductId(), false), cancellationToken));
         }
 
         #endregion

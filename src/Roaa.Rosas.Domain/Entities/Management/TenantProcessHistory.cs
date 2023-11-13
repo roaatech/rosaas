@@ -77,8 +77,10 @@ namespace Roaa.Rosas.Domain.Entities.Management
         SubscriptionUpgradeApplicationFailed,
         SubscriptionUpgradeAppliedDone,
         SubscriptionDowngradePrepared,
-        SubscriptionDowngradeFailure,
         SubscriptionDowngraded,
+        SubscriptionDowngradeBeingApplied,
+        SubscriptionDowngradeApplicationFailed,
+        SubscriptionDowngradeAppliedDone,
     }
 
 

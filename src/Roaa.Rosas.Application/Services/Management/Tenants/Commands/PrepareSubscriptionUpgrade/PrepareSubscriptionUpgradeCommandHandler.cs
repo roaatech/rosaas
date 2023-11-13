@@ -7,6 +7,7 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionUpgrade;
 
@@ -96,9 +97,9 @@ public class PrepareSubscriptionUpgradeCommandHandler : IRequestHandler<PrepareS
 
         subscription.SubscriptionPlanChangeStatus = null;
 
-        _dbContext.SubscriptionPlanChanges.Add(subscriptionPlanChanging);
+        subscription.AddDomainEvent(new SubscriptionUpgradeAppliedDoneEvent(subscription));
 
-        // subscriptionPlanChanging.AddDomainEvent(new (subscriptionPlanChanges, command.Comment));
+        _dbContext.SubscriptionPlanChanges.Add(subscriptionPlanChanging);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
