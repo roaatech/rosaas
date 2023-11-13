@@ -67,7 +67,13 @@ namespace Roaa.Rosas.Domain.Entities.Management
         SubscriptionReset,
         SubscriptionResetFailure,
         SubscriptionFeatureLimitReset,
+        SubscriptionAutoRenewalEnabled,
+        SubscriptionAutoRenewalCanceled,
         SubscriptionRenewed,
+        SubscriptionUpgradePrepared,
+        SubscriptionUpgraded,
+        SubscriptionDowngradePrepared,
+        SubscriptionDowngraded,
     }
 
 

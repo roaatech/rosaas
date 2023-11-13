@@ -93,5 +93,17 @@ namespace Roaa.Rosas.Application.SystemMessages
                Ar = "عنوان رابط إعادة تعيين الاشتراك غير موجود")]
         RestUrlNotExist = 3009,
 
+
+        [Localization(
+           En = "You have already upgraded/downgraded the subscription",
+           Ar = "لقد قمت بترقية/تخفيض الاشتراك مسبقاً")]
+        SubscriptionAlreadyUpgradedDowngraded = 3010,
+
+
+        [Localization(
+        En = "This plan does not belong to the product",
+        Ar = "هذه الخطة لا تنتمي إلى المنتج")]
+        PlanDoesNotBelongToProduct = 3011,
+
     }
 }

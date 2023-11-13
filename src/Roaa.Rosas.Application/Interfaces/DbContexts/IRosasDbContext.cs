@@ -30,6 +30,8 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<Subscription> Subscriptions { get; }
         public DbSet<SubscriptionAutoRenewal> SubscriptionAutoRenewals { get; }
         public DbSet<SubscriptionAutoRenewalHistory> SubscriptionAutoRenewalHistories { get; }
+        public DbSet<SubscriptionPlanChanging> SubscriptionPlanChanges { get; }
+        public DbSet<SubscriptionPlanChangeHistory> SubscriptionPlanChangingHistories { get; }
         public DbSet<SubscriptionCycle> SubscriptionCycles { get; }
         public DbSet<SubscriptionFeature> SubscriptionFeatures { get; }
         public DbSet<SubscriptionFeatureCycle> SubscriptionFeatureCycles { get; }

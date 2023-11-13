@@ -205,112 +205,181 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result.Successful();
         }
-
-        public async Task<Result> RenewOrSetExpiredSubscriptionsAsUnpaidAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Subscription>> GetExpiredSubscriptionsAsync(CancellationToken cancellationToken = default)
         {
-            _date = DateTime.UtcNow;
-            var subscriptions = await _dbContext.Subscriptions
+            return await _dbContext.Subscriptions
                                                 .Where(x => x.StartDate <= _date &&
                                                             x.EndDate < _date &&
                                                             x.IsPaid &&
                                                            (x.Status == TenantStatus.Active ||
                                                             x.Status == TenantStatus.CreatedAsActive))
-                                                .ToListAsync();
-            if (subscriptions.Any())
+                                                .ToListAsync(cancellationToken);
+        }
+        public async Task<Result> RenewOrSetExpiredSubscriptionsAsUnpaidAsync(CancellationToken cancellationToken = default)
+        {
+            _date = DateTime.UtcNow;
+
+            var expiredSubscriptions = await GetExpiredSubscriptionsAsync(cancellationToken);
+
+            if (!expiredSubscriptions.Any())
             {
-                var subscriptionsIds = subscriptions.Select(x => x.Id).ToList();
+                return Result.Successful();
+            }
 
-                var subscriptionsFeatures = await _dbContext.SubscriptionFeatures
-                                                              .Where(x => subscriptionsIds.Contains(x.SubscriptionId))
-                                                              .ToListAsync();
-                #region Subscriptions Renewal
+            var expiredSbscriptionsIds = expiredSubscriptions.Select(x => x.Id).ToList();
 
-                // Renew subscriptions that have enabled auto-renewal.
+            var subscriptionsFeatures = await _dbContext.SubscriptionFeatures
+                                                          .Where(x => expiredSbscriptionsIds.Contains(x.SubscriptionId))
+                                                          .ToListAsync();
 
-                var subscriptionAutoRenewals = await _dbContext.SubscriptionAutoRenewals
-                                                               .Where(x => subscriptionsIds.Contains(x.SubscriptionId))
-                                                               .ToListAsync();
 
-                var subscriptionsIdsForAutoRenewal = subscriptionAutoRenewals.Select(x => x.SubscriptionId).ToList();
+            // Retrieving subscriptions auto-renewals from database
+            var subscriptionAutoRenewals = await _dbContext.SubscriptionAutoRenewals
+                                                         .Where(x => expiredSbscriptionsIds.Contains(x.SubscriptionId))
+                                                         .ToListAsync();
 
-                var subscriptionsForRenewal = subscriptions.Where(x => subscriptionsIdsForAutoRenewal.Contains(x.Id));
 
-                foreach (var subscription in subscriptionsForRenewal)
+            // Retrieving subscriptions plans changes from database
+            var subscriptionPlanChanges = await _dbContext.SubscriptionPlanChanges
+                                                     .Where(x => expiredSbscriptionsIds.Contains(x.SubscriptionId))
+                                                     .ToListAsync();
+
+            foreach (var subscription in expiredSubscriptions)
+            {
+                var subscriptionFeatures = subscriptionsFeatures
+                                                .Where(x => x.SubscriptionId == subscription.Id)
+                                                .ToList();
+
+                var subscriptionPlanChanging = subscriptionPlanChanges.Where(x => x.SubscriptionId == subscription.Id).SingleOrDefault();
+
+                // Changing subscription plan that needs to change its plan 
+                if (subscriptionPlanChanging is not null)
                 {
-                    var autoRenewal = subscriptionAutoRenewals.Where(x => x.SubscriptionId == subscription.Id).SingleOrDefault();
-
-                    List<SubscriptionFeature> subscriptionFeatures = subscriptionsFeatures
-                                                                        .Where(x => x.SubscriptionId == subscription.Id)
-                                                                        .ToList();
-                    // Renew subscription with different plan.
-                    if (subscription.PlanId != autoRenewal.PlanId)
-                    {
-                        _dbContext.SubscriptionFeatures.RemoveRange(subscriptionFeatures);
-
-                        var PlanFeatures = await _dbContext.PlanFeatures
-                                                           .Include(x => x.Feature)
-                                                           .Where(x => x.PlanId == autoRenewal.PlanId)
-                                                           .Select(x => new
-                                                           {
-                                                               x.FeatureId,
-                                                               PlanFeatureId = x.Id,
-                                                               FeatureReset = x.Feature.Reset,
-                                                               x.Limit
-                                                           })
-                                                           .ToListAsync();
-
-                        subscriptionFeatures = PlanFeatures.Select(x =>
-                                                                BuildSubscriptionFeatureEntity(subscription.Id,
-                                                                                                x.FeatureId,
-                                                                                                x.PlanFeatureId,
-                                                                                                x.FeatureReset,
-                                                                                                x.Limit)
-                                                                       ).ToList();
-                    }
-
-                    RenewSubscription(subscription,
-                                      subscriptionFeatures,
-                                      autoRenewal.PlanId,
-                                      autoRenewal.PlanPriceId,
-                                      autoRenewal.PlanCycle,
-                                      autoRenewal.Price,
-                                      autoRenewal.PlanDisplayName);
-
-                    subscription.AddDomainEvent(new SubscriptionRenewedEvent(
-                                                        subscription,
-                                                        autoRenewal,
-                                                        "The Subscription Is Automatically Renewed."));
-
-                    await _dbContext.SaveChangesAsync();
+                    await ChangeSubscriptionPlanAsync(subscription, subscriptionPlanChanging, subscriptionFeatures, cancellationToken);
+                    continue;
                 }
 
-                #endregion
 
-                #region Subscriptions Suspending
+                var autoRenewal = subscriptionAutoRenewals.Where(x => x.SubscriptionId == subscription.Id).SingleOrDefault();
 
-                // Setting Expired Subscriptions As Unpaid
-
-                var subscriptionsForSuspending = subscriptions.Where(x => !subscriptionsIdsForAutoRenewal.Contains(x.Id));
-
-                string systemComment = "Setting the Subscription As Unpaid for the tenant due to non-renewal.";
-
-                foreach (var subscription in subscriptionsForSuspending)
+                // Renewing subscription plan that has enabled auto-renewal
+                if (autoRenewal is not null)
                 {
-                    SetSubscriptionAsUnpaid(subscription, systemComment, _date);
-
-                    subscription.AddDomainEvent(new SubscriptionWasSetAsUnpaidEvent(subscription, systemComment));
-
-                    await _dbContext.SaveChangesAsync();
+                    await RenewSubscriptionAsync(subscription, autoRenewal, subscriptionFeatures, cancellationToken);
+                    continue;
                 }
-                #endregion
 
+                await SuspendSubscriptionAsync(subscription, cancellationToken);
             }
 
             return Result.Successful();
         }
 
 
-        private void RenewSubscription(Subscription subscription,
+        /// <summary>
+        /// Changing subscription plan that needs to change its plan 
+        /// </summary> 
+        public async Task<Result> ChangeSubscriptionPlanAsync(Subscription subscription,
+                                                               SubscriptionPlanChanging subscriptionPlanChanging,
+                                                               List<SubscriptionFeature> subscriptionFeatures,
+                                                               CancellationToken cancellationToken = default)
+        {
+
+            var previousSubscriptionCycleId = subscription.SubscriptionCycleId;
+
+            _dbContext.SubscriptionFeatures.RemoveRange(subscriptionFeatures);
+
+            var PlanFeatures = await _dbContext.PlanFeatures
+                                               .Include(x => x.Feature)
+                                               .Where(x => x.PlanId == subscriptionPlanChanging.PlanId)
+                                               .Select(x => new
+                                               {
+                                                   x.FeatureId,
+                                                   PlanFeatureId = x.Id,
+                                                   FeatureReset = x.Feature.Reset,
+                                                   x.Limit
+                                               })
+                                               .ToListAsync();
+
+            subscriptionFeatures = PlanFeatures.Select(x => BuildSubscriptionFeatureEntity(subscription.Id,
+                                                                                    x.FeatureId,
+                                                                                    x.PlanFeatureId,
+                                                                                    x.FeatureReset,
+                                                                                    x.Limit)
+                                                           ).ToList();
+
+
+            _dbContext.SubscriptionFeatures.AddRange(subscriptionFeatures);
+
+            PrepareToRenewSubscription(subscription,
+                            subscriptionFeatures,
+                            subscriptionPlanChanging.PlanId,
+                            subscriptionPlanChanging.PlanPriceId,
+                            subscriptionPlanChanging.PlanCycle,
+                            subscriptionPlanChanging.Price,
+                            subscriptionPlanChanging.PlanDisplayName);
+
+            subscription.AddDomainEvent(new SubscriptionPlanChangeAppliedEvent(
+                                          subscription,
+                                          subscriptionPlanChanging,
+                                          previousSubscriptionCycleId));
+
+            _dbContext.SubscriptionPlanChanges.Remove(subscriptionPlanChanging);
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
+
+        /// <summary>
+        /// Renewing subscription plan that has enabled auto-renewal
+        /// </summary> 
+        public async Task<Result> RenewSubscriptionAsync(Subscription subscription,
+                                                         SubscriptionAutoRenewal autoRenewal,
+                                                         List<SubscriptionFeature> subscriptionFeatures,
+                                                         CancellationToken cancellationToken = default)
+        {
+
+            PrepareToRenewSubscription(subscription,
+                            subscriptionFeatures,
+                            autoRenewal.PlanId,
+                            autoRenewal.PlanPriceId,
+                            autoRenewal.PlanCycle,
+                            autoRenewal.Price,
+                            autoRenewal.PlanDisplayName);
+
+            subscription.AddDomainEvent(new SubscriptionRenewedEvent(
+                                                     subscription,
+                                                     autoRenewal,
+                                                     "The Subscription Is Automatically Renewed."));
+
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
+
+
+
+        //TODO Set Subscription as Suspended
+        public async Task<Result> SuspendSubscriptionAsync(Subscription subscription, CancellationToken cancellationToken = default)
+        {
+            string systemComment = "Setting the Subscription As Unpaid for the tenant due to non-renewal.";
+
+            SetSubscriptionAsUnpaid(subscription, systemComment, _date);
+
+            subscription.AddDomainEvent(new SubscriptionWasSetAsUnpaidEvent(subscription, systemComment));
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
+
+
+        private void PrepareToRenewSubscription(Subscription subscription,
                                       List<SubscriptionFeature> subscriptionFeatures,
                                       Guid planId,
                                       Guid planPriceId,
