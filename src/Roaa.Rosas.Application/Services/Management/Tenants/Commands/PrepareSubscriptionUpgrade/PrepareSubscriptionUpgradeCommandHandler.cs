@@ -97,7 +97,7 @@ public class PrepareSubscriptionUpgradeCommandHandler : IRequestHandler<PrepareS
 
         subscription.SubscriptionPlanChangeStatus = null;
 
-        subscription.AddDomainEvent(new SubscriptionUpgradeAppliedDoneEvent(subscription));
+        subscription.AddDomainEvent(new SubscriptionUpgradePreparedEvent(subscription));
 
         _dbContext.SubscriptionPlanChanges.Add(subscriptionPlanChanging);
 

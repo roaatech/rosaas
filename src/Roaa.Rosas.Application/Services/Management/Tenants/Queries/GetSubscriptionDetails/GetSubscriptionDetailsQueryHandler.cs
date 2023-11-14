@@ -36,6 +36,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      CurrentSubscriptionCycleId = subscription.SubscriptionCycleId,
                                                      StartDate = subscription.StartDate,
                                                      EndDate = subscription.EndDate,
+                                                     SubscriptionResetStatus = subscription.SubscriptionResetStatus,
                                                      LastResetDate = subscription.LastResetDate,
                                                      LastLimitsResetDate = subscription.LastLimitsResetDate,
                                                      IsResettableAllowed = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionResetUrl),
