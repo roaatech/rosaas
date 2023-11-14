@@ -12,11 +12,17 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public DateTime? LastResetDate { get; set; }
         public DateTime? LastLimitsResetDate { get; set; }
         public SubscriptionResetStatus? SubscriptionResetStatus { get; set; }
+        public SubscriptionPlanChangeStatus? SubscriptionPlanChangeStatus { get; set; }
         public bool HasSubscriptionFeaturesLimitsResettable { get; set; }
         public bool IsResettableAllowed { get; set; }
+        public bool IsPlanChangeAllowed { get; set; }
+        public bool IsSubscriptionResetUrlExists { get; set; }
+        public bool IsSubscriptionUpgradeUrlExists { get; set; }
+        public bool IsSubscriptionDowngradeUrlExists { get; set; }
         public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public PlanPriceDto PlanPrice { get; set; } = new();
         public SubscriptionAutoRenewalDto? AutoRenewal { get; set; }
+        public SubscriptionPlanChangingDto? SubscriptionPlanChange { get; set; }
         public IEnumerable<SubscriptionFeatureDto> SubscriptionFeatures { get; set; } = new List<SubscriptionFeatureDto>();
         public IEnumerable<SubscriptionCycleDto> SubscriptionCycles { get; set; } = new List<SubscriptionCycleDto>();
     }
@@ -29,6 +35,17 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
     }
+    public class SubscriptionPlanChangingDto
+    {
+        public string PlanDisplayName { get; set; } = string.Empty;
+        public PlanChangingType Type { get; set; }
+        public PlanCycle Cycle { get; set; }
+        public decimal Price { get; set; }
+        public string? Comment { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime EditedDate { get; set; }
+    }
+
     public class SubscriptionCycleDto
     {
         public Guid Id { get; set; }
