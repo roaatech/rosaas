@@ -12,5 +12,7 @@
         public string DeletionEndpoint { get; set; } = string.Empty;
         public string ApiKey { get; set; } = string.Empty;
         public string? SubscriptionResetUrl { get; set; }
+        public string? SubscriptionUpgradeUrl { get; set; }
+        public string? SubscriptionDowngradeUrl { get; set; }
     }
 }

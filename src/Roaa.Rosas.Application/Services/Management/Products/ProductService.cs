@@ -127,6 +127,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               DeletionEndpoint = product.DeletionUrl,
                                               ApiKey = product.ApiKey,
                                               SubscriptionResetUrl = product.SubscriptionResetUrl,
+                                              SubscriptionUpgradeUrl = product.SubscriptionUpgradeUrl,
+                                              SubscriptionDowngradeUrl = product.SubscriptionDowngradeUrl,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -167,6 +169,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 DeletionUrl = model.DeletionEndpoint,
                 ApiKey = model.ApiKey,
                 SubscriptionResetUrl = model.SubscriptionResetUrl,
+                SubscriptionUpgradeUrl = model.SubscriptionUpgradeUrl,
+                SubscriptionDowngradeUrl = model.SubscriptionDowngradeUrl,
                 CreationDate = date,
                 ModificationDate = date,
             };
@@ -221,6 +225,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             product.DeletionUrl = model.DeletionEndpoint;
             product.ApiKey = model.ApiKey;
             product.SubscriptionResetUrl = model.SubscriptionResetUrl;
+            product.SubscriptionUpgradeUrl = model.SubscriptionUpgradeUrl;
+            product.SubscriptionDowngradeUrl = model.SubscriptionDowngradeUrl;
             product.ModificationDate = DateTime.UtcNow;
 
             product.AddDomainEvent(new ProductUpdatedEvent(product, productBeforeUpdate));
