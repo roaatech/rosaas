@@ -115,11 +115,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      {
                                                          PlanDisplayName = subscription.SubscriptionPlanChanging.PlanDisplayName,
                                                          Type = subscription.SubscriptionPlanChanging.Type,
-                                                         Cycle = subscription.AutoRenewal.PlanCycle,
-                                                         Price = subscription.AutoRenewal.Price,
-                                                         EditedDate = subscription.AutoRenewal.ModificationDate,
-                                                         CreatedDate = subscription.AutoRenewal.CreationDate,
-                                                         Comment = subscription.AutoRenewal.Comment,
+                                                         Cycle = subscription.SubscriptionPlanChanging.PlanCycle,
+                                                         Price = subscription.SubscriptionPlanChanging.Price,
+                                                         EditedDate = subscription.SubscriptionPlanChanging.ModificationDate,
+                                                         CreatedDate = subscription.SubscriptionPlanChanging.CreationDate,
+                                                         Comment = subscription.SubscriptionPlanChanging.Comment,
                                                      },
                                                  })
                                                  .SingleOrDefaultAsync(cancellationToken);
