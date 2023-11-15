@@ -42,22 +42,11 @@ public record PlanInfoModel
     public Guid GeneratedSubscriptionCycleId { get; set; }
     public Guid GeneratedSubscriptionId { get; set; }
     public ProductUrlListItem Product { get; set; } = new();
-    public List<FeatureInfoModel> Features { get; set; } = new();
+    public List<PlanFeatureInfoModel> Features { get; set; } = new();
     public List<SpecificationInfoModel> Specifications { get; set; } = new();
 }
 
-public record FeatureInfoModel
-{
-    public Guid GeneratedSubscriptionFeatureCycleId { get; set; }
-    public Guid PlanFeatureId { get; set; }
-    public Guid PlanId { get; set; }
-    public Guid FeatureId { get; set; }
-    public int? Limit { get; set; }
-    public FeatureType Type { get; set; }
-    public FeatureUnit? Unit { get; set; }
-    public FeatureReset Reset { get; set; }
-    public string DisplayName { get; set; } = string.Empty;
-}
+
 public record SpecificationInfoModel
 {
     public Guid SpecificationId { get; set; }

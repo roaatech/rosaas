@@ -12,7 +12,6 @@
         public virtual PlanFeature? PlanFeature { get; set; }
         public virtual Feature? Feature { get; set; }
         public virtual Subscription? Subscription { get; set; }
-        public virtual ICollection<SubscriptionFeatureCycle>? SubscriptionFeatureCycles { get; set; }
     }
 
 }

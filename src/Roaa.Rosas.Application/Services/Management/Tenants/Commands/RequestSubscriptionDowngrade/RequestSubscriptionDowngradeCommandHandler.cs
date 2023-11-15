@@ -9,12 +9,12 @@ using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionUpgrade;
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionDowngrade;
 
-public class PrepareSubscriptionUpgradeCommandHandler : IRequestHandler<PrepareSubscriptionUpgradeCommand, Result>
+public class RequestSubscriptionDowngradeCommandHandler : IRequestHandler<RequestSubscriptionDowngradeCommand, Result>
 {
     #region Props 
-    private readonly ILogger<PrepareSubscriptionUpgradeCommandHandler> _logger;
+    private readonly ILogger<RequestSubscriptionDowngradeCommandHandler> _logger;
     private readonly IIdentityContextService _identityContextService;
     private readonly IRosasDbContext _dbContext;
     #endregion
@@ -22,9 +22,9 @@ public class PrepareSubscriptionUpgradeCommandHandler : IRequestHandler<PrepareS
 
 
     #region Corts
-    public PrepareSubscriptionUpgradeCommandHandler(IIdentityContextService identityContextService,
+    public RequestSubscriptionDowngradeCommandHandler(IIdentityContextService identityContextService,
                                                     IRosasDbContext dbContext,
-                                                    ILogger<PrepareSubscriptionUpgradeCommandHandler> logger)
+                                                    ILogger<RequestSubscriptionDowngradeCommandHandler> logger)
     {
         _identityContextService = identityContextService;
         _dbContext = dbContext;
@@ -34,7 +34,7 @@ public class PrepareSubscriptionUpgradeCommandHandler : IRequestHandler<PrepareS
 
 
     #region Handler   
-    public async Task<Result> Handle(PrepareSubscriptionUpgradeCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(RequestSubscriptionDowngradeCommand command, CancellationToken cancellationToken)
     {
         if (await _dbContext.SubscriptionPlanChanges
                                     .Where(x => x.Id == command.SubscriptionId)
@@ -44,8 +44,8 @@ public class PrepareSubscriptionUpgradeCommandHandler : IRequestHandler<PrepareS
         }
 
         var subscription = await _dbContext.Subscriptions
-                                  .Where(x => x.Id == command.SubscriptionId)
-                                  .SingleOrDefaultAsync();
+                                     .Where(x => x.Id == command.SubscriptionId)
+                                     .SingleOrDefaultAsync();
 
         if (subscription is null)
         {
@@ -80,7 +80,7 @@ public class PrepareSubscriptionUpgradeCommandHandler : IRequestHandler<PrepareS
         var subscriptionPlanChanging = new SubscriptionPlanChanging
         {
             Id = command.SubscriptionId,
-            Type = PlanChangingType.Upgrade,
+            Type = PlanChangingType.Downgrade,
             SubscriptionId = command.SubscriptionId,
             PlanPriceId = command.PlanPriceId,
             PlanId = planPrice.PlanId,
@@ -97,7 +97,7 @@ public class PrepareSubscriptionUpgradeCommandHandler : IRequestHandler<PrepareS
 
         subscription.SubscriptionPlanChangeStatus = null;
 
-        subscription.AddDomainEvent(new SubscriptionUpgradePreparedEvent(subscription));
+        subscription.AddDomainEvent(new SubscriptionDowngradeRequestedEvent(subscription));
 
         _dbContext.SubscriptionPlanChanges.Add(subscriptionPlanChanging);
 

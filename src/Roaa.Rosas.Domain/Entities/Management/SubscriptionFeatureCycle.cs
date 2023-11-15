@@ -17,7 +17,6 @@
         public int? TotalUsage { get; set; }
         public int? RemainingUsage { get; set; }
         public int? Limit { get; set; }
-        public virtual SubscriptionFeature? SubscriptionFeature { get; set; }
     }
 
 }

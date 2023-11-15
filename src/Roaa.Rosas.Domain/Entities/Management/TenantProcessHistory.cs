@@ -71,13 +71,13 @@ namespace Roaa.Rosas.Domain.Entities.Management
         SubscriptionAutoRenewalEnabled,
         SubscriptionAutoRenewalCanceled,
         SubscriptionRenewed,
-        SubscriptionUpgradePrepared, // تم التحضير لعملية ترقية الاشتراك
-        SubscriptionUpgraded,// تم ترقية خطة الاشتراك في نظام رصاص 
+        SubscriptionUpgradeRequested, // تم طلب ترقية الاشتراك
+        SubscriptionUpgradePrepared,// تم ترقية خطة الاشتراك في نظام رصاص 
         SubscriptionUpgradeBeingApplied,//جارٍ تطبيق ترقية الاشتراك 
         SubscriptionUpgradeApplicationFailed, // فشل عملية تطبيق ترقية الاشتراك في النظام الخارجي
         SubscriptionUpgradeAppliedDone,//تم تطبيق ترقية الاشتراك 
+        SubscriptionDowngradeRequested,
         SubscriptionDowngradePrepared,
-        SubscriptionDowngraded,
         SubscriptionDowngradeBeingApplied,
         SubscriptionDowngradeApplicationFailed,
         SubscriptionDowngradeAppliedDone,

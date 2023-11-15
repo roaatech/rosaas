@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
@@ -16,6 +17,7 @@ public class SetSubscriptionAsDowngradeAppliedCommandHandler : IRequestHandler<S
     private readonly ILogger<SetSubscriptionAsDowngradeAppliedCommandHandler> _logger;
     private readonly IIdentityContextService _identityContextService;
     private readonly IRosasDbContext _dbContext;
+    private readonly ISubscriptionService _subscriptionService;
     #endregion
 
 
@@ -23,10 +25,12 @@ public class SetSubscriptionAsDowngradeAppliedCommandHandler : IRequestHandler<S
     #region Corts
     public SetSubscriptionAsDowngradeAppliedCommandHandler(IIdentityContextService identityContextService,
                                                     IRosasDbContext dbContext,
+                                                    ISubscriptionService subscriptionService,
                                                     ILogger<SetSubscriptionAsDowngradeAppliedCommandHandler> logger)
     {
         _identityContextService = identityContextService;
         _dbContext = dbContext;
+        _subscriptionService = subscriptionService;
         _logger = logger;
     }
     #endregion
@@ -53,17 +57,15 @@ public class SetSubscriptionAsDowngradeAppliedCommandHandler : IRequestHandler<S
         var date = DateTime.UtcNow;
         if (command.IsSuccessful)
         {
-            subscription.SubscriptionPlanChangeStatus = SubscriptionPlanChangeStatus.Done;
-            subscription.ModificationDate = DateTime.UtcNow;
-            subscription.AddDomainEvent(new SubscriptionDowngradeAppliedDoneEvent(subscription));
+            await _subscriptionService.ChangeSubscriptionPlanAsync(subscription, cancellationToken);
         }
         else
         {
             subscription.SubscriptionPlanChangeStatus = SubscriptionPlanChangeStatus.Failure;
             subscription.AddDomainEvent(new SubscriptionDowngradeApplicationFailedEvent(subscription));
+            await _dbContext.SaveChangesAsync();
         }
 
-        await _dbContext.SaveChangesAsync();
 
         return Result.Successful();
     }

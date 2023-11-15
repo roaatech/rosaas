@@ -3,11 +3,11 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.SystemMessages;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionDowngrade;
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionDowngrade;
 
-public partial class PrepareSubscriptionDowngradeCommandValidator : AbstractValidator<PrepareSubscriptionDowngradeCommand>
+public partial class RequestSubscriptionDowngradeCommandValidator : AbstractValidator<RequestSubscriptionDowngradeCommand>
 {
-    public PrepareSubscriptionDowngradeCommandValidator(IIdentityContextService identityContextService)
+    public RequestSubscriptionDowngradeCommandValidator(IIdentityContextService identityContextService)
     {
         RuleFor(x => x.SubscriptionId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 

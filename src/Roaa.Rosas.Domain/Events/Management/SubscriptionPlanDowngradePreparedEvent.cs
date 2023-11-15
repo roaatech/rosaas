@@ -3,17 +3,17 @@ using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Domain.Events.Management
 {
-    public class SubscriptionPlanUpgradedEvent : BaseInternalEvent
+    public class SubscriptionPlanDowngradePreparedEvent : BaseInternalEvent
     {
         public Subscription Subscription { get; set; } = new();
         public SubscriptionPlanChanging SubscriptionPlanChange { get; set; } = new();
         public SubscriptionCycle PreviousSubscriptionCycle { get; set; } = new();
 
-        public SubscriptionPlanUpgradedEvent()
+        public SubscriptionPlanDowngradePreparedEvent()
         {
         }
 
-        public SubscriptionPlanUpgradedEvent(Subscription subscription,
+        public SubscriptionPlanDowngradePreparedEvent(Subscription subscription,
                                                     SubscriptionPlanChanging subscriptionPlanChange,
                                                     SubscriptionCycle previousSubscriptionCycle)
         {

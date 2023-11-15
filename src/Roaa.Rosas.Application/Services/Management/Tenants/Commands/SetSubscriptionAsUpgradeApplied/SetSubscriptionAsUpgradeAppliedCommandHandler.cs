@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
@@ -16,6 +17,7 @@ public class SetSubscriptionAsUpgradeAppliedCommandHandler : IRequestHandler<Set
     private readonly ILogger<SetSubscriptionAsUpgradeAppliedCommandHandler> _logger;
     private readonly IIdentityContextService _identityContextService;
     private readonly IRosasDbContext _dbContext;
+    private readonly ISubscriptionService _subscriptionService;
     #endregion
 
 
@@ -23,13 +25,16 @@ public class SetSubscriptionAsUpgradeAppliedCommandHandler : IRequestHandler<Set
     #region Corts
     public SetSubscriptionAsUpgradeAppliedCommandHandler(IIdentityContextService identityContextService,
                                                     IRosasDbContext dbContext,
+                                                    ISubscriptionService subscriptionService,
                                                     ILogger<SetSubscriptionAsUpgradeAppliedCommandHandler> logger)
     {
         _identityContextService = identityContextService;
         _dbContext = dbContext;
+        _subscriptionService = subscriptionService;
         _logger = logger;
     }
     #endregion
+
 
 
     #region Handler   
@@ -44,7 +49,7 @@ public class SetSubscriptionAsUpgradeAppliedCommandHandler : IRequestHandler<Set
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
         }
 
-        if (subscription.SubscriptionPlanChangeStatus != SubscriptionPlanChangeStatus.InProgress || subscription.SubscriptionPlanChangeStatus != SubscriptionPlanChangeStatus.Failure)
+        if (subscription.SubscriptionPlanChangeStatus != SubscriptionPlanChangeStatus.InProgress && subscription.SubscriptionPlanChangeStatus != SubscriptionPlanChangeStatus.Failure)
         {
             return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
         }
@@ -53,17 +58,15 @@ public class SetSubscriptionAsUpgradeAppliedCommandHandler : IRequestHandler<Set
         var date = DateTime.UtcNow;
         if (command.IsSuccessful)
         {
-            subscription.SubscriptionPlanChangeStatus = SubscriptionPlanChangeStatus.Done;
-            subscription.ModificationDate = DateTime.UtcNow;
-            subscription.AddDomainEvent(new SubscriptionUpgradeAppliedDoneEvent(subscription));
+            await _subscriptionService.ChangeSubscriptionPlanAsync(subscription, cancellationToken);
         }
         else
         {
             subscription.SubscriptionPlanChangeStatus = SubscriptionPlanChangeStatus.Failure;
             subscription.AddDomainEvent(new SubscriptionUpgradeApplicationFailedEvent(subscription));
+            await _dbContext.SaveChangesAsync();
         }
 
-        await _dbContext.SaveChangesAsync();
 
         return Result.Successful();
     }

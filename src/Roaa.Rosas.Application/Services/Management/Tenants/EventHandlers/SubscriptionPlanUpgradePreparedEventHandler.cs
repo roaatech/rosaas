@@ -14,9 +14,9 @@ using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 {
-    public class SubscriptionPlanUpgradedEventHandler : IInternalDomainEventHandler<SubscriptionPlanUpgradedEvent>
+    public class SubscriptionPlanUpgradePreparedEventHandler : IInternalDomainEventHandler<SubscriptionPlanUpgradePreparedEvent>
     {
-        private readonly ILogger<SubscriptionPlanUpgradedEventHandler> _logger;
+        private readonly ILogger<SubscriptionPlanUpgradePreparedEventHandler> _logger;
         private readonly IIdentityContextService _identityContextService;
         private readonly IExternalSystemAPI _externalSystemAPI;
         private readonly IProductService _productService;
@@ -24,13 +24,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
         private readonly IRosasDbContext _dbContext;
         private readonly IPublisher _publisher;
 
-        public SubscriptionPlanUpgradedEventHandler(IIdentityContextService identityContextService,
+        public SubscriptionPlanUpgradePreparedEventHandler(IIdentityContextService identityContextService,
                                                     IExternalSystemAPI externalSystemAPI,
                                                     IProductService productService,
                                                     ITenantService tenantService,
                                                     IRosasDbContext dbContext,
                                                     IPublisher publisher,
-                                                    ILogger<SubscriptionPlanUpgradedEventHandler> logger)
+                                                    ILogger<SubscriptionPlanUpgradePreparedEventHandler> logger)
         {
             _identityContextService = identityContextService;
             _externalSystemAPI = externalSystemAPI;
@@ -41,10 +41,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             _logger = logger;
         }
 
-        public async Task Handle(SubscriptionPlanUpgradedEvent @event, CancellationToken cancellationToken)
+        public async Task Handle(SubscriptionPlanUpgradePreparedEvent @event, CancellationToken cancellationToken)
         {
             await _publisher.Publish(new TenantProcessingCompletedEvent(
-                                                   processType: TenantProcessType.SubscriptionUpgraded,
+                                                   processType: TenantProcessType.SubscriptionUpgradePrepared,
                                                    enabled: true,
                                                    processedData: null,
                                                    comment: string.Empty,
