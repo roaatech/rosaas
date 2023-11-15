@@ -11,6 +11,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         {
             builder.ToTableName("RosasSubscriptionFeatureCycles");
             builder.HasKey(x => x.Id);
+            builder.HasOne(b => b.SubscriptionCycle).WithMany(p => p.SubscriptionFeaturesCycles).HasForeignKey(f => f.SubscriptionCycleId).OnDelete(DeleteBehavior.Restrict);
             builder.Property(r => r.FeatureDisplayName).IsRequired().HasMaxLength(250).IsUnicode();
             builder.Property(r => r.SubscriptionCycleId).IsRequired();
             builder.Property(r => r.SubscriptionFeatureId).IsRequired();

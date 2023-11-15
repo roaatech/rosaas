@@ -7,6 +7,8 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscri
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionUpgrade;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAutoRenewal;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionCycles;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionFeatures;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -83,6 +85,29 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         public async Task<IActionResult> RequestSubscriptionDowngradeAsync([FromBody] RequestSubscriptionDowngradeCommand command, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(command, cancellationToken));
+        }
+
+
+        [HttpGet("{id}/Cycles")]
+        public async Task<IActionResult> GetSubscriptionCyclesListAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _mediator.Send(new GetSubscriptionCyclesQuery(id, null), cancellationToken));
+        }
+
+
+        [HttpGet("{id}/Cycles/{cycleId}")]
+        public async Task<IActionResult> GetSubscriptionCycleByCycleIdAsync([FromRoute] Guid id, [FromRoute] Guid cycleId, CancellationToken cancellationToken = default)
+        {
+            var result = await _mediator.Send(new GetSubscriptionCyclesQuery(id, cycleId), cancellationToken);
+
+            return ItemResult(result.Data.FirstOrDefault());
+        }
+
+
+        [HttpGet("{id}/Features")]
+        public async Task<IActionResult> GetSubscriptionFeaturesAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _mediator.Send(new GetSubscriptionFeaturesQuery(id), cancellationToken));
         }
 
 

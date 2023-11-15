@@ -1,5 +1,6 @@
 ﻿using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionDetails
 {
@@ -49,9 +50,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
     public class SubscriptionCycleDto
     {
         public Guid Id { get; set; }
-        public CustomLookupItemDto<Guid> Plan { get; set; } = new();
-        public PlanCycle Cycle { get; set; }
-        public decimal Price { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
     }
@@ -72,32 +70,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public int? RemainingUsage { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public FeatureType Type { get; set; }
-        public FeatureReset Reset { get; set; }
-        public int? Limit { get; set; }
-        public FeatureUnit? Unit { get; set; }
-        public IEnumerable<SubscriptionFeatureCycleDto> SubscriptionFeaturesCycles { get; set; } = new List<SubscriptionFeatureCycleDto>();
-    }
-    public class SubscriptionFeatureCycleDto
-    {
-        public Guid Id { get; set; }
-        public Guid SubscriptionCycleId { get; set; }
-        public CustomLookupItemDto<Guid> Feature { get; set; } = new();
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public FeatureType Type { get; set; }
-        public FeatureReset Reset { get; set; }
-        public FeatureUnit? Unit { get; set; }
-        public int? TotalUsage { get; set; }
-        public int? RemainingUsage { get; set; }
-        public int? Limit { get; set; }
-    }
-    public class FeatureDto
-    {
-        public Guid Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
         public FeatureType Type { get; set; }
         public FeatureReset Reset { get; set; }
         public int? Limit { get; set; }

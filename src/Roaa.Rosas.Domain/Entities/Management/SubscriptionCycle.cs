@@ -13,6 +13,7 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public virtual Subscription? Subscription { get; set; }
+        public virtual ICollection<SubscriptionFeatureCycle>? SubscriptionFeaturesCycles { get; set; }
     }
 
 }

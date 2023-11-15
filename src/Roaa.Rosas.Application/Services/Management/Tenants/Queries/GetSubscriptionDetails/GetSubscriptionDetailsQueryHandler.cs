@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
+using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
@@ -61,47 +61,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                          Id = SubscriptionCycle.Id,
                                                          StartDate = SubscriptionCycle.StartDate,
                                                          EndDate = SubscriptionCycle.EndDate,
-                                                         Cycle = SubscriptionCycle.Cycle,
-                                                         Price = SubscriptionCycle.Price,
-                                                         Plan = new CustomLookupItemDto<Guid>(SubscriptionCycle.PlanId, SubscriptionCycle.PlanDisplayName, SubscriptionCycle.PlanDisplayName),
 
-                                                     }),
-                                                     SubscriptionFeatures = subscription.SubscriptionFeatures.Select(subscriptionFeature => new SubscriptionFeatureDto
-                                                     {
-                                                         Id = subscriptionFeature.Id,
-                                                         CurrentSubscriptionFeatureCycleId = subscriptionFeature.SubscriptionFeatureCycleId,
-                                                         EndDate = subscriptionFeature.EndDate,
-                                                         StartDate = subscriptionFeature.StartDate,
-                                                         RemainingUsage = subscriptionFeature.RemainingUsage,
-                                                         Feature = new FeatureDto
-                                                         {
-                                                             Id = subscriptionFeature.Feature.Id,
-                                                             Name = subscriptionFeature.Feature.Name,
-                                                             Title = subscriptionFeature.Feature.DisplayName,
-                                                             Description = subscriptionFeature.Feature.Description,
-                                                             Type = subscriptionFeature.Feature.Type,
-                                                             Reset = subscriptionFeature.Feature.FeatureReset,
-                                                             Limit = subscriptionFeature.PlanFeature.Limit,
-                                                             Unit = subscriptionFeature.PlanFeature.FeatureUnit,
-                                                         },
-                                                         Type = subscriptionFeature.Feature.Type,
-                                                         Reset = subscriptionFeature.Feature.FeatureReset,
-                                                         Limit = subscriptionFeature.PlanFeature.Limit,
-                                                         Unit = subscriptionFeature.PlanFeature.FeatureUnit,
-                                                         //SubscriptionFeaturesCycles = subscriptionFeature.SubscriptionFeatureCycles.Select(featureCycle => new SubscriptionFeatureCycleDto
-                                                         //{
-                                                         //    Id = featureCycle.Id,
-                                                         //    SubscriptionCycleId = featureCycle.SubscriptionCycleId,
-                                                         //    StartDate = featureCycle.StartDate,
-                                                         //    EndDate = featureCycle.EndDate,
-                                                         //    Feature = new CustomLookupItemDto<Guid>(featureCycle.FeatureId, featureCycle.FeatureDisplayName, featureCycle.FeatureDisplayName),
-                                                         //    Limit = featureCycle.Limit,
-                                                         //    Reset = featureCycle.FeatureReset,
-                                                         //    Type = featureCycle.FeatureType,
-                                                         //    Unit = featureCycle.FeatureUnit,
-                                                         //    RemainingUsage = featureCycle.RemainingUsage,
-                                                         //    TotalUsage = featureCycle.TotalUsage,
-                                                         //}),
                                                      }),
                                                      AutoRenewal = subscription.AutoRenewal == null ? null : new SubscriptionAutoRenewalDto
                                                      {
