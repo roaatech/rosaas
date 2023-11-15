@@ -5,6 +5,7 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
+using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Enums;
 
@@ -52,6 +53,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                              Id = subscription.Product.Id,
                                                              Name = subscription.Product.Name,
                                                          },
+                                                         Plan = new LookupItemDto<Guid>
+                                                         {
+                                                             Id = subscription.Plan.Id,
+                                                             Name = subscription.Plan.DisplayName,
+                                                         },
                                                          ProductId = subscription.ProductId,
                                                          SubscriptionId = subscription.Id,
                                                          ProductName = subscription.Product.Name,
@@ -60,8 +66,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                          ExpectedResourceStatus = subscription.ExpectedResourceStatus,
                                                          CreatedDate = subscription.CreationDate,
                                                          EditedDate = subscription.ModificationDate,
-                                                         LastResetDate = subscription.LastResetDate,
-                                                         LastLimitsResetDate = subscription.LastLimitsResetDate,
+                                                         StartDate = subscription.StartDate,
+                                                         EndDate = subscription.EndDate,
                                                          Metadata = subscription.Metadata,
                                                          HealthCheckUrl = subscription.HealthCheckUrl,
                                                          HealthCheckUrlIsOverridden = subscription.HealthCheckUrlIsOverridden,

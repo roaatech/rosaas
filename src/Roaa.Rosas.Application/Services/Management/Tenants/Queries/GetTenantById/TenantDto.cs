@@ -29,21 +29,16 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public object Metadata { get; set; } = new();
-        public DateTime? LastResetDate { get; set; }
-        public DateTime? LastLimitsResetDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public LookupItemDto<Guid> Plan { get; set; } = new();
         public LookupItemDto<Guid> Product { get; set; } = new();
         public ProductTenantHealthStatusDto HealthCheckStatus { get; set; } = new();
         public IEnumerable<ActionResultModel> Actions { get; set; } = new List<ActionResultModel>();
         public ExpectedTenantResourceStatus ExpectedResourceStatus { get; set; }
-
         public IEnumerable<SpecificationListItemDto> Specifications { get; set; } = new List<SpecificationListItemDto>();
     }
-    public record PlanPriceDto
-    {
-        public Guid Id { get; set; }
-        public PlanCycle Cycle { get; set; }
-        public decimal Price { get; set; }
-    }
+
     public class ProductTenantHealthStatusDto
     {
         public bool ShowHealthStatus { get; set; } = true;

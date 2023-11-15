@@ -1,6 +1,5 @@
 ﻿using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionDetails
 {
@@ -15,6 +14,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public SubscriptionResetStatus? SubscriptionResetStatus { get; set; }
         public SubscriptionPlanChangeStatus? SubscriptionPlanChangeStatus { get; set; }
         public bool HasSubscriptionFeaturesLimitsResettable { get; set; }
+        public bool IsActive { get; set; }
         public bool IsResettableAllowed { get; set; }
         public bool IsPlanChangeAllowed { get; set; }
         public bool IsSubscriptionResetUrlExists { get; set; }
@@ -24,7 +24,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public PlanPriceDto PlanPrice { get; set; } = new();
         public SubscriptionAutoRenewalDto? AutoRenewal { get; set; }
         public SubscriptionPlanChangingDto? SubscriptionPlanChange { get; set; }
-        public IEnumerable<SubscriptionFeatureDto> SubscriptionFeatures { get; set; } = new List<SubscriptionFeatureDto>();
         public IEnumerable<SubscriptionCycleDto> SubscriptionCycles { get; set; } = new List<SubscriptionCycleDto>();
     }
 
@@ -62,17 +61,4 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public decimal Price { get; set; }
     }
 
-    public class SubscriptionFeatureDto
-    {
-        public Guid Id { get; set; }
-        public Guid CurrentSubscriptionFeatureCycleId { get; set; }
-        public FeatureDto Feature { get; set; } = new();
-        public int? RemainingUsage { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public FeatureType Type { get; set; }
-        public FeatureReset Reset { get; set; }
-        public int? Limit { get; set; }
-        public FeatureUnit? Unit { get; set; }
-    }
 }

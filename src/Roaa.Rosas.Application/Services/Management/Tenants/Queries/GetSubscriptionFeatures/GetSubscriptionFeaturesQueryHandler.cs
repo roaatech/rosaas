@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Common.Extensions;
+using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
-using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionFeatures
 {
@@ -38,16 +38,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                                  Reset = subscriptionFeature.Feature.FeatureReset,
                                                                  Limit = subscriptionFeature.PlanFeature.Limit,
                                                                  Unit = subscriptionFeature.PlanFeature.FeatureUnit,
-                                                                 Feature = new FeatureDto
+                                                                 Feature = new LookupItemDto<Guid>
                                                                  {
                                                                      Id = subscriptionFeature.Feature.Id,
-                                                                     Name = subscriptionFeature.Feature.Name,
-                                                                     Title = subscriptionFeature.Feature.DisplayName,
-                                                                     Description = subscriptionFeature.Feature.Description,
-                                                                     Type = subscriptionFeature.Feature.Type,
-                                                                     Reset = subscriptionFeature.Feature.FeatureReset,
-                                                                     Limit = subscriptionFeature.PlanFeature.Limit,
-                                                                     Unit = subscriptionFeature.PlanFeature.FeatureUnit,
+                                                                     Name = subscriptionFeature.Feature.DisplayName,
                                                                  },
                                                              })
                                                              .ToListAsync(cancellationToken);

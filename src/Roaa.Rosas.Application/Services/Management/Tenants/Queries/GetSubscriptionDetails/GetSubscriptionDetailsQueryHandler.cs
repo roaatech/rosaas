@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
@@ -41,9 +40,17 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      LastLimitsResetDate = subscription.LastLimitsResetDate,
                                                      SubscriptionResetStatus = subscription.SubscriptionResetStatus,
                                                      SubscriptionPlanChangeStatus = subscription.SubscriptionPlanChangeStatus,
+                                                     IsActive = subscription.IsActive,
                                                      IsSubscriptionResetUrlExists = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionResetUrl),
                                                      IsSubscriptionUpgradeUrlExists = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionUpgradeUrl),
                                                      IsSubscriptionDowngradeUrlExists = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionDowngradeUrl),
+                                                     SubscriptionCycles = subscription.SubscriptionCycles.Select(SubscriptionCycle => new SubscriptionCycleDto
+                                                     {
+                                                         Id = SubscriptionCycle.Id,
+                                                         StartDate = SubscriptionCycle.StartDate,
+                                                         EndDate = SubscriptionCycle.EndDate,
+
+                                                     }),
                                                      Plan = new CustomLookupItemDto<Guid>
                                                      {
                                                          Id = subscription.Plan.Id,
@@ -56,13 +63,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                          Cycle = subscription.PlanPrice.PlanCycle,
                                                          Price = subscription.PlanPrice.Price,
                                                      },
-                                                     SubscriptionCycles = subscription.SubscriptionCycles.Select(SubscriptionCycle => new SubscriptionCycleDto
-                                                     {
-                                                         Id = SubscriptionCycle.Id,
-                                                         StartDate = SubscriptionCycle.StartDate,
-                                                         EndDate = SubscriptionCycle.EndDate,
-
-                                                     }),
                                                      AutoRenewal = subscription.AutoRenewal == null ? null : new SubscriptionAutoRenewalDto
                                                      {
                                                          Cycle = subscription.AutoRenewal.PlanCycle,
@@ -87,10 +87,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
 
             if (subscription is not null)
             {
-                subscription.HasSubscriptionFeaturesLimitsResettable = subscription.SubscriptionFeatures
-                                                                                    .Select(x => x.Feature.Reset)
-                                                                                    .Where(reset => FeatureResetManager.FromKey(reset).IsResettable())
-                                                                                    .Any();
+                //subscription.HasSubscriptionFeaturesLimitsResettable = subscription.SubscriptionFeatures
+                //                                                                    .Select(x => x.Feature.Reset)
+                //                                                                    .Where(reset => FeatureResetManager.FromKey(reset).IsResettable())
+                //                                                                    .Any();
 
                 subscription.IsPlanChangeAllowed = subscription.SubscriptionPlanChange is null &&
                                                     (subscription.SubscriptionPlanChangeStatus is null ||

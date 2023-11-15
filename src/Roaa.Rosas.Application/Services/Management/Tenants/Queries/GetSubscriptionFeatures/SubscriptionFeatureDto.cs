@@ -1,5 +1,5 @@
-﻿using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Models;
+﻿using Roaa.Rosas.Common.Models;
+using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionFeatures
 {
@@ -7,7 +7,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
     {
         public Guid Id { get; set; }
         public Guid CurrentSubscriptionFeatureCycleId { get; set; }
-        public FeatureDto Feature { get; set; } = new();
+        public LookupItemDto<Guid> Feature { get; set; } = new();
         public int? RemainingUsage { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
