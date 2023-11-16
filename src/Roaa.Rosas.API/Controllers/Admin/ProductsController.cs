@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
+using Roaa.Rosas.Application.Services.Management.Products.Queries.GetProductWarnings;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionDetails;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Authorization.Utilities;
@@ -87,6 +88,12 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         public async Task<IActionResult> GetSubscriptionsListAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
             return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(id), cancellationToken));
+        }
+
+        [HttpGet("{id}/Warnings")]
+        public async Task<IActionResult> GetProductWarningsAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _mediator.Send(new GetProductWarningsQuery(id), cancellationToken));
         }
         #endregion
 
