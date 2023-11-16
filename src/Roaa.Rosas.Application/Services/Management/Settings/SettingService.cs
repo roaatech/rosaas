@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -52,14 +53,24 @@ namespace Roaa.Rosas.Application.Services.Management.Settings
                 if (setting == null)
                     continue;
 
+                bool unconvertFromString = false;
 
                 if (!TypeDescriptor.GetConverter(prop.PropertyType).CanConvertFrom(typeof(string)))
+                {
+                    if (!prop.PropertyType.IsClass) continue;
+                    else unconvertFromString = true;
+                }
+
+                if (!unconvertFromString && !TypeDescriptor.GetConverter(prop.PropertyType).IsValid(setting))
                     continue;
 
-                if (!TypeDescriptor.GetConverter(prop.PropertyType).IsValid(setting))
-                    continue;
-
-                var value = TypeDescriptor.GetConverter(prop.PropertyType).ConvertFromInvariantString(setting);
+                object? value = null;
+                if (unconvertFromString)
+                {
+                    value = JsonConvert.DeserializeObject(setting, prop.PropertyType);
+                }
+                else
+                    value = TypeDescriptor.GetConverter(prop.PropertyType).ConvertFromInvariantString(setting);
 
                 //set property
                 prop.SetValue(settings, value, null);
@@ -89,15 +100,23 @@ namespace Roaa.Rosas.Application.Services.Management.Settings
 
             foreach (var prop in typeof(T).GetProperties())
             {
+                bool unconvertFromString = false;
                 // get properties we can read and write to
                 if (!prop.CanRead || !prop.CanWrite)
                     continue;
-
+                var dfddff = TypeDescriptor.GetConverter(prop.PropertyType);
+                var sdsd = dfddff.CanConvertFrom(typeof(string));
                 if (!TypeDescriptor.GetConverter(prop.PropertyType).CanConvertFrom(typeof(string)))
-                    continue;
+                {
+                    if (!prop.PropertyType.IsClass) continue;
+                    else unconvertFromString = true;
+                }
 
                 var key = typeof(T).Name + "." + prop.Name;
-                var value = prop.GetValue(settings, null);
+                object? value = null;
+                value = prop.GetValue(settings, null);
+                if (unconvertFromString)
+                    value = JsonConvert.SerializeObject(value);
                 if (value != null)
                     SetSetting(prop.PropertyType, key, value, settingsEntities);
                 else
