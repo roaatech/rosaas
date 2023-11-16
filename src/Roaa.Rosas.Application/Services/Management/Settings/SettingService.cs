@@ -30,6 +30,13 @@ namespace Roaa.Rosas.Application.Services.Management.Settings
 
 
         #region Services
+
+        public async Task<Result<List<Setting>>> GetSettingsListAsync(Type type, CancellationToken cancellationToken = default)
+        {
+            var settingsEntities = await GetSettingsListBySharedKeyAsync(type.Name + ".", cancellationToken);
+
+            return Result<List<Setting>>.Successful(settingsEntities);
+        }
         public async Task<Result<T>> LoadSettingAsync<T>(CancellationToken cancellationToken = default) where T : ISettings, new()
         {
             return Result<T>.Successful((T)(await LoadSettingAsync(typeof(T), cancellationToken)).Data);
@@ -94,18 +101,16 @@ namespace Roaa.Rosas.Application.Services.Management.Settings
         }
         public async Task<Result> SaveSettingAsync<T>(T settings, CancellationToken cancellationToken = default) where T : ISettings, new()
         {
-            var settingsInstance = Activator.CreateInstance(typeof(T));
-
             var settingsEntities = await GetSettingsListBySharedKeyAsync(typeof(T).Name + ".", cancellationToken);
 
             foreach (var prop in typeof(T).GetProperties())
             {
                 bool unconvertFromString = false;
+
                 // get properties we can read and write to
                 if (!prop.CanRead || !prop.CanWrite)
                     continue;
-                var dfddff = TypeDescriptor.GetConverter(prop.PropertyType);
-                var sdsd = dfddff.CanConvertFrom(typeof(string));
+
                 if (!TypeDescriptor.GetConverter(prop.PropertyType).CanConvertFrom(typeof(string)))
                 {
                     if (!prop.PropertyType.IsClass) continue;

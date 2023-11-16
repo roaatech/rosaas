@@ -10,5 +10,9 @@
         {
             return Key;
         }
+        public string ToPropertyName()
+        {
+            return Key.Substring(Key.LastIndexOf('.') + 1);
+        }
     }
 }
