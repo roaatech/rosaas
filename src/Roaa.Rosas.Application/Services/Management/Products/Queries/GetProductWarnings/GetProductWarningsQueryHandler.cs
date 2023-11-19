@@ -82,10 +82,4 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Queries.GetProduct
         }
         #endregion
     }
-    public class ProductWarningsDto
-    {
-        public string Property { get; set; } = string.Empty;
-        public bool IsValid { get; set; }
-        public WarningSettingModel? Setting { get; set; } = new();
-    }
 }
