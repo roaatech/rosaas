@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Roaa.Rosas.Common.Localization;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Infrastructure.Common;
 using Roaa.Rosas.Infrastructure.Persistence.Configurations.Shared;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity

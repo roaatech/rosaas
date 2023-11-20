@@ -5,7 +5,7 @@ using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Models.Options;
-using Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity;
+using Roaa.Rosas.Infrastructure.Common;
 
 namespace Roaa.Rosas.Framework.Configurations
 {

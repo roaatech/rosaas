@@ -48,10 +48,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                      EditedDate = tenant.ModificationDate,
                                                      Subscriptions = tenant.Subscriptions.Select(subscription => new SubscriptionDto
                                                      {
-                                                         Product = new Common.Models.LookupItemDto<Guid>
+                                                         Product = new LookupItemDto<Guid>
                                                          {
                                                              Id = subscription.Product.Id,
-                                                             Name = subscription.Product.Name,
+                                                             Name = subscription.Product.DisplayName,
                                                          },
                                                          Plan = new LookupItemDto<Guid>
                                                          {
@@ -60,7 +60,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                          },
                                                          ProductId = subscription.ProductId,
                                                          SubscriptionId = subscription.Id,
-                                                         ProductName = subscription.Product.Name,
+                                                         ProductName = subscription.Product.DisplayName,
                                                          Status = subscription.Status,
                                                          Step = subscription.Step,
                                                          ExpectedResourceStatus = subscription.ExpectedResourceStatus,

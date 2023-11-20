@@ -53,7 +53,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
                                               EditedDate = plan.ModificationDate,
-                                              Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
+                                              Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.DisplayName),
                                               IsPublished = plan.IsPublished,
                                               IsSubscribed = plan.IsSubscribed,
                                           });
@@ -82,7 +82,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   DisplayOrder = plan.DisplayOrder,
                                                   CreatedDate = plan.CreationDate,
                                                   EditedDate = plan.ModificationDate,
-                                                  Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
+                                                  Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.DisplayName),
                                                   IsPublished = plan.IsPublished,
                                                   IsSubscribed = plan.IsSubscribed,
                                               })
@@ -123,7 +123,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
                                               EditedDate = plan.ModificationDate,
-                                              Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.Name),
+                                              Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.DisplayName),
                                               IsPublished = plan.IsPublished,
                                               IsSubscribed = plan.IsSubscribed,
                                           })

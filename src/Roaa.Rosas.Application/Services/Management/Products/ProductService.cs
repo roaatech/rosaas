@@ -72,8 +72,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           {
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
-                                              Name = product.Name,
-                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.UniqueName),
+                                              Name = product.DisplayName,
+                                              Title = product.DisplayName,
+                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
                                           });
@@ -90,18 +91,19 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         }
 
 
-        public async Task<Result<List<LookupItemDto<Guid>>>> GetProductsLookupListAsync(CancellationToken cancellationToken = default)
+        public async Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(CancellationToken cancellationToken = default)
         {
             var products = await _dbContext.Products
                                               .AsNoTracking()
-                                              .Select(x => new LookupItemDto<Guid>
+                                              .Select(x => new CustomLookupItemDto<Guid>
                                               {
                                                   Id = x.Id,
-                                                  Name = x.Name,
+                                                  Name = x.DisplayName,
+                                                  Title = x.DisplayName,
                                               })
                                               .ToListAsync(cancellationToken);
 
-            return Result<List<LookupItemDto<Guid>>>.Successful(products);
+            return Result<List<CustomLookupItemDto<Guid>>>.Successful(products);
         }
 
 
@@ -117,8 +119,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               HealthStatusChangeUrl = product.HealthStatusInformerUrl,
-                                              Name = product.Name,
-                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.UniqueName),
+                                              Name = product.DisplayName,
+                                              Title = product.DisplayName,
+                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
                                               ActivationEndpoint = product.ActivationUrl,
@@ -144,6 +147,11 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
+            if (!await EnsureUniqueNameAsync(model.ClientId, model.Name))
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+            }
+
             //if (!await EnsureUniqueUrlAsync(model.DefaultHealthCheckUrl))
             //{
             //    return Result<CreatedResult<Guid>>.Fail(ErrorMessage.UrlAlreadyExist, _identityContextService.Locale, nameof(model.DefaultHealthCheckUrl));
@@ -159,6 +167,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 Id = id,
                 ClientId = model.ClientId,
                 Name = model.Name,
+                DisplayName = model.Title,
                 DefaultHealthCheckUrl = model.DefaultHealthCheckUrl,
                 HealthStatusInformerUrl = model.HealthStatusChangeUrl,
                 CreatedByUserId = _identityContextService.UserId,
@@ -174,6 +183,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 CreationDate = date,
                 ModificationDate = date,
             };
+
+            product.AddDomainEvent(new ProductCreatedEvent(product));
 
             _dbContext.Products.Add(product);
 
@@ -215,7 +226,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             Product productBeforeUpdate = product.DeepCopy();
 
-            product.Name = model.Name;
+            product.DisplayName = model.Title;
             product.HealthStatusInformerUrl = model.HealthStatusChangeUrl;
             product.DefaultHealthCheckUrl = model.DefaultHealthCheckUrl;
             product.ModifiedByUserId = _identityContextService.UserId;
@@ -259,7 +270,14 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             return Result.Successful();
         }
-
+        private async Task<bool> EnsureUniqueNameAsync(Guid clientId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
+        {
+            return !await _dbContext.Products
+                                    .Where(x => x.Id != id &&
+                                               x.ClientId == clientId &&
+                                                uniqueName.ToLower().Equals(x.Name))
+                                    .AnyAsync(cancellationToken);
+        }
         private async Task<bool> EnsureUniqueUrlAsync(string url, Guid id = new Guid(), CancellationToken cancellationToken = default)
         {
             return !await _dbContext.Tenants

@@ -90,9 +90,19 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
         {
             foreach (var product in GetProducts())
             {
-                if (!_dbContext.Products.Any(x => x.Id == product.Id))
+                var productInDb = await _dbContext.Products.Where(x => x.Id == product.Id).SingleOrDefaultAsync();
+
+                if (productInDb is null)
                 {
                     _dbContext.Products.Add(product);
+                }
+                else
+                {
+                    if (string.IsNullOrWhiteSpace(productInDb.DisplayName))
+                    {
+                        productInDb.DisplayName = productInDb.Name;
+                    }
+
                 }
             }
 
@@ -109,8 +119,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 new Client
                     {
                         Id = new Guid("88283b02-e969-485a-a5a3-9e5d1d0d3337"),
-                        UniqueName = "roaa",
-                        Title= "Roaa Tech",
+                        Name = "roaa",
+                        DisplayName= "Roaa Tech",
                         CreationDate = DateTime.Now,
                         ModificationDate = DateTime.Now,
                         CreatedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
@@ -128,6 +138,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.OsosProductId),
                         ClientId =  new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
                         Name = "OSOS",
+                        DisplayName = "OSOS",
                         DefaultHealthCheckUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{name}}/health-check",
                         HealthStatusInformerUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/health-status-unhealthy",
                         CreationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/cerated",
@@ -149,6 +160,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.ShamsProductId),
                         ClientId =  new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
                         Name = "SHAMS",
+                        DisplayName = "SHAMS",
                         DefaultHealthCheckUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{name}}/health-check",
                         HealthStatusInformerUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/health-status-unhealthy",
                         CreationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/cerated",
@@ -170,6 +182,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.ApptomatorProductId),
                         ClientId =  new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
                         Name = "Apptomator",
+                        DisplayName = "Apptomator",
                         DefaultHealthCheckUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{name}}/health-check",
                         HealthStatusInformerUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/health-status-unhealthy",
                         CreationUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/cerated",

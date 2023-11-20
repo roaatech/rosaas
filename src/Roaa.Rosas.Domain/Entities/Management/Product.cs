@@ -4,6 +4,7 @@
     {
         public Guid ClientId { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
         public string DefaultHealthCheckUrl { get; set; } = string.Empty;
         public string HealthStatusInformerUrl { get; set; } = string.Empty;
         public string CreationUrl { get; set; } = string.Empty;
