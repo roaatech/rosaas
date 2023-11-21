@@ -135,6 +135,26 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
+
+            var pro = new
+            {
+                product.ActivationEndpoint,
+                product.CreationEndpoint,
+                product.DeactivationEndpoint,
+                product.DeletionEndpoint,
+                product.DefaultHealthCheckUrl,
+                product.HealthStatusChangeUrl,
+                product.SubscriptionResetUrl,
+                product.SubscriptionDowngradeUrl,
+                product.SubscriptionUpgradeUrl,
+                product.ApiKey,
+            };
+            var type = pro.GetType();
+            var sddssd = type.GetProperties();
+
+            product.WarningsNum = type.GetProperties().Where(prop => prop.GetValue(pro, null) == null).Count();
+
+
             return Result<ProductDto>.Successful(product);
         }
 

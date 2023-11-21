@@ -21,6 +21,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
         public string? SubscriptionResetUrl { get; set; }
         public string? SubscriptionUpgradeUrl { get; set; }
         public string? SubscriptionDowngradeUrl { get; set; }
+        public int WarningsNum { get; set; }
 
     }
 }
