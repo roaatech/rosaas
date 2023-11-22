@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Roaa.Rosas.Application.Services.IdentityServer4.Clients;
 using Roaa.Rosas.Application.Services.IdentityServer4.Clients.Models;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets.Models;
@@ -12,17 +13,21 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #region Props 
         private readonly ILogger<ClientCredentialController> _logger;
         private readonly IClientSecretService _clientSecretService;
+        private readonly IClientService _clientService;
         private readonly IWebHostEnvironment _environment;
         #endregion
 
         #region Corts
         public ClientCredentialController(ILogger<ClientCredentialController> logger,
                                 IWebHostEnvironment environment,
-                                IClientSecretService clientSecretService)
+                                IClientSecretService clientSecretService,
+                                IClientService clientService
+                                )
         {
             _logger = logger;
             _environment = environment;
             _clientSecretService = clientSecretService;
+            _clientService = clientService;
         }
         #endregion
 
@@ -32,6 +37,12 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         #region Client Secrets    
+
+        [HttpGet("{productOwnerClientId}/{productId}")]
+        public async Task<IActionResult> GetClientIdByProductAsync([FromRoute] Guid productId, [FromRoute] Guid ProductOwnerClientId, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _clientService.GetClientIdByProductAsync(new GetClientByProductModel(productId, ProductOwnerClientId), cancellationToken));
+        }
 
         [HttpGet("Secrets/{productOwnerClientId}/{productId}")]
         public async Task<IActionResult> GetClientSecretsListAsync([FromRoute] Guid productId, [FromRoute] Guid ProductOwnerClientId, CancellationToken cancellationToken = default)
