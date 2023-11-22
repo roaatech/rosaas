@@ -13,6 +13,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features.Models
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public bool IsSubscribed { get; set; }
+        public int DisplayOrder { get; set; }
 
     }
 }

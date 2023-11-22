@@ -42,14 +42,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsP
                                                          Subscriptions = tenant.Subscriptions.Select(x => new SubscriptionDto
                                                          {
                                                              ProductId = x.ProductId,
-                                                             ProductName = x.Product.Name,
+                                                             ProductName = x.Product.DisplayName,
                                                              SubscriptionId = x.Id,
                                                          }),
                                                          CreatedDate = tenant.CreationDate,
                                                          EditedDate = tenant.ModificationDate,
                                                      });
 
-            var sort = request.Sort.HandleDefaultSorting(new string[] { "TenantUniqueName", "TenantTitle", "ProductId", "Status", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
+            var sort = request.Sort.HandleDefaultSorting(new string[] { "UniqueName", "Title", "ProductId", "Status", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
 
             query = query.Where(request.Filters, new string[] { "_UniqueName", "_Title", "ProductId", "Status" }, "CreatedDate");
 

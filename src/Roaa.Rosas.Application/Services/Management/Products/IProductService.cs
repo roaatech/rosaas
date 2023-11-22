@@ -14,7 +14,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
         Task<PaginatedResult<ProductListItemDto>> GetProductsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default);
 
-        Task<Result<List<LookupItemDto<Guid>>>> GetProductsLookupListAsync(CancellationToken cancellationToken = default);
+        Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(CancellationToken cancellationToken = default);
 
         Task<Result<ProductDto>> GetProductByIdAsync(Guid id, CancellationToken cancellationToken = default);
 

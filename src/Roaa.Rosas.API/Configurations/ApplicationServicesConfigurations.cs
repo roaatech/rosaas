@@ -5,6 +5,8 @@ using Roaa.Rosas.Application.JWT;
 using Roaa.Rosas.Application.Services.Identity.Accounts;
 using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Application.Services.IdentityServer4.Auth;
+using Roaa.Rosas.Application.Services.IdentityServer4.Clients;
+using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets;
 using Roaa.Rosas.Application.Services.Management.Features;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures;
 using Roaa.Rosas.Application.Services.Management.PlanPrices;
@@ -49,6 +51,8 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<IdentityServerConfigurationDbInitialiser>();
 
             services.AddScoped<IClientAuthService, ClientAuthService>();
+            services.AddScoped<IClientService, ClientService>();
+            services.AddScoped<IClientSecretService, ClientSecretService>();
             #endregion
 
 

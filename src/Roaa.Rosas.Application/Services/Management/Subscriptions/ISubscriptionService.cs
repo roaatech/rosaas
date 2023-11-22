@@ -5,7 +5,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 {
     public interface ISubscriptionService
     {
-        Task<Result> RenewOrSetExpiredSubscriptionsAsUnpaidAsync(CancellationToken cancellationToken = default);
+        Task<Result> TryToExtendOrSuspendSubscriptionsAsync(CancellationToken cancellationToken = default);
 
         Task<Result> DeactivateSubscriptionDueToNonPaymentAsync(int periodTimeAfterEndDateInHours, CancellationToken cancellationToken = default);
 
@@ -13,7 +13,11 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
         Task<Result> ResetSubscriptionsFeaturesAsync(List<SubscriptionFeature> subscriptionFeatures, string? comment, string? systemComment, CancellationToken cancellationToken = default);
 
+        Task<Result> ChangeSubscriptionPlanAsync(Subscription subscription, CancellationToken cancellationToken = default);
+
         Task<Result> Temp__RenewSubscriptionsAsync(Guid subscriptionId, CancellationToken cancellationToken = default);
+
+        Task<Result> Temp__EndSubscriptionAsync(Guid subscriptionId, CancellationToken cancellationToken = default);
 
     }
 }

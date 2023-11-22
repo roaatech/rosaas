@@ -71,7 +71,7 @@ namespace Roaa.Rosas.Application.BackgroundServices
                 {
                     using var scope = _serviceScopeFactory.CreateScope();
                     var subscriptionService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
-                    await subscriptionService.RenewOrSetExpiredSubscriptionsAsUnpaidAsync();
+                    await subscriptionService.TryToExtendOrSuspendSubscriptionsAsync();
                 });
 
                 Task task3 = Task.Run(async () =>

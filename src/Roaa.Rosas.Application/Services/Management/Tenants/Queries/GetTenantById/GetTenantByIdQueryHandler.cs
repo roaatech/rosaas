@@ -5,6 +5,7 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
+using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Enums;
 
@@ -47,21 +48,26 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                      EditedDate = tenant.ModificationDate,
                                                      Subscriptions = tenant.Subscriptions.Select(subscription => new SubscriptionDto
                                                      {
-                                                         Product = new Common.Models.LookupItemDto<Guid>
+                                                         Product = new LookupItemDto<Guid>
                                                          {
                                                              Id = subscription.Product.Id,
-                                                             Name = subscription.Product.Name,
+                                                             Name = subscription.Product.DisplayName,
+                                                         },
+                                                         Plan = new LookupItemDto<Guid>
+                                                         {
+                                                             Id = subscription.Plan.Id,
+                                                             Name = subscription.Plan.DisplayName,
                                                          },
                                                          ProductId = subscription.ProductId,
                                                          SubscriptionId = subscription.Id,
-                                                         ProductName = subscription.Product.Name,
+                                                         ProductName = subscription.Product.DisplayName,
                                                          Status = subscription.Status,
                                                          Step = subscription.Step,
                                                          ExpectedResourceStatus = subscription.ExpectedResourceStatus,
                                                          CreatedDate = subscription.CreationDate,
                                                          EditedDate = subscription.ModificationDate,
-                                                         LastResetDate = subscription.LastResetDate,
-                                                         LastLimitsResetDate = subscription.LastLimitsResetDate,
+                                                         StartDate = subscription.StartDate,
+                                                         EndDate = subscription.EndDate,
                                                          Metadata = subscription.Metadata,
                                                          HealthCheckUrl = subscription.HealthCheckUrl,
                                                          HealthCheckUrlIsOverridden = subscription.HealthCheckUrlIsOverridden,

@@ -52,8 +52,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 Name = feature.Name,
                 Title = feature.DisplayName,
                 Description = feature.Description,
-                Reset = feature.Reset,
+                Reset = feature.FeatureReset,
                 Type = feature.Type,
+                DisplayOrder = feature.DisplayOrder,
                 CreatedDate = feature.CreationDate,
                 EditedDate = feature.ModificationDate,
             });
@@ -77,8 +78,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                                   Name = feature.Name,
                                                   Title = feature.DisplayName,
                                                   Description = feature.Description,
-                                                  Reset = feature.Reset,
+                                                  Reset = feature.FeatureReset,
                                                   Type = feature.Type,
+                                                  DisplayOrder = feature.DisplayOrder,
                                                   CreatedDate = feature.CreationDate,
                                                   EditedDate = feature.ModificationDate,
                                                   IsSubscribed = feature.IsSubscribed,
@@ -117,8 +119,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               Name = feature.Name,
                                               Title = feature.DisplayName,
                                               Description = feature.Description,
-                                              Reset = feature.Reset,
+                                              Reset = feature.FeatureReset,
                                               Type = feature.Type,
+                                              DisplayOrder = feature.DisplayOrder,
                                               CreatedDate = feature.CreationDate,
                                               EditedDate = feature.ModificationDate,
                                               IsSubscribed = feature.IsSubscribed,
@@ -159,8 +162,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 Name = model.Name,
                 DisplayName = model.Title,
                 Description = model.Description,
-                Reset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset,
+                FeatureReset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset,
                 Type = model.Type,
+                DisplayOrder = model.DisplayOrder,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
                 CreationDate = date,
@@ -205,8 +209,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             feature.Name = model.Name;
             feature.DisplayName = model.Title;
             feature.Description = model.Description;
-            feature.Reset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset;
+            feature.FeatureReset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset;
             feature.Type = model.Type;
+            feature.DisplayOrder = model.DisplayOrder;
             feature.ModifiedByUserId = _identityContextService.UserId;
             feature.ModificationDate = DateTime.UtcNow;
 

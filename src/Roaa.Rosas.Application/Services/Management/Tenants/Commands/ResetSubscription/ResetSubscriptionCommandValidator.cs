@@ -9,7 +9,7 @@ public partial class ResetSubscriptionCommandValidator : AbstractValidator<Reset
 {
     public ResetSubscriptionCommandValidator(IIdentityContextService identityContextService)
     {
-        RuleFor(x => x.TenantId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        RuleFor(x => x.TenantName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
         RuleFor(x => x.ProductId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
     }

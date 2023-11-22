@@ -66,7 +66,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       Title = planFeature.Feature.DisplayName,
                                                       Type = planFeature.Feature.Type,
                                                       IsSubscribed = planFeature.Feature.IsSubscribed,
-                                                      Reset = planFeature.Feature.Reset,
+                                                      Reset = planFeature.Feature.FeatureReset,
                                                   },
                                               })
                                               .OrderBy(x => x.Plan.DisplayOrder)

@@ -97,6 +97,24 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         }
         #endregion
 
+
+        #region Tenant     
+        [HttpGet("Product/Warnings")]
+        public async Task<IActionResult> GetProductWarningsSettingsAsync(CancellationToken cancellationToken = default)
+        {
+            return Ok(await _settingService.LoadSettingAsync<ProductWarningsSettings>(cancellationToken));
+        }
+
+
+        [HttpPut("Product/Warnings")]
+        public async Task<IActionResult> UpdateProductWarningsSettingsAsync([FromBody] ProductWarningsSettings model, CancellationToken cancellationToken = default)
+        {
+            var result = await _settingService.SaveSettingAsync(model, cancellationToken);
+
+            return EmptyResult();
+        }
+        #endregion
+
         #endregion
     }
 

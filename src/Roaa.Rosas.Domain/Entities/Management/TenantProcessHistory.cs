@@ -64,10 +64,23 @@ namespace Roaa.Rosas.Domain.Entities.Management
         FailedToInformExternalSystem,
         SubscriptionWasSetAsUnpaidForNonRenewal,
         SpecificationsUpdated,
-        SubscriptionReset,
-        SubscriptionResetFailure,
+        SubscriptionResetPrepared,
+        SubscriptionResetAppliedDone,
+        SubscriptionResetApplicationFailed,
         SubscriptionFeatureLimitReset,
+        SubscriptionAutoRenewalEnabled,
+        SubscriptionAutoRenewalCanceled,
         SubscriptionRenewed,
+        SubscriptionUpgradeRequested, // تم طلب ترقية الاشتراك
+        SubscriptionUpgradePrepared,// تم ترقية خطة الاشتراك في نظام رصاص 
+        SubscriptionUpgradeBeingApplied,//جارٍ تطبيق ترقية الاشتراك 
+        SubscriptionUpgradeApplicationFailed, // فشل عملية تطبيق ترقية الاشتراك في النظام الخارجي
+        SubscriptionUpgradeAppliedDone,//تم تطبيق ترقية الاشتراك 
+        SubscriptionDowngradeRequested,
+        SubscriptionDowngradePrepared,
+        SubscriptionDowngradeBeingApplied,
+        SubscriptionDowngradeApplicationFailed,
+        SubscriptionDowngradeAppliedDone,
     }
 
 

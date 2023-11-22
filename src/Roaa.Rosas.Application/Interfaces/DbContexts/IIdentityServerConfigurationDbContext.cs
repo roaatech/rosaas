@@ -1,6 +1,7 @@
 ﻿using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Roaa.Rosas.Domain.Entities;
 
 namespace Roaa.Rosas.Application.Interfaces.DbContexts
 {
@@ -38,6 +39,12 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<ApiScopeProperty> ApiScopeProperties { get; set; }
 
         public DbSet<ApiResourceScope> ApiResourceScopes { get; set; }
+
+        public DbSet<ClientCustomDetail> ClientCustomDetails { get; set; }
+        #endregion
+
+        #region Services     
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         #endregion
 
     }

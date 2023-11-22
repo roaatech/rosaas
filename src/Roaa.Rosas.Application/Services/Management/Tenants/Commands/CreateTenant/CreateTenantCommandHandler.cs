@@ -6,8 +6,8 @@ using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
+using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
@@ -16,6 +16,7 @@ using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Events.Management;
+using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 
@@ -157,16 +158,16 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         var featuresInfo = await _dbContext.PlanFeatures
                                             .AsNoTracking()
                                             .Where(x => planIds.Contains(x.PlanId))
-                                            .Select(x => new FeatureInfoModel
+                                            .Select(x => new PlanFeatureInfoModel
                                             {
                                                 PlanFeatureId = x.Id,
                                                 FeatureId = x.FeatureId,
-                                                Unit = x.FeatureUnit,
+                                                FeatureUnit = x.FeatureUnit,
                                                 PlanId = x.PlanId,
                                                 Limit = x.Limit,
-                                                DisplayName = x.Feature.DisplayName,
-                                                Type = x.Feature.Type,
-                                                Reset = x.Feature.Reset,
+                                                FeatureDisplayName = x.Feature.DisplayName,
+                                                FeatureType = x.Feature.Type,
+                                                FeatureReset = x.Feature.FeatureReset,
                                             })
                                             .ToListAsync(cancellationToken);
 
@@ -252,6 +253,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
             x.Features?.ForEach(f =>
             {
+                f.GeneratedSubscriptionFeatureId = Guid.NewGuid();
                 f.GeneratedSubscriptionFeatureCycleId = Guid.NewGuid();
             });
         });
@@ -278,13 +280,13 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 ProductId = item.Product.Id,
                 Status = initialProcess.NextStatus,
                 Step = initialProcess.NextStep,
+                IsActive = true,
                 CreatedByUserId = _identityContextService.GetActorId(),
                 ModifiedByUserId = _identityContextService.GetActorId(),
                 CreationDate = _date,
                 ModificationDate = _date,
                 HealthCheckUrl = item.Product.Url,
                 HealthCheckUrlIsOverridden = false,
-                IsPaid = true,
                 SubscriptionCycleId = item.GeneratedSubscriptionCycleId,
                 SubscriptionCycles = new List<SubscriptionCycle>()
                 {
@@ -306,44 +308,26 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                         Price = item.Price,
                      }
                 },
-                SubscriptionFeatures = item.Features.Select(f => new SubscriptionFeature
+                SubscriptionFeatures = item.Features.Select(f =>
                 {
-                    Id = Guid.NewGuid(),
-                    SubscriptionFeatureCycleId = f.GeneratedSubscriptionFeatureCycleId,
-                    StartDate = FeatureResetManager.FromKey(f.Reset).GetStartDate(_date),
-                    EndDate = FeatureResetManager.FromKey(f.Reset).GetExpiryDate(_date),
-                    FeatureId = f.FeatureId,
-                    PlanFeatureId = f.PlanFeatureId,
-                    RemainingUsage = f.Limit,
-                    CreatedByUserId = _identityContextService.GetActorId(),
-                    ModifiedByUserId = _identityContextService.GetActorId(),
-                    CreationDate = _date,
-                    ModificationDate = _date,
-                    SubscriptionFeatureCycles = new List<SubscriptionFeatureCycle>()
+                    var subscriptionFeature = new SubscriptionFeature
                     {
-                        new SubscriptionFeatureCycle()
-                        {
-                            Id = f.GeneratedSubscriptionFeatureCycleId,
-                            StartDate = _date,
-                            EndDate =  FeatureResetManager.FromKey(f.Reset).GetExpiryDate(_date),
-                            FeatureId = f.FeatureId,
-                            Limit = f.Limit,
-                            FeatureReset = f.Reset,
-                            FeatureType = f.Type,
-                            FeatureUnit = f.Unit,
-                            TotalUsage = f.Limit is null ? null : 0,
-                            RemainingUsage = f.Limit,
-                            PlanCycle = item.PlanCycle,
-                            FeatureDisplayName = f.DisplayName,
-                            PlanFeatureId = f.PlanFeatureId,
-                            CreatedByUserId = _identityContextService.GetActorId(),
-                            ModifiedByUserId = _identityContextService.GetActorId(),
-                            CreationDate = _date,
-                            ModificationDate = _date,
-                            SubscriptionCycleId = item.GeneratedSubscriptionCycleId,
-                            SubscriptionId = item.GeneratedSubscriptionId,
-                        }
-                    },
+                        Id = Guid.NewGuid(),
+                        SubscriptionFeatureCycleId = f.GeneratedSubscriptionFeatureCycleId,
+                        StartDate = FeatureResetManager.FromKey(f.FeatureReset).GetStartDate(_date),
+                        EndDate = FeatureResetManager.FromKey(f.FeatureReset).GetExpiryDate(_date),
+                        FeatureId = f.FeatureId,
+                        PlanFeatureId = f.PlanFeatureId,
+                        RemainingUsage = f.Limit,
+                        CreatedByUserId = _identityContextService.GetActorId(),
+                        ModifiedByUserId = _identityContextService.GetActorId(),
+                        CreationDate = _date,
+                        ModificationDate = _date,
+                    };
+
+                    _dbContext.SubscriptionFeatureCycles.AddRange(BuildSubscriptionFeatureCycleEntity(f, item));
+
+                    return subscriptionFeature;
                 }).ToList(),
                 SpecificationsValues = item.Specifications.Select(x => new SpecificationValue
                 {
@@ -366,6 +350,32 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         };
     }
 
+    private SubscriptionFeatureCycle BuildSubscriptionFeatureCycleEntity(PlanFeatureInfoModel planFeature, PlanInfoModel planInfo)
+    {
+        return new SubscriptionFeatureCycle()
+        {
+            Id = planFeature.GeneratedSubscriptionFeatureCycleId,
+            SubscriptionFeatureId = planFeature.GeneratedSubscriptionFeatureId,
+            StartDate = _date,
+            EndDate = FeatureResetManager.FromKey(planFeature.FeatureReset).GetExpiryDate(_date),
+            FeatureId = planFeature.FeatureId,
+            Limit = planFeature.Limit,
+            FeatureReset = planFeature.FeatureReset,
+            FeatureType = planFeature.FeatureType,
+            FeatureUnit = planFeature.FeatureUnit,
+            TotalUsage = planFeature.Limit is null ? null : 0,
+            RemainingUsage = planFeature.Limit,
+            PlanCycle = planInfo.PlanCycle,
+            FeatureDisplayName = planFeature.FeatureDisplayName,
+            PlanFeatureId = planFeature.PlanFeatureId,
+            CreatedByUserId = _identityContextService.GetActorId(),
+            ModifiedByUserId = _identityContextService.GetActorId(),
+            CreationDate = _date,
+            ModificationDate = _date,
+            SubscriptionCycleId = planInfo.GeneratedSubscriptionCycleId,
+            SubscriptionId = planInfo.GeneratedSubscriptionId,
+        };
+    }
     private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<Subscription> subscriptions)
     {
         return subscriptions.Select(item => new TenantHealthStatus

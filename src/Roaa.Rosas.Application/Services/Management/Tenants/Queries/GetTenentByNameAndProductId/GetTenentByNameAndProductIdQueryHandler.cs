@@ -42,7 +42,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
                                              Title = subscription.Tenant.DisplayName,
                                              Status = subscription.Status,
                                              Step = subscription.Step,
-                                             IsPaid = subscription.IsPaid,
+                                             IsActive = subscription.IsActive,
                                              EndDate = subscription.EndDate,
                                              StartDate = subscription.StartDate,
                                              LastResetDate = subscription.LastResetDate,

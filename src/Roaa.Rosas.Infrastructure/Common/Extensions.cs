@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Domain.Common;
 using Roaa.Rosas.Domain.Entities;
 
@@ -7,6 +9,16 @@ namespace Roaa.Rosas.Infrastructure.Common
 {
     public static class Extensions
     {
+        public static EntityTypeBuilder ToTableName(this EntityTypeBuilder builder, string? name)
+        {
+            return builder.ToTable(name.ToTableNamingStrategy());
+        }
+
+        public static string ToTableNamingStrategy(this string name)
+        {
+            return name.ToSnakeCaseNamingStrategy();
+        }
+
         public static async Task<List<BaseInternalEvent>> FetchDomainEvents(this IMediator mediator, DbContext context)
         {
             return context.ChangeTracker

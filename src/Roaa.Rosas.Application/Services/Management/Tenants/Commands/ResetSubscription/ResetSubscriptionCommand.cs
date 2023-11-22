@@ -4,17 +4,16 @@ using Roaa.Rosas.Common.Models.Results;
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
 public record ResetSubscriptionCommand : IRequest<Result>
 {
-    public Guid TenantId { get; set; }
+    public string TenantName { get; set; } = string.Empty;
     public Guid ProductId { get; set; }
-    public string Comment { get; init; } = string.Empty;
+    public bool IsSuccessful { get; set; }
 
 
     public ResetSubscriptionCommand() { }
-
-    public ResetSubscriptionCommand(Guid tenantId, Guid productId, string comment)
+    public ResetSubscriptionCommand(string tenantName, Guid productId, bool isSuccessful)
     {
-        TenantId = tenantId;
+        TenantName = tenantName;
         ProductId = productId;
-        Comment = comment;
+        IsSuccessful = isSuccessful;
     }
 }

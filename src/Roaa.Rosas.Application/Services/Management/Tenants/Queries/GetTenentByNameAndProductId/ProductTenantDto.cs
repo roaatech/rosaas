@@ -12,7 +12,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
         public bool HealthCheckUrlIsOverridden { get; set; }
         public TenantStatus Status { get; set; }
         public TenantStep Step { get; set; }
-        public bool IsPaid { get; set; }
+        public bool IsActive { get; set; }
         public object Metadata { get; set; } = new();
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

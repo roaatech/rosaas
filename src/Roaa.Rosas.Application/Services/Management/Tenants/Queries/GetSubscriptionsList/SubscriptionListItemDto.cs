@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public string UniqueName { get; set; } = string.Empty;
         public string HealthCheckUrl { get; set; } = string.Empty;
         public bool HealthCheckUrlIsOverridden { get; set; }
-        public bool IsPaid { get; set; }
+        public bool IsActive { get; set; }
         public TenantStatus Status { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

@@ -3,7 +3,7 @@ using IdentityServer4.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Domain.Entities;
-using Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity;
+using Roaa.Rosas.Infrastructure.Common;
 
 public class IdentityServerPersistedGrantDbContext : PersistedGrantDbContext<IdentityServerPersistedGrantDbContext>, IIdentityServerPersistedGrantDbContext
 {
@@ -20,12 +20,12 @@ public class IdentityServerPersistedGrantDbContext : PersistedGrantDbContext<Ide
 
 
 
-    private const string IdS4gPrefix = "Ids4";
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<PersistedUserGrant>().ToTable($"{IdS4gPrefix}IdentityPersistedUserGrants".ToTableNamingStrategy());
+        builder.Entity<PersistedUserGrant>().ToTable($"{Consts.IdS4gPrefix}IdentityPersistedUserGrants".ToTableNamingStrategy());
         builder.Entity<PersistedUserGrant>().HasKey(x => x.Key);
         builder.Entity<PersistedUserGrant>().Property(r => r.Key).HasMaxLength(100);
         builder.Entity<PersistedUserGrant>().Property(r => r.AuthenticationMethod).HasMaxLength(50);

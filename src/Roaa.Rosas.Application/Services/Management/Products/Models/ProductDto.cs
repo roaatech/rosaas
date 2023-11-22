@@ -6,6 +6,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
         public string DefaultHealthCheckUrl { get; set; } = string.Empty;
         public string HealthStatusChangeUrl { get; set; } = string.Empty;
@@ -18,6 +19,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
         public string DeletionEndpoint { get; set; } = string.Empty;
         public string ApiKey { get; set; } = string.Empty;
         public string? SubscriptionResetUrl { get; set; }
+        public string? SubscriptionUpgradeUrl { get; set; }
+        public string? SubscriptionDowngradeUrl { get; set; }
+        public int WarningsNum { get; set; }
 
     }
 }

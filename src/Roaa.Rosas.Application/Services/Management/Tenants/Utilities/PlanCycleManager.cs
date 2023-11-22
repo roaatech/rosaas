@@ -1,7 +1,7 @@
 ﻿using Roaa.Rosas.Common.Utilities;
 using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
 {
     public abstract class PlanCycleManager : Enumeration<PlanCycleManager, PlanCycle>
     {

@@ -723,6 +723,23 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                     b.ToTable("ids4_identity_resource_properties", (string)null);
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.ClientCustomDetail", b =>
+                {
+                    b.Property<int>("ClientId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ProductOwnerClientId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("ClientId");
+
+                    b.ToTable("ids4_client_custom_details", (string)null);
+                });
+
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.ApiResourceClaim", b =>
                 {
                     b.HasOne("IdentityServer4.EntityFramework.Entities.ApiResource", "ApiResource")

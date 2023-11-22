@@ -312,6 +312,10 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime");
 
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint(1)")
@@ -323,11 +327,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Title")
-                        .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
-
-                    b.Property<string>("UniqueName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
@@ -400,6 +400,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .IsUnicode(true)
                         .HasColumnType("varchar(250)");
 
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FeatureReset")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsSubscribed")
                         .HasColumnType("tinyint(1)");
 
@@ -417,9 +423,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("char(36)");
-
-                    b.Property<int>("Reset")
-                        .HasColumnType("int");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -639,6 +642,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
 
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
+
                     b.Property<string>("HealthStatusInformerUrl")
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
@@ -659,9 +667,15 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
 
+                    b.Property<string>("SubscriptionDowngradeUrl")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("SubscriptionResetUrl")
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
+
+                    b.Property<string>("SubscriptionUpgradeUrl")
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -844,7 +858,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<bool>("HealthCheckUrlIsOverridden")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<bool>("IsPaid")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime?>("LastLimitsResetDate")
@@ -872,6 +886,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("ProductId")
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime?>("ResetOperationDate")
+                        .HasColumnType("datetime");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime");
 
@@ -883,6 +900,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<Guid>("SubscriptionCycleId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int?>("SubscriptionPlanChangeStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SubscriptionResetStatus")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("char(36)");
@@ -972,7 +995,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<int>("Cycle")
+                    b.Property<int>("PlanCycle")
                         .HasColumnType("int");
 
                     b.Property<Guid>("PlanId")
@@ -1173,7 +1196,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubscriptionFeatureId");
+                    b.HasIndex("SubscriptionCycleId");
 
                     b.ToTable("rosas_subscription_feature_cycles", (string)null);
                 });
@@ -1211,6 +1234,109 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.HasKey("Id");
 
                     b.ToTable("rosas_subscription_feature_usages", (string)null);
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionPlanChangeHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("ChangeDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<Guid>("PlanChangeEnabledByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("PlanChangeEnabledDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("PlanCycle")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("PlanPriceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("rosas_subscription_plan_change_histories", (string)null);
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionPlanChanging", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("ModificationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("ModifiedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("PlanCycle")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PlanDisplayName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("PlanPriceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("PlanPriceId");
+
+                    b.HasIndex("SubscriptionId")
+                        .IsUnique();
+
+                    b.ToTable("rosas_subscription_plan_changes", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Tenant", b =>
@@ -1695,13 +1821,40 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionFeatureCycle", b =>
                 {
-                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.SubscriptionFeature", "SubscriptionFeature")
-                        .WithMany("SubscriptionFeatureCycles")
-                        .HasForeignKey("SubscriptionFeatureId")
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.SubscriptionCycle", "SubscriptionCycle")
+                        .WithMany("SubscriptionFeaturesCycles")
+                        .HasForeignKey("SubscriptionCycleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("SubscriptionFeature");
+                    b.Navigation("SubscriptionCycle");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionPlanChanging", b =>
+                {
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Plan", "Plan")
+                        .WithMany("SubscriptionPlanChanges")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.PlanPrice", "PlanPrice")
+                        .WithMany("SubscriptionPlanChanges")
+                        .HasForeignKey("PlanPriceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
+                        .WithOne("SubscriptionPlanChanging")
+                        .HasForeignKey("Roaa.Rosas.Domain.Entities.Management.SubscriptionPlanChanging", "SubscriptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Plan");
+
+                    b.Navigation("PlanPrice");
+
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantHealthStatus", b =>
@@ -1735,6 +1888,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Navigation("SubscriptionAutoRenewals");
 
+                    b.Navigation("SubscriptionPlanChanges");
+
                     b.Navigation("Subscriptions");
                 });
 
@@ -1746,6 +1901,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.PlanPrice", b =>
                 {
                     b.Navigation("SubscriptionAutoRenewals");
+
+                    b.Navigation("SubscriptionPlanChanges");
 
                     b.Navigation("Subscriptions");
                 });
@@ -1777,11 +1934,13 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Navigation("SubscriptionCycles");
 
                     b.Navigation("SubscriptionFeatures");
+
+                    b.Navigation("SubscriptionPlanChanging");
                 });
 
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionFeature", b =>
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionCycle", b =>
                 {
-                    b.Navigation("SubscriptionFeatureCycles");
+                    b.Navigation("SubscriptionFeaturesCycles");
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Tenant", b =>

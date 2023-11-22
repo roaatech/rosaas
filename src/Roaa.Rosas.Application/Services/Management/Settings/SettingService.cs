@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -29,6 +30,13 @@ namespace Roaa.Rosas.Application.Services.Management.Settings
 
 
         #region Services
+
+        public async Task<Result<List<Setting>>> GetSettingsListAsync(Type type, CancellationToken cancellationToken = default)
+        {
+            var settingsEntities = await GetSettingsListBySharedKeyAsync(type.Name + ".", cancellationToken);
+
+            return Result<List<Setting>>.Successful(settingsEntities);
+        }
         public async Task<Result<T>> LoadSettingAsync<T>(CancellationToken cancellationToken = default) where T : ISettings, new()
         {
             return Result<T>.Successful((T)(await LoadSettingAsync(typeof(T), cancellationToken)).Data);
@@ -52,14 +60,24 @@ namespace Roaa.Rosas.Application.Services.Management.Settings
                 if (setting == null)
                     continue;
 
+                bool unconvertFromString = false;
 
                 if (!TypeDescriptor.GetConverter(prop.PropertyType).CanConvertFrom(typeof(string)))
+                {
+                    if (!prop.PropertyType.IsClass) continue;
+                    else unconvertFromString = true;
+                }
+
+                if (!unconvertFromString && !TypeDescriptor.GetConverter(prop.PropertyType).IsValid(setting))
                     continue;
 
-                if (!TypeDescriptor.GetConverter(prop.PropertyType).IsValid(setting))
-                    continue;
-
-                var value = TypeDescriptor.GetConverter(prop.PropertyType).ConvertFromInvariantString(setting);
+                object? value = null;
+                if (unconvertFromString)
+                {
+                    value = JsonConvert.DeserializeObject(setting, prop.PropertyType);
+                }
+                else
+                    value = TypeDescriptor.GetConverter(prop.PropertyType).ConvertFromInvariantString(setting);
 
                 //set property
                 prop.SetValue(settings, value, null);
@@ -83,21 +101,27 @@ namespace Roaa.Rosas.Application.Services.Management.Settings
         }
         public async Task<Result> SaveSettingAsync<T>(T settings, CancellationToken cancellationToken = default) where T : ISettings, new()
         {
-            var settingsInstance = Activator.CreateInstance(typeof(T));
-
             var settingsEntities = await GetSettingsListBySharedKeyAsync(typeof(T).Name + ".", cancellationToken);
 
             foreach (var prop in typeof(T).GetProperties())
             {
+                bool unconvertFromString = false;
+
                 // get properties we can read and write to
                 if (!prop.CanRead || !prop.CanWrite)
                     continue;
 
                 if (!TypeDescriptor.GetConverter(prop.PropertyType).CanConvertFrom(typeof(string)))
-                    continue;
+                {
+                    if (!prop.PropertyType.IsClass) continue;
+                    else unconvertFromString = true;
+                }
 
                 var key = typeof(T).Name + "." + prop.Name;
-                var value = prop.GetValue(settings, null);
+                object? value = null;
+                value = prop.GetValue(settings, null);
+                if (unconvertFromString)
+                    value = JsonConvert.SerializeObject(value);
                 if (value != null)
                     SetSetting(prop.PropertyType, key, value, settingsEntities);
                 else

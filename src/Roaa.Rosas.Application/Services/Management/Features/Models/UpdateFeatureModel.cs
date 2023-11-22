@@ -9,5 +9,6 @@ namespace Roaa.Rosas.Application.Services.Management.Features.Models
         public string Description { get; set; } = string.Empty;
         public FeatureType Type { get; set; }
         public FeatureReset Reset { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }
