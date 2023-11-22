@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Common.ApiConfiguration;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models.Options;
+using Roaa.Rosas.Domain.Settings;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
 {
@@ -18,6 +20,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
         private readonly IWebHostEnvironment _environment;
         private readonly GeneralOptions _settings;
         private readonly IdentityServerOptions _identityServerOptions;
+        private readonly ISettingService _settingService;
         private string _baseUrl;
         #endregion
 
@@ -26,6 +29,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                                      IWebHostEnvironment environmen,
                                      IApiConfigurationService<GeneralOptions> settings,
                                      IApiConfigurationService<IdentityServerOptions> identityServerOptions,
+                                     ISettingService settingService,
                                      ILogger<ManagementDbInitialiser> logger)
         {
             _logger = logger;
@@ -33,6 +37,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
             _settings = settings.Options;
             _identityServerOptions = identityServerOptions.Options;
             _dbContext = identityDbContext;
+            _settingService = settingService;
         }
         #endregion
 
@@ -62,6 +67,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 {
                     await TrySeedClientsAsync();
                     await TrySeedProductsAsync();
+
+                    await _settingService.SaveSettingAsync(new ProductWarningsSettings());
                 }
                 catch (Exception ex)
                 {
