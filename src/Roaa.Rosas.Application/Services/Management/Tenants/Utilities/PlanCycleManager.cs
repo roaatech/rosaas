@@ -6,6 +6,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
     public abstract class PlanCycleManager : Enumeration<PlanCycleManager, PlanCycle>
     {
         #region Props
+        public static readonly PlanCycleManager ThreeDays = new ThreeDaysPlanCycle();
         public static readonly PlanCycleManager Day = new DayPlanCycle();
         public static readonly PlanCycleManager Week = new WeekPlanCycle();
         public static readonly PlanCycleManager Month = new MonthPlanCycle();
@@ -29,13 +30,27 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
         private sealed class DayPlanCycle : PlanCycleManager
         {
             #region Corts
-            public DayPlanCycle() : base(PlanCycle.Day) { }
+            public DayPlanCycle() : base(PlanCycle.OneDay) { }
             #endregion 
 
             #region overrides  
             public override DateTime GetExpiryDate(DateTime startDate)
             {
                 return startDate.AddDays(1);
+            }
+            #endregion
+        }
+
+        private sealed class ThreeDaysPlanCycle : PlanCycleManager
+        {
+            #region Corts
+            public ThreeDaysPlanCycle() : base(PlanCycle.ThreeDays) { }
+            #endregion 
+
+            #region overrides  
+            public override DateTime GetExpiryDate(DateTime startDate)
+            {
+                return startDate.AddDays(3);
             }
             #endregion
         }
