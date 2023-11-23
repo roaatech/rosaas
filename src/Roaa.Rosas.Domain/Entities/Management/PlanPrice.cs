@@ -20,6 +20,7 @@
         Week = 2,
         Month = 3,
         Year = 4,
-        Day = 5
+        OneDay = 5,
+        ThreeDays = 6
     }
 }

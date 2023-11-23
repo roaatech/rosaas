@@ -73,7 +73,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               Name = product.DisplayName,
-                                              Title = product.DisplayName,
+                                              DisplayName = product.DisplayName,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
@@ -120,7 +120,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               HealthStatusChangeUrl = product.HealthStatusInformerUrl,
                                               Name = product.DisplayName,
-                                              Title = product.DisplayName,
+                                              DisplayName = product.DisplayName,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
@@ -187,7 +187,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 Id = id,
                 ClientId = model.ClientId,
                 Name = model.Name,
-                DisplayName = model.Title,
+                DisplayName = model.DisplayName,
                 DefaultHealthCheckUrl = model.DefaultHealthCheckUrl,
                 HealthStatusInformerUrl = model.HealthStatusChangeUrl,
                 CreatedByUserId = _identityContextService.UserId,
@@ -246,7 +246,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             Product productBeforeUpdate = product.DeepCopy();
 
-            product.DisplayName = model.Title;
+            product.DisplayName = model.DisplayName;
             product.HealthStatusInformerUrl = model.HealthStatusChangeUrl;
             product.DefaultHealthCheckUrl = model.DefaultHealthCheckUrl;
             product.ModifiedByUserId = _identityContextService.UserId;

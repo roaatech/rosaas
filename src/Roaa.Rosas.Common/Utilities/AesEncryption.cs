@@ -57,3 +57,7 @@ namespace Roaa.Rosas.Auditing.Helpers
 
     }
 }
+/*,
+    "EncryptionKey": "C8ER1O5Y416OF2ANI2O5Q7XWKQ8NN0IO", // 16, 24, or 32 characters for AES-128, AES-192, or AES-256  
+    "InitializationVector": "Y220N1WUW8GM3V1M" // 16 characters for AES 
+*/
