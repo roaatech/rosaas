@@ -72,8 +72,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           {
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
-                                              Name = product.DisplayName,
-                                              DisplayName = product.DisplayName,
+                                              Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
+                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
@@ -119,8 +119,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               HealthStatusChangeUrl = product.HealthStatusInformerUrl,
-                                              Name = product.DisplayName,
-                                              DisplayName = product.DisplayName,
+                                              Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
+                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
@@ -152,7 +152,12 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             var type = pro.GetType();
             var sddssd = type.GetProperties();
 
-            product.WarningsNum = type.GetProperties().Where(prop => prop.GetValue(pro, null) == null).Count();
+            product.WarningsNum = type.GetProperties()
+                                      .Where(prop =>
+            {
+                var val = prop.GetValue(pro, null);
+                return val == null || val.ToString() == string.Empty;
+            }).Count();
 
 
             return Result<ProductDto>.Successful(product);
