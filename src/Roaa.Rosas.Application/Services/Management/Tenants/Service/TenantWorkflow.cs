@@ -246,6 +246,19 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantDeactivationRequestEvent },
                 },
 
+                  new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.Active,
+                    CurrentStep = TenantStep.Creation,
+                    CurrentStatus = TenantStatus.CreatedAsActive,
+                    OwnerType = UserType.RosasSystem,
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Deactivation,
+                    NextStatus = TenantStatus.SendingDeactivationRequest,
+                    Name = "Deactivate",
+                    Message = "ROSAS - called the external system to deactivate the tenant resources",
+                    Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantDeactivationRequestEvent },
+                },
 
                 new Workflow()
                 {
