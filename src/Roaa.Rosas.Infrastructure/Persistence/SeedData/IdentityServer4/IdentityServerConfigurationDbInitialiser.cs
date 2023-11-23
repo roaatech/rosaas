@@ -72,52 +72,48 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
             {
                 foreach (var client in clients)
                 {
-                    var clientInDb = await _configurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == client.ClientId);
+                    var clientInDb = await _configurationDbContext.Clients
+                                                            .Include(x => x.AllowedScopes)
+                                                            .SingleOrDefaultAsync(c => c.ClientId == client.ClientId);
                     if (clientInDb is null)
                     {
-                        var entity = client.ToEntity();
-                        _configurationDbContext.Clients.Add(entity);
-
-                        if (client.Properties is not null)
-                        {
-                            if (client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasProductId, out string? productId) &&
-                                client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasClientId, out string? clientId))
-                            {
-                                _configurationDbContext.ClientCustomDetails.Add(new Domain.Entities.ClientCustomDetail
-                                {
-                                    ClientId = entity.Id,
-                                    ProductId = new Guid(productId),
-                                    ProductOwnerClientId = new Guid(clientId),
-
-                                });
-                            }
-                        }
+                        _configurationDbContext.Clients.Add(client.ToEntity());
                     }
                     else
                     {
-
-                        if (!await _configurationDbContext.ClientCustomDetails.AnyAsync(c => c.ClientId == clientInDb.Id) && client.Properties is not null)
+                        foreach (var scope in client.AllowedScopes)
                         {
-                            if (client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasProductId, out string? productId) &&
-                                client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasClientId, out string? clientId))
+                            if (!clientInDb.AllowedScopes.Any(s => s.ClientId == clientInDb.Id && s.Scope == scope))
                             {
+                                clientInDb.AllowedScopes.Add(new ClientScope { Scope = scope, ClientId = clientInDb.Id });
+                            }
+                        }
+                    }
+                }
+                await _configurationDbContext.SaveChangesAsync();
+
+
+
+                foreach (var client in clients)
+                {
+                    if (client.Properties is not null && client.Properties.Any())
+                    {
+                        if (client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasProductId, out string? productId) &&
+                            client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasClientId, out string? clientId))
+                        {
+                            var id = await _configurationDbContext.Clients
+                                                            .Where(c => c.ClientId == client.ClientId)
+                                                            .Select(x => x.Id)
+                                                            .SingleOrDefaultAsync();
+                            if (!await _configurationDbContext.ClientCustomDetails.Where(x => x.ClientId == id).AnyAsync())
+
                                 _configurationDbContext.ClientCustomDetails.Add(new Domain.Entities.ClientCustomDetail
                                 {
-                                    ClientId = clientInDb.Id,
+                                    ClientId = id,
                                     ProductId = new Guid(productId),
                                     ProductOwnerClientId = new Guid(clientId),
 
                                 });
-                            }
-                        }
-                        var existingClient = _configurationDbContext.Clients.Include(x => x.AllowedScopes).FirstOrDefault(c => c.ClientId == client.ClientId);
-
-                        foreach (var scope in client.AllowedScopes)
-                        {
-                            if (!existingClient.AllowedScopes.Any(s => s.ClientId == existingClient.Id && s.Scope == scope))
-                            {
-                                existingClient.AllowedScopes.Add(new ClientScope { Scope = scope, ClientId = existingClient.Id });
-                            }
                         }
                     }
                 }
