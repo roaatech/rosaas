@@ -127,7 +127,7 @@ namespace Roaa.Rosas.Application.IdentityServer4
                      // secret for authentication
                     ClientSecrets =
                     {
-                        new Secret("EHMcQfTjWnZr4u7ADFJaNdRgUkXp2s5v8yBEHKbPeShVmYq3t6wZH3B4M9".Sha256())
+                       new Secret("EHMcQfTjWnZr4u7ADFJaNdRgUkXp2s5v8yBEHKbPeShVmYq3t6wZH3B4M9".Sha256(), "Default")
                     },
                     Properties = new Dictionary<string, string>
                     {
@@ -157,7 +157,7 @@ namespace Roaa.Rosas.Application.IdentityServer4
                      // secret for authentication
                     ClientSecrets =
                     {
-                        new Secret("MNFcPoTjWnZr8u6ADFJaNsAgUfXp4s0v7yBQEZlgWShYxCq3t6wZH3R6X0".Sha256())
+                        new Secret("MNFcPoTjWnZr8u6ADFJaNsAgUfXp4s0v7yBQEZlgWShYxCq3t6wZH3R6X0".Sha256(), "Default")
                     },
                     Properties = new Dictionary<string, string>
                     {
@@ -186,7 +186,7 @@ namespace Roaa.Rosas.Application.IdentityServer4
                      // secret for authentication
                     ClientSecrets =
                     {
-                        new Secret("6etAQfTjWnZr4u7ADFJaNdRgUkX83Tav8yBEHKbPeShVmYq3t6wZH3BETA".Sha256())
+                        new Secret("6etAQfTjWnZr4u7ADFJaNdRgUkX83Tav8yBEHKbPeShVmYq3t6wZH3BETA".Sha256(), "Default")
                     },
                     Properties = new Dictionary<string, string>
                     {
