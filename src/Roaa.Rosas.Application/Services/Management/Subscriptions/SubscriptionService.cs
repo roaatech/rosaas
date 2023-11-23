@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
 
@@ -19,6 +21,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
         private readonly IIdentityContextService _identityContextService;
         private readonly IRosasDbContext _dbContext;
         private readonly IPublisher _publisher;
+        private readonly IMediator _mediator;
         private DateTime _date;
         #endregion
 
@@ -27,12 +30,14 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
         public SubscriptionService(ILogger<SubscriptionService> logger,
                                    IIdentityContextService identityContextService,
                                    IRosasDbContext dbContext,
-                                   IPublisher publisher)
+                                   IPublisher publisher,
+                                   IMediator mediator)
         {
             _logger = logger;
             _identityContextService = identityContextService;
             _dbContext = dbContext;
             _publisher = publisher;
+            _mediator = mediator;
             _date = DateTime.UtcNow;
         }
 
@@ -42,12 +47,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
         #region Services 
         public async Task<Result> DeactivateSubscriptionDueToNonPaymentAsync(int periodTimeAfterEndDateInHours, CancellationToken cancellationToken = default)
         {
-            var date = DateTime.UtcNow;
+            var currentDate = DateTime.UtcNow;
             var toDate = DateTime.UtcNow.AddHours(periodTimeAfterEndDateInHours);
             var subscriptions = await _dbContext.Subscriptions
-                                                .Where(x => x.StartDate <= date &&
+                                                .Where(x => x.StartDate <= currentDate &&
                                                             x.EndDate < toDate &&
-                                                            x.IsActive)
+                                                            !x.IsActive)
                                                 .ToListAsync();
 
 
@@ -56,18 +61,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
 
 
-                //await _publisher.Publish(new ExpirationOfAllowedActivationPeriodForUnpaidSubscriptionsEventHandler(subscription.TenantId,
-                //                                                       TenantStatus.SendingDeactivationRequest,
-                //                                                       subscription.ProductId,
-                //                                                       "Deactivating the tenant due to non-payment of the subscription."),
-                //                         cancellationToken);
 
-
-                //await _mediator.Send(new ChangeTenantStatusByIdCommand(subscription.TenantId,
-                //                                                       TenantStatus.SendingDeactivationRequest,
-                //                                                       subscription.ProductId,
-                //                                                       "Deactivating the tenant due to non-payment of the subscription."),
-                //                         cancellationToken);
+                await _mediator.Send(new ChangeTenantStatusByIdCommand(subscription.TenantId,
+                                                                       TenantStatus.SendingDeactivationRequest,
+                                                                       subscription.ProductId,
+                                                                       "Deactivating the tenant due to non-payment of the its subscription."),
+                                         cancellationToken);
 
             }
             return Result.Successful();
@@ -442,7 +441,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             SetSubscriptionAsInactive(subscription, systemComment, _date);
 
-            subscription.AddDomainEvent(new SubscriptionWasSetAsUnpaidEvent(subscription, systemComment));
+            subscription.AddDomainEvent(new SubscriptionWasSetAsInactiveDueToUnpaideEvent(subscription, systemComment));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

@@ -68,14 +68,17 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Queries.GetProduct
             }
             var type = product.GetType();
             var results = type.GetProperties().Select(prop =>
-            new ProductWarningsDto
             {
-                Property = prop.Name,
-                IsValid = prop.GetValue(product, null) != null,
-                Setting = JsonConvert.DeserializeObject<WarningSettingModel>(settings.Where(setting => setting.ToPropertyName()
-                                                                                                                    .Equals(prop.Name, StringComparison.OrdinalIgnoreCase))?
-                                                                                          .FirstOrDefault()?
-                                                                                          .Value ?? string.Empty)
+                var val = prop.GetValue(product, null);
+                return new ProductWarningsDto
+                {
+                    Property = prop.Name,
+                    IsValid = !(val == null || val.ToString() == string.Empty),
+                    Setting = JsonConvert.DeserializeObject<WarningSettingModel>(settings.Where(setting => setting.ToPropertyName()
+                                                                                                                        .Equals(prop.Name, StringComparison.OrdinalIgnoreCase))?
+                                                                                               .FirstOrDefault()?
+                                                                                               .Value ?? string.Empty)
+                };
             }).ToList();
 
             return Result<List<ProductWarningsDto>>.Successful(results);

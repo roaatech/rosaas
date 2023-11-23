@@ -62,7 +62,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         UnhealthyStatus,
         ExternalSystemSuccessfullyInformed,
         FailedToInformExternalSystem,
-        SubscriptionWasSetAsUnpaidForNonRenewal,
+        SubscriptionWasSetAsInactiveDueToNonRenewal,
         SpecificationsUpdated,
         SubscriptionResetPrepared,
         SubscriptionResetAppliedDone,

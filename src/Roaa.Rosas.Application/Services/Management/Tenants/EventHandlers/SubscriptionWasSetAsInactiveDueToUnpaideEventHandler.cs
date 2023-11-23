@@ -6,22 +6,22 @@ using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 {
-    public class SubscriptionWasSetAsUnpaidEventHandler : IInternalDomainEventHandler<SubscriptionWasSetAsUnpaidEvent>
+    public class SubscriptionWasSetAsInactiveDueToUnpaideEventHandler : IInternalDomainEventHandler<SubscriptionWasSetAsInactiveDueToUnpaideEvent>
     {
-        private readonly ILogger<SubscriptionWasSetAsUnpaidEventHandler> _logger;
+        private readonly ILogger<SubscriptionWasSetAsInactiveDueToUnpaideEventHandler> _logger;
         private readonly IPublisher _publisher;
 
-        public SubscriptionWasSetAsUnpaidEventHandler(IPublisher publisher,
-                                                      ILogger<SubscriptionWasSetAsUnpaidEventHandler> logger)
+        public SubscriptionWasSetAsInactiveDueToUnpaideEventHandler(IPublisher publisher,
+                                                      ILogger<SubscriptionWasSetAsInactiveDueToUnpaideEventHandler> logger)
         {
             _publisher = publisher;
             _logger = logger;
         }
 
-        public async Task Handle(SubscriptionWasSetAsUnpaidEvent @event, CancellationToken cancellationToken)
+        public async Task Handle(SubscriptionWasSetAsInactiveDueToUnpaideEvent @event, CancellationToken cancellationToken)
         {
             await _publisher.Publish(new TenantProcessingCompletedEvent(
-                                                   processType: TenantProcessType.SubscriptionWasSetAsUnpaidForNonRenewal,
+                                                   processType: TenantProcessType.SubscriptionWasSetAsInactiveDueToNonRenewal,
                                                    enabled: true,
                                                    processedData: null,
                                                    comment: string.Empty,
