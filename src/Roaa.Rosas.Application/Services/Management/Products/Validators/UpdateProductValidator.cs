@@ -11,9 +11,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Validators
     {
         public UpdateProductValidator(IIdentityContextService identityContextService)
         {
-
-            RuleFor(x => x.Title).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
-
+            RuleFor(x => x.DisplayName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
             //RuleFor(x => x.DefaultHealthCheckUrl).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
             //RuleFor(x => x.HealthStatusChangeUrl).Must(url => ValidateUri(url)).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
