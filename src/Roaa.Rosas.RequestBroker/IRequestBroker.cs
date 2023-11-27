@@ -9,6 +9,8 @@ namespace Roaa.Rosas.RequestBroker
 
         public Task<RequestResult<TResult>> GetAsync<TResult>(string uri, CancellationToken cancellationToken = default);
 
+        public Task<RequestResult<TResult>> PostAsFormUrlEncodedContentAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, CancellationToken cancellationToken = default);
+
         public Task<RequestResult<TResult>> PostAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, CancellationToken cancellationToken = default);
 
         public Task<RequestResult<TResult>> PutAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, CancellationToken cancellationToken = default);
