@@ -35,7 +35,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                                  StartDate = subscriptionFeature.StartDate,
                                                                  RemainingUsage = subscriptionFeature.RemainingUsage,
                                                                  Type = subscriptionFeature.Feature.Type,
-                                                                 Reset = subscriptionFeature.Feature.FeatureReset,
+                                                                 Reset = subscriptionFeature.PlanFeature.FeatureReset,
                                                                  Limit = subscriptionFeature.PlanFeature.Limit,
                                                                  Unit = subscriptionFeature.PlanFeature.FeatureUnit,
                                                                  Feature = new LookupItemDto<Guid>

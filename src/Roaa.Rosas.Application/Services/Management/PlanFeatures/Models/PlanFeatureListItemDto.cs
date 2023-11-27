@@ -6,6 +6,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures.Models
     {
         public Guid Id { get; set; }
         public int? Limit { get; set; }
+        public FeatureReset Reset { get; set; }
         public FeatureUnit? Unit { get; set; }
         public string Description { get; set; } = string.Empty;
         public FeatureItemDto Feature { get; set; } = new();

@@ -15,6 +15,12 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures.Validators
 
             RuleFor(x => x.FeatureId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
+
+            When(model => model.Reset is not null, () =>
+            {
+                RuleFor(x => x.Reset).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            });
+
             When(model => model.Limit is not null, () =>
             {
                 RuleFor(x => x.Limit).NotEqual(0).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);

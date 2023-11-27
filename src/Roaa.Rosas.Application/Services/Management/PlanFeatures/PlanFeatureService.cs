@@ -54,6 +54,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       IsPublished = planFeature.Plan.IsPublished,
                                                       IsSubscribed = planFeature.Plan.IsSubscribed,
                                                   },
+                                                  Reset = planFeature.FeatureReset,
                                                   Limit = planFeature.Limit,
                                                   Unit = planFeature.FeatureUnit,
                                                   Description = planFeature.Description,
@@ -66,7 +67,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       Title = planFeature.Feature.DisplayName,
                                                       Type = planFeature.Feature.Type,
                                                       IsSubscribed = planFeature.Feature.IsSubscribed,
-                                                      Reset = planFeature.Feature.FeatureReset,
+                                                      Reset = planFeature.FeatureReset,
                                                   },
                                               })
                                               .OrderBy(x => x.Plan.DisplayOrder)
@@ -131,6 +132,13 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             }
             #endregion
 
+
+            var featureType = await _dbContext.Features
+                                            .Where(x => x.Id == model.FeatureId &&
+                                                        x.ProductId == productId)
+                                            .Select(x => x.Type)
+                                            .SingleOrDefaultAsync(cancellationToken);
+
             var date = DateTime.UtcNow;
 
             var planFeature = new PlanFeature
@@ -139,6 +147,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 FeatureId = model.FeatureId,
                 PlanId = model.PlanId,
                 Limit = model.Limit,
+                FeatureReset = featureType == FeatureType.Boolean || !model.Reset.HasValue ?
+                                                      FeatureReset.NonResettable : model.Reset.Value,
                 FeatureUnit = model.Unit,
                 Description = model.Description,
                 CreatedByUserId = _identityContextService.UserId,
@@ -181,6 +191,14 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             #endregion
             PlanFeature featureBeforeUpdate = planFeature.DeepCopy();
 
+            var featureType = await _dbContext.Features
+                                            .Where(x => x.Id == planFeature.FeatureId &&
+                                                        x.ProductId == productId)
+                                            .Select(x => x.Type)
+                                            .SingleOrDefaultAsync(cancellationToken);
+
+            planFeature.FeatureReset = featureType == FeatureType.Boolean || !model.Reset.HasValue ?
+                                                      FeatureReset.NonResettable : model.Reset.Value;
             planFeature.Limit = model.Limit;
             planFeature.FeatureUnit = model.Unit;
             planFeature.Description = model.Description;

@@ -5,6 +5,7 @@
         public Guid PlanId { get; set; }
         public Guid FeatureId { get; set; }
         public int? Limit { get; set; }
+        public FeatureReset FeatureReset { get; set; }
         public FeatureUnit? FeatureUnit { get; set; }
         public string Description { get; set; } = string.Empty;
         public virtual Feature Feature { get; set; }

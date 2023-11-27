@@ -167,7 +167,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                                 Limit = x.Limit,
                                                 FeatureDisplayName = x.Feature.DisplayName,
                                                 FeatureType = x.Feature.Type,
-                                                FeatureReset = x.Feature.FeatureReset,
+                                                FeatureReset = x.FeatureReset,
                                             })
                                             .ToListAsync(cancellationToken);
 
