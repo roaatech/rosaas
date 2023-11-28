@@ -1,4 +1,5 @@
-﻿using Roaa.Rosas.Domain.Entities.Management;
+﻿using Roaa.Rosas.Common.Localization;
+using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.PlanFeatures.Models
 {
@@ -8,6 +9,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures.Models
         public int? Limit { get; set; }
         public FeatureReset Reset { get; set; }
         public FeatureUnit? Unit { get; set; }
+        public LocalizedString UnitDisplayName { get; set; } = new();
         public string Description { get; set; } = string.Empty;
         public FeatureItemDto Feature { get; set; } = new();
         public PlanItemDto Plan { get; set; } = new();

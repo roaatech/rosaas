@@ -57,6 +57,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   Reset = planFeature.FeatureReset,
                                                   Limit = planFeature.Limit,
                                                   Unit = planFeature.FeatureUnit,
+                                                  UnitDisplayName = planFeature.UnitDisplayName,
                                                   Description = planFeature.Description,
                                                   CreatedDate = planFeature.CreationDate,
                                                   EditedDate = planFeature.ModificationDate,
@@ -150,6 +151,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 FeatureReset = featureType == FeatureType.Boolean || !model.Reset.HasValue ?
                                                       FeatureReset.NonResettable : model.Reset.Value,
                 FeatureUnit = model.Unit,
+                UnitDisplayName = model.UnitDisplayName,
                 Description = model.Description,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
@@ -201,6 +203,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                       FeatureReset.NonResettable : model.Reset.Value;
             planFeature.Limit = model.Limit;
             planFeature.FeatureUnit = model.Unit;
+            planFeature.UnitDisplayName = model.UnitDisplayName;
             planFeature.Description = model.Description;
             planFeature.ModifiedByUserId = _identityContextService.UserId;
             planFeature.ModificationDate = DateTime.UtcNow;
