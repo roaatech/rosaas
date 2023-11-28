@@ -52,6 +52,15 @@ public class RequestSubscriptionDowngradeCommandHandler : IRequestHandler<Reques
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.SubscriptionId));
         }
 
+        var downgradeUrl = await _dbContext.Products.AsNoTracking()
+                                             .Where(x => x.Id == subscription.ProductId)
+                                             .Select(x => x.SubscriptionDowngradeUrl)
+                                             .SingleOrDefaultAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(downgradeUrl))
+        {
+            return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+        }
+
         var plan = await _dbContext.Plans
                                     .Where(x => x.Id == command.PlanId)
                                     .SingleOrDefaultAsync();
