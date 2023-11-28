@@ -52,6 +52,16 @@ public class RequestSubscriptionUpgradeCommandHandler : IRequestHandler<RequestS
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.SubscriptionId));
         }
 
+        var upgradeUrl = await _dbContext.Products.AsNoTracking()
+                                          .Where(x => x.Id == subscription.ProductId)
+                                          .Select(x => x.SubscriptionUpgradeUrl)
+                                          .SingleOrDefaultAsync(cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(upgradeUrl))
+        {
+            return Result.Fail(CommonErrorKeys.OperationIsNotAllowed, _identityContextService.Locale);
+        }
+
         var plan = await _dbContext.Plans
                                     .Where(x => x.Id == command.PlanId)
                                     .SingleOrDefaultAsync();

@@ -11,6 +11,11 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures.Validators
     {
         public UpdatePlanFeatureValidator(IIdentityContextService identityContextService)
         {
+            When(model => model.Reset is not null, () =>
+            {
+                RuleFor(x => x.Reset).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            });
+
             When(model => model.Limit is not null, () =>
             {
                 RuleFor(x => x.Limit).NotEqual(0).WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);

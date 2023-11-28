@@ -300,7 +300,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                              Limit = x.Limit,
                                              FeatureDisplayName = x.Feature.DisplayName,
                                              FeatureType = x.Feature.Type,
-                                             FeatureReset = x.Feature.FeatureReset,
+                                             FeatureReset = x.FeatureReset,
                                          })
                                          .ToListAsync(cancellationToken);
 
@@ -742,7 +742,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                              Limit = x.Limit,
                                              FeatureDisplayName = x.Feature.DisplayName,
                                              FeatureType = x.Feature.Type,
-                                             FeatureReset = x.Feature.FeatureReset,
+                                             FeatureReset = x.FeatureReset,
                                          })
                                          .ToListAsync(cancellationToken);
 

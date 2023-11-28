@@ -65,6 +65,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
             {
                 try
                 {
+                    await FixFeaturesResetAsync();
                     await TrySeedClientsAsync();
                     await TrySeedProductsAsync();
 
@@ -117,8 +118,34 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
         }
 
 
-        #endregion 
+        #endregion
+        private async Task FixFeaturesResetAsync()
+        {
+            var plansFeatures = await _dbContext.PlanFeatures
+                                               .Include(x => x.Feature)
+                                               .ToListAsync();
 
+            const string key = "SeedData.Management.ManagementDbInitialiser.FeaturesResetFixed";
+
+            if (!await _dbContext.Settings
+                                .Where(x => x.Key.Equals(key))
+                                .AnyAsync())
+            {
+                foreach (var pf in plansFeatures)
+                {
+                    pf.FeatureReset = pf.Feature.FeatureReset;
+                }
+
+                _dbContext.Settings.Add(new Setting
+                {
+                    Key = key,
+                    Value = DateTime.UtcNow.ToString(),
+                    Id = Guid.NewGuid()
+                });
+
+                await _dbContext.SaveChangesAsync();
+            }
+        }
         private List<Client> GetClients()
         {
             return new List<Client>

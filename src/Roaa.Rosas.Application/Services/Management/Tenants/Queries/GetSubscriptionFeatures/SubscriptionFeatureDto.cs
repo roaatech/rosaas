@@ -1,4 +1,5 @@
-﻿using Roaa.Rosas.Common.Models;
+﻿using Roaa.Rosas.Common.Localization;
+using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionFeatures
@@ -15,6 +16,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public FeatureReset Reset { get; set; }
         public int? Limit { get; set; }
         public FeatureUnit? Unit { get; set; }
+        public LocalizedString UnitDisplayName { get; set; } = new();
+
     }
 
 }
