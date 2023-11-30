@@ -9,7 +9,6 @@ using Roaa.Rosas.Application.Services.Identity.Auth.Models;
 using Roaa.Rosas.Application.Services.Identity.Auth.Validators;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
-using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.Utilities;
 using Roaa.Rosas.Domain.Entities.Identity;
@@ -58,7 +57,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             User user = null;
             _validationBuilder.AddCommand(() => new SignInAdminByEmailValidator(_identityContextService).Validate(model));
             _validationBuilder.AddCommand(async () => user = await _userManager.FindByEmailAsync(model.Email), ErrorMessage.InvalidLogin);
-            _validationBuilder.AddCommand(() => user.UserType == UserType.SuperAdmin, ErrorMessage.InvalidLogin);
+            //  _validationBuilder.AddCommand(() => user.UserType == UserType.SuperAdmin, ErrorMessage.InvalidLogin);
             _validationBuilder.AddCommand(() => user.IsActive, ErrorMessage.AccountDeactivated);
             _validationBuilder.AddCommand(async () => await _userManager.CheckPasswordAsync(user, model.Password), ErrorMessage.InvalidLogin);
             var validationResult = await _validationBuilder.ValidateAsync();
