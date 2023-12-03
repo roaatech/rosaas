@@ -121,6 +121,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               HealthStatusChangeUrl = product.HealthStatusInformerUrl,
                                               Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
                                               DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
+                                              Description = product.Description,
+                                              IsPublished = product.IsPublished,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
@@ -193,6 +195,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 ClientId = model.ClientId,
                 Name = model.Name,
                 DisplayName = model.DisplayName,
+                Description = model.Description,
+                IsPublished = model.IsPublished,
                 DefaultHealthCheckUrl = model.DefaultHealthCheckUrl,
                 HealthStatusInformerUrl = model.HealthStatusChangeUrl,
                 CreatedByUserId = _identityContextService.UserId,
@@ -252,6 +256,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             Product productBeforeUpdate = product.DeepCopy();
 
             product.DisplayName = model.DisplayName;
+            product.Description = model.Description;
             product.HealthStatusInformerUrl = model.HealthStatusChangeUrl;
             product.DefaultHealthCheckUrl = model.DefaultHealthCheckUrl;
             product.ModifiedByUserId = _identityContextService.UserId;
@@ -295,6 +300,33 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             return Result.Successful();
         }
+
+
+
+
+        public async Task<Result> PublishProductAsync(Guid id, PublishProductModel model, CancellationToken cancellationToken = default)
+        {
+            #region Validation 
+
+            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
+            if (product is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
+            #endregion 
+
+            product.IsPublished = model.IsPublished;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
+
+
+
+
         private async Task<bool> EnsureUniqueNameAsync(Guid clientId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
         {
             return !await _dbContext.Products
