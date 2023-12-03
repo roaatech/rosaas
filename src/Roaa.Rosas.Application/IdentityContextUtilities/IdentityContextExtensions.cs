@@ -1,11 +1,10 @@
 ﻿using Roaa.Rosas.Application.IdentityServer4;
-using Roaa.Rosas.Application.JWT;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Utilities;
 
-namespace Roaa.Rosas.Application.Extensions
+namespace Roaa.Rosas.Application.IdentityContextUtilities
 {
     public static class IdentityContextExtensions
     {
@@ -22,7 +21,6 @@ namespace Roaa.Rosas.Application.Extensions
             {
                 return UserType.RosasSystem;
             }
-            var ss = value.ToPascalCaseNamingStrategy();
             var type = Helpers.ParseEnum<UserType>(value.ToPascalCaseNamingStrategy());
             return type;
         }

@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Roaa.Rosas.Application.Extensions;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsDowngradeApplied;

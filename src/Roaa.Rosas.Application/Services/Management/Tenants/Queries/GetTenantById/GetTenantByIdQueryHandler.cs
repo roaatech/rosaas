@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Extensions;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
