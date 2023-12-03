@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.IdentityServer4.Clients;
 using Roaa.Rosas.Application.Services.IdentityServer4.Clients.Models;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets.Models;
+using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class ClientCredentialController : BaseSuperAdminIdentityApiController
+    [Authorize(Policy = AuthPolicy.Identity.ClientCredential, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class ClientCredentialController : BaseIdentityApiController
     {
         #region Props 
         private readonly ILogger<ClientCredentialController> _logger;

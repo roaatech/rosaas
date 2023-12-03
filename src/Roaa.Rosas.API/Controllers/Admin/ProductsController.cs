@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using IdentityServer4.AccessTokenValidation;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
@@ -12,7 +14,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class ProductsController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.Management.Products, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class ProductsController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<ProductsController> _logger;

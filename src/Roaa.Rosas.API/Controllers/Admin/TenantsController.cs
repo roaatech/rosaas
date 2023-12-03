@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using IdentityServer4.AccessTokenValidation;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
@@ -17,7 +19,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class TenantsController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.Management.Tenants, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class TenantsController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<TenantsController> _logger;

@@ -6,8 +6,8 @@
         {
             public const string Api = "api_scope";
             public const string SuperAdmin = "super_admin_scope";
-            public const string ClientAdmin = "client_admin_scope";
-            public const string Tenant = "tenant_scope";
+            public const string ProductOwner = "product_owner_scope";
+            public const string TenantOwner = "tenant_owner_scope";
             public const string ExternalSystem = "external_system_scope";
         }
         public class Resources

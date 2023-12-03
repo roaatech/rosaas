@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.BackgroundServices;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings;
+using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Settings;
 using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class SettingsController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.Management.Settings, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class SettingsController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<SettingsController> _logger;

@@ -92,7 +92,7 @@ namespace Roaa.Rosas.Application.JWT
 
             AddAuthMethod(authenticationMethod);
 
-            AddType(UserType.SuperAdmin);
+            AddType(user.UserType);
 
             TryAddEmail(user.Email);
 
@@ -299,7 +299,7 @@ namespace Roaa.Rosas.Application.JWT
         private void AddIdentityProvider()
         {
             // add idp
-            _claims.Add(new Claim(JwtClaimTypes.IdentityProvider, "ROSAS"));
+            _claims.Add(new Claim(JwtClaimTypes.IdentityProvider, "RoSaaS"));
         }
         private void AddAuthenticationTime()
         {

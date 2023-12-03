@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
+using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
-    public partial class WorkflowController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.SuperAdmin, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public partial class WorkflowController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<WorkflowController> _logger;

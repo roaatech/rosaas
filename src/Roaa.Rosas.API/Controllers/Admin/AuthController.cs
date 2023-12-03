@@ -8,7 +8,7 @@ using Roaa.Rosas.Framework.Controllers.Common;
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class AuthController : BaseSuperAdminIdentityApiController
+    public class AuthController : BaseIdentityApiController
     {
         #region Props 
         private readonly ILogger<AuthController> _logger;

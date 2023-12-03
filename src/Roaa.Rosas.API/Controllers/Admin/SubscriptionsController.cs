@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using IdentityServer4.AccessTokenValidation;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CancelSubscriptionAutoRenewal;
@@ -15,7 +17,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
-    public class SubscriptionsController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.Management.Subscriptions, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class SubscriptionsController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<SubscriptionsController> _logger;

@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Identity.Accounts;
 using Roaa.Rosas.Application.Services.Identity.Auth;
+using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class AccountController : BaseSuperAdminIdentityApiController
+    [Authorize(Policy = AuthPolicy.Identity.Account, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class AccountController : BaseIdentityApiController
     {
         #region Props 
         private readonly ILogger<AccountController> _logger;

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Features;
 using Roaa.Rosas.Application.Services.Management.Features.Models;
 using Roaa.Rosas.Authorization.Utilities;
@@ -8,7 +10,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
     [Route($"{PrefixSuperAdminMainApiRoute}/products/{{productId}}/[controller]")]
-    public partial class FeaturesController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.Management.Features, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public partial class FeaturesController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<FeaturesController> _logger;
