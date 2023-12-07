@@ -1,12 +1,12 @@
 ﻿using FluentValidation;
+using Roaa.Rosas.Application.Services.Identity.Auth.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.SystemMessages;
-using Roaa.Rosas.Application.Services.Identity.Auth.Models;
 
 namespace Roaa.Rosas.Application.Services.Identity.Auth.Validators
 {
-    public class SignInAdminByEmailValidator : AbstractValidator<SignInAdminByEmailModel>
+    public class SignInAdminByEmailValidator : AbstractValidator<SignInUserByEmailModel>
     {
         public SignInAdminByEmailValidator(IIdentityContextService identityContextService)
         {

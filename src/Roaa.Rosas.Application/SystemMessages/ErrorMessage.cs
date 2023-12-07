@@ -105,5 +105,10 @@ namespace Roaa.Rosas.Application.SystemMessages
         Ar = "هذه الخطة لا تنتمي إلى المنتج")]
         PlanDoesNotBelongToProduct = 3011,
 
+        [Localization(
+        En = "'Password' must equal to 'Confirm Password'",
+        Ar = "غير مطابقة لكلمة المرور")]
+        PasswordAndConfirmMustEqual = 3012,
+
     }
 }

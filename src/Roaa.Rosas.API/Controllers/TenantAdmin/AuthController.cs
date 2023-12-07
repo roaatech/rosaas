@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Application.Services.Identity.Auth.Models;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Framework.Controllers.Common;
 
-namespace Roaa.Rosas.Framework.Controllers.Admin
+namespace Roaa.Rosas.Framework.Controllers.TenantAdmin
 {
 
-    public class AuthController : BaseIdentityApiController
+    public class AuthController : BaseTenantAdminIdentityApiController
     {
         #region Props 
         private readonly ILogger<AuthController> _logger;
@@ -32,15 +33,15 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #region Actions   
 
         [AllowAnonymous]
-        [HttpPost("Signin")]
-        public async Task<IActionResult> SignInAsync(SignInUserByEmailModel model, CancellationToken cancellationToken)
+        [HttpPost("Signup")]
+        public async Task<IActionResult> SignUpAsync(SignUpUserByEmailModel model, CancellationToken cancellationToken)
         {
             if (!CheckClientId(AdminPanelClientId))
             {
                 return InvalidRequest();
             }
 
-            var result = await _authService.SignInAdminByEmailAsync(model, cancellationToken);
+            var result = await _authService.SignUpUserByEmailAsync(model, UserType.TenantOwner, cancellationToken);
 
             return ItemResult(result);
         }

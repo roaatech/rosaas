@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Identity.Auth.Mappers;
@@ -13,6 +14,7 @@ using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.Utilities;
 using Roaa.Rosas.Domain.Entities.Identity;
+using System.Data;
 
 namespace Roaa.Rosas.Application.Services.Identity.Auth
 {
@@ -52,7 +54,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
 
         #region SignIn (Admin - Web) 
 
-        public async Task<Result<AuthResultModel<AdminDto>>> SignInAdminByEmailAsync(SignInAdminByEmailModel model, CancellationToken cancellationToken = default)
+        public async Task<Result<AuthResultModel<AdminDto>>> SignInAdminByEmailAsync(SignInUserByEmailModel model, CancellationToken cancellationToken = default)
         {
             #region Validation  
             var allowedTypes = new UserType[] { UserType.SuperAdmin, UserType.ProductOwner, UserType.TenantOwner };
@@ -69,6 +71,53 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         }
         #endregion
 
+
+        #region SignUp 
+
+        public async Task<Result<AuthResultModel<AdminDto>>> SignUpUserByEmailAsync(SignUpUserByEmailModel model, UserType userType, CancellationToken cancellationToken = default)
+        {
+            #region Validation 
+            _validationBuilder.AddCommand(() => new SignupUserByEmailValidator(_identityContextService).Validate(model));
+
+            _validationBuilder.AddCommand(async () => await EnsureEmailIsUniqueAsync(model.Email, cancellationToken));
+
+            var validationResult = await _validationBuilder.ValidateAsync();
+            if (!validationResult.Success)
+            {
+                return Result<AuthResultModel<AdminDto>>.Fail(validationResult.Messages);
+            }
+            #endregion
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                UserName = model.Email,
+                Email = model.Email,
+                CreationDate = DateTime.Now,
+                ModificationDate = DateTime.Now,
+                IsActive = true,
+                Locale = "en",
+                Status = UserStatus.Ready,
+                UserType = userType,
+            };
+
+            using (var scope = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
+            {
+                var identityResult = await _userManager.CreateAsync(user, model.Password);
+
+                if (!identityResult.Succeeded)
+                {
+                    scope.Rollback();
+                    return identityResult.FailResult<AuthResultModel<AdminDto>>(_identityContextService.Locale);
+                }
+
+                return await SignInUserAsync<AdminDto>(user, AuthenticationMethod.Email, cancellationToken);
+            }
+        }
+        #endregion
+
+
+
         private async Task<Result<AuthResultModel<T>>> SignInUserAsync<T>(User user, AuthenticationMethod authenticationMethod, CancellationToken cancellationToken)
         {
             #region Validation   
@@ -83,7 +132,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             {
                 // await GenerateEmailConfirmationTokenAsync(user);
 
-                return Result<AuthResultModel<T>>.Fail(ErrorMessage.UserMustConfirmTheirEmailAccount, _identityContextService.Locale);
+                // return Result<AuthResultModel<T>>.Fail(ErrorMessage.UserMustConfirmTheirEmailAccount, _identityContextService.Locale);
             }
 
             user.LastLoginDate = DateTime.UtcNow;
@@ -106,14 +155,23 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             });
         }
 
-
-
-
-
         #endregion
 
 
+        private async Task<Result<bool>> EnsureEmailIsUniqueAsync(string email, CancellationToken cancellationToken)
+        {
+            var any = await _dbContext.Users
+                                      .AsNoTracking()
+                                      .Where(x => email.ToLower().Equals(x.Email.ToLower()))
+                                      .AnyAsync(cancellationToken);
 
+            if (any)
+            {
+                return Result<bool>.Fail(ErrorMessage.AccountAlreadyExist, _identityContextService.Locale);
+            }
+
+            return Result<bool>.Successful(true);
+        }
 
 
     }

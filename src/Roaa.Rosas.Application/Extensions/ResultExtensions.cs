@@ -16,6 +16,15 @@ namespace Roaa.Rosas.Application.Extensions
 
             return Result.Fail(messages);
         }
+
+        public static Result<T> FailResult<T>(this IdentityResult identityResult, LanguageEnum locale)
+        {
+            var messages = identityResult.Errors
+                                         .Select(e => MessageDetail.Error(e.Code.ToIdentityError(), locale))
+                                         .ToList();
+
+            return Result<T>.Fail(messages);
+        }
         public static Result FailResult(this IdentityResult identityResult, SystemMessages.IdentityError inCase, SystemMessages.IdentityError output, LanguageEnum locale)
         {
             var messages = identityResult.Errors
