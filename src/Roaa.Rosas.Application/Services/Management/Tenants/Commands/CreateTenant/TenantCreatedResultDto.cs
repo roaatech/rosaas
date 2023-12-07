@@ -34,6 +34,7 @@ public record ProductTenantCreatedResultDto
 public record PlanInfoModel
 {
     public string PlanDisplayName { get; set; } = string.Empty;
+    public string PlanName { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public Guid PlanPriceId { get; set; }
     public Guid PlanId { get; set; }
@@ -41,12 +42,16 @@ public record PlanInfoModel
     public PlanCycle PlanCycle { get; set; }
     public Guid GeneratedSubscriptionCycleId { get; set; }
     public Guid GeneratedSubscriptionId { get; set; }
-    public ProductUrlListItem Product { get; set; } = new();
+    public ProductInfoModel Product { get; set; } = new();
     public List<PlanFeatureInfoModel> Features { get; set; } = new();
     public List<SpecificationInfoModel> Specifications { get; set; } = new();
 }
 
-
+public record ProductInfoModel : ProductUrlListItem
+{
+    public string Name { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+}
 public record SpecificationInfoModel
 {
     public Guid SpecificationId { get; set; }

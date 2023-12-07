@@ -1,4 +1,5 @@
-﻿using Roaa.Rosas.Application.ExternalSystemsAPI;
+﻿using Roaa.Rosas.Application;
+using Roaa.Rosas.Application.ExternalSystemsAPI;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.JWT;
@@ -76,6 +77,10 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<ISpecificationService, SpecificationService>();
 
             services.AddMediatRAServices();
+
+
+            Stripe.StripeConfiguration.ApiKey = "sk_test_51OI5l1E1TtPRg7pa4T6AXcmiCjV9LfEig2glaELNmdTZPiurAvScKg1jjE60z3hIKoFzrVBvVQwOCsA1J1SHnyIe00cmlLZnso";
+            services.AddScoped<IPaymentMethod, StripePaymentMethod>();
 
         }
     }

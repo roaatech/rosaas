@@ -6,7 +6,6 @@ using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
-using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
 using Roaa.Rosas.Application.SystemMessages;
@@ -68,14 +67,18 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                         .Select(x => new PlanInfoModel
                                         {
                                             PlanDisplayName = x.Plan.DisplayName,
+                                            PlanName = x.Plan.Name,
                                             Price = x.Price,
                                             PlanPriceId = x.Id,
                                             PlanId = x.PlanId,
                                             IsPublished = x.Plan.IsPublished,
                                             PlanCycle = x.PlanCycle,
-                                            Product = new ProductUrlListItem
+                                            Product = new ProductInfoModel
                                             {
                                                 Id = x.Plan.ProductId,
+                                                ClientId = x.Plan.Product.ClientId,
+                                                Name = x.Plan.Product.Name,
+                                                DisplayName = x.Plan.Product.DisplayName,
                                                 Url = x.Plan.Product.DefaultHealthCheckUrl
                                             },
 
@@ -167,6 +170,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                                 PlanId = x.PlanId,
                                                 Limit = x.Limit,
                                                 FeatureDisplayName = x.Feature.DisplayName,
+                                                FeatureName = x.Feature.Name,
                                                 FeatureType = x.Feature.Type,
                                                 FeatureReset = x.FeatureReset,
                                             })
@@ -260,12 +264,14 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         });
 
         var id = Guid.NewGuid();
+        var name = model.UniqueName.ToLower();
+        var displayName = model.Title;
 
         return new Tenant
         {
             Id = id,
-            UniqueName = model.UniqueName.ToLower(),
-            DisplayName = model.Title,
+            UniqueName = name,
+            DisplayName = displayName,
             CreatedByUserId = _identityContextService.GetActorId(),
             ModifiedByUserId = _identityContextService.GetActorId(),
             CreationDate = _date,
@@ -348,6 +354,64 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 }).ToList(),
 
             }).ToList(),
+            Orders = new List<Order> { BuildOrderEntity(id, name, displayName, plansInfo) },
+        };
+    }
+
+    private Order BuildOrderEntity(Guid tenantId, string tenantName, string tenantDisplayName, List<PlanInfoModel> plansInfo)
+    {
+        var quantity = 1;
+
+        var orderItems = plansInfo.Select(planInfo => new OrderItem()
+        {
+            Id = Guid.NewGuid(),
+            StartDate = _date,
+            EndDate = PlanCycleManager.FromKey(planInfo.PlanCycle).GetExpiryDate(_date),
+            ClientId = planInfo.Product.ClientId,
+            ProductId = planInfo.Product.Id,
+            SubscriptionId = planInfo.GeneratedSubscriptionId,
+            PurchasedEntityId = planInfo.PlanId,
+            PurchasedEntityType = Common.Enums.EntityType.Plan,
+            PriceExclTax = planInfo.Price * quantity,
+            PriceInclTax = planInfo.Price * quantity,
+            UnitPriceExclTax = planInfo.Price,
+            UnitPriceInclTax = planInfo.Price,
+            Quantity = quantity,
+            Name = $"{planInfo.Product.Name}--{planInfo.PlanName}--{tenantName}",
+            DisplayName = $"[Product: {planInfo.Product.DisplayName}], [Plan: {planInfo.PlanDisplayName}], [Tenant: {tenantDisplayName}]",
+            Specifications = planInfo.Features.Select(x => new OrderItemSpecification
+            {
+                PurchasedEntityId = x.FeatureId,
+                PurchasedEntityType = Common.Enums.EntityType.Feature,
+                Name = $"{x.FeatureName}-" +
+                                $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
+                                $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
+                                $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"
+                                .Replace("---", "-")
+                                .Replace("--", "-")
+                                .TrimEnd('-'),
+            }).ToList()
+        }).ToList();
+        return new Order()
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            OrderStatus = OrderStatus.Pending,
+            CurrencyRate = 1,
+            UserCurrencyType = CurrencyCode.USD,
+            UserCurrencyCode = CurrencyCode.USD.ToString(),
+            PaymentStatus = null,
+            PaymentMethodType = null,
+            UserType = _identityContextService.GetUserType(),
+            CreatedByUserId = _identityContextService.GetActorId(),
+            ModifiedByUserId = _identityContextService.GetActorId(),
+            CreationDate = _date,
+            ModificationDate = _date,
+            OrderSubtotalExclTax = orderItems.Select(x => x.PriceExclTax).Sum(),
+            OrderSubtotalInclTax = orderItems.Select(x => x.PriceInclTax).Sum(),
+            OrderTotal = orderItems.Select(x => x.PriceInclTax).Sum(),
+            OrderItems = orderItems,
+
         };
     }
 

@@ -4,6 +4,7 @@
     {
         public const string SuperAdmin = "SoperAdminPolicy";
         public const string ExternalSystem = "ExternalSystemPolicy";
+        public const string Payment = "PaymentPolicy";
         public class Management
         {
             public const string Features = "Features";
@@ -24,5 +25,6 @@
             public const string Account = "Account";
             public const string ClientCredential = "ClientCredential";
         }
+
     }
 }

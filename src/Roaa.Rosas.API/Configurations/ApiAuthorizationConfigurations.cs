@@ -15,12 +15,19 @@ namespace Roaa.Rosas.Framework.Configurations
             {
 
                 #region  SuperAdmin  
+
                 configure.AddPolicy(AuthPolicy.SuperAdmin, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy());
                 });
                 #endregion
+
+                configure.AddPolicy(AuthPolicy.Payment, builder =>
+                {
+                    builder.RequireScope(SystemConsts.Scopes.Api);
+                    builder.RequireAuthenticatedUser();
+                });
 
                 configure.AddPolicy(AuthPolicy.Identity.Account, builder =>
                 {
