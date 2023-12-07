@@ -91,6 +91,30 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         }
 
 
+
+        public async Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(string clientName, CancellationToken cancellationToken = default)
+        {
+
+
+            var products = await _dbContext.Products
+                                           .Where(x => string.IsNullOrWhiteSpace(clientName) ||
+                                                        clientName.ToLower().Equals(x.Client.Name))
+                                            .AsNoTracking()
+                                            .Select(x => new CustomLookupItemDto<Guid>
+                                            {
+                                                Id = x.Id,
+                                                Name = x.Name,
+                                                Title = x.DisplayName,
+                                            })
+                                            .ToListAsync(cancellationToken);
+
+            return Result<List<CustomLookupItemDto<Guid>>>.Successful(products);
+        }
+
+
+
+
+
         public async Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(CancellationToken cancellationToken = default)
         {
             var products = await _dbContext.Products
