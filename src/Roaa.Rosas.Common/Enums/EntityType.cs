@@ -3,5 +3,7 @@
     public enum EntityType
     {
         User = 1,
+        Feature = 2,
+        Plan = 3,
     }
 }

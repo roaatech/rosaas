@@ -28,6 +28,7 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<TenantHealthCheckHistory> TenantHealthCheckHistory { get; }
         public DbSet<TenantProcessHistory> TenantProcessHistory { get; }
         public DbSet<Subscription> Subscriptions { get; }
+        public DbSet<Order> Orders { get; }
         public DbSet<SubscriptionAutoRenewal> SubscriptionAutoRenewals { get; }
         public DbSet<SubscriptionAutoRenewalHistory> SubscriptionAutoRenewalHistories { get; }
         public DbSet<SubscriptionPlanChanging> SubscriptionPlanChanges { get; }
