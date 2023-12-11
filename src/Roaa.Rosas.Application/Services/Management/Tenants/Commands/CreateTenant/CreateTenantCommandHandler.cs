@@ -31,6 +31,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     private readonly IIdentityContextService _identityContextService;
     private readonly ILogger<CreateTenantCommandHandler> _logger;
     private readonly DateTime _date = DateTime.UtcNow;
+    private Guid _orderId;
     #endregion
 
     #region Corts
@@ -142,7 +143,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
 
 
-        return Result<TenantCreatedResultDto>.Successful(new TenantCreatedResultDto(tenant.Id, productTenantCreatedResults));
+        return Result<TenantCreatedResultDto>.Successful(new TenantCreatedResultDto(tenant.Id, _orderId, productTenantCreatedResults));
     }
 
     #endregion
@@ -391,9 +392,12 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                 .TrimEnd('-'),
             }).ToList()
         }).ToList();
+
+        _orderId = Guid.NewGuid();
+
         return new Order()
         {
-            Id = Guid.NewGuid(),
+            Id = _orderId,
             TenantId = tenantId,
             OrderStatus = OrderStatus.Pending,
             CurrencyRate = 1,
@@ -410,7 +414,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             OrderSubtotalInclTax = orderItems.Select(x => x.PriceInclTax).Sum(),
             OrderTotal = orderItems.Select(x => x.PriceInclTax).Sum(),
             OrderItems = orderItems,
-
         };
     }
 

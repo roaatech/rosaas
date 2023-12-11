@@ -7,13 +7,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTena
 
 public record TenantCreatedResultDto
 {
-    public TenantCreatedResultDto(Guid id, IEnumerable<ProductTenantCreatedResultDto> products)
+    public TenantCreatedResultDto(Guid id, Guid orderId, IEnumerable<ProductTenantCreatedResultDto> products)
     {
         Id = id;
+        OrderId = orderId;
         Products = products;
     }
 
     public Guid Id { get; set; }
+    public Guid OrderId { get; set; }
     public IEnumerable<ProductTenantCreatedResultDto> Products { get; set; }
 }
 
