@@ -89,7 +89,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 Status = workflow.NextStatus,
                 Step = workflow.NextStep,
                 Action = workflow.Action,
-                UserType = workflow.OwnerType,
+                UserType = UserType.ExternalSystem,
                 EditorBy = _identityContextService.UserId,
                 DispatchedRequest = new DispatchedRequestModel(callingResult.Data.DurationInMillisecond, callingResult.Data.Url, callingResult.Data.SerializedResponseContent),
                 ExpectedResourceStatus = null,

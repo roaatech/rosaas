@@ -10,7 +10,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public TenantStatus CurrentStatus { get; set; }
         public TenantStep CurrentStep { get; set; }
         public TenantStep NextStep { get; set; }
-        public UserType OwnerType { get; set; }
+        public List<UserType> OwnerTypes { get; set; } = new();
         public ExpectedTenantResourceStatus? ExpectedResourceStatus { get; set; }
         public string Message { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;

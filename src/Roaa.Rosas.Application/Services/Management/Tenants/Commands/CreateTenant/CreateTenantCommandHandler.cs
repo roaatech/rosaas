@@ -252,7 +252,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     {
         plansInfo?.ForEach(x =>
         {
-            // var subscriptionCycleId = Guid.NewGuid();
             x.GeneratedSubscriptionCycleId = Guid.NewGuid();
             x.GeneratedSubscriptionId = Guid.NewGuid();
 

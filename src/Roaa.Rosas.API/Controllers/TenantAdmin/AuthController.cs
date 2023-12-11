@@ -41,7 +41,7 @@ namespace Roaa.Rosas.Framework.Controllers.TenantAdmin
                 return InvalidRequest();
             }
 
-            var result = await _authService.SignUpUserByEmailAsync(model, UserType.TenantOwner, cancellationToken);
+            var result = await _authService.SignUpUserByEmailAsync(model, UserType.TenantAdmin, cancellationToken);
 
             return ItemResult(result);
         }

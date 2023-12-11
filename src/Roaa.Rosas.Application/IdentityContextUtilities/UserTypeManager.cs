@@ -8,8 +8,9 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
     {
         #region Props
         public static readonly UserTypeManager SuperAdmin = new SuperAdminType();
-        public static readonly UserTypeManager ProductOwner = new ProductOwnerType();
-        public static readonly UserTypeManager TenantOwner = new TenantOwnerType();
+        public static readonly UserTypeManager ClientAdmin = new ClientAdminType();
+        public static readonly UserTypeManager ProductAdmin = new ProductAdminType();
+        public static readonly UserTypeManager TenantAdmin = new TenantAdminType();
         public static readonly UserTypeManager ExternalSystem = new ExternalSystemType();
         public static readonly UserTypeManager RosasSystem = new RosasSystemType();
         #endregion
@@ -53,10 +54,10 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
             #endregion
         }
 
-        private sealed class ProductOwnerType : UserTypeManager
+        private sealed class ClientAdminType : UserTypeManager
         {
             #region Corts
-            public ProductOwnerType() : base(UserType.ProductOwner) { }
+            public ClientAdminType() : base(UserType.ClientAdmin) { }
             #endregion 
 
             #region overrides 
@@ -68,10 +69,26 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
         }
 
 
-        private sealed class TenantOwnerType : UserTypeManager
+
+        private sealed class ProductAdminType : UserTypeManager
         {
             #region Corts
-            public TenantOwnerType() : base(UserType.TenantOwner) { }
+            public ProductAdminType() : base(UserType.ProductAdmin) { }
+            #endregion 
+
+            #region overrides 
+            public override Guid GetActorId(IIdentityContextService identityContext)
+            {
+                return identityContext.UserId;
+            }
+            #endregion
+        }
+
+
+        private sealed class TenantAdminType : UserTypeManager
+        {
+            #region Corts
+            public TenantAdminType() : base(UserType.TenantAdmin) { }
             #endregion 
 
             #region overrides 

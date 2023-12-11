@@ -1,6 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
@@ -9,23 +12,37 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
 {
     public class GetSubscriptionCyclesQueryHandler : IRequestHandler<GetSubscriptionCyclesQuery, Result<List<SubscriptionCycleDto>>>
     {
+
         #region Props 
         private readonly IRosasDbContext _dbContext;
+        private readonly IIdentityContextService _identityContextService;
         #endregion
 
 
         #region Corts
-        public GetSubscriptionCyclesQueryHandler(IRosasDbContext dbContext)
+        public GetSubscriptionCyclesQueryHandler(
+            IRosasDbContext dbContext,
+            IIdentityContextService identityContextService)
         {
             _dbContext = dbContext;
+            _identityContextService = identityContextService;
         }
         #endregion
 
 
-        #region Handler   
+        #region Handler    
         public async Task<Result<List<SubscriptionCycleDto>>> Handle(GetSubscriptionCyclesQuery request, CancellationToken cancellationToken)
         {
-            var subscriptionCycles = await _dbContext.SubscriptionCycles.AsNoTracking()
+            var subscriptionCycles = await _dbContext.SubscriptionCycles
+                                                .AsNoTracking()
+                                                .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                            _dbContext.EntityAdminPrivileges
+                                                .Any(a =>
+                                                                            a.UserId == _identityContextService.UserId &&
+                                                                            a.EntityId == x.Id &&
+                                                                            a.EntityType == EntityType.Tenant
+                                                                            )
+                                                        )
                                                  .Where(x => x.SubscriptionId == request.SubscriptionId &&
                                                                                 (request.SubscriptionCycleId == null ||
                                                                                  request.SubscriptionCycleId == request.SubscriptionCycleId))
@@ -62,3 +79,16 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         #endregion
     }
 }
+
+/*
+    var subscriptionCycles = await _dbContext.SubscriptionCycles.AsNoTracking()
+                                                                          .Join(_dbContext.TenantAdmins,
+                                                                  cycle => cycle.TenantId,
+                                                                  admin => admin.TenantId,
+                                                                  (cycle, admin) => new { cycle, admin })
+                                                            .Where(result => result.admin.UserId == _identityContextService.UserId &&
+                                                                             result.admin.UserType == _identityContextService.GetUserType() &&
+                                                                             result.cycle.SubscriptionId == request.SubscriptionId &&
+                                                                            (request.SubscriptionCycleId == null ||
+                                                                             result.cycle.Id == request.SubscriptionCycleId))
+*/

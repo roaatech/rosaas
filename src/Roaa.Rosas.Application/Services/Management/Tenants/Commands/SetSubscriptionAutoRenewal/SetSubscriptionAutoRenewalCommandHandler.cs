@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -35,6 +37,22 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
     #region Handler   
     public async Task<Result> Handle(SetSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken)
     {
+        if (!await _dbContext.Subscriptions
+                             .Where(x => _identityContextService.IsSuperAdmin() ||
+                                        _dbContext.EntityAdminPrivileges
+                                                .Any(a =>
+                                                    a.UserId == _identityContextService.UserId &&
+                                                    a.EntityId == x.TenantId &&
+                                                    a.EntityType == EntityType.Tenant
+                                                    )
+                                    )
+                             .Where(x => x.Id == command.SubscriptionId)
+                             .AnyAsync())
+        {
+            return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.SubscriptionId));
+        }
+
+
         var planPrice = await _dbContext.PlanPrices
                                         .Include(p => p.Plan)
                                         .Where(x => x.Id == command.PlanPriceId)
@@ -44,12 +62,6 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.PlanPriceId));
         }
 
-        if (!await _dbContext.Subscriptions
-                                .Where(x => x.Id == command.SubscriptionId)
-                                .AnyAsync())
-        {
-            return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.SubscriptionId));
-        }
 
         var date = DateTime.UtcNow;
         var autoRenewal = await _dbContext.SubscriptionAutoRenewals

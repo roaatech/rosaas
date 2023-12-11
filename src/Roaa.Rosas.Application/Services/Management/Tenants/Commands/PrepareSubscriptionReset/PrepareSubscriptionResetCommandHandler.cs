@@ -1,12 +1,14 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -56,6 +58,14 @@ public class PrepareSubscriptionResetCommandHandler : IRequestHandler<PrepareSub
     public async Task<Result> Handle(PrepareSubscriptionResetCommand command, CancellationToken cancellationToken)
     {
         var subscription = await _dbContext.Subscriptions
+                                             .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                         _dbContext.EntityAdminPrivileges
+                                                                    .Any(a =>
+                                                                        a.UserId == _identityContextService.UserId &&
+                                                                        a.EntityId == x.TenantId &&
+                                                                        a.EntityType == EntityType.Tenant
+                                                                        )
+                                                     )
                                                .Where(x => x.ProductId == command.ProductId &&
                                                            x.TenantId == command.TenantId)
                                                .SingleOrDefaultAsync();

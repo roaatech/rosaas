@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
@@ -15,39 +17,48 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsP
         private readonly IIdentityContextService _identityContextService;
         #endregion
 
+
         #region Corts
-        public GetTenantsPaginatedListQueryHandler(
-            IRosasDbContext dbContext,
-            IIdentityContextService identityContextService)
+        public GetTenantsPaginatedListQueryHandler(IRosasDbContext dbContext,
+                                                  IIdentityContextService identityContextService)
         {
             _dbContext = dbContext;
             _identityContextService = identityContextService;
         }
-
         #endregion
+
 
 
         #region Handler   
         public async Task<PaginatedResult<TenantListItemDto>> Handle(GetTenantsPaginatedListQuery request, CancellationToken cancellationToken)
         {
 
-            var query = _dbContext.Tenants.AsNoTracking()
-                                                     .Include(x => x.Subscriptions)
-                                                     .ThenInclude(x => x.Product)
-                                                     .Select(tenant => new TenantListItemDto
-                                                     {
-                                                         Id = tenant.Id,
-                                                         UniqueName = tenant.UniqueName,
-                                                         Title = tenant.DisplayName,
-                                                         Subscriptions = tenant.Subscriptions.Select(x => new SubscriptionDto
-                                                         {
-                                                             ProductId = x.ProductId,
-                                                             ProductName = x.Product.DisplayName,
-                                                             SubscriptionId = x.Id,
-                                                         }),
-                                                         CreatedDate = tenant.CreationDate,
-                                                         EditedDate = tenant.ModificationDate,
-                                                     });
+            var query = _dbContext.Tenants
+                                  .AsNoTracking()
+                                   .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                _dbContext.EntityAdminPrivileges
+                                                                    .Any(a =>
+                                                                            a.UserId == _identityContextService.UserId &&
+                                                                            a.EntityId == x.Id &&
+                                                                            a.EntityType == EntityType.Tenant
+                                                                            )
+                                          )
+                                    .Include(x => x.Subscriptions)
+                                    .ThenInclude(x => x.Product)
+                                    .Select(tenant => new TenantListItemDto
+                                    {
+                                        Id = tenant.Id,
+                                        UniqueName = tenant.UniqueName,
+                                        Title = tenant.DisplayName,
+                                        Subscriptions = tenant.Subscriptions.Select(x => new SubscriptionDto
+                                        {
+                                            ProductId = x.ProductId,
+                                            ProductName = x.Product.DisplayName,
+                                            SubscriptionId = x.Id,
+                                        }),
+                                        CreatedDate = tenant.CreationDate,
+                                        EditedDate = tenant.ModificationDate,
+                                    });
 
             var sort = request.Sort.HandleDefaultSorting(new string[] { "UniqueName", "Title", "ProductId", "Status", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
 
