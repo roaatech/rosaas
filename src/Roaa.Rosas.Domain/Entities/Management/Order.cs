@@ -4,8 +4,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
 {
     public class Order : BaseAuditableEntity
     {
+        public Guid TenantId { get; set; }
         public int OrderNumber { get; }
-        public UserType UserType { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public PaymentStatus? PaymentStatus { get; set; }
         public PaymentMethodType? PaymentMethodType { get; set; }
@@ -14,7 +14,6 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public decimal CurrencyRate { get; set; }
         public decimal OrderSubtotalInclTax { get; set; }
         public decimal OrderSubtotalExclTax { get; set; }
-
 
         // public decimal OrderSubTotalDiscountInclTax { get; set; }
         // public decimal OrderSubTotalDiscountExclTax { get; set; }
@@ -37,7 +36,11 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public DateTime? PaidDate { get; set; }
 
-        public Guid TenantId { get; set; }
+        public Guid? PayerUserId { get; set; }
+
+        public UserType PayerUserType { get; set; }
+
+        public UserType CreatedByUserType { get; set; }
 
         public virtual Tenant? Tenant { get; set; }
 

@@ -405,7 +405,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             UserCurrencyCode = CurrencyCode.USD.ToString(),
             PaymentStatus = null,
             PaymentMethodType = null,
-            UserType = _identityContextService.GetUserType(),
+            CreatedByUserType = _identityContextService.GetUserType(),
             CreatedByUserId = _identityContextService.GetActorId(),
             ModifiedByUserId = _identityContextService.GetActorId(),
             CreationDate = _date,

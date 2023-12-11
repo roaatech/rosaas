@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Authorization.Utilities;
@@ -113,6 +114,8 @@ namespace Roaa.Rosas.Application
                 order.PaidDate = DateTime.UtcNow;
                 order.Reference = session.PaymentIntentId;
                 order.AuthorizationTransactionResult = JsonConvert.SerializeObject(session);
+                order.PayerUserId = _identityContextService.UserId;
+                order.PayerUserType = _identityContextService.GetUserType();
                 order.AddDomainEvent(new TenantOrderPaidEvent(order.Id, order.TenantId));
 
                 await _dbContext.SaveChangesAsync(cancellationToken);
