@@ -76,7 +76,14 @@ namespace Roaa.Rosas.Framework.Configurations
 
 
 
-
+                configure.AddPolicy(AuthPolicy.Management.Orders, builder =>
+                {
+                    builder.RequireScope(SystemConsts.Scopes.Api);
+                    builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
+                });
 
 
 

@@ -18,6 +18,7 @@
             public const string Subscriptions = "Subscriptions";
             public const string Tenants = "Tenants";
             public const string Workflow = "Workflow";
+            public const string Orders = "Orders";
         }
 
         public class Identity
