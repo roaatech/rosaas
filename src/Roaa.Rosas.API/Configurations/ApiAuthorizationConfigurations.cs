@@ -29,82 +29,120 @@ namespace Roaa.Rosas.Framework.Configurations
                     builder.RequireAuthenticatedUser();
                 });
 
+                configure.AddPolicy(AuthPolicy.Identity.TeneatAdminUser, builder =>
+                {
+                    builder.RequireScope(SystemConsts.Scopes.Api);
+                    builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
+                });
+
+                configure.AddPolicy(AuthPolicy.Identity.ProductAdminUser, builder =>
+                {
+                    builder.RequireScope(SystemConsts.Scopes.Api);
+                    builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy());
+                });
+
+                configure.AddPolicy(AuthPolicy.Identity.ClientAdminUser, builder =>
+                {
+                    builder.RequireScope(SystemConsts.Scopes.Api);
+                    builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy());
+                });
+
                 configure.AddPolicy(AuthPolicy.Identity.Account, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.TenantOwner.ToSnakeCaseNamingStrategy());
-                });
-
-                configure.AddPolicy(AuthPolicy.Identity.ClientCredential, builder =>
-                {
-                    builder.RequireScope(SystemConsts.Scopes.Api);
-                    builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy());
-                });
-
-                configure.AddPolicy(AuthPolicy.Management.Settings, builder =>
-                {
-                    builder.RequireScope(SystemConsts.Scopes.Api);
-                    builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy());
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
 
                 configure.AddPolicy(AuthPolicy.Management.Tenants, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.TenantOwner.ToSnakeCaseNamingStrategy());
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
+
+
+
+
+
+
+
+
+
+
+
+
 
                 configure.AddPolicy(AuthPolicy.Management.Products, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy());
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
 
                 configure.AddPolicy(AuthPolicy.Management.Features, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy());
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
 
                 configure.AddPolicy(AuthPolicy.Management.PlanFeatures, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy());
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
 
                 configure.AddPolicy(AuthPolicy.Management.PlanPrices, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy());
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
 
                 configure.AddPolicy(AuthPolicy.Management.Plans, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy());
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
 
                 configure.AddPolicy(AuthPolicy.Management.Specifications, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy());
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
 
                 configure.AddPolicy(AuthPolicy.Management.Subscriptions, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
-                                                                                UserType.ProductOwner.ToSnakeCaseNamingStrategy());
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy());
                 });
 
                 configure.AddPolicy(AuthPolicy.Management.Workflow, builder =>
@@ -118,6 +156,24 @@ namespace Roaa.Rosas.Framework.Configurations
                     builder.RequireScope(SystemConsts.Scopes.Api);
                     builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy());
                 });
+
+
+                configure.AddPolicy(AuthPolicy.Management.Settings, builder =>
+                {
+                    builder.RequireScope(SystemConsts.Scopes.Api);
+                    builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy());
+                });
+
+
+
+                configure.AddPolicy(AuthPolicy.Identity.ClientCredential, builder =>
+                {
+                    builder.RequireScope(SystemConsts.Scopes.Api);
+                    builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy());
+                });
+
+
 
                 #region  SuperAdmin  
                 configure.AddPolicy(AuthPolicy.ExternalSystem, builder =>

@@ -8,6 +8,7 @@ using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Application.Services.IdentityServer4.Auth;
 using Roaa.Rosas.Application.Services.IdentityServer4.Clients;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets;
+using Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges;
 using Roaa.Rosas.Application.Services.Management.Features;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures;
 using Roaa.Rosas.Application.Services.Management.PlanPrices;
@@ -75,6 +76,8 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<ITenantHealthCheckSettingsService, TenantHealthCheckSettingsService>();
             services.AddScoped<ISubscriptionService, SubscriptionService>();
             services.AddScoped<ISpecificationService, SpecificationService>();
+            services.AddScoped<IEntityAdminPrivilegeService, EntityAdminPrivilegeService>();
+
 
             services.AddMediatRAServices();
 

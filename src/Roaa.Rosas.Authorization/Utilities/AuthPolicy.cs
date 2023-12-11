@@ -22,6 +22,10 @@
 
         public class Identity
         {
+            public const string TeneatAdminUser = "TeneatAdminUser";
+            public const string ProductAdminUser = "ProductAdminUser";
+            public const string ClientAdminUser = "ClientAdminUser";
+            public const string Users = "Account";
             public const string Account = "Account";
             public const string ClientCredential = "ClientCredential";
         }
