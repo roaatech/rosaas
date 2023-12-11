@@ -24,6 +24,7 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<Client> Clients { get; }
         public DbSet<Product> Products { get; }
         public DbSet<Tenant> Tenants { get; }
+        public DbSet<EntityAdminPrivilege> EntityAdminPrivileges { get; }
         public DbSet<TenantStatusHistory> TenantStatusHistory { get; }
         public DbSet<TenantHealthCheckHistory> TenantHealthCheckHistory { get; }
         public DbSet<TenantProcessHistory> TenantProcessHistory { get; }
