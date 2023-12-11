@@ -92,6 +92,25 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             return Result<List<PlanListItemDto>>.Successful(plans);
         }
 
+        public async Task<Result<List<PlanPublishedListItemDto>>> GetPublishedPlansListByProductNameAsync(string productName, CancellationToken cancellationToken = default)
+        {
+            var plans = await _dbContext.Plans
+                                              .AsNoTracking()
+                                              .Where(pp => productName.ToLower().Equals(pp.Product.Name))
+                                              .Select(plan => new PlanPublishedListItemDto
+                                              {
+                                                  Id = plan.Id,
+                                                  Name = plan.Name,
+                                                  Title = plan.DisplayName,
+                                                  Description = plan.Description,
+                                                  DisplayOrder = plan.DisplayOrder,
+                                              })
+                                              .OrderByDescending(x => x.DisplayOrder)
+                                              .ToListAsync(cancellationToken);
+
+            return Result<List<PlanPublishedListItemDto>>.Successful(plans);
+        }
+
         public async Task<Result<List<LookupItemDto<Guid>>>> GetPlansLookupListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
             var plans = await _dbContext.Plans

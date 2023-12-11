@@ -61,6 +61,23 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             return Result<List<PlanPriceListItemDto>>.Successful(planPrice);
         }
 
+        public async Task<Result<List<PlanPricePublishedListItemDto>>> GetPublishedPlanPricesListByProductNameAsync(string productName, CancellationToken cancellationToken = default)
+        {
+            var planPrice = await _dbContext.PlanPrices
+                                              .AsNoTracking()
+                                              .Where(pp => productName.ToLower().Equals(pp.Plan.Product.Name))
+                                              .Select(planPrice => new PlanPricePublishedListItemDto
+                                              {
+                                                  Id = planPrice.Id,
+                                                  Cycle = planPrice.PlanCycle,
+                                                  Price = planPrice.Price,
+                                                  Description = planPrice.Description,
+                                              })
+                                              .ToListAsync(cancellationToken);
+
+            return Result<List<PlanPricePublishedListItemDto>>.Successful(planPrice);
+        }
+
         public async Task<Result<CreatedResult<Guid>>> CreatePlanPriceAsync(CreatePlanPriceModel model, Guid productId, CancellationToken cancellationToken = default)
         {
             #region Validation

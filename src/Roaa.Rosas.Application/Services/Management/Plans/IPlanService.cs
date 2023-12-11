@@ -10,6 +10,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
 
         Task<Result<List<PlanListItemDto>>> GetPlansListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 
+        Task<Result<List<PlanPublishedListItemDto>>> GetPublishedPlansListByProductNameAsync(string productName, CancellationToken cancellationToken = default);
+
         Task<Result<List<LookupItemDto<Guid>>>> GetPlansLookupListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 
         Task<Result<PlanDto>> GetPlanByIdAsync(Guid id, Guid productId, CancellationToken cancellationToken = default);
