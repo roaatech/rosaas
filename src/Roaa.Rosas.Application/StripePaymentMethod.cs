@@ -5,6 +5,7 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Settings;
 using Stripe.Checkout;
 
@@ -112,7 +113,7 @@ namespace Roaa.Rosas.Application
                 order.PaidDate = DateTime.UtcNow;
                 order.Reference = session.PaymentIntentId;
                 order.AuthorizationTransactionResult = JsonConvert.SerializeObject(session);
-
+                order.AddDomainEvent(new TenantOrderPaidEvent(order.Id, order.TenantId));
 
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
