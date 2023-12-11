@@ -28,5 +28,16 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
         {
             return UserTypeManager.FromKey(identityContext.GetUserType()).GetActorId(identityContext);
         }
+        public static bool IsSuperAdmin(this IIdentityContextService identityContext)
+        {
+            return identityContext.GetUserType() == UserType.SuperAdmin;
+        }
+
+        public static bool IsResourceAdmin(this IIdentityContextService identityContext)
+        {
+            var allowedTypes = new UserType[] { UserType.ClientAdmin, UserType.ProductAdmin, UserType.TenantAdmin };
+            return allowedTypes.Contains(identityContext.GetUserType());
+        }
+
     }
 }
