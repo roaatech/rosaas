@@ -197,6 +197,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 },
 
                 new Workflow()
+                {
+                    ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
+                    CurrentStep = TenantStep.Creation,
+                    CurrentStatus = TenantStatus.RecordCreated,
+                    OwnerTypes = new List<UserType>(){ UserType.RosasSystem },
+                    Action = WorkflowAction.Ok,
+                    NextStep = TenantStep.Creation,
+                    NextStatus = TenantStatus.SendingCreationRequest,
+                    Name = "Send Creation Request",
+                    Message = "ROSAS - called the external system to create the tenant resources for it",
+                    Events = new List<WorkflowEventEnum>{ WorkflowEventEnum.SendingTenantCreationRequestEvent },
+                },
+
+                new Workflow()
                 {/************************************************************************************************************************************/
                     
                     ExpectedResourceStatus = ExpectedTenantResourceStatus.None,

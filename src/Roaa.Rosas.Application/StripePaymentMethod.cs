@@ -123,7 +123,7 @@ namespace Roaa.Rosas.Application
 
             return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
             {
-                NavigationUrl = "http://localhost:3000/",
+                NavigationUrl = "http://localhost:3000/success",
             });
         }
 
