@@ -39,7 +39,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantPr
                                                     _dbContext.EntityAdminPrivileges
                                                                 .Any(a =>
                                                                     a.UserId == _identityContextService.UserId &&
-                                                                    a.EntityId == x.Id &&
+                                                                    a.EntityId == x.TenantId &&
                                                                     a.EntityType == EntityType.Tenant
                                                                     )
                                                 )
