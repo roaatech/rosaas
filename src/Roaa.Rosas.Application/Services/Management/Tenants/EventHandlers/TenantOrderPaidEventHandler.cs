@@ -52,17 +52,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                                                              currentStep: subscriptions[0].Step,
                                                              userType: _identityContextService.GetUserType());
 
-            // moving the tenant to the next status of its workflow
-            var result = await _tenantService.SetTenantNextStatusAsync(new SetTenantNextStatusModel
+            if (workflow is not null)
             {
-                TenantId = @event.TenantId,
-                Status = workflow.NextStatus,
-                Step = workflow.NextStep,
-                Action = Domain.Entities.Management.WorkflowAction.Ok,
-                UserType = _identityContextService.GetUserType(),
-                EditorBy = _identityContextService.UserId,
-                ExpectedResourceStatus = null,
-            }, cancellationToken);
+                // moving the tenant to the next status of its workflow
+                var result = await _tenantService.SetTenantNextStatusAsync(new SetTenantNextStatusModel
+                {
+                    TenantId = @event.TenantId,
+                    Status = workflow.NextStatus,
+                    Step = workflow.NextStep,
+                    Action = Domain.Entities.Management.WorkflowAction.Ok,
+                    UserType = _identityContextService.GetUserType(),
+                    EditorBy = _identityContextService.UserId,
+                    ExpectedResourceStatus = null,
+                }, cancellationToken);
+            }
         }
 
     }

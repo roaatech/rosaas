@@ -43,9 +43,9 @@ namespace Roaa.Rosas.Application
         {
 
             var order = await _dbContext.Orders.Where(x => x.TenantId == model.TenantId &&
-                                           x.Id == model.OrderId &&
-                                           x.OrderItems.Where(orderItem => orderItem.SubscriptionId == model.SubscriptionId)
-                                           .Any())
+                                           x.Id == model.OrderId
+                                           //  x.OrderItems.Where(orderItem => orderItem.SubscriptionId == model.SubscriptionId).Any()
+                                           )
                                            .Include(x => x.OrderItems)
                                            .SingleOrDefaultAsync(cancellationToken);
 
