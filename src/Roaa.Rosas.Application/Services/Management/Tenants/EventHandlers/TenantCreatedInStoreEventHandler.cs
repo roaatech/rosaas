@@ -45,7 +45,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
         {
             if (_identityContextService.IsAuthenticated && _identityContextService.IsResourceAdmin())
             {
-                await _tenantAdminService.CreateEntityAdminPrivilegeAsync(new CreateResourceAdminModel
+                await _tenantAdminService.CreateEntityAdminPrivilegeAsync(new CreateEntityAdminPrivilegeModel
                 {
                     EntityId = @event.Tenant.Id,
                     EntityType = EntityType.Tenant,

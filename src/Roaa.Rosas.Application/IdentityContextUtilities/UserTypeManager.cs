@@ -23,6 +23,7 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
 
         #region abst  
         public abstract Guid GetActorId(IIdentityContextService identityContext);
+        public abstract List<UserType> GetUserTypesForWhichHeIsResponsible();
         #endregion
 
         #region inners  
@@ -36,6 +37,10 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
             public override Guid GetActorId(IIdentityContextService identityContext)
             {
                 return Guid.Empty;
+            }
+            public override List<UserType> GetUserTypesForWhichHeIsResponsible()
+            {
+                return new List<UserType> { UserType.RosasSystem };
             }
             #endregion
         }
@@ -51,6 +56,10 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
             {
                 return identityContext.UserId;
             }
+            public override List<UserType> GetUserTypesForWhichHeIsResponsible()
+            {
+                return new List<UserType> { UserType.TenantAdmin, UserType.ProductAdmin, UserType.ClientAdmin, UserType.SuperAdmin };
+            }
             #endregion
         }
 
@@ -64,6 +73,11 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
             public override Guid GetActorId(IIdentityContextService identityContext)
             {
                 return identityContext.UserId;
+            }
+
+            public override List<UserType> GetUserTypesForWhichHeIsResponsible()
+            {
+                return new List<UserType> { UserType.TenantAdmin, UserType.ProductAdmin, UserType.ClientAdmin };
             }
             #endregion
         }
@@ -81,6 +95,10 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
             {
                 return identityContext.UserId;
             }
+            public override List<UserType> GetUserTypesForWhichHeIsResponsible()
+            {
+                return new List<UserType> { UserType.TenantAdmin, UserType.ProductAdmin };
+            }
             #endregion
         }
 
@@ -96,6 +114,11 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
             {
                 return identityContext.UserId;
             }
+
+            public override List<UserType> GetUserTypesForWhichHeIsResponsible()
+            {
+                return new List<UserType> { UserType.TenantAdmin };
+            }
             #endregion
         }
 
@@ -109,6 +132,10 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
             public override Guid GetActorId(IIdentityContextService identityContext)
             {
                 return identityContext.GetProductId();
+            }
+            public override List<UserType> GetUserTypesForWhichHeIsResponsible()
+            {
+                return new List<UserType> { UserType.ExternalSystem };
             }
             #endregion
         }

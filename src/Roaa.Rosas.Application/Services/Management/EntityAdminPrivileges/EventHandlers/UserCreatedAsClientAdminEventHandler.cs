@@ -19,7 +19,7 @@ namespace Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges.Event
 
         public async Task Handle(UserCreatedAsClientAdminEvent @event, CancellationToken cancellationToken)
         {
-            await _tenantAdminService.CreateEntityAdminPrivilegeAsync(new Models.CreateResourceAdminModel
+            await _tenantAdminService.CreateEntityAdminPrivilegeAsync(new Models.CreateEntityAdminPrivilegeModel
             {
                 EntityId = @event.ClientId,
                 EntityType = EntityType.Client,
