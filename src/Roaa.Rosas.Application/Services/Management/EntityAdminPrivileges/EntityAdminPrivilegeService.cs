@@ -121,14 +121,6 @@ namespace Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges
         {
 
             #region Validation 
-            if (!(_identityContextService.IsSuperAdmin() || await _dbContext.EntityAdminPrivileges
-                                                                           .AnyAsync(a =>
-                                                                               a.UserId == _identityContextService.UserId &&
-                                                                               a.Id == id &&
-                                                                               a.IsMajor)))
-            {
-                return Result<List<EntityAdminPrivilegeDto>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
-            }
 
             var entityAdminPrivilege = await _dbContext.EntityAdminPrivileges
                                                         .Where(x => x.Id == id)
@@ -140,13 +132,24 @@ namespace Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges
 
             if (!_identityContextService.IsSuperAdmin() ||
                 (entityAdminPrivilege.UserId == _identityContextService.UserId ||
-                entityAdminPrivilege.CreatedByUserId == _identityContextService.UserId ||
+                //  entityAdminPrivilege.CreatedByUserId == _identityContextService.UserId ||
                 !(adminPrivileges
                     .Where(x => x.UserType == _identityContextService.GetUserType())
                     .FirstOrDefault() ?? new AdminPrivilege()).TypesAllowedDeleted.Contains(entityAdminPrivilege.UserType)))
 
             {
                 return Result.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale);
+            }
+
+
+            if (!(_identityContextService.IsSuperAdmin() || await _dbContext.EntityAdminPrivileges
+                                                                         .AnyAsync(a =>
+                                                                             a.UserId == _identityContextService.UserId &&
+                                                                             a.Id == id &&
+                                                                             a.CreatedByUserId == entityAdminPrivilege.UserId &&
+                                                                             a.IsMajor)))
+            {
+                return Result<List<EntityAdminPrivilegeDto>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
             #endregion
