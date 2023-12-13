@@ -58,6 +58,13 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
             return ItemResult(result);
         }
+
+        [AllowAnonymous]
+        [HttpGet("ValidateEmail")]
+        public async Task<IActionResult> EnsureEmailIsUniqueAsync([FromQuery] string email, CancellationToken cancellationToken)
+        {
+            return ItemResult(await _authService.EnsureEmailIsUniqueAsync(email, cancellationToken));
+        }
         #endregion
 
 

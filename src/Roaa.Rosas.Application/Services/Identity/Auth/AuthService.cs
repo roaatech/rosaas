@@ -14,6 +14,7 @@ using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Common.Utilities;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Events.Management;
@@ -156,9 +157,10 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         {
             #region Validation  
 
-            _validationBuilder.AddCommand(async () => await EnsureEmailIsUniqueAsync(model.Email, cancellationToken));
+            _validationBuilder.AddCommand(async () => await EnsureEmailIsUniqueAsync(model.Email, cancellationToken = default));
 
             var validationResult = await _validationBuilder.ValidateAsync();
+
             if (!validationResult.Success)
             {
                 return Result<Guid>.Fail(validationResult.Messages);
@@ -169,7 +171,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
 
             using (var scope = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
             {
-                var identityResult = await _userManager.CreateAsync(_user);
+                var identityResult = await _userManager.CreateAsync(_user, model.Password);
 
                 if (!identityResult.Succeeded)
                 {
@@ -224,8 +226,13 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         #endregion
 
 
-        private async Task<Result<bool>> EnsureEmailIsUniqueAsync(string email, CancellationToken cancellationToken)
+        public async Task<Result<bool>> EnsureEmailIsUniqueAsync(string email, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return Result<bool>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "email");
+            }
+
             var any = await _dbContext.Users
                                       .AsNoTracking()
                                       .Where(x => email.ToLower().Equals(x.Email.ToLower()))
