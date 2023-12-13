@@ -69,7 +69,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               .Select(planPrice => new PlanPricePublishedListItemDto
                                               {
                                                   Id = planPrice.Id,
-                                                  PlanId = planPrice.PlanId,
+                                                  Plan = new PlanModel(planPrice.PlanId),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   Description = planPrice.Description,

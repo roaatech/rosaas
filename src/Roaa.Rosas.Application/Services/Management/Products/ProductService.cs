@@ -92,7 +92,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
 
 
-        public async Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(string clientName, CancellationToken cancellationToken = default)
+        public async Task<Result<List<Custom2LookupItemDto<Guid>>>> GetProductsLookupListAsync(string clientName, CancellationToken cancellationToken = default)
         {
 
 
@@ -100,15 +100,15 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                            .Where(x => string.IsNullOrWhiteSpace(clientName) ||
                                                         clientName.ToLower().Equals(x.Client.Name))
                                             .AsNoTracking()
-                                            .Select(x => new CustomLookupItemDto<Guid>
+                                            .Select(x => new Custom2LookupItemDto<Guid>
                                             {
                                                 Id = x.Id,
-                                                Name = x.Name,
-                                                Title = x.DisplayName,
+                                                Name = x.DisplayName,
+                                                DisplayName = x.DisplayName,
                                             })
                                             .ToListAsync(cancellationToken);
 
-            return Result<List<CustomLookupItemDto<Guid>>>.Successful(products);
+            return Result<List<Custom2LookupItemDto<Guid>>>.Successful(products);
         }
 
 
