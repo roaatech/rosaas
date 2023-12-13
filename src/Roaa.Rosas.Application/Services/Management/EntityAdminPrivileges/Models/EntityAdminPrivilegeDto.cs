@@ -8,5 +8,6 @@ namespace Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges.Model
         public string Email { get; set; } = string.Empty;
         public UserType UserType { get; set; }
         public bool IsMajor { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }

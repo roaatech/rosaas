@@ -56,7 +56,8 @@ namespace Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges
                                       Id = p.Id,
                                       Email = u.Email,
                                       IsMajor = p.IsMajor,
-                                      UserType = p.UserType
+                                      UserType = p.UserType,
+                                      CreatedDate = p.CreationDate
                                   }).ToListAsync(cancellationToken);
 
             return Result<List<EntityAdminPrivilegeDto>>.Successful(entities);
