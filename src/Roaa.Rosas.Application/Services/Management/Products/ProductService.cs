@@ -103,7 +103,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                             .Select(x => new Custom2LookupItemDto<Guid>
                                             {
                                                 Id = x.Id,
-                                                Name = x.DisplayName,
+                                                Name = x.Name,
                                                 DisplayName = x.DisplayName,
                                             })
                                             .ToListAsync(cancellationToken);
@@ -122,7 +122,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               .Select(x => new CustomLookupItemDto<Guid>
                                               {
                                                   Id = x.Id,
-                                                  Name = x.DisplayName,
+                                                  Name = !string.IsNullOrWhiteSpace(x.Name) ? x.Name : x.DisplayName,
                                                   Title = x.DisplayName,
                                               })
                                               .ToListAsync(cancellationToken);
