@@ -70,11 +70,15 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               .Select(planPrice => new PlanPricePublishedListItemDto
                                               {
                                                   Id = planPrice.Id,
-                                                  Plan = new PlanModel(planPrice.PlanId),
+                                                  Plan = new CustomLookupItemDto<Guid>(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
+                                                  IsSubscribed = planPrice.IsSubscribed,
+                                                  IsPublished = planPrice.IsPublished,
                                                   Name = planPrice.Name,
                                                   Description = planPrice.Description,
+                                                  CreatedDate = planPrice.CreationDate,
+                                                  EditedDate = planPrice.ModificationDate,
                                               })
                                               .ToListAsync(cancellationToken);
 
