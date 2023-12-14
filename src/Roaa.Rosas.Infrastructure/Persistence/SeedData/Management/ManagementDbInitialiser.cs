@@ -65,6 +65,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
             {
                 try
                 {
+                    await FixPlanPriceNameAsync();
                     await FixFeaturesResetAsync();
                     await TrySeedClientsAsync();
                     await TrySeedProductsAsync();
@@ -134,6 +135,38 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 foreach (var pf in plansFeatures)
                 {
                     pf.FeatureReset = pf.Feature.FeatureReset;
+                }
+
+                _dbContext.Settings.Add(new Setting
+                {
+                    Key = key,
+                    Value = DateTime.UtcNow.ToString(),
+                    Id = Guid.NewGuid()
+                });
+
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task FixPlanPriceNameAsync()
+        {
+            var planPrices = await _dbContext.PlanPrices
+                                               .Include(x => x.Plan)
+                                               .ToListAsync();
+
+            const string key = "SeedData.Management.ManagementDbInitialiser.PlanPriceNameFixed";
+
+            if (!await _dbContext.Settings
+                                .Where(x => x.Key.Equals(key))
+                                .AnyAsync())
+            {
+                foreach (var pp in planPrices)
+                {
+                    if (string.IsNullOrWhiteSpace(pp.Name))
+                    {
+                        pp.Name = $"{pp.Plan.Name}-{(int)pp.Price}-{pp.PlanCycle.ToString()}".ToLower();
+
+                    }
                 }
 
                 _dbContext.Settings.Add(new Setting

@@ -8,6 +8,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices.Models
         public Guid Id { get; set; }
         public PlanCycle Cycle { get; set; }
         public decimal Price { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public DateTime CreatedDate { get; set; }

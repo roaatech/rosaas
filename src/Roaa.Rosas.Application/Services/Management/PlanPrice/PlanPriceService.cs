@@ -51,6 +51,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
                                                   IsPublished = planPrice.IsPublished,
+                                                  Name = planPrice.Name,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
                                                   EditedDate = planPrice.ModificationDate,
@@ -72,6 +73,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                                   Plan = new PlanModel(planPrice.PlanId),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
+                                                  Name = planPrice.Name,
                                                   Description = planPrice.Description,
                                               })
                                               .ToListAsync(cancellationToken);
@@ -88,6 +90,11 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
+
+            if (!await EnsureUniqueNameAsync(productId, model.Name))
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+            }
             #endregion
 
             var date = DateTime.UtcNow;
@@ -95,6 +102,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             var planPrice = new PlanPrice
             {
                 Id = Guid.NewGuid(),
+                Name = model.Name,
                 PlanId = model.PlanId,
                 PlanCycle = model.Cycle,
                 Price = model.Price,
@@ -189,5 +197,15 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
 
 
         #endregion
+
+
+        private async Task<bool> EnsureUniqueNameAsync(Guid productId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
+        {
+            return !await _dbContext.PlanPrices
+                                    .Where(x => x.Id != id &&
+                                               x.Plan.ProductId == productId &&
+                                                uniqueName.ToLower().Equals(x.Name))
+                                    .AnyAsync(cancellationToken);
+        }
     }
 }

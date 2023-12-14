@@ -11,8 +11,11 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices.Validators
     {
         public CreatePlanPriceValidator(IIdentityContextService identityContextService)
         {
-            RuleFor(x => x.PlanId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+            RuleFor(x => x.Name).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
+            RuleFor(x => x.Name).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+
+            RuleFor(x => x.PlanId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
             RuleFor(x => x.Cycle).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
         }
