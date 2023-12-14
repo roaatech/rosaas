@@ -111,6 +111,27 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             return Result<List<Custom2LookupItemDto<Guid>>>.Successful(products);
         }
 
+        public async Task<Result<List<ProductPublishedListItemDto>>> GetProductPublishedListAsync(string clientName, CancellationToken cancellationToken = default)
+        {
+
+
+            var products = await _dbContext.Products
+                                           .Where(x => string.IsNullOrWhiteSpace(clientName) ||
+                                                        clientName.ToLower().Equals(x.Client.Name))
+                                            .AsNoTracking()
+                                             .Select(product => new ProductPublishedListItemDto
+                                             {
+                                                 Id = product.Id,
+                                                 Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
+                                                 DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
+                                                 CreatedDate = product.CreationDate,
+                                                 EditedDate = product.ModificationDate,
+                                             })
+                                            .ToListAsync(cancellationToken);
+
+            return Result<List<ProductPublishedListItemDto>>.Successful(products);
+        }
+
 
 
 

@@ -40,6 +40,18 @@ namespace Roaa.Rosas.Framework.Controllers.Public
         {
             return ListResult(await _productService.GetProductsLookupListAsync(name, cancellationToken));
         }
+
+        [HttpGet("[controller]")]
+        public async Task<IActionResult> GetProductPublishedListAsync(CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _productService.GetProductPublishedListAsync(string.Empty, cancellationToken));
+        }
+
+        [HttpGet("Client/{name}/[controller]")]
+        public async Task<IActionResult> GetProductPublishedListAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _productService.GetProductPublishedListAsync(name, cancellationToken));
+        }
         #endregion
 
 
