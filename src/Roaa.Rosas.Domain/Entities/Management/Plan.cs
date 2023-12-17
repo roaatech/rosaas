@@ -1,4 +1,6 @@
-﻿namespace Roaa.Rosas.Domain.Entities.Management
+﻿using Roaa.Rosas.Domain.Enums;
+
+namespace Roaa.Rosas.Domain.Entities.Management
 {
     public class Plan : BaseAuditableEntity
     {
@@ -9,6 +11,8 @@
         public int DisplayOrder { get; set; }
         public bool IsPublished { get; set; }
         public bool IsSubscribed { get; set; }
+        public bool IsLockedBySystem { get; set; }
+        public TenancyType TenancyType { get; set; }
         public virtual Product? Product { get; set; }
         public virtual ICollection<PlanFeature>? Features { get; set; }
         public virtual ICollection<PlanPrice>? Prices { get; set; }

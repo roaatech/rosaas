@@ -24,6 +24,7 @@ namespace Roaa.Rosas.Domain.Entities.Identity
         public string? Locale { get; set; }
         public string? MetaData { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsLockedBySystem { get; set; }
 
 
 

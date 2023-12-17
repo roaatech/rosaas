@@ -9,5 +9,6 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public EntityType EntityType { get; set; }
         public UserType UserType { get; set; }
         public bool IsMajor { get; set; }
+        public bool IsLockedBySystem { get; set; }
     }
 }
