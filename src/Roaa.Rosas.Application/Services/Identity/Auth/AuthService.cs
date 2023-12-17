@@ -96,7 +96,9 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             }
             #endregion
 
-            BuildUserEntity(model.Email, userType);
+            BuildUserEntity(userType: userType,
+                            email: model.Email,
+                            username: model.Email);
 
             using (var scope = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
             {
@@ -149,6 +151,36 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             return result;
         }
 
+        public async Task<Result<Guid>> CreateExternalSystemUserByUsernameAsync(string username,
+                                                                                Guid productId,
+                                                                                bool isLocked,
+                                                                                CancellationToken cancellationToken = default)
+        {
+            var any = await _dbContext.Users
+                                        .AsNoTracking()
+                                        .Where(x => x.Id == productId ||
+                                                    username.ToUpper().Equals(x.NormalizedUserName))
+                                        .AnyAsync(cancellationToken);
+
+            if (any)
+            {
+                _logger.LogError("An error occurred while creating External System User by username:{0}, ProductId:{1}.", username, productId);
+                return Result<Guid>.Fail(ErrorMessage.AccountAlreadyExist, _identityContextService.Locale);
+            }
+
+            BuildUserEntity(userType: UserType.ExternalSystem,
+                            email: null,
+                            username: username,
+                            isLocked: isLocked);
+
+            var result = await CreateUserAsync(user: _user,
+                                               password: null,
+                                               cancellationToken);
+            if (result.Success)
+                await _publisher.Publish(new UserCreatedAsExternalSystemEvent(_user, productId));
+
+            return result;
+        }
         public async Task<Result<Guid>> CreateUserByEmailAsync<TCreateUserByEmailModel>(
                                                                 TCreateUserByEmailModel model,
                                                                 UserType userType,
@@ -167,19 +199,43 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             }
             #endregion
 
-            BuildUserEntity(model.Email, userType);
+            BuildUserEntity(userType: userType,
+                            email: model.Email,
+                            username: model.Email,
+                            isLocked: false);
+
+            return await CreateUserAsync(user: _user,
+                                         password: model.Password,
+                                         cancellationToken);
+        }
+
+
+        public async Task<Result<Guid>> CreateUserAsync(User user,
+                                                        string? password,
+                                                        CancellationToken cancellationToken = default)
+        {
+
 
             using (var scope = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
             {
-                var identityResult = await _userManager.CreateAsync(_user, model.Password);
+                IdentityResult identityResult = null;
+
+                if (!string.IsNullOrWhiteSpace(password))
+                    identityResult = await _userManager.CreateAsync(user, password);
+                else
+                    identityResult = await _userManager.CreateAsync(user);
 
                 if (!identityResult.Succeeded)
                 {
                     scope.Rollback();
+                    _logger.LogError("An error occurred while creating user by username:{0}, Email:{1}, IdentityResult:{2}.",
+                                                    user.UserName,
+                                                    user.Email,
+                                                    string.Join(",", identityResult.Errors.Select(e => e.Code).ToArray()));
                     return identityResult.FailResult<Guid>(_identityContextService.Locale);
                 }
 
-                return Result<Guid>.Successful(_user.Id);
+                return Result<Guid>.Successful(user.Id);
             }
         }
         #endregion
@@ -247,17 +303,18 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         }
 
 
-        private void BuildUserEntity(string email, UserType type)
+        private void BuildUserEntity(UserType userType, string? email, string? username, bool isLocked = false, Guid? id = null)
         {
-            _user.Id = Guid.NewGuid();
-            _user.UserName = email;
+            _user.Id = id ?? Guid.NewGuid();
+            _user.UserName = username;
             _user.Email = email;
             _user.CreationDate = DateTime.Now;
             _user.ModificationDate = DateTime.Now;
             _user.IsActive = true;
             _user.Locale = "en";
             _user.Status = UserStatus.Ready;
-            _user.UserType = type;
+            _user.UserType = userType;
+            _user.IsLockedBySystem = isLocked;
         }
 
 

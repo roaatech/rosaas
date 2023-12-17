@@ -12,6 +12,11 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
 
         Task<Result<Guid>> CreateClientAdminUserByEmailAsync(CreateClientAdminUserByEmailModel model, CancellationToken cancellationToken = default);
 
+        Task<Result<Guid>> CreateExternalSystemUserByUsernameAsync(string username,
+                                                                                Guid productId,
+                                                                                bool isLocked,
+                                                                                CancellationToken cancellationToken = default);
+
         Task<Result<AuthResultModel<AdminDto>>> SignUpUserByEmailAsync(SignUpUserByEmailModel model, UserType userType, CancellationToken cancellationToken = default);
 
         Task<Result<AuthResultModel<AdminDto>>> SignInAdminByEmailAsync(SignInUserByEmailModel model, CancellationToken cancellationToken = default);
