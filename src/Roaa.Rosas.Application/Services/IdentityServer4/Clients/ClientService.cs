@@ -73,7 +73,7 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.Clients
 
             var client = new Client()
             {
-                ClientId = clientId,
+                ClientId = clientId.ToLower(),
                 ClientName = model.DisplayName,
                 Description = model.Description,
 
