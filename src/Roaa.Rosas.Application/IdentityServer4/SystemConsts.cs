@@ -44,5 +44,11 @@
                 }
             }
         }
+
+
+        public class Users
+        {
+            public const string RosaasSystem = "794bd14b-7dcf-42c4-9b66-687831db2727";
+        }
     }
 }
