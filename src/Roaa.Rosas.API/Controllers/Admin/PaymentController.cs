@@ -1,7 +1,7 @@
 ﻿using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application;
+using Roaa.Rosas.Application.Payment;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
@@ -13,7 +13,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
     {
         #region Props 
         private readonly ILogger<AuthController> _logger;
-        private readonly IPaymentMethod _paymentMethod;
+        private readonly IPaymentService _paymentService;
         private readonly IWebHostEnvironment _environment;
         #endregion
 
@@ -21,11 +21,11 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
         public PaymentController(ILogger<AuthController> logger,
                                   IWebHostEnvironment environment,
-                                  IPaymentMethod paymentMethod)
+                                  IPaymentService paymentService)
         {
             _logger = logger;
             _environment = environment;
-            _paymentMethod = paymentMethod;
+            _paymentService = paymentService;
         }
         #endregion
 
@@ -35,32 +35,9 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpPost("Checkout")]
         public async Task<IActionResult> ProcessPaymentAsync(CheckoutModel model, CancellationToken cancellationToken = default)
         {
-            var result = await _paymentMethod.ProcessPaymentAsync(model, cancellationToken);
+            var result = await _paymentService.ProcessPaymentAsync(model, cancellationToken);
 
             return ItemResult(result);
-        }
-
-        [AllowAnonymous]
-        [HttpGet("success")]
-        public async Task<IActionResult> SuccessAsync(string sessionId, Guid? orderId, CancellationToken cancellationToken = default)
-        {
-            var result = await _paymentMethod.SuccessAsync(sessionId, orderId, cancellationToken);
-
-            Response.Headers.Add("Location", result.Data.NavigationUrl);
-
-            return new StatusCodeResult(303);
-        }
-
-
-        [AllowAnonymous]
-        [HttpGet("failed")]
-        public async Task<IActionResult> FailedAsync(string sessionId, Guid? orderId, CancellationToken cancellationToken = default)
-        {
-            var result = await _paymentMethod.CancelAsync(sessionId, orderId, cancellationToken);
-
-            Response.Headers.Add("Location", result.Data.NavigationUrl);
-
-            return new StatusCodeResult(303);
         }
 
         #endregion

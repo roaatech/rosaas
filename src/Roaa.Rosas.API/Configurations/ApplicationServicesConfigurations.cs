@@ -1,8 +1,8 @@
-﻿using Roaa.Rosas.Application;
-using Roaa.Rosas.Application.ExternalSystemsAPI;
+﻿using Roaa.Rosas.Application.ExternalSystemsAPI;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.JWT;
+using Roaa.Rosas.Application.Payment;
 using Roaa.Rosas.Application.Services.Identity.Accounts;
 using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Application.Services.IdentityServer4.Auth;
@@ -85,7 +85,7 @@ namespace Roaa.Rosas.Framework.Configurations
 
 
             Stripe.StripeConfiguration.ApiKey = "sk_test_51OI5l1E1TtPRg7pa4T6AXcmiCjV9LfEig2glaELNmdTZPiurAvScKg1jjE60z3hIKoFzrVBvVQwOCsA1J1SHnyIe00cmlLZnso";
-            services.AddScoped<IPaymentMethod, StripePaymentMethod>();
+            services.AddPaymentServicesConfigurations();
 
         }
     }

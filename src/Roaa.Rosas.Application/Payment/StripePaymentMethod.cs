@@ -6,13 +6,19 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
-using Roaa.Rosas.Domain.Settings;
 using Stripe.Checkout;
 
-namespace Roaa.Rosas.Application
+namespace Roaa.Rosas.Application.Payment
 {
-    public class StripePaymentMethod : IPaymentMethod
+    public interface IStripePaymentMethod
+    {
+        Task<Result<CheckoutResultModel>> SuccessAsync(string sessionId, Guid? orderId, CancellationToken cancellationToken = default);
+
+        Task<Result<CheckoutResultModel>> CancelAsync(string sessionId, Guid? orderId, CancellationToken cancellationToken = default);
+    }
+    public class StripePaymentMethod : IStripePaymentMethod, IPaymentMethod
     {
 
 
@@ -39,24 +45,15 @@ namespace Roaa.Rosas.Application
 
 
 
-        public async Task<Result<CheckoutResultModel>> ProcessPaymentAsync(CheckoutModel model, CancellationToken cancellationToken = default)
+        public async Task<Result<CheckoutResultModel>> DoProcessPaymentAsync(Order order, CancellationToken cancellationToken = default)
         {
-
-            var order = await _dbContext.Orders.Where(x => x.TenantId == model.TenantId &&
-                                           x.Id == model.OrderId
-                                           //  x.OrderItems.Where(orderItem => orderItem.SubscriptionId == model.SubscriptionId).Any()
-                                           )
-                                           .Include(x => x.OrderItems)
-                                           .SingleOrDefaultAsync(cancellationToken);
-
-
             // Create a payment flow from the items in the cart.
             // Gets sent to Stripe API.
             var options = new SessionCreateOptions
             {
                 // Stripe calls the URLs below when certain checkout events happen such as success and failure.
-                SuccessUrl = $"{_identityContextService.HostUrl}/api/payment/v1/success?sessionId=" + "{CHECKOUT_SESSION_ID}&orderId=" + $"{order.Id}", // Customer paid.
-                CancelUrl = $"{_identityContextService.HostUrl}/api/payment/v1/cancel?sessionId=" + "{CHECKOUT_SESSION_ID}&orderId=" + $"{order.Id}", //  Checkout cancelled.
+                SuccessUrl = $"{_identityContextService.HostUrl}/api/payment/v1/stripe/success?sessionId=" + "{CHECKOUT_SESSION_ID}&orderId=" + $"{order.Id}", // Customer paid.
+                CancelUrl = $"{_identityContextService.HostUrl}/api/payment/v1/stripe/cancel?sessionId=" + "{CHECKOUT_SESSION_ID}&orderId=" + $"{order.Id}", //  Checkout cancelled.
                 PaymentMethodTypes = new List<string> // Only card available in test mode?
                 {
                     "card"
@@ -86,9 +83,6 @@ namespace Roaa.Rosas.Application
             Session session = await service.CreateAsync(options, null, cancellationToken);
 
 
-            order.OrderStatus = Domain.Entities.Management.OrderStatus.Processing;
-            order.PaymentStatus = Domain.Entities.Management.PaymentStatus.Pending;
-            order.ModificationDate = DateTime.UtcNow;
             order.AuthorizationTransactionId = session.Id;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
@@ -98,6 +92,7 @@ namespace Roaa.Rosas.Application
                 NavigationUrl = session.Url,
             });
         }
+
         public async Task<Result<CheckoutResultModel>> SuccessAsync(string sessionId, Guid? orderId, CancellationToken cancellationToken = default)
         {
             var sessionService = new SessionService();
@@ -109,8 +104,8 @@ namespace Roaa.Rosas.Application
                                             .Where(x => x.Id == orderId)
                                             .SingleOrDefaultAsync(cancellationToken);
 
-                order.OrderStatus = Domain.Entities.Management.OrderStatus.Complete;
-                order.PaymentStatus = Domain.Entities.Management.PaymentStatus.Paid;
+                order.OrderStatus = OrderStatus.Complete;
+                order.PaymentStatus = PaymentStatus.Paid;
                 order.PaidDate = DateTime.UtcNow;
                 order.Reference = session.PaymentIntentId;
                 order.AuthorizationTransactionResult = JsonConvert.SerializeObject(session);
@@ -127,7 +122,6 @@ namespace Roaa.Rosas.Application
             });
         }
 
-
         public async Task<Result<CheckoutResultModel>> CancelAsync(string sessionId, Guid? orderId, CancellationToken cancellationToken = default)
         {
             var sessionService = new SessionService();
@@ -137,8 +131,8 @@ namespace Roaa.Rosas.Application
                                         .Where(x => x.Id == orderId)
                                         .SingleOrDefaultAsync(cancellationToken);
 
-            order.OrderStatus = Domain.Entities.Management.OrderStatus.Pending;
-            order.PaymentStatus = Domain.Entities.Management.PaymentStatus.Pending;
+            order.OrderStatus = OrderStatus.Pending;
+            order.PaymentStatus = PaymentStatus.Pending;
             order.Reference = session.PaymentIntentId;
             order.AuthorizationTransactionResult = JsonConvert.SerializeObject(session);
 
@@ -154,23 +148,9 @@ namespace Roaa.Rosas.Application
 
 
 
-    public class StripeSettings : ISettings
-    {
-        public string ApiKey { get; set; } = string.Empty;
 
-    }
-
-
-    public record CheckoutModel
-    {
-        public Guid SubscriptionId { get; set; }
-        public Guid TenantId { get; set; }
-        public Guid OrderId { get; set; }
-    }
-
-    public record CheckoutResultModel
-    {
-        public string NavigationUrl { get; set; } = string.Empty;
-    }
 
 }
+
+
+
