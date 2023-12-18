@@ -306,7 +306,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
                 return Result<CheckResultModel>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "email");
             }
 
-            return Result<CheckResultModel>.Successful(new CheckResultModel(await AnyAsync(email, cancellationToken)));
+            return Result<CheckResultModel>.Successful(new CheckResultModel(!await AnyAsync(email, cancellationToken)));
         }
 
 
