@@ -154,18 +154,21 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
 
         public async Task<Result<Guid>> CreateExternalSystemUserByUsernameAsync(string username,
                                                                                 Guid productId,
+                                                                                Guid userId,
                                                                                 bool isLocked,
                                                                                 CancellationToken cancellationToken = default)
         {
             var any = await _dbContext.Users
                                         .AsNoTracking()
-                                        .Where(x => x.Id == productId ||
+                                        .Where(x => x.Id == userId ||
                                                     username.ToUpper().Equals(x.NormalizedUserName))
                                         .AnyAsync(cancellationToken);
 
             if (any)
             {
-                _logger.LogError("An error occurred while creating External System User by username:{0}, ProductId:{1}.", username, productId);
+                _logger.LogError("The account is already existed, An error occurred while creating External System User by username:{0}, ProductId:{1}.",
+                                                                                                                                username,
+                                                                                                                                productId);
                 return Result<Guid>.Fail(ErrorMessage.AccountAlreadyExist, _identityContextService.Locale);
             }
 
@@ -173,7 +176,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
                             email: null,
                             username: username,
                             isLocked: isLocked,
-                            id: productId);
+                            id: userId);
 
             var result = await CreateUserAsync(user: _user,
                                                password: null,

@@ -43,11 +43,6 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.EventHandlers
                 ProductOwnerClientId = @event.Product.ClientId,
                 Description = @event.Product.DisplayName,
             }, cancellationToken);
-
-            await _authService.CreateExternalSystemUserByUsernameAsync(username: sysName,
-                                                                       productId: @event.Product.Id,
-                                                                       isLocked: true,
-                                                                       cancellationToken);
         }
     }
 }

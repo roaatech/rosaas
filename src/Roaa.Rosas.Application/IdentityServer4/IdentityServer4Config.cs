@@ -77,7 +77,7 @@ namespace Roaa.Rosas.Application.IdentityServer4
             var baseUri = uri.GetLeftPart(UriPartial.Authority);
             var clients = new[]
             {
-                  new Client
+                  new Client()
                 {
                     ClientId = SystemConsts.Clients.AdminPanel,
                     ClientName = "Rosas Admin Panel Client",
@@ -94,7 +94,6 @@ namespace Roaa.Rosas.Application.IdentityServer4
                             IdentityServerConstants.StandardScopes.Profile,
                             IdentityServerConstants.StandardScopes.OfflineAccess,
                             SystemConsts.Scopes.Api,
-
                     },
                     AllowPlainTextPkce = true,
                     AllowOfflineAccess = true,
@@ -129,13 +128,13 @@ namespace Roaa.Rosas.Application.IdentityServer4
                     {
                         {SystemConsts.Clients.Properties.RosasClientId , SystemConsts.Clients.Properties.Vlaue.RosasClientId},
                         {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.OsosProductId},
+                        {SystemConsts.Clients.Properties.RosasUserId , SystemConsts.Clients.Properties.Vlaue.OsosProductId},
                     },
                     Claims = new List<ClientClaim>
                     {
                         new ClientClaim(SystemConsts.Clients.Claims.ClaimType,SystemConsts.Clients.Claims.ExternalSystem)
                     }
-                }
-                  ,
+                },
                   new Client()
                 {
                     ClientId = SystemConsts.Clients.ShamsExternalSystem,
@@ -159,13 +158,14 @@ namespace Roaa.Rosas.Application.IdentityServer4
                     {
                         {SystemConsts.Clients.Properties.RosasClientId , SystemConsts.Clients.Properties.Vlaue.RosasClientId},
                         {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.ShamsProductId},
+                        {SystemConsts.Clients.Properties.RosasUserId , SystemConsts.Clients.Properties.Vlaue.ShamsProductId},
                     },
                     Claims = new List<ClientClaim>
                     {
                         new ClientClaim(SystemConsts.Clients.Claims.ClaimType,SystemConsts.Clients.Claims.ExternalSystem)
                     }
                 },
-                new Client()
+                  new Client()
                 {
                     ClientId = SystemConsts.Clients.ApptomatorExternalSystem,
                     ClientName = "Apptomator System",
@@ -187,7 +187,8 @@ namespace Roaa.Rosas.Application.IdentityServer4
                     Properties = new Dictionary<string, string>
                     {
                         {SystemConsts.Clients.Properties.RosasClientId , SystemConsts.Clients.Properties.Vlaue.RosasClientId},
-                        {SystemConsts.Clients.Properties.RosasProductId ,SystemConsts.Clients.Properties.Vlaue.ApptomatorProductId},
+                        {SystemConsts.Clients.Properties.RosasProductId , SystemConsts.Clients.Properties.Vlaue.ApptomatorProductId},
+                        {SystemConsts.Clients.Properties.RosasUserId , SystemConsts.Clients.Properties.Vlaue.ApptomatorProductId},
                     },
                     Claims = new List<ClientClaim>
                     {

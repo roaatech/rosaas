@@ -1,9 +1,11 @@
 ﻿using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Mappers;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Common.ApiConfiguration;
+using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models.Options;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
@@ -15,17 +17,20 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
         private readonly IdentityServerPersistedGrantDbContext _persistedGrantDbContext;
         private readonly ILogger<IdentityServerConfigurationDbInitialiser> _logger;
         private readonly IdentityServerOptions _identityServerSettings;
+        private readonly IPublisher _publisher;
         #endregion
 
         #region Ctors 
         public IdentityServerConfigurationDbInitialiser(IdentityServerConfigurationDbContext configurationDbContex,
                                                         IdentityServerPersistedGrantDbContext persistedGrantDbContext,
                                                         IApiConfigurationService<IdentityServerOptions> identityServerSettings,
-                                                        ILogger<IdentityServerConfigurationDbInitialiser> logger)
+                                                        ILogger<IdentityServerConfigurationDbInitialiser> logger,
+                                                        IPublisher publisher)
         {
             _configurationDbContext = configurationDbContex;
             _persistedGrantDbContext = persistedGrantDbContext;
             _identityServerSettings = identityServerSettings.Options;
+            _publisher = publisher;
             _logger = logger;
         }
         #endregion
@@ -56,6 +61,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
                 try
                 {
                     await TrySeedAsync();
+                    await FixAsync();
                 }
                 catch (Exception ex)
                 {
@@ -74,6 +80,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
                 {
                     var clientInDb = await _configurationDbContext.Clients
                                                             .Include(x => x.AllowedScopes)
+                                                            .Include(x => x.Properties)
                                                             .SingleOrDefaultAsync(c => c.ClientId == client.ClientId);
                     if (clientInDb is null)
                     {
@@ -88,6 +95,19 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
                                 clientInDb.AllowedScopes.Add(new ClientScope { Scope = scope, ClientId = clientInDb.Id });
                             }
                         }
+
+                        foreach (var property in client.Properties)
+                        {
+                            if (!clientInDb.Properties.Any(p => p.ClientId == clientInDb.Id && p.Key == property.Key))
+                            {
+                                clientInDb.Properties.Add(new ClientProperty
+                                {
+                                    ClientId = clientInDb.Id,
+                                    Key = property.Key,
+                                    Value = property.Value,
+                                });
+                            }
+                        }
                     }
                 }
                 await _configurationDbContext.SaveChangesAsync();
@@ -99,18 +119,22 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
                     if (client.Properties is not null && client.Properties.Any())
                     {
                         if (client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasProductId, out string? productId) &&
-                            client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasClientId, out string? clientId))
+                            client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasClientId, out string? clientId) &&
+                            client.Properties.TryGetValue(SystemConsts.Clients.Properties.RosasUserId, out string? userId)
+                            )
                         {
                             var id = await _configurationDbContext.Clients
                                                             .Where(c => c.ClientId == client.ClientId)
                                                             .Select(x => x.Id)
                                                             .SingleOrDefaultAsync();
+
                             if (!await _configurationDbContext.ClientCustomDetails.Where(x => x.ClientId == id).AnyAsync())
 
                                 _configurationDbContext.ClientCustomDetails.Add(new Domain.Entities.ClientCustomDetail
                                 {
                                     ClientId = id,
                                     ProductId = new Guid(productId),
+                                    UserId = new Guid(userId),
                                     ProductOwnerClientId = new Guid(clientId),
 
                                 });
@@ -168,6 +192,41 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
 
         }
 
+
+        private async Task FixAsync()
+        {
+            var clients = IdentityServer4Config.GetClients(_identityServerSettings.Url)
+                                               .Select(x => x.ClientId)
+                                               .ToList();
+
+            var clientsInDb = await _configurationDbContext.Clients
+                                                           .Include(x => x.Properties)
+                                                           .Where(x => clients.Contains(x.ClientId))
+                                                           .ToListAsync();
+
+            var clientsIds = clientsInDb.Select(x => x.Id).ToList();
+
+            var clientsCustomDetailsInDb = await _configurationDbContext.ClientCustomDetails
+                                                      .Where(x => clientsIds.Contains(x.ClientId))
+                                                      .ToListAsync();
+            foreach (var client in clientsInDb)
+            {
+                if (client.Properties.Any())
+                {
+                    var clientProperty = client.Properties
+                                                .Where(x => x.Key.Equals(SystemConsts.Clients.Properties.RosasUserId))
+                                                .FirstOrDefault();
+
+                    var clientCustomDetailsInDb = clientsCustomDetailsInDb.SingleOrDefault(x => x.ClientId == client.Id);
+
+                    clientCustomDetailsInDb.UserId = new Guid(clientProperty.Value);
+
+                    await _publisher.Publish(new IdentityServerClientCreatedEvent(client, clientCustomDetailsInDb));
+                }
+            }
+
+            await _configurationDbContext.SaveChangesAsync();
+        }
         #endregion
     }
 }

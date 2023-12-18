@@ -1,6 +1,7 @@
 ﻿using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityServer4;
@@ -12,6 +13,7 @@ using Roaa.Rosas.Application.Services.IdentityServer4.Clients.Validators;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.IdentityServer4.Clients
 {
@@ -23,6 +25,7 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.Clients
         private readonly IIdentityContextService _identityContextService;
         private readonly IAuthTokenService _tokenService;
         private readonly IIdentityServerConfigurationDbContext _dbContext;
+        private readonly IPublisher _publisher;
         #endregion
 
 
@@ -32,13 +35,15 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.Clients
             ILogger<ClientService> logger,
             IIdentityContextService identityContextService,
             IIdentityServerConfigurationDbContext dbContext,
-            IAuthTokenService tokenService)
+            IAuthTokenService tokenService,
+            IPublisher publisher)
         {
             _clientStore = clientStore;
             _logger = logger;
             _identityContextService = identityContextService;
             _dbContext = dbContext;
             _tokenService = tokenService;
+            _publisher = publisher;
         }
         #endregion
 
@@ -94,6 +99,7 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.Clients
                     {
                         {SystemConsts.Clients.Properties.RosasClientId , model.ProductOwnerClientId.ToString()},
                         {SystemConsts.Clients.Properties.RosasProductId ,model.ProductId.ToString()},
+                        {SystemConsts.Clients.Properties.RosasUserId ,model.ProductId.ToString()},
                     },
                 Claims = new List<ClientClaim>
                     {
@@ -107,6 +113,7 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.Clients
             {
                 ClientId = entity.Id,
                 ProductId = model.ProductId,
+                UserId = model.ProductId,
                 ProductOwnerClientId = model.ProductOwnerClientId,
             };
 
@@ -114,7 +121,10 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.Clients
 
             _dbContext.ClientCustomDetails.Add(clientCustomDetail);
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            if (await _dbContext.SaveChangesAsync(cancellationToken) > 0)
+            {
+                await _publisher.Publish(new IdentityServerClientCreatedEvent(entity, clientCustomDetail));
+            }
 
             return Result.Successful();
         }

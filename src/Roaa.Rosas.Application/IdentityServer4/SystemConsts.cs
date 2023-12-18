@@ -34,6 +34,7 @@
             {
                 public const string RosasClientId = "RosasClientId";
                 public const string RosasProductId = "RosasProductId";
+                public const string RosasUserId = "RosasUserId";
 
                 public class Vlaue
                 {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
-using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges.EventHandlers
@@ -19,14 +18,14 @@ namespace Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges.Event
 
         public async Task Handle(UserCreatedAsExternalSystemEvent @event, CancellationToken cancellationToken)
         {
-            await _tenantAdminService.CreateEntityAdminPrivilegeAsync(new Models.CreateEntityAdminPrivilegeModel
-            {
-                EntityId = @event.ProductId,
-                EntityType = EntityType.Product,
-                UserId = @event.User.Id,
-                UserType = @event.User.UserType,
-                IsMajor = @event.IsMajor,
-            });
+            //await _tenantAdminService.CreateEntityAdminPrivilegeAsync(new Models.CreateEntityAdminPrivilegeModel
+            //{
+            //    EntityId = @event.ProductId,
+            //    EntityType = EntityType.Product,
+            //    UserId = @event.User.Id,
+            //    UserType = @event.User.UserType,
+            //    IsMajor = @event.IsMajor,
+            //});
         }
     }
 }
