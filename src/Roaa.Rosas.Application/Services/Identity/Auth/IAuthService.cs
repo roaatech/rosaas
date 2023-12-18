@@ -1,6 +1,7 @@
 ﻿using Roaa.Rosas.Application.Services.Identity.Auth.Models;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Domain.Common;
 
 namespace Roaa.Rosas.Application.Services.Identity.Auth
 {
@@ -21,6 +22,6 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
 
         Task<Result<AuthResultModel<AdminDto>>> SignInAdminByEmailAsync(SignInUserByEmailModel model, CancellationToken cancellationToken = default);
 
-        Task<Result<bool>> EnsureEmailIsUniqueAsync(string email, CancellationToken cancellationToken);
+        Task<Result<CheckResultModel>> EnsureEmailIsUniqueAsync(string email, CancellationToken cancellationToken);
     }
 }

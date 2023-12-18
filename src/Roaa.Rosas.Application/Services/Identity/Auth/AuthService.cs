@@ -16,6 +16,7 @@ using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Common.Utilities;
+using Roaa.Rosas.Domain.Common;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Events.Management;
 using System.Data;
@@ -87,7 +88,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             #region Validation 
             _validationBuilder.AddCommand(() => new SignupUserByEmailValidator(_identityContextService).Validate(model));
 
-            _validationBuilder.AddCommand(async () => await EnsureEmailIsUniqueAsync(model.Email, cancellationToken));
+            _validationBuilder.AddCommand(async () => await ValidateEmailIsUniqueAsync(model.Email, cancellationToken));
 
             var validationResult = await _validationBuilder.ValidateAsync();
             if (!validationResult.Success)
@@ -189,7 +190,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         {
             #region Validation  
 
-            _validationBuilder.AddCommand(async () => await EnsureEmailIsUniqueAsync(model.Email, cancellationToken = default));
+            _validationBuilder.AddCommand(async () => await ValidateEmailIsUniqueAsync(model.Email, cancellationToken = default));
 
             var validationResult = await _validationBuilder.ValidateAsync();
 
@@ -282,24 +283,40 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         #endregion
 
 
-        public async Task<Result<bool>> EnsureEmailIsUniqueAsync(string email, CancellationToken cancellationToken)
+        private async Task<Result<bool>> ValidateEmailIsUniqueAsync(string email, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(email))
             {
                 return Result<bool>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "email");
             }
 
-            var any = await _dbContext.Users
-                                      .AsNoTracking()
-                                      .Where(x => email.ToLower().Equals(x.Email.ToLower()))
-                                      .AnyAsync(cancellationToken);
-
-            if (any)
+            if (await AnyAsync(email, cancellationToken))
             {
                 return Result<bool>.Fail(ErrorMessage.AccountAlreadyExist, _identityContextService.Locale);
             }
 
             return Result<bool>.Successful(true);
+        }
+
+
+        public async Task<Result<CheckResultModel>> EnsureEmailIsUniqueAsync(string email, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return Result<CheckResultModel>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "email");
+            }
+
+            return Result<CheckResultModel>.Successful(new CheckResultModel(await AnyAsync(email, cancellationToken)));
+        }
+
+
+
+        private async Task<bool> AnyAsync(string email, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Users
+                                      .AsNoTracking()
+                                      .Where(x => email.ToLower().Equals(x.Email.ToLower()))
+                                      .AnyAsync(cancellationToken);
         }
 
 
