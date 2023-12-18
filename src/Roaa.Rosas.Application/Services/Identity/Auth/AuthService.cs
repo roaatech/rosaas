@@ -172,7 +172,8 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             BuildUserEntity(userType: UserType.ExternalSystem,
                             email: null,
                             username: username,
-                            isLocked: isLocked);
+                            isLocked: isLocked,
+                            id: productId);
 
             var result = await CreateUserAsync(user: _user,
                                                password: null,

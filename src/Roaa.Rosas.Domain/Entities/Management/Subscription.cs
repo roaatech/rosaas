@@ -24,6 +24,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public DateTime? LastLimitsResetDate { get; set; }
         public SubscriptionResetStatus? SubscriptionResetStatus { get; set; }
         public SubscriptionPlanChangeStatus? SubscriptionPlanChangeStatus { get; set; }
+        // public int? CustomPeriodInDays { get; set; } = null;
         public virtual Plan? Plan { get; set; }
         public virtual PlanPrice? PlanPrice { get; set; }
         public virtual Tenant? Tenant { get; set; }

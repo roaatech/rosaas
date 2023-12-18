@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Products.Validators;
@@ -124,6 +125,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                                  Id = product.Id,
                                                  Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
                                                  DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
+                                                 Description = product.Description,
                                                  CreatedDate = product.CreationDate,
                                                  EditedDate = product.ModificationDate,
                                              })
@@ -258,7 +260,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 ModificationDate = date,
             };
 
-            product.AddDomainEvent(new ProductCreatedEvent(product));
+            product.AddDomainEvent(new ProductCreatedEvent(product, _identityContextService.UserId, _identityContextService.GetUserType()));
 
             _dbContext.Products.Add(product);
 

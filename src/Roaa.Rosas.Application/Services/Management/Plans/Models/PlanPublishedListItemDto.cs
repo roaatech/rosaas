@@ -1,4 +1,5 @@
 ﻿using Roaa.Rosas.Common.Models;
+using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Services.Management.Plans.Models
 {
@@ -14,5 +15,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans.Models
         public DateTime EditedDate { get; set; }
         public bool IsPublished { get; set; }
         public bool IsSubscribed { get; set; }
+        public bool IsLockedBySystem { get; set; }
+        public TenancyType TenancyType { get; set; }
     }
 }

@@ -6,7 +6,9 @@ using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Common.ApiConfiguration;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models.Options;
 using Roaa.Rosas.Domain.Settings;
 
@@ -97,12 +99,19 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
 
         private async Task TrySeedProductsAsync()
         {
+            const string key = "SeedData.Management.ManagementDbInitialiser.DefaultClientAndUserAndPlanAndPriceSeeded";
+            bool settingSeeded = await _dbContext.Settings
+                                      .Where(x => x.Key.Equals(key))
+                                      .AnyAsync();
+
             foreach (var product in GetProducts())
             {
                 var productInDb = await _dbContext.Products.Where(x => x.Id == product.Id).SingleOrDefaultAsync();
 
                 if (productInDb is null)
                 {
+
+                    product.AddDomainEvent(new ProductCreatedEvent(product, new Guid(SystemConsts.Users.RosaasSystem), UserType.RosasSystem));
                     _dbContext.Products.Add(product);
                 }
                 else
@@ -111,6 +120,30 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     {
                         productInDb.DisplayName = productInDb.Name;
                     }
+
+                    if (!settingSeeded)
+                    {
+                        if (!await _dbContext.Plans.Where(x => x.ProductId == product.Id &&
+                                                          x.TenancyType == Domain.Enums.TenancyType.Unlimited)
+                                            .AnyAsync())
+                        {
+                            productInDb.ModificationDate = DateTime.UtcNow;
+                            productInDb.ModifiedByUserId = new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId);
+                            productInDb.AddDomainEvent(new ProductCreatedEvent(productInDb, new Guid(SystemConsts.Users.RosaasSystem), UserType.RosasSystem));
+                        }
+                        if (!settingSeeded)
+                        {
+                            _dbContext.Settings.Add(new Setting
+                            {
+                                Key = key,
+                                Value = DateTime.UtcNow.ToString(),
+                                Id = Guid.NewGuid()
+                            });
+                            settingSeeded = true;
+                        }
+
+                    }
+
 
                 }
             }
@@ -185,13 +218,13 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
             {
                 new Client
                     {
-                        Id = new Guid("88283b02-e969-485a-a5a3-9e5d1d0d3337"),
+                        Id = new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
                         Name = "roaa",
                         DisplayName= "Roaa Tech",
                         CreationDate = DateTime.Now,
                         ModificationDate = DateTime.Now,
-                        CreatedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
-                        ModifiedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
+                        CreatedByUserId = new Guid(SystemConsts.Users.RosaasSystem),
+                        ModifiedByUserId = new Guid(SystemConsts.Users.RosaasSystem),
                         IsDeleted = false,
                     },
             };
@@ -218,8 +251,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                         ApiKey = "4s0v7yBQEZShYxCq3tlsAgUfXpgW",
                         CreationDate = DateTime.Now,
                         ModificationDate = DateTime.Now,
-                        CreatedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
-                        ModifiedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
+                        CreatedByUserId = new Guid(SystemConsts.Users.RosaasSystem),
+                        ModifiedByUserId = new Guid(SystemConsts.Users.RosaasSystem),
                         IsDeleted= false,
                     },
                 new Product
@@ -240,8 +273,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                         ApiKey = "4s0v7yBQEZShYxCq3tlsAgUfXpgW",
                         CreationDate = DateTime.Now,
                         ModificationDate = DateTime.Now,
-                        CreatedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
-                        ModifiedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
+                        CreatedByUserId = new Guid(SystemConsts.Users.RosaasSystem),
+                        ModifiedByUserId = new Guid(SystemConsts.Users.RosaasSystem),
                         IsDeleted= false,
                     },
                 new Product
@@ -262,8 +295,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                         ApiKey = "4s0v7yBQEZShYxCq3tlsAgUfXpgW",
                         CreationDate = DateTime.Now,
                         ModificationDate = DateTime.Now,
-                        CreatedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
-                        ModifiedByUserId = new Guid("9728990f-841c-45bd-b358-14b308c80030"),
+                        CreatedByUserId = new Guid(SystemConsts.Users.RosaasSystem),
+                        ModifiedByUserId = new Guid(SystemConsts.Users.RosaasSystem),
                         IsDeleted= false,
                     },
             };

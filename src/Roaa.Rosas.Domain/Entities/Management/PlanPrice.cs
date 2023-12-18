@@ -23,6 +23,7 @@
         Month = 3,
         Year = 4,
         OneDay = 5,
-        ThreeDays = 6
+        ThreeDays = 6,
+        Custom = 10,
     }
 }

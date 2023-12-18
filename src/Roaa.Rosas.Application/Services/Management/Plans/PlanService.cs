@@ -11,6 +11,7 @@ using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Services.Management.Plans
 {
@@ -56,6 +57,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.DisplayName),
                                               IsPublished = plan.IsPublished,
                                               IsSubscribed = plan.IsSubscribed,
+                                              IsLockedBySystem = plan.IsLockedBySystem,
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "Description", "Name", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
@@ -85,6 +87,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.DisplayName),
                                                   IsPublished = plan.IsPublished,
                                                   IsSubscribed = plan.IsSubscribed,
+                                                  IsLockedBySystem = plan.IsLockedBySystem,
                                               })
                                               .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
@@ -109,6 +112,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.DisplayName),
                                                   IsPublished = plan.IsPublished,
                                                   IsSubscribed = plan.IsSubscribed,
+                                                  IsLockedBySystem = plan.IsLockedBySystem,
                                               })
                                               .OrderByDescending(x => x.DisplayOrder)
                                               .ToListAsync(cancellationToken);
@@ -150,13 +154,18 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.DisplayName),
                                               IsPublished = plan.IsPublished,
                                               IsSubscribed = plan.IsSubscribed,
+                                              IsLockedBySystem = plan.IsLockedBySystem,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
             return Result<PlanDto>.Successful(plan);
         }
 
-        public async Task<Result<CreatedResult<Guid>>> CreatePlanAsync(CreatePlanModel model, Guid productId, CancellationToken cancellationToken = default)
+        public async Task<Result<CreatedResult<Guid>>> CreatePlanAsync(CreatePlanModel model,
+                                                                        Guid productId,
+                                                                        CancellationToken cancellationToken = default,
+                                                                        TenancyType tenancyType = TenancyType.Planed,
+                                                                        bool isLockedBySystem = false)
         {
             #region Validation
             var fValidation = new CreatePlanValidator(_identityContextService).Validate(model);
@@ -193,6 +202,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 ModifiedByUserId = _identityContextService.UserId,
                 CreationDate = date,
                 ModificationDate = date,
+                TenancyType = tenancyType,
+                IsLockedBySystem = isLockedBySystem
             };
 
             _dbContext.Plans.Add(plan);
@@ -215,6 +226,11 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             if (plan is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
+            if (plan.IsLockedBySystem)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueLockedBySystem, _identityContextService.Locale);
             }
 
             if (plan.IsSubscribed)
@@ -253,6 +269,12 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
+            if (plan.IsLockedBySystem)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueLockedBySystem, _identityContextService.Locale);
+            }
+
+
             #endregion 
 
             plan.IsPublished = model.IsPublished;
@@ -272,6 +294,12 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
+
+            if (plan.IsLockedBySystem)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueLockedBySystem, _identityContextService.Locale);
+            }
+
 
             if (plan.IsSubscribed)
             {
