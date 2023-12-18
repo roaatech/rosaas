@@ -116,6 +116,34 @@ namespace Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges
             return Result<CreatedResult<Guid>>.Successful(new CreatedResult<Guid>(entityAdminPrivilege.Id));
         }
 
+        public async Task<Result> CreateEntityAdminPrivilegesAsync(List<CreateEntityAdminPrivilegeModel> models, CancellationToken cancellationToken = default)
+        {
+            var date = DateTime.UtcNow;
+
+            foreach (var model in models)
+            {
+                var entityAdminPrivilege = new EntityAdminPrivilege
+                {
+                    Id = Guid.NewGuid(),
+                    EntityId = model.EntityId,
+                    EntityType = model.EntityType,
+                    UserId = model.UserId,
+                    UserType = model.UserType,
+                    IsMajor = model.IsMajor,
+                    CreatedByUserId = _identityContextService.UserId,
+                    ModifiedByUserId = _identityContextService.UserId,
+                    CreationDate = date,
+                    ModificationDate = date,
+                };
+
+                _dbContext.EntityAdminPrivileges.Add(entityAdminPrivilege);
+            }
+
+            var res = await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
 
         public async Task<Result> DeleteEntityAdminPrivilegeAsync(Guid id, CancellationToken cancellationToken = default)
         {
