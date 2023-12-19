@@ -8,7 +8,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public Guid SubscriptionId { get; set; }
         public Guid CurrentSubscriptionCycleId { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public DateTime? LastResetDate { get; set; }
         public DateTime? LastLimitsResetDate { get; set; }
         public SubscriptionResetStatus? SubscriptionResetStatus { get; set; }
@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
     {
         public Guid Id { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
     }
 
 

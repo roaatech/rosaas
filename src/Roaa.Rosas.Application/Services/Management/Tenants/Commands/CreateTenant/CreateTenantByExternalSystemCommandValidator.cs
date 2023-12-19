@@ -15,8 +15,6 @@ public partial class CreateTenantByExternalSystemCommandValidator : AbstractVali
 
         RuleFor(x => x.TenantName).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
 
-        RuleFor(x => x.PlanName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
-
         RuleFor(x => x.PlanPriceName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
         RuleFor(x => x.Specifications)

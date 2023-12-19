@@ -69,6 +69,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                         {
                                             PlanDisplayName = x.Plan.DisplayName,
                                             PlanName = x.Plan.Name,
+                                            PlanTenancyType = x.Plan.TenancyType,
                                             Price = x.Price,
                                             PlanPriceId = x.Id,
                                             PlanId = x.PlanId,
@@ -105,9 +106,14 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.Subscriptions));
             }
 
-            if (!item.IsPublished)
+            if (item.PlanTenancyType == TenancyType.Planed && !item.IsPublished)
             {
-                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.Subscriptions));
+                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "PlanId");
+            }
+
+            if (item.PlanCycle == PlanCycle.Custom && req.CustomPeriodInDays is null && item.PlanTenancyType != TenancyType.Unlimited)
+            {
+                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(req.CustomPeriodInDays));
             }
         }
 
@@ -119,14 +125,23 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         #endregion
 
+        var initialProcess = await _workflow.GetNextStageAsync(expectedResourceStatus: ExpectedTenantResourceStatus.None,
+                                                                    currentStatus: TenantStatus.None,
+                                                                    currentStep: TenantStep.None,
+                                                                    userType: _identityContextService.GetUserType());
+
+        if (initialProcess is null)
+        {
+            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale, nameof(request.UniqueName));
+        }
         // first status
-        var tenant = await CreateTenantInDBAsync(request, plansInfo, cancellationToken);
+        var tenant = await CreateTenantInDBAsync(request, plansInfo, initialProcess, cancellationToken);
 
 
         var updatedStatuses = await _dbContext.Subscriptions
-                                         .Where(x => x.TenantId == tenant.Id)
-                                         .Select(x => new { x.Status, x.Step, x.ExpectedResourceStatus, x.ProductId })
-                                         .ToListAsync(cancellationToken);
+                                                .Where(x => x.TenantId == tenant.Id)
+                                                .Select(x => new { x.Status, x.Step, x.ExpectedResourceStatus, x.ProductId })
+                                                .ToListAsync(cancellationToken);
 
         List<ProductTenantCreatedResultDto> productTenantCreatedResults = new();
         foreach (var item in updatedStatuses)
@@ -151,13 +166,8 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
     #region Utilities   
 
-    private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand request, List<PlanInfoModel> plansInfo, CancellationToken cancellationToken = default)
+    private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand request, List<PlanInfoModel> plansInfo, Workflow initialProcess, CancellationToken cancellationToken = default)
     {
-        var initialProcess = await _workflow.GetNextStageAsync(expectedResourceStatus: ExpectedTenantResourceStatus.None,
-                                                                       currentStatus: TenantStatus.None,
-                                                                       currentStep: TenantStep.None,
-                                                                       userType: _identityContextService.GetUserType());
-
         var planIds = request.Subscriptions.Select(x => x.PlanId)
                                            .ToList();
         var featuresInfo = await _dbContext.PlanFeatures
@@ -193,6 +203,8 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         foreach (var item in plansInfo)
         {
+            var req = request.Subscriptions.Where(x => x.ProductId == item.Product.Id).FirstOrDefault();
+            item.CustomPeriodInDays = req.CustomPeriodInDays;
             item.Features = featuresInfo.Where(x => x.PlanId == item.PlanId).ToList();
             item.Specifications = specifications.Where(x => x.ProductId == item.Product.Id).ToList();
         }
@@ -280,7 +292,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             {
                 Id = item.GeneratedSubscriptionId,
                 StartDate = _date,
-                EndDate = PlanCycleManager.FromKey(item.PlanCycle).GetExpiryDate(_date),
+                EndDate = PlanCycleManager.FromKey(item.PlanCycle).CalculateExpiryDate(_date, item.CustomPeriodInDays),
                 TenantId = id,
                 PlanId = item.PlanId,
                 PlanPriceId = item.PlanPriceId,
@@ -301,7 +313,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                      {
                         Id = item.GeneratedSubscriptionCycleId,
                         StartDate = _date,
-                        EndDate = PlanCycleManager.FromKey(item.PlanCycle).GetExpiryDate(_date),
+                        EndDate = PlanCycleManager.FromKey(item.PlanCycle).CalculateExpiryDate(_date, item.CustomPeriodInDays),
                         TenantId = id,
                         PlanId = item.PlanId,
                         PlanPriceId = item.PlanPriceId,
@@ -366,7 +378,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         {
             Id = Guid.NewGuid(),
             StartDate = _date,
-            EndDate = PlanCycleManager.FromKey(planInfo.PlanCycle).GetExpiryDate(_date),
+            EndDate = PlanCycleManager.FromKey(planInfo.PlanCycle).CalculateExpiryDate(_date, planInfo.CustomPeriodInDays),
             ClientId = planInfo.Product.ClientId,
             ProductId = planInfo.Product.Id,
             SubscriptionId = planInfo.GeneratedSubscriptionId,

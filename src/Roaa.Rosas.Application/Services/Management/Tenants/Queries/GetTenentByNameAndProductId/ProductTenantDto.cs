@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
         public bool IsActive { get; set; }
         public object Metadata { get; set; } = new();
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public DateTime? LastResetDate { get; set; }

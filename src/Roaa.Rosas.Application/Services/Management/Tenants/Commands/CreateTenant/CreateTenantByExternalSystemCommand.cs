@@ -8,8 +8,8 @@ public record CreateTenantByExternalSystemCommand : IRequest<Result<TenantCreate
     public List<CreateSpecificationValueByExternalSysytemModel> Specifications { get; set; } = new();
     public string TenantName { get; set; } = string.Empty;
     public string TenantDisplayName { get; set; } = string.Empty;
-    public string PlanName { get; set; } = string.Empty;
     public string PlanPriceName { get; set; } = string.Empty;
+    public int? CustomPeriodInDays { get; set; } = null;
 }
 
 public record CreateSpecificationValueByExternalSysytemModel

@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public PlanCycle Cycle { get; set; }
         public decimal Price { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public IEnumerable<SubscriptionFeatureCycleDto> SubscriptionFeaturesCycles { get; set; } = new List<SubscriptionFeatureCycleDto>();
     }
     public class SubscriptionFeatureCycleDto

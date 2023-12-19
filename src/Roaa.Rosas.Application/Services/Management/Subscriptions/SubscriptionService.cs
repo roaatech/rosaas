@@ -524,7 +524,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             {
                 Id = Guid.NewGuid(),
                 StartDate = _date,
-                EndDate = PlanCycleManager.FromKey(planCycle).GetExpiryDate(_date),
+                EndDate = PlanCycleManager.FromKey(planCycle).CalculateExpiryDate(_date, null),
                 SubscriptionId = subscription.Id,
                 TenantId = subscription.TenantId,
                 PlanId = planId,
@@ -542,7 +542,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             return subscriptionCycle;
         }
 
-        private void UpdateSubscriptionEntity(Subscription subscription, Guid subscriptionCycleId, DateTime startDate, DateTime endDate)
+        private void UpdateSubscriptionEntity(Subscription subscription, Guid subscriptionCycleId, DateTime startDate, DateTime? endDate)
         {
             subscription.SubscriptionCycleId = subscriptionCycleId;
             subscription.StartDate = startDate;
@@ -624,7 +624,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     {
                         Id = Guid.NewGuid(),
                         StartDate = date,
-                        EndDate = PlanCycleManager.FromKey(subscription.PlanPrice.PlanCycle).GetExpiryDate(date),
+                        EndDate = PlanCycleManager.FromKey(subscription.PlanPrice.PlanCycle).CalculateExpiryDate(date, null),
                         TenantId = subscription.TenantId,
                         PlanId = subscription.PlanId,
                         PlanPriceId = subscription.PlanPriceId,

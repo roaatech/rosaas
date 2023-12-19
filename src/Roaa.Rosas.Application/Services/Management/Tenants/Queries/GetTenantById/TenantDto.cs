@@ -30,7 +30,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
         public DateTime EditedDate { get; set; }
         public object Metadata { get; set; } = new();
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public LookupItemDto<Guid> Plan { get; set; } = new();
         public LookupItemDto<Guid> Product { get; set; } = new();
         public ProductTenantHealthStatusDto HealthCheckStatus { get; set; } = new();

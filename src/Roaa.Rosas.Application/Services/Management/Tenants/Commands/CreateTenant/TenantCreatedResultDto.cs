@@ -44,6 +44,8 @@ public record PlanInfoModel
     public PlanCycle PlanCycle { get; set; }
     public Guid GeneratedSubscriptionCycleId { get; set; }
     public Guid GeneratedSubscriptionId { get; set; }
+    public TenancyType PlanTenancyType { get; set; }
+    public int? CustomPeriodInDays { get; set; } = null;
     public ProductInfoModel Product { get; set; } = new();
     public List<PlanFeatureInfoModel> Features { get; set; } = new();
     public List<SpecificationInfoModel> Specifications { get; set; } = new();

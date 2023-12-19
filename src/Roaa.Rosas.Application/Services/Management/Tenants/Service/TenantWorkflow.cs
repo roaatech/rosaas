@@ -54,6 +54,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
         private readonly List<UserType> _admins = new List<UserType> { UserType.SuperAdmin, UserType.ClientAdmin, UserType.ProductAdmin, UserType.TenantAdmin, };
         private readonly List<UserType> _externalSystem = new List<UserType> { UserType.ExternalSystem };
+        private readonly List<UserType> _admins_and_externalSystem = new List<UserType> { UserType.SuperAdmin,
+                                                                                          UserType.ClientAdmin,
+                                                                                          UserType.ProductAdmin,
+                                                                                          UserType.TenantAdmin,
+                                                                                          UserType.ExternalSystem };
 
         public TenantWorkflow()
         {
@@ -174,7 +179,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.None,
                     CurrentStatus = TenantStatus.None,
-                    OwnerTypes = _admins,
+                    OwnerTypes = _admins_and_externalSystem,
                     Action = WorkflowAction.Ok,
                     NextStep = TenantStep.Creation,
                     NextStatus = TenantStatus.RecordCreated,
@@ -187,7 +192,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.RecordCreated,
-                    OwnerTypes = _admins,
+                    OwnerTypes = _admins_and_externalSystem,
                     Action = WorkflowAction.Ok,
                     NextStep = TenantStep.Creation,
                     NextStatus = TenantStatus.SendingCreationRequest,
@@ -228,7 +233,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.Creation,
                     CurrentStatus = TenantStatus.SendingCreationRequest,
-                    OwnerTypes = _externalSystem,
+                    OwnerTypes = _admins_and_externalSystem,
                     Action = WorkflowAction.Ok,
                     NextStep = TenantStep.Creation,
                     NextStatus = TenantStatus.Creating,

@@ -6,6 +6,8 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
+using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 
@@ -42,28 +44,33 @@ public partial class CreateTenantByExternalSystemCommandHandler : IRequestHandle
     public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantByExternalSystemCommand request, CancellationToken cancellationToken)
     {
         #region Validation  
+
         var productId = _identityContextService.GetProductId();
 
-        var planId = await _dbContext.Plans
-                                         .Where(x => productId == x.ProductId &&
-                                                        request.PlanName.ToLower().Equals(x.Name))
-                                         .Select(x => x.Id)
-                                         .SingleOrDefaultAsync(cancellationToken);
-
-        if (planId == default(Guid) || planId == Guid.Empty)
-        {
-            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(request.PlanName));
-        }
-
-        var planPriceId = await _dbContext.PlanPrices
+        var planPrice = await _dbContext.PlanPrices
                                          .Where(x => request.PlanPriceName.ToLower().Equals(x.Name))
-                                         .Select(x => x.Id)
+                                         .Select(x => new
+                                         {
+                                             PlanPriceId = x.Id,
+                                             x.PlanId,
+                                             x.PlanCycle,
+                                             x.Plan.TenancyType,
+                                         })
                                          .SingleOrDefaultAsync(cancellationToken);
-
-        if (planPriceId == default(Guid) || planPriceId == Guid.Empty)
+        if (planPrice is null)
         {
             return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.PlanPriceName));
         }
+
+
+        if (planPrice.PlanCycle == PlanCycle.Custom && request.CustomPeriodInDays is null && planPrice.TenancyType != TenancyType.Unlimited)
+        {
+            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(request.CustomPeriodInDays));
+        }
+
+        var planId = planPrice.PlanId;
+
+        var planPriceId = planPrice.PlanPriceId;
 
         List<CreateSpecificationValueModel> specificationsModels = new();
         if (request.Specifications.Any())

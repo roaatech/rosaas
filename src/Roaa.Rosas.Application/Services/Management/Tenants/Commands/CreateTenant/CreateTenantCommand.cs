@@ -31,6 +31,7 @@ public record CreateSubscriptionModel
     public Guid ProductId { get; set; }
     public Guid PlanId { get; set; }
     public Guid PlanPriceId { get; set; }
+    public int? CustomPeriodInDays { get; set; } = null;
     public List<CreateSpecificationValueModel> Specifications { get; set; } = new();
 }
 

@@ -8,7 +8,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public Guid PlanId { get; set; }
         public Guid PlanPriceId { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public Guid ProductId { get; set; }
         public Guid TenantId { get; set; }
         public TenantStatus Status { get; set; }
@@ -24,7 +24,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public DateTime? LastLimitsResetDate { get; set; }
         public SubscriptionResetStatus? SubscriptionResetStatus { get; set; }
         public SubscriptionPlanChangeStatus? SubscriptionPlanChangeStatus { get; set; }
-        // public int? CustomPeriodInDays { get; set; } = null;
+        public int? CustomPeriodInDays { get; set; } = null;
         public virtual Plan? Plan { get; set; }
         public virtual PlanPrice? PlanPrice { get; set; }
         public virtual Tenant? Tenant { get; set; }
