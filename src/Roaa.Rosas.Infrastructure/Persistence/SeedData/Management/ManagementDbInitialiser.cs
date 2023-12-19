@@ -99,10 +99,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
 
         private async Task TrySeedProductsAsync()
         {
-            const string key = "SeedData.Management.ManagementDbInitialiser.DefaultClientAndUserAndPlanAndPriceSeeded";
-            bool settingSeeded = await _dbContext.Settings
+            const string key = "SeedData.Management.ManagementDbInitialiser.DefaultClientAndUserAndPlanAndPriceSeeded2";
+            bool anyKey = await _dbContext.Settings
                                       .Where(x => x.Key.Equals(key))
                                       .AnyAsync();
+            bool settingSeeded = false;
 
             foreach (var product in GetProducts())
             {
@@ -121,7 +122,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                         productInDb.DisplayName = productInDb.Name;
                     }
 
-                    if (!settingSeeded)
+                    if (!anyKey)
                     {
                         if (!await _dbContext.Plans.Where(x => x.ProductId == product.Id &&
                                                           x.TenancyType == Domain.Enums.TenancyType.Unlimited)
