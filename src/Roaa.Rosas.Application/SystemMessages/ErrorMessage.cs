@@ -115,5 +115,20 @@ namespace Roaa.Rosas.Application.SystemMessages
         Ar = "تم إنشاء هذا السجل تلقائيًا بواسطة النظام ويعتبر اساسيا لوظائف النظام. التعديل أو الحذف عن هذا السجل تم تقييده لضمان تكامل البيانات")]
         ModificationOrIsNotAllowedDueLockedBySystem = 3013,
 
+        [Localization(
+        En = "A planned plan not allowed be customized or unlimited cycle.",
+        Ar = "الخطة العادية لا يمكن ان تكون لها مدة مخصصة أو غير محدودة")]
+        PlannedPlanCannotBeCustomized = 3014,
+
+        [Localization(
+        En = "Limited and unlimited plans have to be free (price = 0)",
+        Ar = "يجب أن تكون الخطط المحدودة وغير المحدودة مجانية - السعر = 0 ")]
+        LimitedAndUnlimitedPlansHaveToBeFree = 3015,
+
+        [Localization(
+        En = "Unlimited plans have to be unlimited cycle",
+        Ar = "يجب أن تكون الخطط غير المحدودة ذات دورة غير محدودة")]
+        UnlimitedPlansHaveToBeUnlimitedCycle = 3016,
+
     }
 }

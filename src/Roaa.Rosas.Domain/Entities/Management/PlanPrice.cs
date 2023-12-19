@@ -25,5 +25,6 @@
         OneDay = 5,
         ThreeDays = 6,
         Custom = 10,
+        Unlimited = 11,
     }
 }

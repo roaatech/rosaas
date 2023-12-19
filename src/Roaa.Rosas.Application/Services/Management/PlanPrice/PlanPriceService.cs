@@ -7,7 +7,6 @@ using Roaa.Rosas.Application.Services.Management.PlanPrices.Validators;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
-using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -46,11 +45,12 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               .Select(planPrice => new PlanPriceListItemDto
                                               {
                                                   Id = planPrice.Id,
-                                                  Plan = new CustomLookupItemDto<Guid>(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName),
+                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
                                                   IsPublished = planPrice.IsPublished,
+                                                  IsLockedBySystem = planPrice.IsLockedBySystem,
                                                   Name = planPrice.Name,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
@@ -70,11 +70,12 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               .Select(planPrice => new PlanPricePublishedListItemDto
                                               {
                                                   Id = planPrice.Id,
-                                                  Plan = new CustomLookupItemDto<Guid>(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName),
+                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
                                                   IsPublished = planPrice.IsPublished,
+                                                  IsLockedBySystem = planPrice.IsLockedBySystem,
                                                   Name = planPrice.Name,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
@@ -99,6 +100,32 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             {
                 return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
             }
+
+            var plan = await _dbContext.Plans.Where(x => x.Id == model.PlanId && x.ProductId == productId).SingleOrDefaultAsync();
+            if (plan is null)
+            {
+                return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(model.PlanId));
+            }
+
+
+            if (plan.TenancyType == Domain.Enums.TenancyType.Planed && (model.Cycle == PlanCycle.Custom || model.Cycle == PlanCycle.Unlimited))
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.PlannedPlanCannotBeCustomized, _identityContextService.Locale, nameof(model.PlanId));
+            }
+
+
+            if (plan.TenancyType == Domain.Enums.TenancyType.Unlimited &&
+                plan.TenancyType == Domain.Enums.TenancyType.Limited &&
+                model.Price > 0)
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.LimitedAndUnlimitedPlansHaveToBeFree, _identityContextService.Locale, nameof(model.PlanId));
+            }
+
+            if (plan.TenancyType == Domain.Enums.TenancyType.Unlimited && model.Cycle != PlanCycle.Unlimited)
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.UnlimitedPlansHaveToBeUnlimitedCycle, _identityContextService.Locale, nameof(model.PlanId));
+            }
+
             #endregion
 
             var date = DateTime.UtcNow;
@@ -139,6 +166,12 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
+
+            if (planPrice.IsLockedBySystem)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueLockedBySystem, _identityContextService.Locale);
+            }
+
             if (planPrice.IsSubscribed)
             {
                 return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
@@ -166,6 +199,11 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
+            if (planPrice.IsLockedBySystem)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueLockedBySystem, _identityContextService.Locale);
+            }
+
             #endregion
 
             planPrice.IsPublished = model.IsPublished;
@@ -184,6 +222,11 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             if (planPrice is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
+            if (planPrice.IsLockedBySystem)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueLockedBySystem, _identityContextService.Locale);
             }
 
             if (planPrice.IsSubscribed)

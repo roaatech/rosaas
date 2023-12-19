@@ -213,6 +213,32 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
 
                 await _dbContext.SaveChangesAsync();
             }
+
+
+            const string key2 = "SeedData.Management.ManagementDbInitialiser.PlanPriceUnlimitedCycleFixed";
+
+            if (!await _dbContext.Settings
+                                .Where(x => x.Key.Equals(key2))
+                                .AnyAsync())
+            {
+                foreach (var pp in planPrices)
+                {
+                    if (pp.Plan.TenancyType == Domain.Enums.TenancyType.Unlimited)
+                    {
+                        pp.PlanCycle = PlanCycle.Unlimited;
+                        pp.Name = pp.Name.Replace("unlimited-custom", $"open-{PlanCycle.Unlimited}".ToLower());
+                    }
+                }
+
+                _dbContext.Settings.Add(new Setting
+                {
+                    Key = key2,
+                    Value = DateTime.UtcNow.ToString(),
+                    Id = Guid.NewGuid()
+                });
+
+                await _dbContext.SaveChangesAsync();
+            }
         }
 
         private async Task FixPlanTenancyTypeAsync()
