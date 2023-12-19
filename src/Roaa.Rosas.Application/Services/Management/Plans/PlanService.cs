@@ -58,6 +58,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               IsPublished = plan.IsPublished,
                                               IsSubscribed = plan.IsSubscribed,
                                               IsLockedBySystem = plan.IsLockedBySystem,
+                                              TenancyType = plan.TenancyType,
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "Description", "Name", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
@@ -88,6 +89,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   IsPublished = plan.IsPublished,
                                                   IsSubscribed = plan.IsSubscribed,
                                                   IsLockedBySystem = plan.IsLockedBySystem,
+                                                  TenancyType = plan.TenancyType,
                                               })
                                               .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
@@ -113,6 +115,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   IsPublished = plan.IsPublished,
                                                   IsSubscribed = plan.IsSubscribed,
                                                   IsLockedBySystem = plan.IsLockedBySystem,
+                                                  TenancyType = plan.TenancyType,
                                               })
                                               .OrderByDescending(x => x.DisplayOrder)
                                               .ToListAsync(cancellationToken);
@@ -155,6 +158,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               IsPublished = plan.IsPublished,
                                               IsSubscribed = plan.IsSubscribed,
                                               IsLockedBySystem = plan.IsLockedBySystem,
+                                              TenancyType = plan.TenancyType,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 

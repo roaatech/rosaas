@@ -69,6 +69,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 {
                     await FixPlanPriceNameAsync();
                     await FixFeaturesResetAsync();
+                    await FixPlanTenancyTypeAsync();
                     await TrySeedClientsAsync();
                     await TrySeedProductsAsync();
 
@@ -200,6 +201,38 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     {
                         pp.Name = $"{pp.Plan.Name}-{(int)pp.Price}-{pp.PlanCycle.ToString()}".ToLower();
 
+                    }
+                }
+
+                _dbContext.Settings.Add(new Setting
+                {
+                    Key = key,
+                    Value = DateTime.UtcNow.ToString(),
+                    Id = Guid.NewGuid()
+                });
+
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task FixPlanTenancyTypeAsync()
+        {
+
+            const string key = "SeedData.Management.ManagementDbInitialiser.PlanTenancyTypeFixed";
+
+            if (!await _dbContext.Settings
+                                .Where(x => x.Key.Equals(key))
+                                .AnyAsync())
+            {
+
+                var plans = await _dbContext.Plans.ToListAsync();
+
+
+                foreach (var plan in plans)
+                {
+                    if ((int)plan.TenancyType == 0)
+                    {
+                        plan.TenancyType = Domain.Enums.TenancyType.Planed;
                     }
                 }
 
