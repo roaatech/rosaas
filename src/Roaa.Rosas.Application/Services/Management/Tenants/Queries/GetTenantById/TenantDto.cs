@@ -9,8 +9,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
     public record TenantDto
     {
         public Guid Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string UniqueName { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
         public IEnumerable<SubscriptionDto> Subscriptions { get; set; } = new List<SubscriptionDto>();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
@@ -79,7 +79,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
     {
         public Guid Id { get; set; }
 
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
 
         public LocalizedString DisplayName { get; set; } = new();
 

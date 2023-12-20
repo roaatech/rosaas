@@ -39,10 +39,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                  {
                                                      SubscriptionId = x.Id,
                                                      TenantId = x.TenantId,
-                                                     UniqueName = x.Tenant.SystemName,
+                                                     SystemName = x.Tenant.SystemName,
                                                      HealthCheckUrl = x.HealthCheckUrl,
                                                      HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
-                                                     Title = x.Tenant.DisplayName,
+                                                     DisplayName = x.Tenant.DisplayName,
                                                      Status = x.Status,
                                                      IsActive = x.IsActive,
                                                      EndDate = x.EndDate,

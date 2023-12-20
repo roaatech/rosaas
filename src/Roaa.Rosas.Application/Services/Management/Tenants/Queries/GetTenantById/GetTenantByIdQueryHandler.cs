@@ -58,8 +58,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                             .Select(tenant => new TenantDto
                                             {
                                                 Id = tenant.Id,
-                                                UniqueName = tenant.SystemName,
-                                                Title = tenant.DisplayName,
+                                                SystemName = tenant.SystemName,
+                                                DisplayName = tenant.DisplayName,
                                                 CreatedDate = tenant.CreationDate,
                                                 EditedDate = tenant.ModificationDate,
                                                 Subscriptions = tenant.Subscriptions.Select(subscription => new SubscriptionDto
@@ -103,7 +103,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                         Id = specVal.Specification.Id,
                                                         DisplayName = specVal.Specification.DisplayName,
                                                         Description = specVal.Specification.Description,
-                                                        Name = specVal.Specification.SystemName,
+                                                        SystemName = specVal.Specification.SystemName,
                                                         DataType = specVal.Specification.DataType,
                                                         InputType = specVal.Specification.InputType,
                                                         IsRequired = specVal.Specification.IsRequired,
@@ -124,7 +124,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                                        currentStep: subscription.Step,
                                                                        userType: _identityContextService.GetUserType());
                     subscription.Actions = stages.ToActionsResults();
-                    subscription.HealthCheckUrl = subscription.HealthCheckUrl.Replace("{name}", tenant.UniqueName);
+                    subscription.HealthCheckUrl = subscription.HealthCheckUrl.Replace("{name}", tenant.SystemName);
 
                     // Set ShowHealthStatus
                     subscription.HealthCheckStatus.ShowHealthStatus = IsMustShowHealthStatus(subscription.HealthCheckStatus, subscription.Status);

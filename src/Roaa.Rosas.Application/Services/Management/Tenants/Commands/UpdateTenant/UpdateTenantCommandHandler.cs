@@ -64,7 +64,7 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
         DateTime date = DateTime.UtcNow;
 
 
-        tenant.DisplayName = request.Title;
+        tenant.DisplayName = request.DisplayName;
         tenant.ModifiedByUserId = _identityContextService.UserId;
         tenant.ModificationDate = date;
 

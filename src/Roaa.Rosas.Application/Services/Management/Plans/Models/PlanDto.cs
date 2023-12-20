@@ -6,8 +6,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans.Models
     public record PlanDto
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public LookupItemDto<Guid> Product { get; set; } = new();
         public int DisplayOrder { get; set; }

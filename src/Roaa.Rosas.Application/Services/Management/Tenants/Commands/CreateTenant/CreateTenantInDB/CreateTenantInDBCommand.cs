@@ -14,7 +14,7 @@ public record CreateTenantInDBCommand : IRequest<Result<TenantCreatedResultDto>>
     public Workflow Workflow { get; set; } = new();
     public List<PlanDataModel> PlanDataList { get; set; } = new();
     public List<CreateSubscriptionModel> Subscriptions { get; set; } = new();
-    public string UniqueName { get; set; } = string.Empty;
-    public string Title { get; set; } = string.Empty;
+    public string SystemName { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
 }
 

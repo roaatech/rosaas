@@ -119,9 +119,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         }
 
 
-        if (!await EnsureUniqueNameAsync(request.Subscriptions.Select(x => x.ProductId).ToList(), request.UniqueName))
+        if (!await EnsureUniqueNameAsync(request.Subscriptions.Select(x => x.ProductId).ToList(), request.SystemName))
         {
-            return Result<TenantCreatedResultDto>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.UniqueName));
+            return Result<TenantCreatedResultDto>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.SystemName));
         }
 
         #endregion
@@ -133,7 +133,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         if (initialProcess is null)
         {
-            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale, nameof(request.UniqueName));
+            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale, nameof(request.SystemName));
         }
         // first status
         var tenant = await CreateTenantInDBAsync(request, plansInfo, initialProcess, cancellationToken);
@@ -277,8 +277,8 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         });
 
         var id = Guid.NewGuid();
-        var name = model.UniqueName.ToLower();
-        var displayName = model.Title;
+        var name = model.SystemName.ToLower();
+        var displayName = model.DisplayName;
 
         return new Tenant
         {

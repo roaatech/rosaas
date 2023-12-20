@@ -121,9 +121,9 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
         }
 
 
-        if (!await EnsureUniqueNameAsync(request.Subscriptions.Select(x => x.ProductId).ToList(), request.UniqueName))
+        if (!await EnsureUniqueNameAsync(request.Subscriptions.Select(x => x.ProductId).ToList(), request.SystemName))
         {
-            return Result<TenantCreatedResultDto>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.UniqueName));
+            return Result<TenantCreatedResultDto>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.SystemName));
         }
 
 
@@ -135,7 +135,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
 
         if (initialProcess is null)
         {
-            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale, nameof(request.UniqueName));
+            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale, nameof(request.SystemName));
         }
 
         #endregion
@@ -146,8 +146,8 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
         {
             // go to checkout
 
-            var tenantCreationRequest = BuildTenantCreationRequestEntity(request.UniqueName, request.Title, planDataList);
-            var tenantNameEntities = BuildTenantNameEntities(request.UniqueName,
+            var tenantCreationRequest = BuildTenantCreationRequestEntity(request.SystemName, request.DisplayName, planDataList);
+            var tenantNameEntities = BuildTenantNameEntities(request.SystemName,
                                                              request.Subscriptions
                                                                     .Select(x => x.ProductId)
                                                                     .ToList());
@@ -169,8 +169,8 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
                                         {
                                             PlanDataList = planDataList,
                                             Workflow = initialProcess,
-                                            Title = request.Title,
-                                            UniqueName = request.UniqueName,
+                                            DisplayName = request.DisplayName,
+                                            SystemName = request.SystemName,
                                             Subscriptions = request.Subscriptions,
                                         },
                                          cancellationToken);

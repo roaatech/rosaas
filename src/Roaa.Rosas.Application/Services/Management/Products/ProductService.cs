@@ -73,16 +73,16 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           {
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
-                                              Name = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
+                                              SystemName = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
                                               DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
                                           });
 
-            sort = sort.HandleDefaultSorting(new string[] { "Url", "Name", "ClientId", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
+            sort = sort.HandleDefaultSorting(new string[] { "Url", "SystemName", "DisplayName", "ClientId", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
 
-            query = query.Where(filters, new string[] { "_Url", "_Name", "ClientId" }, "CreatedDate");
+            query = query.Where(filters, new string[] { "_Url", "_SystemName", "_DisplayName", "ClientId" }, "CreatedDate");
 
             query = query.OrderBy(sort);
 
@@ -123,7 +123,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                              .Select(product => new ProductPublishedListItemDto
                                              {
                                                  Id = product.Id,
-                                                 Name = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
+                                                 SystemName = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
                                                  DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
                                                  Description = product.Description,
                                                  CreatedDate = product.CreationDate,
@@ -146,7 +146,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               {
                                                   Id = x.Id,
                                                   Name = !string.IsNullOrWhiteSpace(x.SystemName) ? x.SystemName : x.DisplayName,
-                                                  Title = x.DisplayName,
+                                                  DisplayName = x.DisplayName,
                                               })
                                               .ToListAsync(cancellationToken);
 
@@ -166,7 +166,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               HealthStatusChangeUrl = product.HealthStatusInformerUrl,
-                                              Name = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
+                                              SystemName = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
                                               DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
                                               Description = product.Description,
                                               IsPublished = product.IsPublished,

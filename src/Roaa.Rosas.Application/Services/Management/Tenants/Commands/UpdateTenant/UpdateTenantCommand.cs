@@ -5,6 +5,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTena
 public record UpdateTenantCommand : IRequest<Result>
 {
     public Guid Id { get; set; }
-    //  public string UniqueName { get; set; } = string.Empty;
-    public string Title { get; set; } = string.Empty;
+    //  public string SystemName { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
 }

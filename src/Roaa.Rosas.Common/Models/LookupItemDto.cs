@@ -48,13 +48,13 @@
         {
             Id = id;
             Name = name;
-            Title = title;
+            DisplayName = title;
         }
         #endregion
 
         public TId Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
 
     }
 

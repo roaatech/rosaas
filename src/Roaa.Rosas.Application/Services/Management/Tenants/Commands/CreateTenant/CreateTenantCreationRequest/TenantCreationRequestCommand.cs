@@ -11,6 +11,6 @@ public record TenantCreationRequestCommand : IRequest<Result<TenantCreatedResult
     }
 
     public List<CreateSubscriptionModel> Subscriptions { get; set; } = new();
-    public string UniqueName { get; set; } = string.Empty;
-    public string Title { get; set; } = string.Empty;
+    public string SystemName { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
 }

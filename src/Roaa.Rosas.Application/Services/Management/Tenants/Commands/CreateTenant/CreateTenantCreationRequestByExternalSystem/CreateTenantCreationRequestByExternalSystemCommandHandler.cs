@@ -102,8 +102,8 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
 
         var model = new TenantCreationRequestCommand
         {
-            Title = request.TenantDisplayName,
-            UniqueName = request.TenantSystemName,
+            DisplayName = request.TenantDisplayName,
+            SystemName = request.TenantSystemName,
             Subscriptions = new List<CreateSubscriptionModel>
             {
                 new CreateSubscriptionModel

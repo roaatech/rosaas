@@ -26,18 +26,18 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices.Models
         }
 
 
-        public PlanListItemDto(Guid id, string name, string title, TenancyType tenancyType, bool isLockedBySystem)
+        public PlanListItemDto(Guid id, string systemName, string displayName, TenancyType tenancyType, bool isLockedBySystem)
         {
             Id = id;
-            Name = name;
-            Title = title;
+            SystemName = systemName;
+            DisplayName = displayName;
             TenancyType = tenancyType;
             IsLockedBySystem = isLockedBySystem;
         }
 
         public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
         public TenancyType TenancyType { get; set; }
         public bool IsLockedBySystem { get; set; }
     }

@@ -160,8 +160,8 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
         });
 
         var id = Guid.NewGuid();
-        var name = model.UniqueName.ToLower();
-        var displayName = model.Title;
+        var name = model.SystemName.ToLower();
+        var displayName = model.DisplayName;
         var dfdddf = PlanCycleManager.FromKey(model.PlanDataList[0].PlanCycle).CalculateExpiryDate(_date, model.PlanDataList[0].CustomPeriodInDays);
         var res = new Tenant
         {

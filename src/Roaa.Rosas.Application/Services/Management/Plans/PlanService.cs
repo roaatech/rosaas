@@ -48,8 +48,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                           .Select(plan => new PlanListItemDto
                                           {
                                               Id = plan.Id,
-                                              Name = plan.SystemName,
-                                              Title = plan.DisplayName,
+                                              SystemName = plan.SystemName,
+                                              DisplayName = plan.DisplayName,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
@@ -79,8 +79,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               .Select(plan => new PlanListItemDto
                                               {
                                                   Id = plan.Id,
-                                                  Name = plan.SystemName,
-                                                  Title = plan.DisplayName,
+                                                  SystemName = plan.SystemName,
+                                                  DisplayName = plan.DisplayName,
                                                   Description = plan.Description,
                                                   DisplayOrder = plan.DisplayOrder,
                                                   CreatedDate = plan.CreationDate,
@@ -105,8 +105,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               .Select(plan => new PlanPublishedListItemDto
                                               {
                                                   Id = plan.Id,
-                                                  Name = plan.SystemName,
-                                                  Title = plan.DisplayName,
+                                                  SystemName = plan.SystemName,
+                                                  DisplayName = plan.DisplayName,
                                                   Description = plan.Description,
                                                   DisplayOrder = plan.DisplayOrder,
                                                   CreatedDate = plan.CreationDate,
@@ -185,8 +185,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                           .Select(plan => new PlanDto
                                           {
                                               Id = plan.Id,
-                                              Name = plan.SystemName,
-                                              Title = plan.DisplayName,
+                                              SystemName = plan.SystemName,
+                                              DisplayName = plan.DisplayName,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
@@ -220,9 +220,9 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, "productId");
             }
 
-            if (!await EnsureUniqueNameAsync(productId, model.Name))
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
 
             #endregion
@@ -235,8 +235,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             {
                 Id = id,
                 ProductId = model.ProductId,
-                SystemName = model.Name,
-                DisplayName = model.Title,
+                SystemName = model.SystemName,
+                DisplayName = model.DisplayName,
                 Description = model.Description,
                 DisplayOrder = model.DisplayOrder,
                 CreatedByUserId = _identityContextService.UserId,
@@ -279,15 +279,15 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
 
-            if (!await EnsureUniqueNameAsync(productId, model.Name, id))
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName, id))
             {
-                return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
             #endregion
             Plan planBeforeUpdate = plan.DeepCopy();
 
-            plan.SystemName = model.Name;
-            plan.DisplayName = model.Title;
+            plan.SystemName = model.SystemName;
+            plan.DisplayName = model.DisplayName;
             plan.Description = model.Description;
             plan.DisplayOrder = model.DisplayOrder;
             plan.ModifiedByUserId = _identityContextService.UserId;

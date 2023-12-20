@@ -5,7 +5,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
     public record ProductDto
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string Url { get; set; } = string.Empty;

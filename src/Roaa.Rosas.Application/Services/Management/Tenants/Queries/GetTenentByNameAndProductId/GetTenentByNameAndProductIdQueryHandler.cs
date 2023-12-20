@@ -36,10 +36,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
                                                 request.TenantName.ToLower().Equals(x.Tenant.SystemName))
                                          .Select(subscription => new ProductTenantDto
                                          {
-                                             UniqueName = subscription.Tenant.SystemName,
+                                             SystemName = subscription.Tenant.SystemName,
                                              HealthCheckUrl = subscription.HealthCheckUrl,
                                              HealthCheckUrlIsOverridden = subscription.HealthCheckUrlIsOverridden,
-                                             Title = subscription.Tenant.DisplayName,
+                                             DisplayName = subscription.Tenant.DisplayName,
                                              Status = subscription.Status,
                                              Step = subscription.Step,
                                              IsActive = subscription.IsActive,
@@ -55,7 +55,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
                                              {
                                                  DisplayName = specVal.Specification.DisplayName,
                                                  Description = specVal.Specification.Description,
-                                                 Name = specVal.Specification.SystemName,
+                                                 SystemName = specVal.Specification.SystemName,
                                                  IsRequired = specVal.Specification.IsRequired,
                                                  IsUserEditable = specVal.Specification.IsUserEditable,
                                                  ValidationFailureDescription = specVal.Specification.ValidationFailureDescription,

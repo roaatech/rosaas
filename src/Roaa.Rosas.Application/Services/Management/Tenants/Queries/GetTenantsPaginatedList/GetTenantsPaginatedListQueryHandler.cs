@@ -48,8 +48,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsP
                                     .Select(tenant => new TenantListItemDto
                                     {
                                         Id = tenant.Id,
-                                        UniqueName = tenant.SystemName,
-                                        Title = tenant.DisplayName,
+                                        SystemName = tenant.SystemName,
+                                        DisplayName = tenant.DisplayName,
                                         Subscriptions = tenant.Subscriptions.Select(x => new SubscriptionDto
                                         {
                                             ProductId = x.ProductId,
@@ -60,9 +60,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsP
                                         EditedDate = tenant.ModificationDate,
                                     });
 
-            var sort = request.Sort.HandleDefaultSorting(new string[] { "UniqueName", "Title", "ProductId", "Status", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
+            var sort = request.Sort.HandleDefaultSorting(new string[] { "SystemName", "DisplayName", "ProductId", "Status", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
 
-            query = query.Where(request.Filters, new string[] { "_UniqueName", "_Title", "ProductId", "Status" }, "CreatedDate");
+            query = query.Where(request.Filters, new string[] { "_SystemName", "_DisplayName", "ProductId", "Status" }, "CreatedDate");
 
             query = query.OrderBy(sort);
 

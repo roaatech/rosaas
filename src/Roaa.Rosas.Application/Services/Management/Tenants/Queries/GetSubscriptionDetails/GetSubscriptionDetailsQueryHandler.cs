@@ -71,7 +71,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      {
                                                          Id = subscription.Plan.Id,
                                                          Name = subscription.Plan.SystemName,
-                                                         Title = subscription.Plan.DisplayName,
+                                                         DisplayName = subscription.Plan.DisplayName,
                                                      },
                                                      PlanPrice = new PlanPriceDto
                                                      {
