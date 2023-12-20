@@ -3,33 +3,35 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequestByExternalSystem;
 
-public partial class CreateTenantByExternalSystemCommandHandler : IRequestHandler<CreateTenantByExternalSystemCommand, Result<TenantCreatedResultDto>>
+public partial class CreateTenantCreationRequestByExternalSystemCommandHandler : IRequestHandler<CreateTenantCreationRequestByExternalSystemCommand, Result<TenantCreatedResultDto>>
 {
     #region Props 
     private readonly IPublisher _publisher;
     private readonly IRosasDbContext _dbContext;
     private readonly IIdentityContextService _identityContextService;
-    private readonly ILogger<CreateTenantByExternalSystemCommandHandler> _logger;
+    private readonly ILogger<CreateTenantCreationRequestByExternalSystemCommandHandler> _logger;
     private readonly DateTime _date = DateTime.UtcNow;
     private readonly ISender _mediator;
     private Guid _orderId;
     #endregion
 
     #region Corts
-    public CreateTenantByExternalSystemCommandHandler(
+    public CreateTenantCreationRequestByExternalSystemCommandHandler(
         IPublisher publisher,
         IRosasDbContext dbContext,
         IIdentityContextService identityContextService,
         ISender mediator,
-    ILogger<CreateTenantByExternalSystemCommandHandler> logger)
+    ILogger<CreateTenantCreationRequestByExternalSystemCommandHandler> logger)
     {
         _publisher = publisher;
         _dbContext = dbContext;
@@ -41,7 +43,7 @@ public partial class CreateTenantByExternalSystemCommandHandler : IRequestHandle
     #endregion
 
     #region Handler   
-    public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantByExternalSystemCommand request, CancellationToken cancellationToken)
+    public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantCreationRequestByExternalSystemCommand request, CancellationToken cancellationToken)
     {
         #region Validation  
 
@@ -73,6 +75,7 @@ public partial class CreateTenantByExternalSystemCommandHandler : IRequestHandle
         var planPriceId = planPrice.PlanPriceId;
 
         List<CreateSpecificationValueModel> specificationsModels = new();
+
         if (request.Specifications.Any())
         {
             var spesificationsNormalizedNames = request.Specifications.Select(x => x.Name.ToUpper()).ToList();
@@ -97,7 +100,7 @@ public partial class CreateTenantByExternalSystemCommandHandler : IRequestHandle
 
         #endregion
 
-        var model = new CreateTenantCommand
+        var model = new TenantCreationRequestCommand
         {
             Title = request.TenantDisplayName,
             UniqueName = request.TenantName,
@@ -108,7 +111,8 @@ public partial class CreateTenantByExternalSystemCommandHandler : IRequestHandle
                     ProductId = productId,
                     PlanId = planId,
                     PlanPriceId = planPriceId,
-                    Specifications = specificationsModels
+                    CustomPeriodInDays = request.CustomPeriodInDays,
+                    Specifications = specificationsModels,
                 }
             }
         };

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
@@ -100,7 +101,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 Step = workflow.NextStep,
                 Action = workflow.Action,
                 UserType = UserType.ExternalSystem,
-                EditorBy = _identityContextService.UserId,
+                EditorBy = _identityContextService.GetActorId(),
                 DispatchedRequest = new DispatchedRequestModel(callingResult.Data.DurationInMillisecond, callingResult.Data.Url, callingResult.Data.SerializedResponseContent),
                 ExpectedResourceStatus = null,
             });

@@ -1,4 +1,4 @@
-﻿using Roaa.Rosas.Application.Services.Management.PlanPrices.Models;
+﻿using Roaa.Rosas.Application.Services.Management.Orders.Models;
 using Roaa.Rosas.Common.Models.Results;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders

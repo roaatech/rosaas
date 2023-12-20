@@ -65,6 +65,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             //    await SetTenantNextStatusAsync(@event, cancellationToken);
             //}
 
+
+            await SetTenantNextStatusAsync(@event, cancellationToken);
+
         }
 
         private async Task SetTenantNextStatusAsync(TenantCreatedInStoreEvent @event, CancellationToken cancellationToken)
@@ -83,7 +86,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 Step = workflow.NextStep,
                 Action = Domain.Entities.Management.WorkflowAction.Ok,
                 UserType = _identityContextService.GetUserType(),
-                EditorBy = _identityContextService.UserId,
+                EditorBy = _identityContextService.GetActorId(),
                 ExpectedResourceStatus = null,
             }, cancellationToken);
         }

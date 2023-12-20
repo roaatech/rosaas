@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequestByExternalSystem;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsDowngradeApplied;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsUpgradeApplied;
@@ -44,7 +44,7 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         #region Actions  
 
         [HttpPost()]
-        public async Task<IActionResult> CreateTenantByExternalSysytemAsync([FromBody] CreateTenantByExternalSystemCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CreateTenantByExternalSysytemAsync([FromBody] CreateTenantCreationRequestByExternalSystemCommand command, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(command, cancellationToken));
         }

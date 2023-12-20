@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Common.Models.Results;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;

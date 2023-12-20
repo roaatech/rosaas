@@ -4,11 +4,11 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.SystemMessages;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequestByExternalSystem;
 
-public partial class CreateTenantByExternalSystemCommandValidator : AbstractValidator<CreateTenantByExternalSystemCommand>
+public partial class CreateTenantCreationRequestByExternalSystemCommandValidator : AbstractValidator<CreateTenantCreationRequestByExternalSystemCommand>
 {
-    public CreateTenantByExternalSystemCommandValidator(IIdentityContextService identityContextService)
+    public CreateTenantCreationRequestByExternalSystemCommandValidator(IIdentityContextService identityContextService)
     {
 
         RuleFor(x => x.TenantName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);

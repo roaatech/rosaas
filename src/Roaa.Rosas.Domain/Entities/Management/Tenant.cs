@@ -9,4 +9,5 @@
         public virtual ICollection<SpecificationValue>? SpecificationsValues { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }
     }
+
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Entities;
 
@@ -46,8 +47,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Interceptors
                 {
                     if (entry.Entity.CreatedByUserId == Guid.Empty)
                     {
-                        entry.Entity.CreatedByUserId = _identityContextService.UserId;
-                        entry.Entity.ModifiedByUserId = _identityContextService.UserId;
+                        entry.Entity.CreatedByUserId = _identityContextService.GetActorId();
+                        entry.Entity.ModifiedByUserId = _identityContextService.GetActorId();
                     }
                     entry.Entity.CreationDate = DateTime.UtcNow;
                     entry.Entity.ModificationDate = entry.Entity.CreationDate;
@@ -56,7 +57,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Interceptors
                 {
                     if (entry.Entity.ModifiedByUserId == Guid.Empty)
                     {
-                        entry.Entity.ModifiedByUserId = _identityContextService.UserId;
+                        entry.Entity.ModifiedByUserId = _identityContextService.GetActorId();
                     }
                     entry.Entity.ModificationDate = DateTime.UtcNow;
                 }

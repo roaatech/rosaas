@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.PlanPrices.Models;
+using Roaa.Rosas.Application.Services.Management.Orders.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;

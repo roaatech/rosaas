@@ -95,7 +95,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-
             if (!await EnsureUniqueNameAsync(productId, model.Name))
             {
                 return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
@@ -107,12 +106,10 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(model.PlanId));
             }
 
-
             if (plan.TenancyType == Domain.Enums.TenancyType.Planed && (model.Cycle == PlanCycle.Custom || model.Cycle == PlanCycle.Unlimited))
             {
                 return Result<CreatedResult<Guid>>.Fail(ErrorMessage.PlannedPlanCannotBeCustomized, _identityContextService.Locale, nameof(model.PlanId));
             }
-
 
             if (plan.TenancyType == Domain.Enums.TenancyType.Unlimited &&
                 plan.TenancyType == Domain.Enums.TenancyType.Limited &&
@@ -125,7 +122,6 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             {
                 return Result<CreatedResult<Guid>>.Fail(ErrorMessage.UnlimitedPlansHaveToBeUnlimitedCycle, _identityContextService.Locale, nameof(model.PlanId));
             }
-
             #endregion
 
             var date = DateTime.UtcNow;

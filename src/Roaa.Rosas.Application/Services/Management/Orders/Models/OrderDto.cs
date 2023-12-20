@@ -1,6 +1,6 @@
 ﻿using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.PlanPrices.Models
+namespace Roaa.Rosas.Application.Services.Management.Orders.Models
 {
     public class OrderDto
     {
