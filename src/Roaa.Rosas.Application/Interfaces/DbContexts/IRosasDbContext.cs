@@ -49,7 +49,7 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<Setting> Settings { get; }
         public DbSet<TenantCreationRequest> TenantCreationRequests { get; }
         public DbSet<TenantCreationRequestItem> TenantCreationRequestItems { get; }
-        public DbSet<TenantName> TenantNames { get; }
+        public DbSet<TenantSystemName> TenantNames { get; }
 
         #endregion
 

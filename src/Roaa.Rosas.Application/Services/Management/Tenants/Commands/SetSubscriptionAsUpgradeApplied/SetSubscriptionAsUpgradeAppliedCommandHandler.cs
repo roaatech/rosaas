@@ -42,7 +42,7 @@ public class SetSubscriptionAsUpgradeAppliedCommandHandler : IRequestHandler<Set
     {
         var subscription = await _dbContext.Subscriptions
                                              .Where(x => x.ProductId == command.ProductId &&
-                                                          command.TenantName.ToLower().Equals(x.Tenant.UniqueName))
+                                                          command.TenantName.ToLower().Equals(x.Tenant.SystemName))
                                              .SingleOrDefaultAsync(cancellationToken);
         if (subscription is null)
         {

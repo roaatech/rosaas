@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                                                 Id = field.Id,
                                                 DisplayName = field.DisplayName,
                                                 Description = field.Description,
-                                                Name = field.Name,
+                                                Name = field.SystemName,
                                                 DataType = field.DataType,
                                                 InputType = field.InputType,
                                                 IsRequired = field.IsRequired,
@@ -78,7 +78,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                                             {
                                                 DisplayName = field.DisplayName,
                                                 Description = field.Description,
-                                                SystemName = field.Name,
+                                                SystemName = field.SystemName,
                                                 IsRequired = field.IsRequired,
                                                 IsUserEditable = field.IsUserEditable,
                                                 //ValidationFailureDescription = field.ValidationFailureDescription,
@@ -115,8 +115,8 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             {
                 Id = id,
                 ProductId = productId,
-                Name = model.Name,
-                NormalizedName = model.Name.ToUpper(),
+                SystemName = model.Name,
+                NormalizedSystemName = model.Name.ToUpper(),
                 DisplayName = model.DisplayName,
                 Description = model.Description,
                 DataType = model.DataType,
@@ -168,8 +168,8 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
 
             Specification fieldBeforeUpdate = field.DeepCopy();
 
-            field.Name = model.Name;
-            field.NormalizedName = model.Name.ToUpper();
+            field.SystemName = model.Name;
+            field.NormalizedSystemName = model.Name.ToUpper();
             field.DisplayName = model.DisplayName;
             field.Description = model.Description;
             field.DataType = model.DataType;
@@ -270,7 +270,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             return !await _dbContext.Specifications
                                     .Where(x => x.Id != id &&
                                                 x.ProductId == productId &&
-                                                name.ToUpper().Equals(x.NormalizedName))
+                                                name.ToUpper().Equals(x.NormalizedSystemName))
                                     .AnyAsync(cancellationToken);
         }
         #endregion

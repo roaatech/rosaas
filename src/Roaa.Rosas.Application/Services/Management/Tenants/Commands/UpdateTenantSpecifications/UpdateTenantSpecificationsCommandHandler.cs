@@ -73,7 +73,7 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
                                          .Select(x => new SpecificationModel
                                          {
                                              SpecificationId = x.Id,
-                                             SpecificationName = x.Name,
+                                             SpecificationName = x.SystemName,
                                          })
                                          .ToListAsync();
 

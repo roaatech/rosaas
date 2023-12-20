@@ -58,7 +58,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                             .Select(tenant => new TenantDto
                                             {
                                                 Id = tenant.Id,
-                                                UniqueName = tenant.UniqueName,
+                                                UniqueName = tenant.SystemName,
                                                 Title = tenant.DisplayName,
                                                 CreatedDate = tenant.CreationDate,
                                                 EditedDate = tenant.ModificationDate,
@@ -103,7 +103,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                         Id = specVal.Specification.Id,
                                                         DisplayName = specVal.Specification.DisplayName,
                                                         Description = specVal.Specification.Description,
-                                                        Name = specVal.Specification.Name,
+                                                        Name = specVal.Specification.SystemName,
                                                         DataType = specVal.Specification.DataType,
                                                         InputType = specVal.Specification.InputType,
                                                         IsRequired = specVal.Specification.IsRequired,

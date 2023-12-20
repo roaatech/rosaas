@@ -42,7 +42,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
         {
             var planFeatures = await _dbContext.PlanFeatures
                                               .AsNoTracking()
-                                              .Where(pf => productName.ToLower().Equals(pf.Feature.Product.Name))
+                                              .Where(pf => productName.ToLower().Equals(pf.Feature.Product.SystemName))
                                               .Select(planFeature => new PlanFeatureListItemDto
                                               {
                                                   Id = planFeature.Id,
@@ -56,7 +56,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   Plan = new PlanItemDto
                                                   {
                                                       Id = planFeature.PlanId,
-                                                      Name = planFeature.Plan.Name,
+                                                      Name = planFeature.Plan.SystemName,
                                                       Title = planFeature.Plan.DisplayName,
                                                       DisplayOrder = planFeature.Plan.DisplayOrder,
                                                       IsPublished = planFeature.Plan.IsPublished,
@@ -65,7 +65,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   Feature = new FeatureItemDto
                                                   {
                                                       Id = planFeature.Feature.Id,
-                                                      Name = planFeature.Feature.Name,
+                                                      Name = planFeature.Feature.SystemName,
                                                       Title = planFeature.Feature.DisplayName,
                                                       Type = planFeature.Feature.Type,
                                                       IsSubscribed = planFeature.Feature.IsSubscribed,
@@ -102,7 +102,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   Plan = new PlanItemDto
                                                   {
                                                       Id = planFeature.PlanId,
-                                                      Name = planFeature.Plan.Name,
+                                                      Name = planFeature.Plan.SystemName,
                                                       Title = planFeature.Plan.DisplayName,
                                                       DisplayOrder = planFeature.Plan.DisplayOrder,
                                                       IsPublished = planFeature.Plan.IsPublished,
@@ -111,7 +111,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                                   Feature = new FeatureItemDto
                                                   {
                                                       Id = planFeature.Feature.Id,
-                                                      Name = planFeature.Feature.Name,
+                                                      Name = planFeature.Feature.SystemName,
                                                       Title = planFeature.Feature.DisplayName,
                                                       Type = planFeature.Feature.Type,
                                                       IsSubscribed = planFeature.Feature.IsSubscribed,
@@ -132,7 +132,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                    Plan = new PlanItemDto
                                    {
                                        Id = plan.Id,
-                                       Name = plan.Name,
+                                       Name = plan.SystemName,
                                        Title = plan.DisplayName,
                                        DisplayOrder = plan.DisplayOrder,
                                    },

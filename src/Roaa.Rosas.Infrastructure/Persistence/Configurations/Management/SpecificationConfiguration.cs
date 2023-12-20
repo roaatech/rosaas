@@ -14,8 +14,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         {
             builder.ToTableName("RosasSpecifications");
             builder.HasKey(x => x.Id);
-            builder.Property(r => r.Name).IsRequired().HasMaxLength(50).IsUnicode();
-            builder.Property(r => r.NormalizedName).IsRequired().HasMaxLength(50).IsUnicode();
+            builder.Property(r => r.SystemName).IsRequired().HasMaxLength(50).IsUnicode();
+            builder.Property(r => r.NormalizedSystemName).IsRequired().HasMaxLength(50).IsUnicode();
             builder.Property(r => r.DisplayName)
                    .HasMaxLength(150)
                    .IsRequired()

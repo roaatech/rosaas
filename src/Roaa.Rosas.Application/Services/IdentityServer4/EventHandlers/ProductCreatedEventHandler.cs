@@ -30,10 +30,10 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.EventHandlers
         {
             var clientName = await _dbContext.Clients
                                          .Where(x => x.Id == @event.Product.ClientId)
-                                         .Select(x => x.Name)
+                                         .Select(x => x.SystemName)
                                          .SingleOrDefaultAsync(cancellationToken);
 
-            string sysName = $"{clientName}-{@event.Product.Name}".ToLower();
+            string sysName = $"{clientName}-{@event.Product.SystemName}".ToLower();
 
             await _clientService.CreateClientAsync(new Clients.Models.CreateClientByProductModel
             {

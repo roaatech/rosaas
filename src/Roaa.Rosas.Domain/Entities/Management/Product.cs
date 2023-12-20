@@ -3,7 +3,7 @@
     public class Product : BaseAuditableEntity
     {
         public Guid ClientId { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? DefaultHealthCheckUrl { get; set; } = string.Empty;

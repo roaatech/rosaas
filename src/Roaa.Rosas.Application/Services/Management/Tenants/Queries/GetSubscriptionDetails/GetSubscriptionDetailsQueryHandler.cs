@@ -70,7 +70,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      Plan = new CustomLookupItemDto<Guid>
                                                      {
                                                          Id = subscription.Plan.Id,
-                                                         Name = subscription.Plan.Name,
+                                                         Name = subscription.Plan.SystemName,
                                                          Title = subscription.Plan.DisplayName,
                                                      },
                                                      PlanPrice = new PlanPriceDto

@@ -73,9 +73,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           {
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
-                                              Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
-                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
-                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
+                                              Name = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
+                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
+                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
                                           });
@@ -99,12 +99,12 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             var products = await _dbContext.Products
                                            .Where(x => string.IsNullOrWhiteSpace(clientName) ||
-                                                        clientName.ToLower().Equals(x.Client.Name))
+                                                        clientName.ToLower().Equals(x.Client.SystemName))
                                             .AsNoTracking()
                                             .Select(x => new Custom2LookupItemDto<Guid>
                                             {
                                                 Id = x.Id,
-                                                Name = x.Name,
+                                                Name = x.SystemName,
                                                 DisplayName = x.DisplayName,
                                             })
                                             .ToListAsync(cancellationToken);
@@ -118,13 +118,13 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             var products = await _dbContext.Products
                                            .Where(x => string.IsNullOrWhiteSpace(clientName) ||
-                                                        clientName.ToLower().Equals(x.Client.Name))
+                                                        clientName.ToLower().Equals(x.Client.SystemName))
                                             .AsNoTracking()
                                              .Select(product => new ProductPublishedListItemDto
                                              {
                                                  Id = product.Id,
-                                                 Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
-                                                 DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
+                                                 Name = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
+                                                 DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
                                                  Description = product.Description,
                                                  CreatedDate = product.CreationDate,
                                                  EditedDate = product.ModificationDate,
@@ -145,7 +145,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               .Select(x => new CustomLookupItemDto<Guid>
                                               {
                                                   Id = x.Id,
-                                                  Name = !string.IsNullOrWhiteSpace(x.Name) ? x.Name : x.DisplayName,
+                                                  Name = !string.IsNullOrWhiteSpace(x.SystemName) ? x.SystemName : x.DisplayName,
                                                   Title = x.DisplayName,
                                               })
                                               .ToListAsync(cancellationToken);
@@ -166,11 +166,11 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               HealthStatusChangeUrl = product.HealthStatusInformerUrl,
-                                              Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
-                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
+                                              Name = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
+                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
                                               Description = product.Description,
                                               IsPublished = product.IsPublished,
-                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
+                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
                                               ActivationEndpoint = product.ActivationUrl,
@@ -240,7 +240,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             {
                 Id = id,
                 ClientId = model.ClientId,
-                Name = model.Name,
+                SystemName = model.Name,
                 DisplayName = model.DisplayName,
                 Description = model.Description,
                 IsPublished = model.IsPublished,
@@ -379,13 +379,13 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             return !await _dbContext.Products
                                     .Where(x => x.Id != id &&
                                                x.ClientId == clientId &&
-                                                uniqueName.ToLower().Equals(x.Name))
+                                                uniqueName.ToLower().Equals(x.SystemName))
                                     .AnyAsync(cancellationToken);
         }
         private async Task<bool> EnsureUniqueUrlAsync(string url, Guid id = new Guid(), CancellationToken cancellationToken = default)
         {
             return !await _dbContext.Tenants
-                                    .Where(x => url.ToLower().Equals(x.UniqueName) && x.Id != id)
+                                    .Where(x => url.ToLower().Equals(x.SystemName) && x.Id != id)
                                     .AnyAsync(cancellationToken);
         }
 

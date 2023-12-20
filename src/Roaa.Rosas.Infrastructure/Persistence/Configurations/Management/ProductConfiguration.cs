@@ -14,7 +14,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.HasKey(x => x.Id);
             builder.HasQueryFilter(p => !p.IsDeleted);
             builder.Property(r => r.IsDeleted).HasDefaultValue(false).IsRequired();
-            builder.Property(r => r.Name).IsRequired().HasMaxLength(250);
+            builder.Property(r => r.SystemName).IsRequired().HasMaxLength(250);
             builder.Property(r => r.DisplayName).IsRequired().HasMaxLength(250);
             builder.Property(r => r.Description).IsRequired(false).HasMaxLength(500).IsUnicode();
             builder.Property(r => r.DefaultHealthCheckUrl).IsRequired(false).HasMaxLength(250);

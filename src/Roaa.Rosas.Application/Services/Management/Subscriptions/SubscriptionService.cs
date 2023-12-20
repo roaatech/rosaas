@@ -183,7 +183,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                             .Where(x => x.SubscriptionId == subscription.Id)
                                                             .Select(x => new SubscriptionFeatureItemModel(
                                                                                             subscriptionFeatureId: x.Id,
-                                                                                            name: x.Feature?.Name ?? ""))
+                                                                                            name: x.Feature?.SystemName ?? ""))
                                                             .ToList();
 
                         subscription.AddDomainEvent(new SubscriptionFeaturesLimitsResetEvent(

@@ -49,7 +49,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             var selectedQuery = query.Select(feature => new FeatureListItemDto
             {
                 Id = feature.Id,
-                Name = feature.Name,
+                Name = feature.SystemName,
                 Title = feature.DisplayName,
                 Description = feature.Description,
                 Type = feature.Type,
@@ -74,7 +74,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               .Select(feature => new FeatureListItemDto
                                               {
                                                   Id = feature.Id,
-                                                  Name = feature.Name,
+                                                  Name = feature.SystemName,
                                                   Title = feature.DisplayName,
                                                   Description = feature.Description,
                                                   Type = feature.Type,
@@ -114,7 +114,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                           .Select(feature => new FeatureDto
                                           {
                                               Id = feature.Id,
-                                              Name = feature.Name,
+                                              Name = feature.SystemName,
                                               Title = feature.DisplayName,
                                               Description = feature.Description,
                                               Type = feature.Type,
@@ -156,7 +156,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             {
                 Id = id,
                 ProductId = productId,
-                Name = model.Name,
+                SystemName = model.Name,
                 DisplayName = model.Title,
                 Description = model.Description,
                 Type = model.Type,
@@ -202,7 +202,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             #endregion
             Feature featureBeforeUpdate = feature.DeepCopy();
 
-            feature.Name = model.Name;
+            feature.SystemName = model.Name;
             feature.DisplayName = model.Title;
             feature.Description = model.Description;
             feature.Type = model.Type;
@@ -256,7 +256,7 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             return !await _dbContext.Features
                                     .Where(x => x.Id != id &&
                                                x.ProductId == productId &&
-                                                uniqueName.ToLower().Equals(x.Name))
+                                                uniqueName.ToLower().Equals(x.SystemName))
                                     .AnyAsync(cancellationToken);
         }
     }

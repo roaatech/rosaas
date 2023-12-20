@@ -70,7 +70,7 @@ namespace Roaa.Rosas.Application.Payment
 
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
-                            Name = OrderItem.Name,
+                            Name = OrderItem.SystemName,
                             Description = OrderItem.DisplayName,
                         },
                     },

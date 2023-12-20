@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 
 
             // Unique Name tenant retrieving   
-            Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
+            Expression<Func<Tenant, string>> tenantSelector = x => x.SystemName;
 
             var tenantResult = await _tenantService.GetByIdAsync(@event.TenantId, tenantSelector, cancellationToken);
 

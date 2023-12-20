@@ -45,13 +45,13 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               .Select(planPrice => new PlanPriceListItemDto
                                               {
                                                   Id = planPrice.Id,
-                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
+                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.SystemName, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
                                                   IsPublished = planPrice.IsPublished,
                                                   IsLockedBySystem = planPrice.IsLockedBySystem,
-                                                  Name = planPrice.Name,
+                                                  Name = planPrice.SystemName,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
                                                   EditedDate = planPrice.ModificationDate,
@@ -66,17 +66,17 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
         {
             var planPrice = await _dbContext.PlanPrices
                                               .AsNoTracking()
-                                              .Where(pp => productName.ToLower().Equals(pp.Plan.Product.Name))
+                                              .Where(pp => productName.ToLower().Equals(pp.Plan.Product.SystemName))
                                               .Select(planPrice => new PlanPricePublishedListItemDto
                                               {
                                                   Id = planPrice.Id,
-                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
+                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.SystemName, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
                                                   IsPublished = planPrice.IsPublished,
                                                   IsLockedBySystem = planPrice.IsLockedBySystem,
-                                                  Name = planPrice.Name,
+                                                  Name = planPrice.SystemName,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
                                                   EditedDate = planPrice.ModificationDate,
@@ -129,7 +129,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             var planPrice = new PlanPrice
             {
                 Id = Guid.NewGuid(),
-                Name = model.Name,
+                SystemName = model.Name,
                 PlanId = model.PlanId,
                 PlanCycle = model.Cycle,
                 Price = model.Price,
@@ -247,7 +247,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             return !await _dbContext.PlanPrices
                                     .Where(x => x.Id != id &&
                                                x.Plan.ProductId == productId &&
-                                                uniqueName.ToLower().Equals(x.Name))
+                                                uniqueName.ToLower().Equals(x.SystemName))
                                     .AnyAsync(cancellationToken);
         }
     }

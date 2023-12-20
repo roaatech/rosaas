@@ -55,14 +55,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 
 
             // Unique Name tenant retrieving  
-            Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
+            Expression<Func<Tenant, string>> tenantSelector = x => x.SystemName;
 
             var tenantResult = await _tenantService.GetByIdAsync(@event.TenantId, tenantSelector, cancellationToken);
 
             var specifications = await _dbContext.SpecificationValues
                                             .Where(x => x.SubscriptionId == @event.SubscriptionId)
                                             .Include(x => x.Specification)
-                                            .ToDictionaryAsync<SpecificationValue, string, dynamic>(val => val.Specification.Name, val => val.Value);
+                                            .ToDictionaryAsync<SpecificationValue, string, dynamic>(val => val.Specification.SystemName, val => val.Value);
 
 
 

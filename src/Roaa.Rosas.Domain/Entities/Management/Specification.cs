@@ -6,9 +6,9 @@ namespace Roaa.Rosas.Domain.Entities.Management
     {
         public Guid ProductId { get; set; }
 
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
 
-        public string NormalizedName { get; set; } = string.Empty;
+        public string NormalizedSystemName { get; set; } = string.Empty;
 
         public LocalizedString DisplayName { get; set; } = new();
 

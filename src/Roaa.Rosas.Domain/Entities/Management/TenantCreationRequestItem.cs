@@ -9,7 +9,7 @@
         public Guid PlanPriceId { get; set; }
         public int? CustomPeriodInDays { get; set; } = null;
         public string DisplayName { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int Quantity { get; set; }
@@ -24,6 +24,6 @@
     public class TenantCreationRequestItemSpecification
     {
         public Guid FeatureId { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
     }
 }

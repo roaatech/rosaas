@@ -33,10 +33,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
             var tenant = await _dbContext.Subscriptions
                                          .AsNoTracking()
                                          .Where(x => x.ProductId == request.ProductId &&
-                                                request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
+                                                request.TenantName.ToLower().Equals(x.Tenant.SystemName))
                                          .Select(subscription => new ProductTenantDto
                                          {
-                                             UniqueName = subscription.Tenant.UniqueName,
+                                             UniqueName = subscription.Tenant.SystemName,
                                              HealthCheckUrl = subscription.HealthCheckUrl,
                                              HealthCheckUrlIsOverridden = subscription.HealthCheckUrlIsOverridden,
                                              Title = subscription.Tenant.DisplayName,
@@ -47,7 +47,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
                                              StartDate = subscription.StartDate,
                                              LastResetDate = subscription.LastResetDate,
                                              LastLimitsResetDate = subscription.LastLimitsResetDate,
-                                             Plan = new Common.Models.CustomLookupItemDto<Guid>(subscription.PlanId, subscription.Plan.Name, subscription.Plan.DisplayName),
+                                             Plan = new Common.Models.CustomLookupItemDto<Guid>(subscription.PlanId, subscription.Plan.SystemName, subscription.Plan.DisplayName),
                                              CreatedDate = subscription.Tenant.CreationDate,
                                              EditedDate = subscription.Tenant.ModificationDate,
                                              Metadata = subscription.Metadata,
@@ -55,7 +55,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
                                              {
                                                  DisplayName = specVal.Specification.DisplayName,
                                                  Description = specVal.Specification.Description,
-                                                 Name = specVal.Specification.Name,
+                                                 Name = specVal.Specification.SystemName,
                                                  IsRequired = specVal.Specification.IsRequired,
                                                  IsUserEditable = specVal.Specification.IsUserEditable,
                                                  ValidationFailureDescription = specVal.Specification.ValidationFailureDescription,

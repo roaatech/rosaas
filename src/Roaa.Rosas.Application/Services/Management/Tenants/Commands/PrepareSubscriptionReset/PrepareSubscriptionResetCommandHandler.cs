@@ -85,7 +85,7 @@ public class PrepareSubscriptionResetCommandHandler : IRequestHandler<PrepareSub
         }
 
         // Unique Name tenant retrieving  
-        Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
+        Expression<Func<Tenant, string>> tenantSelector = x => x.SystemName;
 
         var tenantResult = await _tenantService.GetByIdAsync(command.TenantId, tenantSelector, cancellationToken);
 

@@ -2,7 +2,7 @@
 {
     public class TenantCreationRequest : BaseAuditableEntity
     {
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public decimal SubtotalInclTax { get; set; }
         public decimal SubtotalExclTax { get; set; }

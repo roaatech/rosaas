@@ -46,7 +46,7 @@ namespace Roaa.Rosas.Application.Services.Management.GeneralPlans
                                           .Select(plan => new PlanListItemDto
                                           {
                                               Id = plan.Id,
-                                              Name = plan.Name,
+                                              Name = plan.SystemName,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
@@ -72,7 +72,7 @@ namespace Roaa.Rosas.Application.Services.Management.GeneralPlans
                                           .Select(plan => new PlanDto
                                           {
                                               Id = plan.Id,
-                                              Name = plan.Name,
+                                              Name = plan.SystemName,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
                                               CreatedDate = plan.CreationDate,
@@ -101,7 +101,7 @@ namespace Roaa.Rosas.Application.Services.Management.GeneralPlans
             var plan = new Plan
             {
                 Id = id,
-                Name = model.Name,
+                SystemName = model.Name,
                 Description = model.Description,
                 DisplayOrder = model.DisplayOrder,
                 CreatedByUserId = _identityContextService.UserId,
@@ -136,7 +136,7 @@ namespace Roaa.Rosas.Application.Services.Management.GeneralPlans
 
             Plan planBeforeUpdate = plan.DeepCopy();
 
-            plan.Name = model.Name;
+            plan.SystemName = model.Name;
             plan.Description = model.Description;
             plan.DisplayOrder = model.DisplayOrder;
             plan.ModifiedByUserId = _identityContextService.UserId;

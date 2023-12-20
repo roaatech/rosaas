@@ -120,7 +120,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 {
                     if (string.IsNullOrWhiteSpace(productInDb.DisplayName))
                     {
-                        productInDb.DisplayName = productInDb.Name;
+                        productInDb.DisplayName = productInDb.SystemName;
                     }
 
                     if (!anyKey)
@@ -197,9 +197,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
             {
                 foreach (var pp in planPrices)
                 {
-                    if (string.IsNullOrWhiteSpace(pp.Name))
+                    if (string.IsNullOrWhiteSpace(pp.SystemName))
                     {
-                        pp.Name = $"{pp.Plan.Name}-{(int)pp.Price}-{pp.PlanCycle.ToString()}".ToLower();
+                        pp.SystemName = $"{pp.Plan.SystemName}-{(int)pp.Price}-{pp.PlanCycle.ToString()}".ToLower();
 
                     }
                 }
@@ -226,7 +226,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     if (pp.Plan.TenancyType == Domain.Enums.TenancyType.Unlimited)
                     {
                         pp.PlanCycle = PlanCycle.Unlimited;
-                        pp.Name = pp.Name.Replace("unlimited-custom", $"open-{PlanCycle.Unlimited}".ToLower());
+                        pp.SystemName = pp.SystemName.Replace("unlimited-custom", $"open-{PlanCycle.Unlimited}".ToLower());
                     }
                 }
 
@@ -279,7 +279,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 new Client
                     {
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
-                        Name = "roaa",
+                        SystemName = "roaa",
                         DisplayName= "Roaa Tech",
                         CreationDate = DateTime.Now,
                         ModificationDate = DateTime.Now,
@@ -297,7 +297,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     {
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.OsosProductId),
                         ClientId =  new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
-                        Name = "OSOS",
+                        SystemName = "OSOS",
                         DisplayName = "OSOS",
                         DefaultHealthCheckUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{name}}/health-check",
                         HealthStatusInformerUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/health-status-unhealthy",
@@ -319,7 +319,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     {
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.ShamsProductId),
                         ClientId =  new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
-                        Name = "SHAMS",
+                        SystemName = "SHAMS",
                         DisplayName = "SHAMS",
                         DefaultHealthCheckUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{name}}/health-check",
                         HealthStatusInformerUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/health-status-unhealthy",
@@ -341,7 +341,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     {
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.ApptomatorProductId),
                         ClientId =  new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
-                        Name = "Apptomator",
+                        SystemName = "Apptomator",
                         DisplayName = "Apptomator",
                         DefaultHealthCheckUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/{{name}}/health-check",
                         HealthStatusInformerUrl = $"{_identityServerOptions.Url}/external-system-simulator/tenants/health-status-unhealthy",

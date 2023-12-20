@@ -44,7 +44,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantsL
                                               .Select(x => new LookupItemDto<Guid>
                                               {
                                                   Id = x.Id,
-                                                  Name = x.UniqueName,
+                                                  Name = x.SystemName,
                                               })
                                               .ToListAsync(cancellationToken);
 

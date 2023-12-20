@@ -5,14 +5,14 @@ using Roaa.Rosas.Infrastructure.Common;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
 {
-    public class TenantNameConfiguration : IEntityTypeConfiguration<TenantName>
+    public class TenantSystemNameConfiguration : IEntityTypeConfiguration<TenantSystemName>
     {
         #region Configure 
-        public void Configure(EntityTypeBuilder<TenantName> builder)
+        public void Configure(EntityTypeBuilder<TenantSystemName> builder)
         {
-            builder.ToTableName("RosasTenantNames");
+            builder.ToTableName("RosasTenantSystemNames");
             builder.HasKey(x => x.Id);
-            builder.Property(r => r.Name).IsRequired().HasMaxLength(250);
+            builder.Property(r => r.SystemName).IsRequired().HasMaxLength(250);
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

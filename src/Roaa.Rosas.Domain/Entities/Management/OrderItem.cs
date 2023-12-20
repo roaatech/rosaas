@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public Guid PurchasedEntityId { get; set; }
         public EntityType PurchasedEntityType { get; set; }
         public string DisplayName { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int Quantity { get; set; }

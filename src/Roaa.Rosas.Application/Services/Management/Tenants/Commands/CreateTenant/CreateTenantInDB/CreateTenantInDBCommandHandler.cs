@@ -166,7 +166,7 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
         var res = new Tenant
         {
             Id = id,
-            UniqueName = name,
+            SystemName = name,
             DisplayName = displayName,
             CreatedByUserId = _identityContextService.GetActorId(),
             ModifiedByUserId = _identityContextService.GetActorId(),
@@ -275,7 +275,7 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
             UnitPriceExclTax = planInfo.Price,
             UnitPriceInclTax = planInfo.Price,
             Quantity = quantity,
-            Name = $"{planInfo.Product.Name}--{planInfo.PlanName}--{tenantName}",
+            SystemName = $"{planInfo.Product.Name}--{planInfo.PlanName}--{tenantName}",
             DisplayName = $"[Product: {planInfo.Product.DisplayName}], [Plan: {planInfo.PlanDisplayName}], [Tenant: {tenantDisplayName}]",
             Specifications = planInfo.Features.Select(x => new OrderItemSpecification
             {
@@ -384,7 +384,7 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
         return !await _dbContext.Subscriptions
                                 .Where(x => x.TenantId != id && x.Tenant != null &&
                                             productsIds.Contains(x.ProductId) &&
-                                            uniqueName.ToLower().Equals(x.Tenant.UniqueName))
+                                            uniqueName.ToLower().Equals(x.Tenant.SystemName))
                                 .AnyAsync(cancellationToken);
     }
 

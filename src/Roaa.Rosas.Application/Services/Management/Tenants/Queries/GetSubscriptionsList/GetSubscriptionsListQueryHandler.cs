@@ -39,7 +39,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                  {
                                                      SubscriptionId = x.Id,
                                                      TenantId = x.TenantId,
-                                                     UniqueName = x.Tenant.UniqueName,
+                                                     UniqueName = x.Tenant.SystemName,
                                                      HealthCheckUrl = x.HealthCheckUrl,
                                                      HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
                                                      Title = x.Tenant.DisplayName,
@@ -47,7 +47,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                      IsActive = x.IsActive,
                                                      EndDate = x.EndDate,
                                                      StartDate = x.StartDate,
-                                                     Plan = new Common.Models.CustomLookupItemDto<Guid>(x.PlanId, x.Plan.Name, x.Plan.DisplayName),
+                                                     Plan = new Common.Models.CustomLookupItemDto<Guid>(x.PlanId, x.Plan.SystemName, x.Plan.DisplayName),
                                                      CreatedDate = x.Tenant.CreationDate,
                                                      EditedDate = x.Tenant.ModificationDate,
                                                  })

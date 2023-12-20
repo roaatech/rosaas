@@ -71,7 +71,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
                                         .Select(x => new PlanDataModel
                                         {
                                             PlanDisplayName = x.Plan.DisplayName,
-                                            PlanName = x.Plan.Name,
+                                            PlanName = x.Plan.SystemName,
                                             PlanTenancyType = x.Plan.TenancyType,
                                             Price = x.Price,
                                             PlanPriceId = x.Id,
@@ -82,7 +82,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
                                             {
                                                 Id = x.Plan.ProductId,
                                                 ClientId = x.Plan.Product.ClientId,
-                                                Name = x.Plan.Product.Name,
+                                                Name = x.Plan.Product.SystemName,
                                                 DisplayName = x.Plan.Product.DisplayName,
                                                 Url = x.Plan.Product.DefaultHealthCheckUrl
                                             },
@@ -197,7 +197,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
                                                 PlanId = x.PlanId,
                                                 Limit = x.Limit,
                                                 FeatureDisplayName = x.Feature.DisplayName,
-                                                FeatureName = x.Feature.Name,
+                                                FeatureName = x.Feature.SystemName,
                                                 FeatureType = x.Feature.Type,
                                                 FeatureReset = x.FeatureReset,
                                             })
@@ -231,13 +231,13 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
     {
         var any = await _dbContext.TenantNames
                                   .Where(x => productsIds.Contains(x.ProductId) &&
-                                              uniqueName.ToLower().Equals(x.Name))
+                                              uniqueName.ToLower().Equals(x.SystemName))
                                   .AnyAsync(cancellationToken);
 
         return !any && !await _dbContext.Subscriptions
                                 .Where(x => x.TenantId != id && x.Tenant != null &&
                                             productsIds.Contains(x.ProductId) &&
-                                            uniqueName.ToLower().Equals(x.Tenant.UniqueName))
+                                            uniqueName.ToLower().Equals(x.Tenant.SystemName))
                                 .AnyAsync(cancellationToken);
     }
 
@@ -260,12 +260,12 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
             UnitPriceExclTax = planData.Price,
             UnitPriceInclTax = planData.Price,
             Quantity = quantity,
-            Name = $"{planData.Product.Name}--{planData.PlanName}--{tenantName}",
+            SystemName = $"{planData.Product.Name}--{planData.PlanName}--{tenantName}",
             DisplayName = $"[Product: {planData.Product.DisplayName}], [Plan: {planData.PlanDisplayName}], [Tenant: {tenantDisplayName}]",
             Specifications = planData.Features.Select(x => new TenantCreationRequestItemSpecification
             {
                 FeatureId = x.FeatureId,
-                Name = $"{x.FeatureName}-" +
+                SystemName = $"{x.FeatureName}-" +
                                 $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
                                 $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
                                 $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"
@@ -288,18 +288,18 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
             Total = items.Select(x => x.PriceInclTax).Sum(),
             Items = items,
             DisplayName = tenantDisplayName,
-            Name = tenantName,
+            SystemName = tenantName,
         };
     }
-    private List<TenantName> BuildTenantNameEntities(string tenantName, List<Guid> productIdS, Guid? tenantId = null)
+    private List<TenantSystemName> BuildTenantNameEntities(string tenantName, List<Guid> productIdS, Guid? tenantId = null)
     {
         return productIdS.Select(productId =>
-                                new TenantName()
+                                new TenantSystemName()
                                 {
                                     Id = Guid.NewGuid(),
                                     ProductId = productId,
                                     TenantId = tenantId,
-                                    Name = tenantName,
+                                    SystemName = tenantName,
                                 }).ToList();
     }
 

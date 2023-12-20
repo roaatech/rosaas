@@ -69,7 +69,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                         .Select(x => new PlanDataModel
                                         {
                                             PlanDisplayName = x.Plan.DisplayName,
-                                            PlanName = x.Plan.Name,
+                                            PlanName = x.Plan.SystemName,
                                             PlanTenancyType = x.Plan.TenancyType,
                                             Price = x.Price,
                                             PlanPriceId = x.Id,
@@ -80,7 +80,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                             {
                                                 Id = x.Plan.ProductId,
                                                 ClientId = x.Plan.Product.ClientId,
-                                                Name = x.Plan.Product.Name,
+                                                Name = x.Plan.Product.SystemName,
                                                 DisplayName = x.Plan.Product.DisplayName,
                                                 Url = x.Plan.Product.DefaultHealthCheckUrl
                                             },
@@ -182,7 +182,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                                 PlanId = x.PlanId,
                                                 Limit = x.Limit,
                                                 FeatureDisplayName = x.Feature.DisplayName,
-                                                FeatureName = x.Feature.Name,
+                                                FeatureName = x.Feature.SystemName,
                                                 FeatureType = x.Feature.Type,
                                                 FeatureReset = x.FeatureReset,
                                             })
@@ -283,7 +283,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         return new Tenant
         {
             Id = id,
-            UniqueName = name,
+            SystemName = name,
             DisplayName = displayName,
             CreatedByUserId = _identityContextService.GetActorId(),
             ModifiedByUserId = _identityContextService.GetActorId(),
@@ -390,7 +390,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             UnitPriceExclTax = planInfo.Price,
             UnitPriceInclTax = planInfo.Price,
             Quantity = quantity,
-            Name = $"{planInfo.Product.Name}--{planInfo.PlanName}--{tenantName}",
+            SystemName = $"{planInfo.Product.Name}--{planInfo.PlanName}--{tenantName}",
             DisplayName = $"[Product: {planInfo.Product.DisplayName}], [Plan: {planInfo.PlanDisplayName}], [Tenant: {tenantDisplayName}]",
             Specifications = planInfo.Features.Select(x => new OrderItemSpecification
             {
@@ -499,7 +499,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         return !await _dbContext.Subscriptions
                                 .Where(x => x.TenantId != id && x.Tenant != null &&
                                             productsIds.Contains(x.ProductId) &&
-                                            uniqueName.ToLower().Equals(x.Tenant.UniqueName))
+                                            uniqueName.ToLower().Equals(x.Tenant.SystemName))
                                 .AnyAsync(cancellationToken);
     }
 

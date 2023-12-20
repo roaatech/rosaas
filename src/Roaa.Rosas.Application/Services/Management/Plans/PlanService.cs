@@ -48,7 +48,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                           .Select(plan => new PlanListItemDto
                                           {
                                               Id = plan.Id,
-                                              Name = plan.Name,
+                                              Name = plan.SystemName,
                                               Title = plan.DisplayName,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
@@ -79,7 +79,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               .Select(plan => new PlanListItemDto
                                               {
                                                   Id = plan.Id,
-                                                  Name = plan.Name,
+                                                  Name = plan.SystemName,
                                                   Title = plan.DisplayName,
                                                   Description = plan.Description,
                                                   DisplayOrder = plan.DisplayOrder,
@@ -101,11 +101,11 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
         {
             var plans = await _dbContext.Plans
                                               .AsNoTracking()
-                                              .Where(pp => productName.ToLower().Equals(pp.Product.Name))
+                                              .Where(pp => productName.ToLower().Equals(pp.Product.SystemName))
                                               .Select(plan => new PlanPublishedListItemDto
                                               {
                                                   Id = plan.Id,
-                                                  Name = plan.Name,
+                                                  Name = plan.SystemName,
                                                   Title = plan.DisplayName,
                                                   Description = plan.Description,
                                                   DisplayOrder = plan.DisplayOrder,
@@ -130,7 +130,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               .Where(f => f.ProductId == productId)
                                               .Select(plan => new ExternalSystemPlanListItemDto
                                               {
-                                                  SystemName = plan.Name,
+                                                  SystemName = plan.SystemName,
                                                   DisplayName = plan.DisplayName,
                                                   Description = plan.Description,
                                                   DisplayOrder = plan.DisplayOrder,
@@ -141,7 +141,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   TenancyTypeName = plan.TenancyType.ToString(),
                                                   Prices = plan.Prices.Select(planPrice => new ExternalSystemPlanPriceListItemDto
                                                   {
-                                                      SystemName = planPrice.Name,
+                                                      SystemName = planPrice.SystemName,
                                                       Description = planPrice.Description,
                                                       Cycle = planPrice.PlanCycle,
                                                       CycleName = planPrice.PlanCycle.ToString(),
@@ -185,7 +185,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                           .Select(plan => new PlanDto
                                           {
                                               Id = plan.Id,
-                                              Name = plan.Name,
+                                              Name = plan.SystemName,
                                               Title = plan.DisplayName,
                                               Description = plan.Description,
                                               DisplayOrder = plan.DisplayOrder,
@@ -235,7 +235,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             {
                 Id = id,
                 ProductId = model.ProductId,
-                Name = model.Name,
+                SystemName = model.Name,
                 DisplayName = model.Title,
                 Description = model.Description,
                 DisplayOrder = model.DisplayOrder,
@@ -286,7 +286,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             #endregion
             Plan planBeforeUpdate = plan.DeepCopy();
 
-            plan.Name = model.Name;
+            plan.SystemName = model.Name;
             plan.DisplayName = model.Title;
             plan.Description = model.Description;
             plan.DisplayOrder = model.DisplayOrder;
@@ -383,7 +383,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             return !await _dbContext.Plans
                                     .Where(x => x.Id != id &&
                                                x.ProductId == productId &&
-                                                uniqueName.ToLower().Equals(x.Name))
+                                                uniqueName.ToLower().Equals(x.SystemName))
                                     .AnyAsync(cancellationToken);
         }
     }

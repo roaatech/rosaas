@@ -50,7 +50,7 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
         var productId = _identityContextService.GetProductId();
 
         var planPrice = await _dbContext.PlanPrices
-                                         .Where(x => request.PlanPriceSystemName.ToLower().Equals(x.Name))
+                                         .Where(x => request.PlanPriceSystemName.ToLower().Equals(x.SystemName))
                                          .Select(x => new
                                          {
                                              PlanPriceId = x.Id,
@@ -82,8 +82,8 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
 
             var spesifications = await _dbContext.Specifications
                                              .Where(x => x.ProductId == productId &&
-                                                         spesificationsNormalizedNames.Contains(x.NormalizedName))
-                                             .Select(x => new { x.Id, x.NormalizedName })
+                                                         spesificationsNormalizedNames.Contains(x.NormalizedSystemName))
+                                             .Select(x => new { x.Id, x.NormalizedSystemName })
                                              .ToListAsync(cancellationToken);
 
             if (spesifications.Count() != request.Specifications.Count())
@@ -94,7 +94,7 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
             specificationsModels = spesifications.Select(x => new CreateSpecificationValueModel
             {
                 SpecificationId = x.Id,
-                Value = request.Specifications.Where(rs => rs.SystemName.ToUpper().Equals(x.NormalizedName)).SingleOrDefault().Value
+                Value = request.Specifications.Where(rs => rs.SystemName.ToUpper().Equals(x.NormalizedSystemName)).SingleOrDefault().Value
             }).ToList();
         }
 
