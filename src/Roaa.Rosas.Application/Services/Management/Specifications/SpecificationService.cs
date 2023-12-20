@@ -69,6 +69,29 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
         }
 
 
+        public async Task<Result<List<ExternalSystemSpecificationListItemDto>>> GetSpecificationsListOfExternalSystemByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
+        {
+            var fields = await _dbContext.Specifications
+                                            .AsNoTracking()
+                                            .Where(f => f.ProductId == productId)
+                                            .Select(field => new ExternalSystemSpecificationListItemDto
+                                            {
+                                                DisplayName = field.DisplayName,
+                                                Description = field.Description,
+                                                SystemName = field.Name,
+                                                IsRequired = field.IsRequired,
+                                                IsUserEditable = field.IsUserEditable,
+                                                //ValidationFailureDescription = field.ValidationFailureDescription,
+                                                RegularExpression = field.RegularExpression,
+                                                IsSubscribed = field.IsSubscribed,
+                                                IsPublished = field.IsPublished,
+                                            })
+                                            .ToListAsync(cancellationToken);
+
+            return Result<List<ExternalSystemSpecificationListItemDto>>.Successful(fields);
+        }
+
+
         public async Task<Result<CreatedResult<Guid>>> CreateSpecificationAsync(Guid productId, CreateSpecificationModel model, CancellationToken cancellationToken = default)
         {
             #region Validation
