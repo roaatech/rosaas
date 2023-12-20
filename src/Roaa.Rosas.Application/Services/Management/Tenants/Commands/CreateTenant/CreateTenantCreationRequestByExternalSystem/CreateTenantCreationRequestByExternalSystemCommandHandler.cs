@@ -50,7 +50,7 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
         var productId = _identityContextService.GetProductId();
 
         var planPrice = await _dbContext.PlanPrices
-                                         .Where(x => request.PlanPriceName.ToLower().Equals(x.Name))
+                                         .Where(x => request.PlanPriceSystemName.ToLower().Equals(x.Name))
                                          .Select(x => new
                                          {
                                              PlanPriceId = x.Id,
@@ -61,7 +61,7 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
                                          .SingleOrDefaultAsync(cancellationToken);
         if (planPrice is null)
         {
-            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.PlanPriceName));
+            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.PlanPriceSystemName));
         }
 
 
@@ -78,7 +78,7 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
 
         if (request.Specifications.Any())
         {
-            var spesificationsNormalizedNames = request.Specifications.Select(x => x.Name.ToUpper()).ToList();
+            var spesificationsNormalizedNames = request.Specifications.Select(x => x.SystemName.ToUpper()).ToList();
 
             var spesifications = await _dbContext.Specifications
                                              .Where(x => x.ProductId == productId &&
@@ -88,13 +88,13 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
 
             if (spesifications.Count() != request.Specifications.Count())
             {
-                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.PlanPriceName));
+                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "Spesifications.SystemName");
             }
 
             specificationsModels = spesifications.Select(x => new CreateSpecificationValueModel
             {
                 SpecificationId = x.Id,
-                Value = request.Specifications.Where(rs => rs.Name.ToUpper().Equals(x.NormalizedName)).SingleOrDefault().Value
+                Value = request.Specifications.Where(rs => rs.SystemName.ToUpper().Equals(x.NormalizedName)).SingleOrDefault().Value
             }).ToList();
         }
 
@@ -103,7 +103,7 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
         var model = new TenantCreationRequestCommand
         {
             Title = request.TenantDisplayName,
-            UniqueName = request.TenantName,
+            UniqueName = request.TenantSystemName,
             Subscriptions = new List<CreateSubscriptionModel>
             {
                 new CreateSubscriptionModel

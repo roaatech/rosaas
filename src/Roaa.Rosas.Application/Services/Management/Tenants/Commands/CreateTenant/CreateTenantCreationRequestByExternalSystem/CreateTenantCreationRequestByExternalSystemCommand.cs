@@ -7,14 +7,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTena
 public record CreateTenantCreationRequestByExternalSystemCommand : IRequest<Result<TenantCreatedResultDto>>
 {
     public List<CreateSpecificationValueByExternalSysytemModel> Specifications { get; set; } = new();
-    public string TenantName { get; set; } = string.Empty;
+    public string TenantSystemName { get; set; } = string.Empty;
     public string TenantDisplayName { get; set; } = string.Empty;
-    public string PlanPriceName { get; set; } = string.Empty;
+    public string PlanPriceSystemName { get; set; } = string.Empty;
     public int? CustomPeriodInDays { get; set; } = null;
 }
 
 public record CreateSpecificationValueByExternalSysytemModel
 {
-    public string Name { get; set; } = string.Empty;
+    public string SystemName { get; set; } = string.Empty;
     public string Value { get; set; } = string.Empty;
 }

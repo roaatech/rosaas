@@ -11,15 +11,15 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandValidator
     public CreateTenantCreationRequestByExternalSystemCommandValidator(IIdentityContextService identityContextService)
     {
 
-        RuleFor(x => x.TenantName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        RuleFor(x => x.TenantSystemName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
-        RuleFor(x => x.TenantName).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+        RuleFor(x => x.TenantSystemName).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
 
-        RuleFor(x => x.PlanPriceName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        RuleFor(x => x.PlanPriceSystemName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
         RuleFor(x => x.Specifications)
                    .Must(specification => !specification
-                               .GroupBy(x => x.Name)
+                               .GroupBy(x => x.SystemName)
                                .Any(g => g.Count() > 1)
                          )
                   .WithError(ErrorMessage.SpecificationsIdsDuplicated, identityContextService.Locale);
