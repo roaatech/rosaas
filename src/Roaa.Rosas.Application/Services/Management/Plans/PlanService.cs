@@ -123,6 +123,43 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             return Result<List<PlanPublishedListItemDto>>.Successful(plans);
         }
 
+        public async Task<Result<List<ExternalSystemPlanListItemDto>>> GetPlansListOfExternalSystemByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
+        {
+            var plans = await _dbContext.Plans
+                                              .AsNoTracking()
+                                              .Where(f => f.ProductId == productId)
+                                              .Select(plan => new ExternalSystemPlanListItemDto
+                                              {
+                                                  SystemName = plan.Name,
+                                                  DisplayName = plan.DisplayName,
+                                                  Description = plan.Description,
+                                                  DisplayOrder = plan.DisplayOrder,
+                                                  IsPublished = plan.IsPublished,
+                                                  IsSubscribed = plan.IsSubscribed,
+                                                  IsLockedBySystem = plan.IsLockedBySystem,
+                                                  TenancyType = plan.TenancyType,
+                                                  TenancyTypeName = plan.TenancyType.ToString(),
+                                                  Prices = plan.Prices.Select(planPrice => new ExternalSystemPlanPriceListItemDto
+                                                  {
+                                                      SystemName = planPrice.Name,
+                                                      Description = planPrice.Description,
+                                                      Cycle = planPrice.PlanCycle,
+                                                      CycleName = planPrice.PlanCycle.ToString(),
+                                                      Price = planPrice.Price,
+                                                      IsSubscribed = planPrice.IsSubscribed,
+                                                      IsPublished = planPrice.IsPublished,
+                                                      IsLockedBySystem = planPrice.IsLockedBySystem,
+
+                                                  }).ToList(),
+                                              })
+                                              .OrderByDescending(x => x.DisplayOrder)
+                                              .ToListAsync(cancellationToken);
+
+            return Result<List<ExternalSystemPlanListItemDto>>.Successful(plans);
+        }
+
+
+
         public async Task<Result<List<LookupItemDto<Guid>>>> GetPlansLookupListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
             var plans = await _dbContext.Plans
