@@ -80,7 +80,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                             {
                                                 Id = x.Plan.ProductId,
                                                 ClientId = x.Plan.Product.ClientId,
-                                                Name = x.Plan.Product.SystemName,
+                                                SystemName = x.Plan.Product.SystemName,
                                                 DisplayName = x.Plan.Product.DisplayName,
                                                 Url = x.Plan.Product.DefaultHealthCheckUrl
                                             },
@@ -390,13 +390,13 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             UnitPriceExclTax = planInfo.Price,
             UnitPriceInclTax = planInfo.Price,
             Quantity = quantity,
-            SystemName = $"{planInfo.Product.Name}--{planInfo.PlanName}--{tenantName}",
+            SystemName = $"{planInfo.Product.SystemName}--{planInfo.PlanName}--{tenantName}",
             DisplayName = $"[Product: {planInfo.Product.DisplayName}], [Plan: {planInfo.PlanDisplayName}], [Tenant: {tenantDisplayName}]",
             Specifications = planInfo.Features.Select(x => new OrderItemSpecification
             {
                 PurchasedEntityId = x.FeatureId,
                 PurchasedEntityType = Common.Enums.EntityType.Feature,
-                Name = $"{x.FeatureName}-" +
+                SystemName = $"{x.FeatureName}-" +
                                 $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
                                 $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
                                 $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"

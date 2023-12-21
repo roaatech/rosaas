@@ -30,6 +30,6 @@ namespace Roaa.Rosas.Domain.Entities.Management
     {
         public Guid PurchasedEntityId { get; set; }
         public EntityType PurchasedEntityType { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
     }
 }

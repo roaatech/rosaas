@@ -275,13 +275,13 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
             UnitPriceExclTax = planInfo.Price,
             UnitPriceInclTax = planInfo.Price,
             Quantity = quantity,
-            SystemName = $"{planInfo.Product.Name}--{planInfo.PlanName}--{tenantName}",
+            SystemName = $"{planInfo.Product.SystemName}--{planInfo.PlanName}--{tenantName}",
             DisplayName = $"[Product: {planInfo.Product.DisplayName}], [Plan: {planInfo.PlanDisplayName}], [Tenant: {tenantDisplayName}]",
             Specifications = planInfo.Features.Select(x => new OrderItemSpecification
             {
                 PurchasedEntityId = x.FeatureId,
                 PurchasedEntityType = Common.Enums.EntityType.Feature,
-                Name = $"{x.FeatureName}-" +
+                SystemName = $"{x.FeatureName}-" +
                                 $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
                                 $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
                                 $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"

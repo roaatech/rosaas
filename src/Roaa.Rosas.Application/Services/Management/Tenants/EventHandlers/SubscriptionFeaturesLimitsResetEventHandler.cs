@@ -27,7 +27,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
         public async Task Handle(SubscriptionFeaturesLimitsResetEvent @event, CancellationToken cancellationToken)
         {
 
-            var features = @event.SubscriptionFeatures.Select(x => x.Name);
+            var features = @event.SubscriptionFeatures.Select(x => x.SystemName);
 
             await _publisher.Publish(new TenantProcessingCompletedEvent(
                                                 processType: TenantProcessType.SubscriptionResetAppliedDone,

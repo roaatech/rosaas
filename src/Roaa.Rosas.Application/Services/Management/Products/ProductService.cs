@@ -93,7 +93,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
 
 
-        public async Task<Result<List<Custom2LookupItemDto<Guid>>>> GetProductsLookupListAsync(string clientName, CancellationToken cancellationToken = default)
+        public async Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(string clientName, CancellationToken cancellationToken = default)
         {
 
 
@@ -101,15 +101,15 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                            .Where(x => string.IsNullOrWhiteSpace(clientName) ||
                                                         clientName.ToLower().Equals(x.Client.SystemName))
                                             .AsNoTracking()
-                                            .Select(x => new Custom2LookupItemDto<Guid>
+                                            .Select(x => new CustomLookupItemDto<Guid>
                                             {
                                                 Id = x.Id,
-                                                Name = x.SystemName,
+                                                SystemName = x.SystemName,
                                                 DisplayName = x.DisplayName,
                                             })
                                             .ToListAsync(cancellationToken);
 
-            return Result<List<Custom2LookupItemDto<Guid>>>.Successful(products);
+            return Result<List<CustomLookupItemDto<Guid>>>.Successful(products);
         }
 
         public async Task<Result<List<ProductPublishedListItemDto>>> GetProductPublishedListAsync(string clientName, CancellationToken cancellationToken = default)
@@ -145,7 +145,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               .Select(x => new CustomLookupItemDto<Guid>
                                               {
                                                   Id = x.Id,
-                                                  Name = !string.IsNullOrWhiteSpace(x.SystemName) ? x.SystemName : x.DisplayName,
+                                                  SystemName = !string.IsNullOrWhiteSpace(x.SystemName) ? x.SystemName : x.DisplayName,
                                                   DisplayName = x.DisplayName,
                                               })
                                               .ToListAsync(cancellationToken);
@@ -221,9 +221,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueNameAsync(model.ClientId, model.Name))
+            if (!await EnsureUniqueNameAsync(model.ClientId, model.SystemName))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
 
             //if (!await EnsureUniqueUrlAsync(model.DefaultHealthCheckUrl))
@@ -240,7 +240,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             {
                 Id = id,
                 ClientId = model.ClientId,
-                SystemName = model.Name,
+                SystemName = model.SystemName,
                 DisplayName = model.DisplayName,
                 Description = model.Description,
                 IsPublished = model.IsPublished,

@@ -7,7 +7,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications.Models
     {
         public Guid Id { get; set; }
 
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
 
         public LocalizedString DisplayName { get; set; } = new();
 

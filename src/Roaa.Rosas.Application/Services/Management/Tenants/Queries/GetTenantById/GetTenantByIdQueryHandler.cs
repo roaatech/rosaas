@@ -67,12 +67,12 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                     Product = new LookupItemDto<Guid>
                                                     {
                                                         Id = subscription.Product.Id,
-                                                        Name = subscription.Product.DisplayName,
+                                                        SystemName = subscription.Product.DisplayName,
                                                     },
                                                     Plan = new LookupItemDto<Guid>
                                                     {
                                                         Id = subscription.Plan.Id,
-                                                        Name = subscription.Plan.DisplayName,
+                                                        SystemName = subscription.Plan.DisplayName,
                                                     },
                                                     ProductId = subscription.ProductId,
                                                     SubscriptionId = subscription.Id,

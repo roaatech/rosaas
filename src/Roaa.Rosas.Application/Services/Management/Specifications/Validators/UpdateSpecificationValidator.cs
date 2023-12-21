@@ -11,7 +11,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications.Validators
     {
         public UpdateSpecificationValidator(IIdentityContextService identityContextService)
         {
-            RuleFor(x => x.Name).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+            RuleFor(x => x.SystemName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
             RuleFor(x => x.DisplayName).Must(localizedName => ValidationHelper.ValidateLocalizedName(localizedName)).WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 

@@ -4,6 +4,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTena
 
 public record ProductInfoModel : ProductUrlListItem
 {
-    public string Name { get; set; } = string.Empty;
+    public string SystemName { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
 }

@@ -97,9 +97,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               .Select(feature => new LookupItemDto<Guid>
                                               {
                                                   Id = feature.Id,
-                                                  Name = feature.DisplayName,
+                                                  SystemName = feature.DisplayName,
                                               })
-                                               .OrderBy(x => x.Name)
+                                               .OrderBy(x => x.SystemName)
                                               .ToListAsync(cancellationToken);
 
             return Result<List<LookupItemDto<Guid>>>.Successful(features);

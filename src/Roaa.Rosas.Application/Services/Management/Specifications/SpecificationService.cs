@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                                                 Id = field.Id,
                                                 DisplayName = field.DisplayName,
                                                 Description = field.Description,
-                                                Name = field.SystemName,
+                                                SystemName = field.SystemName,
                                                 DataType = field.DataType,
                                                 InputType = field.InputType,
                                                 IsRequired = field.IsRequired,
@@ -101,9 +101,9 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueNameAsync(productId, model.Name, null, cancellationToken))
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName, null, cancellationToken))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
             #endregion
 
@@ -115,8 +115,8 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             {
                 Id = id,
                 ProductId = productId,
-                SystemName = model.Name,
-                NormalizedSystemName = model.Name.ToUpper(),
+                SystemName = model.SystemName,
+                NormalizedSystemName = model.SystemName.ToUpper(),
                 DisplayName = model.DisplayName,
                 Description = model.Description,
                 DataType = model.DataType,
@@ -149,9 +149,9 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueNameAsync(productId, model.Name, id, cancellationToken))
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName, id, cancellationToken))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
 
             var field = await _dbContext.Specifications.Where(x => x.Id == id && x.ProductId == productId).SingleOrDefaultAsync();
@@ -168,8 +168,8 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
 
             Specification fieldBeforeUpdate = field.DeepCopy();
 
-            field.SystemName = model.Name;
-            field.NormalizedSystemName = model.Name.ToUpper();
+            field.SystemName = model.SystemName;
+            field.NormalizedSystemName = model.SystemName.ToUpper();
             field.DisplayName = model.DisplayName;
             field.Description = model.Description;
             field.DataType = model.DataType;

@@ -51,7 +51,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                                   IsSubscribed = planPrice.IsSubscribed,
                                                   IsPublished = planPrice.IsPublished,
                                                   IsLockedBySystem = planPrice.IsLockedBySystem,
-                                                  Name = planPrice.SystemName,
+                                                  SystemName = planPrice.SystemName,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
                                                   EditedDate = planPrice.ModificationDate,
@@ -76,7 +76,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                                   IsSubscribed = planPrice.IsSubscribed,
                                                   IsPublished = planPrice.IsPublished,
                                                   IsLockedBySystem = planPrice.IsLockedBySystem,
-                                                  Name = planPrice.SystemName,
+                                                  SystemName = planPrice.SystemName,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
                                                   EditedDate = planPrice.ModificationDate,
@@ -95,9 +95,9 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueNameAsync(productId, model.Name))
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
 
             var plan = await _dbContext.Plans.Where(x => x.Id == model.PlanId && x.ProductId == productId).SingleOrDefaultAsync();
@@ -129,7 +129,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             var planPrice = new PlanPrice
             {
                 Id = Guid.NewGuid(),
-                SystemName = model.Name,
+                SystemName = model.SystemName,
                 PlanId = model.PlanId,
                 PlanCycle = model.Cycle,
                 Price = model.Price,

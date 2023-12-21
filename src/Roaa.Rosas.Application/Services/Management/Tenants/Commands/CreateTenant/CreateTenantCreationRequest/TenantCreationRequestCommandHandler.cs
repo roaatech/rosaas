@@ -82,7 +82,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
                                             {
                                                 Id = x.Plan.ProductId,
                                                 ClientId = x.Plan.Product.ClientId,
-                                                Name = x.Plan.Product.SystemName,
+                                                SystemName = x.Plan.Product.SystemName,
                                                 DisplayName = x.Plan.Product.DisplayName,
                                                 Url = x.Plan.Product.DefaultHealthCheckUrl
                                             },
@@ -260,7 +260,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
             UnitPriceExclTax = planData.Price,
             UnitPriceInclTax = planData.Price,
             Quantity = quantity,
-            SystemName = $"{planData.Product.Name}--{planData.PlanName}--{tenantName}",
+            SystemName = $"{planData.Product.SystemName}--{planData.PlanName}--{tenantName}",
             DisplayName = $"[Product: {planData.Product.DisplayName}], [Plan: {planData.PlanDisplayName}], [Tenant: {tenantDisplayName}]",
             Specifications = planData.Features.Select(x => new TenantCreationRequestItemSpecification
             {

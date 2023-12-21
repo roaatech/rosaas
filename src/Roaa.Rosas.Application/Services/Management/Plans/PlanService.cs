@@ -61,9 +61,9 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               TenancyType = plan.TenancyType,
                                           });
 
-            sort = sort.HandleDefaultSorting(new string[] { "Description", "Name", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
+            sort = sort.HandleDefaultSorting(new string[] { "Description", "SystemName", "DisplayName", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
 
-            query = query.Where(filters, new string[] { "ProductId", "_Description", "_Name" }, "CreatedDate");
+            query = query.Where(filters, new string[] { "ProductId", "_Description", "_SystemName", "_DisplayName" }, "CreatedDate");
 
             query = query.OrderBy(sort);
 
@@ -168,9 +168,9 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               .Select(plan => new LookupItemDto<Guid>
                                               {
                                                   Id = plan.Id,
-                                                  Name = plan.DisplayName,
+                                                  SystemName = plan.DisplayName,
                                               })
-                                               .OrderBy(x => x.Name)
+                                               .OrderBy(x => x.SystemName)
                                               .ToListAsync(cancellationToken);
 
             return Result<List<LookupItemDto<Guid>>>.Successful(plans);

@@ -57,7 +57,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                                  Feature = new LookupItemDto<Guid>
                                                                  {
                                                                      Id = subscriptionFeature.Feature.Id,
-                                                                     Name = subscriptionFeature.Feature.DisplayName,
+                                                                     SystemName = subscriptionFeature.Feature.DisplayName,
                                                                  },
                                                              })
                                                              .ToListAsync(cancellationToken);
