@@ -131,6 +131,8 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
 
         var featuresIds = tenant.Subscriptions.SelectMany(x => x.SubscriptionFeatures.Select(x => x.FeatureId).ToList()).ToList();
         var plansPricesIds = tenant.Subscriptions.Select(x => x.PlanPriceId).ToList();
+        var productsIds = tenant.Subscriptions.Select(x => x.ProductId).ToList();
+
 
         var plans = await _dbContext.Plans.Where(x => planIds.Contains(x.Id)).ToListAsync(cancellationToken);
         foreach (var plan in plans)
@@ -150,6 +152,15 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
         {
             planPrice.IsSubscribed = true;
         }
+
+        var tenantSystemNames = await _dbContext.TenantSystemNames.Where(x => productsIds.Contains(x.ProductId) &&
+                                                                  tenant.SystemName.ToUpper().Equals(x.TenantNormalizedSystemName))
+                                                      .ToListAsync(cancellationToken);
+        foreach (var tenantSystemName in tenantSystemNames)
+        {
+            tenantSystemName.TenantId = tenant.Id;
+        }
+
 
         var res = await _dbContext.SaveChangesAsync(cancellationToken);
 
