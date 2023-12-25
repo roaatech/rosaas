@@ -130,5 +130,10 @@ namespace Roaa.Rosas.Application.SystemMessages
         Ar = "يجب أن تكون الخطط غير المحدودة ذات دورة غير محدودة")]
         UnlimitedPlansHaveToBeUnlimitedCycle = 3016,
 
+        [Localization(
+        En = "You have to select a payment method",
+        Ar = "يجب تحديد طريقة الدفع")]
+        SelectPaymentMethod = 3017,
+
     }
 }

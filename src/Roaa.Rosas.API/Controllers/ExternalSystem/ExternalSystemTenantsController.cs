@@ -46,7 +46,7 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         [HttpPost()]
         public async Task<IActionResult> CreateTenantByExternalSysytemAsync([FromBody] CreateTenantCreationRequestByExternalSystemCommand command, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(command, cancellationToken));
+            return ItemResult(await _mediator.Send(command, cancellationToken));
         }
 
 

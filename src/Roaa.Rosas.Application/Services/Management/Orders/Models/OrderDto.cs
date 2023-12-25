@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
         public decimal OrderSubtotalExclTax { get; set; }
         public decimal OrderTotal { get; set; }
         public DateTime? PaidDate { get; set; }
-        public Guid TenantId { get; set; }
+        public Guid? TenantId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
     }

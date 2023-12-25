@@ -10,14 +10,13 @@ public record TenantCreatedResultDto
         HasToPay = false;
     }
 
-    public TenantCreatedResultDto(Guid tenantCreationRequestId)
+    public TenantCreatedResultDto(Guid orderId, bool hasToPay)
     {
-        TenantCreationRequestId = tenantCreationRequestId;
-        HasToPay = true;
+        OrderId = orderId;
+        HasToPay = hasToPay;
     }
 
     public bool HasToPay { get; set; }
-    public Guid TenantCreationRequestId { get; set; }
     public Guid Id { get; set; }
     public Guid OrderId { get; set; }
     public IEnumerable<ProductTenantCreatedResultDto> Products { get; set; }

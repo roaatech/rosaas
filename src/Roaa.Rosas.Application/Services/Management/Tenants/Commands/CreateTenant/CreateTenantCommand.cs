@@ -1,24 +1,5 @@
-﻿using MediatR;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
-using Roaa.Rosas.Common.Models.Results;
+﻿namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
-
-public record CreateTenantCommand : IRequest<Result<TenantCreatedResultDto>>
-{
-    public CreateTenantCommand()
-    {
-    }
-
-    public List<CreateSubscriptionModel> Subscriptions { get; set; } = new();
-    public string SystemName { get; set; } = string.Empty;
-    public string DisplayName { get; set; } = string.Empty;
-}
-public record CreateTenantByExternalSystemModel
-{
-    public string SystemName { get; set; } = string.Empty;
-    public string DisplayName { get; set; } = string.Empty;
-}
 
 public record CreateSubscriptionModel
 {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
+using Roaa.Rosas.Application.Payment.Services;
 using Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges;
 using Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges.Models;
 using Roaa.Rosas.Application.Services.Management.Settings;
@@ -20,6 +21,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
         private readonly ITenantWorkflow _workflow;
         private readonly IIdentityContextService _identityContextService;
         private readonly ITenantService _tenantService;
+        private readonly IPaymentService _paymentService;
         private readonly ISpecificationService _specificationService;
         private readonly ISettingService _settingService;
         private readonly IEntityAdminPrivilegeService _tenantAdminService;
@@ -27,6 +29,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
         public TenantCreatedInStoreEventHandler(ITenantWorkflow workflow,
                                                 IIdentityContextService identityContextService,
                                                 ITenantService tenantService,
+                                                IPaymentService paymentService,
                                                 ISpecificationService specificationService,
                                                 ISettingService settingService,
                                                 IEntityAdminPrivilegeService tenantAdminService,
@@ -35,6 +38,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             _workflow = workflow;
             _identityContextService = identityContextService;
             _tenantService = tenantService;
+            _paymentService = paymentService;
             _specificationService = specificationService;
             _settingService = settingService;
             _tenantAdminService = tenantAdminService;
@@ -63,11 +67,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             //if (settings.SendCreationRequestAutomaticallyAfterTenantCreatedInStore)
             //{
             //    await SetTenantNextStatusAsync(@event, cancellationToken);
-            //}
-
+            //} 
 
             await SetTenantNextStatusAsync(@event, cancellationToken);
-
         }
 
         private async Task SetTenantNextStatusAsync(TenantCreatedInStoreEvent @event, CancellationToken cancellationToken)

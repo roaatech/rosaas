@@ -75,8 +75,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<JobTask> JobTasks { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<TenantCreationRequest> TenantCreationRequests { get; set; }
-        public DbSet<TenantCreationRequestItem> TenantCreationRequestItems { get; set; }
-        public DbSet<TenantSystemName> TenantNames { get; set; }
+        public DbSet<TenantCreationRequestSpecification> TenantCreationRequestSpecifications { get; set; }
+        public DbSet<TenantSystemName> TenantSystemNames { get; set; }
         public DbSet<AuditEntity> Audits { get; set; }
         #endregion
 

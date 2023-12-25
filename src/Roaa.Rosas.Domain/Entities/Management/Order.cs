@@ -1,14 +1,16 @@
 ﻿using Roaa.Rosas.Common.Enums;
+using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Domain.Entities.Management
 {
     public class Order : BaseAuditableEntity
     {
-        public Guid TenantId { get; set; }
+        public Guid? TenantId { get; set; }
         public int OrderNumber { get; }
         public OrderStatus OrderStatus { get; set; }
         public PaymentStatus? PaymentStatus { get; set; }
         public PaymentMethodType? PaymentMethodType { get; set; }
+        public DateTime? PaymentProcessingExpirationDate { get; set; } = null;
         public CurrencyCode UserCurrencyType { get; set; }
         public string UserCurrencyCode { get; set; } = string.Empty;
         public decimal CurrencyRate { get; set; }
@@ -41,6 +43,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public UserType PayerUserType { get; set; }
 
         public UserType CreatedByUserType { get; set; }
+
+        public OrderIntent OrderIntent { get; set; }
 
         public virtual Tenant? Tenant { get; set; }
 

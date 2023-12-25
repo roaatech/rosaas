@@ -7,6 +7,8 @@ using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service.Models;
 using Roaa.Rosas.Application.SystemMessages;
@@ -196,6 +198,207 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             return Result<List<SetTenantNextStatusResult>>.Successful(results);
         }
 
+
+        public List<TenantSystemName> BuildTenantSystemNameEntities(string systemName, List<Guid> productIdS, Guid tenantCreationRequestId, Guid? tenantId = null)
+        {
+            return productIdS.Select(productId =>
+                                    new TenantSystemName()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        ProductId = productId,
+                                        TenantId = tenantId,
+                                        TenantCreationRequestId = tenantCreationRequestId,
+                                        TenantNormalizedSystemName = systemName.ToUpper(),
+                                        // DisplayName = displayName,
+                                    }).ToList();
+        }
+
+
+        public TenantCreationRequest BuildTenantCreationRequestEntity(Guid orderId, string systemName, string displayName, List<TenantCreationRequestSpecification> specifications)
+        {
+            return new TenantCreationRequest
+            {
+                Id = Guid.NewGuid(),
+                OrderId = orderId,
+                NormalizedSystemName = systemName.ToUpper(),
+                DisplayName = displayName,
+                CreatedByUserId = _identityContextService.GetActorId(),
+                ModifiedByUserId = _identityContextService.GetActorId(),
+                CreationDate = DateTime.UtcNow,
+                ModificationDate = DateTime.UtcNow,
+                Specifications = specifications.Select(spec =>
+                                    new TenantCreationRequestSpecification()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        ProductId = spec.ProductId,
+                                        SpecificationId = spec.SpecificationId,
+                                        Value = spec.Value
+
+                                    }).ToList(),
+            };
+        }
+
+
+        public async Task<Result<List<TenantCreationPreparationModel>>> PrepareTenantCreationAsync(TenantCreationRequestModel request, Guid? tenantCreationRequestId, CancellationToken cancellationToken = default)
+        {
+            #region Validation  
+            var planPriceIds = request.Subscriptions.Select(x => x.PlanPriceId).ToList();
+
+            var planDataList = await _dbContext.PlanPrices
+                                            .AsNoTracking()
+                                            .Where(x => planPriceIds.Contains(x.Id))
+                                            .Select(x => new TenantCreationPreparationModel
+                                            {
+                                                Plan = new()
+                                                {
+                                                    Id = x.PlanId,
+                                                    DisplayName = x.Plan.DisplayName,
+                                                    SystemName = x.Plan.SystemName,
+                                                    TenancyType = x.Plan.TenancyType,
+                                                    IsPublished = x.Plan.IsPublished,
+                                                },
+                                                PlanPrice = new()
+                                                {
+                                                    Id = x.Id,
+                                                    Price = x.Price,
+                                                    PlanCycle = x.PlanCycle,
+                                                },
+                                                Product = new ProductDataModel
+                                                {
+                                                    Id = x.Plan.ProductId,
+                                                    ClientId = x.Plan.Product.ClientId,
+                                                    SystemName = x.Plan.Product.SystemName,
+                                                    DisplayName = x.Plan.Product.DisplayName,
+                                                    Url = x.Plan.Product.DefaultHealthCheckUrl
+                                                },
+
+                                            })
+                                            .ToListAsync(cancellationToken);
+
+            if (planDataList is null || !planDataList.Any())
+            {
+                return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(request.Subscriptions));
+            }
+
+
+            foreach (var item in planDataList)
+            {
+                var req = request.Subscriptions.Where(x => x.ProductId == item.Product.Id).FirstOrDefault();
+                if (req is null)
+                {
+                    return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.Subscriptions));
+                }
+
+                if (request.Subscriptions.Where(x => x.ProductId == item.Product.Id).Count() > 1)
+                {
+                    return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.Subscriptions));
+                }
+
+                if (item.Plan.TenancyType == TenancyType.Planed && !item.Plan.IsPublished)
+                {
+                    return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "PlanId");
+                }
+
+                if (item.PlanPrice.PlanCycle == PlanCycle.Custom && req.CustomPeriodInDays is null && item.Plan.TenancyType != TenancyType.Unlimited)
+                {
+                    return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(req.CustomPeriodInDays));
+                }
+            }
+
+
+            if (!await EnsureSystemNameIsUniqueAsync(request.Subscriptions.Select(x => x.ProductId).ToList(), request.SystemName, tenantCreationRequestId ?? Guid.NewGuid()))
+            {
+                return Result<List<TenantCreationPreparationModel>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.SystemName));
+            }
+
+
+
+            var initialProcess = await _workflow.GetNextStageAsync(expectedResourceStatus: ExpectedTenantResourceStatus.None,
+                                                                        currentStatus: TenantStatus.None,
+                                                                        currentStep: TenantStep.None,
+                                                                        userType: _identityContextService.GetUserType());
+
+            if (initialProcess is null)
+            {
+                return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale, nameof(request.SystemName));
+            }
+
+            #endregion
+
+            planDataList = await PreparePlanDataListAsync(request, planDataList, cancellationToken);
+
+            return Result<List<TenantCreationPreparationModel>>.Successful(planDataList);
+        }
+
+
+
         #endregion
+
+
+        #region Utilities     
+        private async Task<List<TenantCreationPreparationModel>> PreparePlanDataListAsync(TenantCreationRequestModel request, List<TenantCreationPreparationModel> planDataList, CancellationToken cancellationToken = default)
+        {
+            var planIds = request.Subscriptions.Select(x => x.PlanId)
+                                               .ToList();
+            var featuresInfo = await _dbContext.PlanFeatures
+                                                .AsNoTracking()
+                                                .Where(x => planIds.Contains(x.PlanId))
+                                                .Select(x => new PlanFeatureInfoModel
+                                                {
+                                                    PlanFeatureId = x.Id,
+                                                    FeatureId = x.FeatureId,
+                                                    FeatureUnit = x.FeatureUnit,
+                                                    PlanId = x.PlanId,
+                                                    Limit = x.Limit,
+                                                    FeatureDisplayName = x.Feature.DisplayName,
+                                                    FeatureName = x.Feature.SystemName,
+                                                    FeatureType = x.Feature.Type,
+                                                    FeatureReset = x.FeatureReset,
+                                                })
+                                                .ToListAsync(cancellationToken);
+
+
+
+            var productsIds = request.Subscriptions.Select(x => x.ProductId)
+                                                   .ToList();
+            var specifications = await _dbContext.Specifications
+                                             .Where(x => productsIds.Contains(x.ProductId) &&
+                                                         x.IsPublished)
+                                             .Select(x => new SpecificationInfoModel
+                                             {
+                                                 ProductId = x.ProductId,
+                                                 SpecificationId = x.Id,
+                                             })
+                                             .ToListAsync();
+
+            foreach (var item in planDataList)
+            {
+                var req = request.Subscriptions.Where(x => x.ProductId == item.Product.Id).FirstOrDefault();
+                item.PlanPrice.CustomPeriodInDays = req.CustomPeriodInDays;
+                item.Features = featuresInfo.Where(x => x.PlanId == item.Plan.Id).ToList();
+                item.Specifications = specifications.Where(x => x.ProductId == item.Product.Id).ToList();
+            }
+
+            return planDataList;
+        }
+        private async Task<bool> EnsureSystemNameIsUniqueAsync(List<Guid> productsIds, string systemName, Guid tenantCreationRequestId = new Guid(), CancellationToken cancellationToken = default)
+        {
+            var any = await _dbContext.TenantSystemNames
+                                      .Where(x => x.TenantCreationRequestId != tenantCreationRequestId &&
+                                                  productsIds.Contains(x.ProductId) &&
+                                                  systemName.ToUpper().Equals(x.TenantNormalizedSystemName))
+                                      .AnyAsync(cancellationToken);
+
+            return !any && !await _dbContext.Subscriptions
+                                    .Where(x =>
+                                                productsIds.Contains(x.ProductId) &&
+                                                systemName.ToLower().Equals(x.Tenant.SystemName))
+                                    .AnyAsync(cancellationToken);
+        }
+
+        #endregion
+
+
+
     }
 }

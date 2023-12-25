@@ -1,26 +1,19 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Payment.Models;
+using Roaa.Rosas.Application.Payment.Services;
+using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.Products;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantInDB;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
-using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
-using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
-using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
-using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Enums;
-using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
 
-public partial class TenantCreationRequestCommandHandler : IRequestHandler<TenantCreationRequestCommand, Result<TenantCreatedResultDto>>
+public partial class TenantCreationRequestCommandHandler : IRequestHandler<TenantCreationRequestCommand, Result<TenantCreationRequestResultDto>>
 {
     #region Props 
     private readonly IPublisher _publisher;
@@ -28,6 +21,9 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
     private readonly IRosasDbContext _dbContext;
     private readonly ITenantWorkflow _workflow;
     private readonly IProductService _productService;
+    private readonly IOrderService _orderService;
+    private readonly ITenantService _tenantService;
+    private readonly IPaymentService _paymentService;
     private readonly IExternalSystemAPI _externalSystemAPI;
     private readonly IIdentityContextService _identityContextService;
     private readonly ILogger<TenantCreationRequestCommandHandler> _logger;
@@ -42,6 +38,9 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
         IRosasDbContext dbContext,
         ITenantWorkflow workflow,
         IProductService productService,
+        IOrderService orderService,
+         ITenantService tenantService,
+         IPaymentService paymentService,
         IExternalSystemAPI externalSystemAPI,
         IIdentityContextService identityContextService,
         ILogger<TenantCreationRequestCommandHandler> logger)
@@ -51,6 +50,9 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
         _dbContext = dbContext;
         _workflow = workflow;
         _productService = productService;
+        _orderService = orderService;
+        _tenantService = tenantService;
+        _paymentService = paymentService;
         _externalSystemAPI = externalSystemAPI;
         _identityContextService = identityContextService;
         _logger = logger;
@@ -60,248 +62,66 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
 
 
     #region Handler   
-    public async Task<Result<TenantCreatedResultDto>> Handle(TenantCreationRequestCommand request, CancellationToken cancellationToken)
+    public async Task<Result<TenantCreationRequestResultDto>> Handle(TenantCreationRequestCommand request, CancellationToken cancellationToken)
     {
-        #region Validation  
-        var planPriceIds = request.Subscriptions.Select(x => x.PlanPriceId).ToList();
+        var preparationsResult = await _tenantService.PrepareTenantCreationAsync(request, null, cancellationToken);
 
-        var planDataList = await _dbContext.PlanPrices
-                                        .AsNoTracking()
-                                        .Where(x => planPriceIds.Contains(x.Id))
-                                        .Select(x => new PlanDataModel
-                                        {
-                                            PlanDisplayName = x.Plan.DisplayName,
-                                            PlanName = x.Plan.SystemName,
-                                            PlanTenancyType = x.Plan.TenancyType,
-                                            Price = x.Price,
-                                            PlanPriceId = x.Id,
-                                            PlanId = x.PlanId,
-                                            IsPublished = x.Plan.IsPublished,
-                                            PlanCycle = x.PlanCycle,
-                                            Product = new ProductInfoModel
-                                            {
-                                                Id = x.Plan.ProductId,
-                                                ClientId = x.Plan.Product.ClientId,
-                                                SystemName = x.Plan.Product.SystemName,
-                                                DisplayName = x.Plan.Product.DisplayName,
-                                                Url = x.Plan.Product.DefaultHealthCheckUrl
-                                            },
-
-                                        })
-                                        .ToListAsync(cancellationToken);
-
-        if (planDataList is null || !planDataList.Any())
+        if (!preparationsResult.Success)
         {
-            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(request.Subscriptions));
+            return Result<TenantCreationRequestResultDto>.Fail(preparationsResult.Messages);
         }
 
+        var order = _orderService.BuildOrderEntity(request.SystemName, request.DisplayName, preparationsResult.Data);
 
-        foreach (var item in planDataList)
+        var tenantCreationRequestEntity = _tenantService.BuildTenantCreationRequestEntity(
+                                                                              order.Id,
+                                                                              request.SystemName,
+                                                                              request.DisplayName,
+                                                                              request.Subscriptions
+                                                                             .SelectMany(x => x.Specifications
+                                                                                .Select(spec => new TenantCreationRequestSpecification
+                                                                                {
+                                                                                    ProductId = x.ProductId,
+                                                                                    SpecificationId = spec.SpecificationId,
+                                                                                    Value = spec.Value
+                                                                                }))
+                                                                             .ToList());
+
+        var tenantNameEntities = _tenantService.BuildTenantSystemNameEntities(request.SystemName,
+                                                                                 request.Subscriptions
+                                                                                .Select(x => x.ProductId)
+                                                                                .ToList(),
+                                                                                 tenantCreationRequestEntity.Id);
+        _dbContext.Orders.Add(order);
+
+        _dbContext.TenantSystemNames.AddRange(tenantNameEntities);
+
+        _dbContext.TenantCreationRequests.AddRange(tenantCreationRequestEntity);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        string? navigationUrl = null;
+
+        if (request.CreationByOneClick)
         {
-            var req = request.Subscriptions.Where(x => x.ProductId == item.Product.Id).FirstOrDefault();
-            if (req is null)
+            var result = await _paymentService.HandelPaymentProcessAsyncAsync(
+                                                      new CheckoutModel
+                                                      {
+                                                          OrderId = order.Id,
+                                                          PaymentMethod = preparationsResult.Data.Any(x => x.PlanPrice.Price > 0) ? PaymentMethodType.Stripe : null,
+                                                      },
+                                                      cancellationToken);
+            if (!result.Success)
             {
-                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.Subscriptions));
+                return Result<TenantCreationRequestResultDto>.Fail(result.Messages);
             }
 
-            if (request.Subscriptions.Where(x => x.ProductId == item.Product.Id).Count() > 1)
-            {
-                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.Subscriptions));
-            }
-
-            if (item.PlanTenancyType == TenancyType.Planed && !item.IsPublished)
-            {
-                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "PlanId");
-            }
-
-            if (item.PlanCycle == PlanCycle.Custom && req.CustomPeriodInDays is null && item.PlanTenancyType != TenancyType.Unlimited)
-            {
-                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(req.CustomPeriodInDays));
-            }
+            navigationUrl = result.Data.NavigationUrl;
         }
 
+        return Result<TenantCreationRequestResultDto>.Successful(new TenantCreationRequestResultDto(order.Id, order.OrderTotal > 0, navigationUrl));
 
-        if (!await EnsureUniqueNameAsync(request.Subscriptions.Select(x => x.ProductId).ToList(), request.SystemName))
-        {
-            return Result<TenantCreatedResultDto>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.SystemName));
-        }
-
-
-
-        var initialProcess = await _workflow.GetNextStageAsync(expectedResourceStatus: ExpectedTenantResourceStatus.None,
-                                                                    currentStatus: TenantStatus.None,
-                                                                    currentStep: TenantStep.None,
-                                                                    userType: _identityContextService.GetUserType());
-
-        if (initialProcess is null)
-        {
-            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale, nameof(request.SystemName));
-        }
-
-        #endregion
-
-        planDataList = await PreparePlanDataListAsync(request, planDataList, cancellationToken);
-
-        if (planDataList.Where(x => x.PlanTenancyType == TenancyType.Planed).Any())
-        {
-            // go to checkout
-
-            var tenantCreationRequest = BuildTenantCreationRequestEntity(request.SystemName, request.DisplayName, planDataList);
-            var tenantNameEntities = BuildTenantNameEntities(request.SystemName,
-                                                             request.Subscriptions
-                                                                    .Select(x => x.ProductId)
-                                                                    .ToList());
-
-            _dbContext.TenantCreationRequests.Add(tenantCreationRequest);
-            _dbContext.TenantNames.AddRange(tenantNameEntities);
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            return Result<TenantCreatedResultDto>.Successful(new TenantCreatedResultDto(tenantCreationRequest.Id));
-
-        }
-        else
-        {
-            // create tenant and activate subscribtion 
-
-            return await _mediator.Send(
-                                        new CreateTenantInDBCommand
-                                        {
-                                            PlanDataList = planDataList,
-                                            Workflow = initialProcess,
-                                            DisplayName = request.DisplayName,
-                                            SystemName = request.SystemName,
-                                            Subscriptions = request.Subscriptions,
-                                        },
-                                         cancellationToken);
-        }
     }
 
-    #endregion
-
-
-    #region Utilities    
-
-    private async Task<List<PlanDataModel>> PreparePlanDataListAsync(TenantCreationRequestCommand request, List<PlanDataModel> planDataList, CancellationToken cancellationToken = default)
-    {
-        var planIds = request.Subscriptions.Select(x => x.PlanId)
-                                           .ToList();
-        var featuresInfo = await _dbContext.PlanFeatures
-                                            .AsNoTracking()
-                                            .Where(x => planIds.Contains(x.PlanId))
-                                            .Select(x => new PlanFeatureInfoModel
-                                            {
-                                                PlanFeatureId = x.Id,
-                                                FeatureId = x.FeatureId,
-                                                FeatureUnit = x.FeatureUnit,
-                                                PlanId = x.PlanId,
-                                                Limit = x.Limit,
-                                                FeatureDisplayName = x.Feature.DisplayName,
-                                                FeatureName = x.Feature.SystemName,
-                                                FeatureType = x.Feature.Type,
-                                                FeatureReset = x.FeatureReset,
-                                            })
-                                            .ToListAsync(cancellationToken);
-
-
-
-        var productsIds = request.Subscriptions.Select(x => x.ProductId)
-                                               .ToList();
-        var specifications = await _dbContext.Specifications
-                                         .Where(x => productsIds.Contains(x.ProductId) &&
-                                                     x.IsPublished)
-                                         .Select(x => new SpecificationInfoModel
-                                         {
-                                             ProductId = x.ProductId,
-                                             SpecificationId = x.Id,
-                                         })
-                                         .ToListAsync();
-
-        foreach (var item in planDataList)
-        {
-            var req = request.Subscriptions.Where(x => x.ProductId == item.Product.Id).FirstOrDefault();
-            item.CustomPeriodInDays = req.CustomPeriodInDays;
-            item.Features = featuresInfo.Where(x => x.PlanId == item.PlanId).ToList();
-            item.Specifications = specifications.Where(x => x.ProductId == item.Product.Id).ToList();
-        }
-
-        return planDataList;
-    }
-    private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
-    {
-        var any = await _dbContext.TenantNames
-                                  .Where(x => productsIds.Contains(x.ProductId) &&
-                                              uniqueName.ToLower().Equals(x.SystemName))
-                                  .AnyAsync(cancellationToken);
-
-        return !any && !await _dbContext.Subscriptions
-                                .Where(x => x.TenantId != id && x.Tenant != null &&
-                                            productsIds.Contains(x.ProductId) &&
-                                            uniqueName.ToLower().Equals(x.Tenant.SystemName))
-                                .AnyAsync(cancellationToken);
-    }
-
-    private TenantCreationRequest BuildTenantCreationRequestEntity(string tenantName, string tenantDisplayName, List<PlanDataModel> plansInfo)
-    {
-        var quantity = 1;
-
-        var items = plansInfo.Select(planData => new TenantCreationRequestItem()
-        {
-            Id = Guid.NewGuid(),
-            StartDate = _date,
-            EndDate = PlanCycleManager.FromKey(planData.PlanCycle).CalculateExpiryDate(_date, planData.CustomPeriodInDays),
-            ClientId = planData.Product.ClientId,
-            ProductId = planData.Product.Id,
-            PlanId = planData.PlanId,
-            PlanPriceId = planData.PlanPriceId,
-            CustomPeriodInDays = planData.CustomPeriodInDays,
-            PriceExclTax = planData.Price * quantity,
-            PriceInclTax = planData.Price * quantity,
-            UnitPriceExclTax = planData.Price,
-            UnitPriceInclTax = planData.Price,
-            Quantity = quantity,
-            SystemName = $"{planData.Product.SystemName}--{planData.PlanName}--{tenantName}",
-            DisplayName = $"[Product: {planData.Product.DisplayName}], [Plan: {planData.PlanDisplayName}], [Tenant: {tenantDisplayName}]",
-            Specifications = planData.Features.Select(x => new TenantCreationRequestItemSpecification
-            {
-                FeatureId = x.FeatureId,
-                SystemName = $"{x.FeatureName}-" +
-                                $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
-                                $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
-                                $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"
-                                .Replace("---", "-")
-                                .Replace("--", "-")
-                                .TrimEnd('-'),
-            }).ToList()
-        }).ToList();
-
-
-        return new TenantCreationRequest()
-        {
-            Id = Guid.NewGuid(),
-            CreatedByUserId = _identityContextService.GetActorId(),
-            ModifiedByUserId = _identityContextService.GetActorId(),
-            CreationDate = _date,
-            ModificationDate = _date,
-            SubtotalExclTax = items.Select(x => x.PriceExclTax).Sum(),
-            SubtotalInclTax = items.Select(x => x.PriceInclTax).Sum(),
-            Total = items.Select(x => x.PriceInclTax).Sum(),
-            Items = items,
-            DisplayName = tenantDisplayName,
-            SystemName = tenantName,
-        };
-    }
-    private List<TenantSystemName> BuildTenantNameEntities(string tenantName, List<Guid> productIdS, Guid? tenantId = null)
-    {
-        return productIdS.Select(productId =>
-                                new TenantSystemName()
-                                {
-                                    Id = Guid.NewGuid(),
-                                    ProductId = productId,
-                                    TenantId = tenantId,
-                                    SystemName = tenantName,
-                                }).ToList();
-    }
-
-    #endregion
+    #endregion 
 }

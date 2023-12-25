@@ -4,6 +4,7 @@
     {
         public Guid? TenantId { get; set; }
         public Guid ProductId { get; set; }
-        public string SystemName { get; set; } = string.Empty;
+        public Guid TenantCreationRequestId { get; set; }
+        public string TenantNormalizedSystemName { get; set; } = string.Empty;
     }
 }

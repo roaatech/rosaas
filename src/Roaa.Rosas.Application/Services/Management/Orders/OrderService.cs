@@ -4,10 +4,14 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Orders.Models;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
+using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders
 {
@@ -68,6 +72,72 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
             return Result<OrderDto>.Successful(order);
         }
+
+
+
+        public Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList)
+        {
+            var quantity = 1;
+            var date = DateTime.UtcNow;
+            var orderItems = plansDataList.Select(planData => new OrderItem()
+            {
+                Id = Guid.NewGuid(),
+                StartDate = date,
+                EndDate = PlanCycleManager.FromKey(planData.PlanPrice.PlanCycle).CalculateExpiryDate(date, planData.PlanPrice.CustomPeriodInDays),
+                ClientId = planData.Product.ClientId,
+                ProductId = planData.Product.Id,
+                SubscriptionId = planData.GeneratedSubscriptionId,
+                PlanId = planData.Plan.Id,
+                PlanPriceId = planData.PlanPrice.Id,
+                CustomPeriodInDays = planData.PlanPrice.CustomPeriodInDays,
+                PriceExclTax = planData.PlanPrice.Price * quantity,
+                PriceInclTax = planData.PlanPrice.Price * quantity,
+                UnitPriceExclTax = planData.PlanPrice.Price,
+                UnitPriceInclTax = planData.PlanPrice.Price,
+                Quantity = quantity,
+                SystemName = $"{planData.Product.SystemName}--{planData.Plan.SystemName}--{tenantName}",
+                DisplayName = $"[Product: {planData.Product.DisplayName}], [Plan: {planData.Plan.DisplayName}], [Tenant: {tenantDisplayName}]",
+                Specifications = planData.Features.Select(x => new OrderItemSpecification
+                {
+                    PurchasedEntityId = x.FeatureId,
+                    PurchasedEntityType = Common.Enums.EntityType.Feature,
+                    SystemName = $"{x.FeatureName}-" +
+                                    $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
+                                    $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
+                                    $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"
+                                    .Replace("---", "-")
+                                    .Replace("--", "-")
+                                    .TrimEnd('-'),
+                }).ToList()
+            }).ToList();
+
+
+            return new Order()
+            {
+                Id = Guid.NewGuid(),
+                TenantId = null,
+                OrderStatus = OrderStatus.Pending,
+                CurrencyRate = 1,
+                UserCurrencyType = CurrencyCode.USD,
+                UserCurrencyCode = CurrencyCode.USD.ToString(),
+                PaymentStatus = null,
+                PaymentMethodType = null,
+                CreatedByUserType = _identityContextService.GetUserType(),
+                CreatedByUserId = _identityContextService.GetActorId(),
+                ModifiedByUserId = _identityContextService.GetActorId(),
+                CreationDate = date,
+                ModificationDate = date,
+                OrderSubtotalExclTax = orderItems.Select(x => x.PriceExclTax).Sum(),
+                OrderSubtotalInclTax = orderItems.Select(x => x.PriceInclTax).Sum(),
+                OrderTotal = orderItems.Select(x => x.PriceInclTax).Sum(),
+                OrderItems = orderItems,
+                OrderIntent = OrderIntent.TenantCreation,
+            };
+        }
+
+
+
+
 
 
         #endregion

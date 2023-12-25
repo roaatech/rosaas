@@ -8,8 +8,9 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public Guid ClientId { get; set; }
         public Guid ProductId { get; set; }
         public Guid SubscriptionId { get; set; }
-        public Guid PurchasedEntityId { get; set; }
-        public EntityType PurchasedEntityType { get; set; }
+        public Guid PlanId { get; set; }
+        public Guid PlanPriceId { get; set; }
+        public int? CustomPeriodInDays { get; set; } = null;
         public string DisplayName { get; set; } = string.Empty;
         public string SystemName { get; set; } = string.Empty;
         public DateTime? StartDate { get; set; }

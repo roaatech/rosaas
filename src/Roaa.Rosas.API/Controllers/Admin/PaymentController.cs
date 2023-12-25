@@ -1,7 +1,8 @@
 ﻿using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application.Payment;
+using Roaa.Rosas.Application.Payment.Models;
+using Roaa.Rosas.Application.Payment.Services;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
@@ -35,7 +36,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpPost("Checkout")]
         public async Task<IActionResult> ProcessPaymentAsync(CheckoutModel model, CancellationToken cancellationToken = default)
         {
-            var result = await _paymentService.ProcessPaymentAsync(model, cancellationToken);
+            var result = await _paymentService.HandelPaymentProcessAsyncAsync(model, cancellationToken);
 
             return ItemResult(result);
         }

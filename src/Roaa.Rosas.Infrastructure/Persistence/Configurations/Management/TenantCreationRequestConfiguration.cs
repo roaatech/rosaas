@@ -12,11 +12,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         {
             builder.ToTableName("RosasTenantCreationRequests");
             builder.HasKey(x => x.Id);
-            builder.Property(r => r.SystemName).IsRequired().HasMaxLength(250);
+            builder.Property(r => r.NormalizedSystemName).IsRequired().HasMaxLength(250);
             builder.Property(r => r.DisplayName).IsRequired(false).HasMaxLength(250);
-            builder.Property(r => r.SubtotalInclTax).HasPrecision(8, 2).IsRequired();
-            builder.Property(r => r.SubtotalExclTax).HasPrecision(8, 2).IsRequired();
-            builder.Property(r => r.Total).HasPrecision(8, 2).IsRequired();
             builder.Property(r => r.CreatedByUserId).IsRequired();
             builder.Property(r => r.ModifiedByUserId).IsRequired();
             builder.Property(r => r.CreationDate).IsRequired();

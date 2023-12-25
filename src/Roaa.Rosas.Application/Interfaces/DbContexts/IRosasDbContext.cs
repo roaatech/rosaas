@@ -48,8 +48,8 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<JobTask> JobTasks { get; }
         public DbSet<Setting> Settings { get; }
         public DbSet<TenantCreationRequest> TenantCreationRequests { get; }
-        public DbSet<TenantCreationRequestItem> TenantCreationRequestItems { get; }
-        public DbSet<TenantSystemName> TenantNames { get; }
+        public DbSet<TenantCreationRequestSpecification> TenantCreationRequestSpecifications { get; }
+        public DbSet<TenantSystemName> TenantSystemNames { get; }
 
         #endregion
 

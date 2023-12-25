@@ -12,7 +12,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         {
             builder.ToTableName("RosasTenantSystemNames");
             builder.HasKey(x => x.Id);
-            builder.Property(r => r.SystemName).IsRequired().HasMaxLength(250);
+            builder.Property(r => r.TenantNormalizedSystemName).IsRequired().HasMaxLength(250);
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

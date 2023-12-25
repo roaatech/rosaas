@@ -9,7 +9,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
     public interface ITenantWorkflow
     {
+        Task<OrderWorkflowEvent> GetOrderWorkflowEventByOrderIntentAsync(OrderIntent orderIntent, CancellationToken cancellationToken = default);
+
         Task<StepStatus> GetStepStatusAsync(TenantStatus status, CancellationToken cancellationToken = default);
+
         Task<WorkflowEvent> GetWorkflowEventByIdAsync(WorkflowEventEnum friendlyId, CancellationToken cancellationToken = default);
 
         Task<Workflow> GetNextStageAsync(ExpectedTenantResourceStatus expectedResourceStatus,
@@ -50,6 +53,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
     {
         private readonly List<Workflow> _workflow;
         private readonly List<WorkflowEvent> _workflowEvents;
+        private readonly List<OrderWorkflowEvent> _orderWorkflowEvent;
         private readonly List<StepStatus> _stepStatuses;
 
         private readonly List<UserType> _admins = new List<UserType> { UserType.SuperAdmin, UserType.ClientAdmin, UserType.ProductAdmin, UserType.TenantAdmin, };
@@ -59,10 +63,26 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                                                           UserType.ProductAdmin,
                                                                                           UserType.TenantAdmin,
                                                                                           UserType.ExternalSystem };
-
+        private readonly List<UserType> _all_user_types = new List<UserType> { UserType.SuperAdmin,
+                                                                                          UserType.ClientAdmin,
+                                                                                          UserType.ProductAdmin,
+                                                                                          UserType.TenantAdmin,
+                                                                                          UserType.ExternalSystem ,
+                                                                                         UserType.RosasSystem};
         public TenantWorkflow()
         {
             var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+
+
+            _orderWorkflowEvent = new List<OrderWorkflowEvent>
+            {
+                new OrderWorkflowEvent()
+                {
+                    OrderIntent = OrderIntent.TenantCreation,
+                    Type =  JsonConvert.SerializeObject(typeof(OrderCompletionAchievedForTenantCreationEvent),jsonSettings),
+                },
+            };
+
 
             _workflowEvents = new List<WorkflowEvent>
             {
@@ -179,7 +199,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     ExpectedResourceStatus = ExpectedTenantResourceStatus.None,
                     CurrentStep = TenantStep.None,
                     CurrentStatus = TenantStatus.None,
-                    OwnerTypes = _admins_and_externalSystem,
+                    OwnerTypes = _all_user_types,
                     Action = WorkflowAction.Ok,
                     NextStep = TenantStep.Creation,
                     NextStatus = TenantStatus.RecordCreated,
@@ -1047,6 +1067,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
         public async Task<List<Workflow>> GetAllStagesAsync(CancellationToken cancellationToken = default)
         {
             return _workflow;
+        }
+
+
+
+        public async Task<OrderWorkflowEvent> GetOrderWorkflowEventByOrderIntentAsync(OrderIntent orderIntent, CancellationToken cancellationToken = default)
+        {
+            return _orderWorkflowEvent.Where(x => x.OrderIntent == orderIntent).SingleOrDefault();
         }
 
     }

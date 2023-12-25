@@ -1,7 +1,7 @@
 ﻿using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application.Payment;
+using Roaa.Rosas.Application.Payment.Methods.StripeService;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
@@ -13,13 +13,13 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
     {
         #region Props 
         private readonly ILogger<AuthController> _logger;
-        private readonly IStripePaymentMethod _stripePaymentMethod;
+        private readonly IStripePaymentMethodService _stripePaymentMethod;
         #endregion
 
         #region Corts
 
         public StripePaymentMethodController(ILogger<AuthController> logger,
-                                  IStripePaymentMethod stripePaymentMethod)
+                                  IStripePaymentMethodService stripePaymentMethod)
         {
             _logger = logger;
             _stripePaymentMethod = stripePaymentMethod;
@@ -32,7 +32,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
         [AllowAnonymous]
         [HttpGet("stripe/success")]
-        public async Task<IActionResult> SuccessHandlerAsync(string sessionId, Guid? orderId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> SuccessHandlerAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
         {
             var result = await _stripePaymentMethod.SuccessAsync(sessionId, orderId, cancellationToken);
 
@@ -44,7 +44,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
         [AllowAnonymous]
         [HttpGet("stripe/failed")]
-        public async Task<IActionResult> FailedHandlerAAsync(string sessionId, Guid? orderId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> FailedHandlerAAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
         {
             var result = await _stripePaymentMethod.CancelAsync(sessionId, orderId, cancellationToken);
 

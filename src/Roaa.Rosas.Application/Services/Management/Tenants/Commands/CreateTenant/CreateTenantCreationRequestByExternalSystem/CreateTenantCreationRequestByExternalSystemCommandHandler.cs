@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
@@ -13,7 +12,7 @@ using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequestByExternalSystem;
 
-public partial class CreateTenantCreationRequestByExternalSystemCommandHandler : IRequestHandler<CreateTenantCreationRequestByExternalSystemCommand, Result<TenantCreatedResultDto>>
+public partial class CreateTenantCreationRequestByExternalSystemCommandHandler : IRequestHandler<CreateTenantCreationRequestByExternalSystemCommand, Result<TenantCreationRequestByExternalSystemResultDto>>
 {
     #region Props 
     private readonly IPublisher _publisher;
@@ -43,7 +42,7 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
     #endregion
 
     #region Handler   
-    public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantCreationRequestByExternalSystemCommand request, CancellationToken cancellationToken)
+    public async Task<Result<TenantCreationRequestByExternalSystemResultDto>> Handle(CreateTenantCreationRequestByExternalSystemCommand request, CancellationToken cancellationToken)
     {
         #region Validation  
 
@@ -61,13 +60,13 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
                                          .SingleOrDefaultAsync(cancellationToken);
         if (planPrice is null)
         {
-            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.PlanPriceSystemName));
+            return Result<TenantCreationRequestByExternalSystemResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(request.PlanPriceSystemName));
         }
 
 
         if (planPrice.PlanCycle == PlanCycle.Custom && request.CustomPeriodInDays is null && planPrice.TenancyType != TenancyType.Unlimited)
         {
-            return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(request.CustomPeriodInDays));
+            return Result<TenantCreationRequestByExternalSystemResultDto>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(request.CustomPeriodInDays));
         }
 
         var planId = planPrice.PlanId;
@@ -88,7 +87,7 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
 
             if (spesifications.Count() != request.Specifications.Count())
             {
-                return Result<TenantCreatedResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "Spesifications.SystemName");
+                return Result<TenantCreationRequestByExternalSystemResultDto>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, "Spesifications.SystemName");
             }
 
             specificationsModels = spesifications.Select(x => new CreateSpecificationValueModel
@@ -102,6 +101,7 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
 
         var model = new TenantCreationRequestCommand
         {
+            CreationByOneClick = true,
             DisplayName = request.TenantDisplayName,
             SystemName = request.TenantSystemName,
             Subscriptions = new List<CreateSubscriptionModel>
@@ -117,7 +117,14 @@ public partial class CreateTenantCreationRequestByExternalSystemCommandHandler :
             }
         };
 
-        return await _mediator.Send(model, cancellationToken);
+        var result = await _mediator.Send(model, cancellationToken);
+
+        if (!result.Success)
+        {
+            return Result<TenantCreationRequestByExternalSystemResultDto>.Fail(result.Messages);
+        }
+
+        return Result<TenantCreationRequestByExternalSystemResultDto>.Successful(new TenantCreationRequestByExternalSystemResultDto(result.Data.NavigationUrl));
     }
 
     #endregion

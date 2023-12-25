@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.DeleteTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantSpecifications;
@@ -76,7 +76,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpPost()]
-        public async Task<IActionResult> CreateTenantAsync([FromBody] CreateTenantCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CreateTenantAsync([FromBody] TenantCreationRequestCommand command, CancellationToken cancellationToken = default)
         {
             return ItemResult(await _mediator.Send(command, cancellationToken));
         }

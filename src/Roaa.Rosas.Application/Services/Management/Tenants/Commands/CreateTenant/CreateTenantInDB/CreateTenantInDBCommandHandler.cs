@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Extensions;
-using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
@@ -13,6 +12,7 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
 
@@ -55,12 +55,19 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
 
 
     #region Handler   
-    public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantInDBCommand request, CancellationToken cancellationToken)
+    public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantInDBCommand command, CancellationToken cancellationToken)
     {
+        var initialProcess = await _workflow.GetNextStageAsync(expectedResourceStatus: ExpectedTenantResourceStatus.None,
+                                                                currentStatus: TenantStatus.None,
+                                                                currentStep: TenantStep.None,
+                                                                userType: command.UserType);
 
+        if (initialProcess is null)
+        {
+            throw new NullReferenceException($"The Initial Process of tenant workflow can't be null. [UserType:{command.UserType}]");
+        }
         // first status
-        var tenant = await CreateTenantInDBAsync(request, cancellationToken);
-
+        var tenant = await CreateTenantInDBAsync(command, initialProcess, cancellationToken);
 
         var updatedStatuses = await _dbContext.Subscriptions
                                                 .Where(x => x.TenantId == tenant.Id)
@@ -73,7 +80,7 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
             var stages = await _workflow.GetNextStagesAsync(expectedResourceStatus: item.ExpectedResourceStatus,
                                                          currentStatus: item.Status,
                                                       currentStep: item.Step,
-                                                      userType: _identityContextService.GetUserType());
+                                                      userType: command.UserType);
             productTenantCreatedResults.Add(new ProductTenantCreatedResultDto(
             item.ProductId,
             item.Status,
@@ -88,14 +95,14 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
 
     #region Utilities   
 
-    private async Task<Tenant> CreateTenantInDBAsync(CreateTenantInDBCommand request, CancellationToken cancellationToken = default)
+    private async Task<Tenant> CreateTenantInDBAsync(CreateTenantInDBCommand model, Workflow Workflow, CancellationToken cancellationToken = default)
     {
-        var planIds = request.Subscriptions.Select(x => x.PlanId)
+        var planIds = model.Subscriptions.Select(x => x.PlanId)
                                            .ToList();
 
-        var tenant = BuildTenantEntity(request);
+        var tenant = BuildTenantEntity(model, Workflow);
 
-        var statusHistory = BuildTenantStatusHistoryEntities(tenant.Id, tenant.Subscriptions, request.Workflow);
+        var statusHistory = BuildTenantStatusHistoryEntities(model, tenant.Id, tenant.Subscriptions, Workflow);
 
         var healthStatuses = BuildProductTenantHealthStatusEntities(tenant.Subscriptions);
 
@@ -107,7 +114,11 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
                                  out _,
                                  tenant.Subscriptions.ToArray()));
 
-        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant, tenant.Subscriptions.First().ExpectedResourceStatus, tenant.Subscriptions.First().Status, tenant.Subscriptions.First().Step));
+        tenant.AddDomainEvent(new TenantCreatedInStoreEvent(tenant,
+                                                            tenant.Subscriptions.First().ExpectedResourceStatus,
+                                                            tenant.Subscriptions.First().Status,
+                                                            tenant.Subscriptions.First().Step,
+                                                            model.PlanDataList.First().Plan.TenancyType));
 
 
         _dbContext.Tenants.Add(tenant);
@@ -140,12 +151,11 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
             planPrice.IsSubscribed = true;
         }
 
-
         var res = await _dbContext.SaveChangesAsync(cancellationToken);
 
         return tenant;
     }
-    private Tenant BuildTenantEntity(CreateTenantInDBCommand model)
+    private Tenant BuildTenantEntity(CreateTenantInDBCommand model, Workflow workflow)
     {
         model.PlanDataList?.ForEach(x =>
         {
@@ -162,30 +172,30 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
         var id = Guid.NewGuid();
         var name = model.SystemName.ToLower();
         var displayName = model.DisplayName;
-        var dfdddf = PlanCycleManager.FromKey(model.PlanDataList[0].PlanCycle).CalculateExpiryDate(_date, model.PlanDataList[0].CustomPeriodInDays);
+
         var res = new Tenant
         {
             Id = id,
             SystemName = name,
             DisplayName = displayName,
-            CreatedByUserId = _identityContextService.GetActorId(),
-            ModifiedByUserId = _identityContextService.GetActorId(),
+            CreatedByUserId = model.UserId,
+            ModifiedByUserId = model.UserId,
             CreationDate = _date,
             ModificationDate = _date,
             Subscriptions = model.PlanDataList.Select(item => new Subscription
             {
                 Id = item.GeneratedSubscriptionId,
                 StartDate = _date,
-                EndDate = PlanCycleManager.FromKey(item.PlanCycle).CalculateExpiryDate(_date, item.CustomPeriodInDays),
+                EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle).CalculateExpiryDate(_date, item.PlanPrice.CustomPeriodInDays),
                 TenantId = id,
-                PlanId = item.PlanId,
-                PlanPriceId = item.PlanPriceId,
+                PlanId = item.Plan.Id,
+                PlanPriceId = item.PlanPrice.Id,
                 ProductId = item.Product.Id,
-                Status = model.Workflow.NextStatus,
-                Step = model.Workflow.NextStep,
+                Status = workflow.NextStatus,
+                Step = workflow.NextStep,
                 IsActive = true,
-                CreatedByUserId = _identityContextService.GetActorId(),
-                ModifiedByUserId = _identityContextService.GetActorId(),
+                CreatedByUserId = model.UserId,
+                ModifiedByUserId = model.UserId,
                 CreationDate = _date,
                 ModificationDate = _date,
                 HealthCheckUrl = item.Product.Url,
@@ -197,18 +207,18 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
                      {
                         Id = item.GeneratedSubscriptionCycleId,
                         StartDate = _date,
-                        EndDate = PlanCycleManager.FromKey(item.PlanCycle).CalculateExpiryDate(_date, item.CustomPeriodInDays),
+                        EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle).CalculateExpiryDate(_date, item.PlanPrice.CustomPeriodInDays),
                         TenantId = id,
-                        PlanId = item.PlanId,
-                        PlanPriceId = item.PlanPriceId,
+                        PlanId = item.Plan.Id,
+                        PlanPriceId = item.PlanPrice.Id,
                         ProductId = item.Product.Id,
-                        Cycle = item.PlanCycle,
-                        PlanDisplayName = item.PlanDisplayName,
-                        CreatedByUserId = _identityContextService.GetActorId(),
-                        ModifiedByUserId = _identityContextService.GetActorId(),
+                        Cycle = item.PlanPrice.PlanCycle,
+                        PlanDisplayName = item.Plan.DisplayName,
+                        CreatedByUserId = model.UserId,
+                        ModifiedByUserId = model.UserId,
                         CreationDate = _date,
                         ModificationDate = _date,
-                        Price = item.Price,
+                        Price = item.PlanPrice.Price,
                      }
                 },
                 SubscriptionFeatures = item.Features.Select(f =>
@@ -222,13 +232,13 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
                         FeatureId = f.FeatureId,
                         PlanFeatureId = f.PlanFeatureId,
                         RemainingUsage = f.Limit,
-                        CreatedByUserId = _identityContextService.GetActorId(),
-                        ModifiedByUserId = _identityContextService.GetActorId(),
+                        CreatedByUserId = model.UserId,
+                        ModifiedByUserId = model.UserId,
                         CreationDate = _date,
                         ModificationDate = _date,
                     };
 
-                    _dbContext.SubscriptionFeatureCycles.AddRange(BuildSubscriptionFeatureCycleEntity(f, item));
+                    _dbContext.SubscriptionFeatureCycles.AddRange(BuildSubscriptionFeatureCycleEntity(model, f, item));
 
                     return subscriptionFeature;
                 }).ToList(),
@@ -243,79 +253,19 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
                                               .Where(s => s.SpecificationId == x.SpecificationId)
                                               .SingleOrDefault()?
                                               .Value,
-                    CreatedByUserId = _identityContextService.GetActorId(),
-                    ModifiedByUserId = _identityContextService.GetActorId(),
+                    CreatedByUserId = model.UserId,
+                    ModifiedByUserId = model.UserId,
                     CreationDate = _date,
                     ModificationDate = _date,
                 }).ToList(),
 
             }).ToList(),
-            Orders = new List<Order> { BuildOrderEntity(id, name, displayName, model.PlanDataList) },
+            //  Orders = new List<Order> { BuildOrderEntity(id, name, displayName, model.PlanDataList) },
         };
 
         return res;
     }
-
-    private Order BuildOrderEntity(Guid tenantId, string tenantName, string tenantDisplayName, List<PlanDataModel> plansInfo)
-    {
-        var quantity = 1;
-
-        var orderItems = plansInfo.Select(planInfo => new OrderItem()
-        {
-            Id = Guid.NewGuid(),
-            StartDate = _date,
-            EndDate = PlanCycleManager.FromKey(planInfo.PlanCycle).CalculateExpiryDate(_date, planInfo.CustomPeriodInDays),
-            ClientId = planInfo.Product.ClientId,
-            ProductId = planInfo.Product.Id,
-            SubscriptionId = planInfo.GeneratedSubscriptionId,
-            PurchasedEntityId = planInfo.PlanId,
-            PurchasedEntityType = Common.Enums.EntityType.Plan,
-            PriceExclTax = planInfo.Price * quantity,
-            PriceInclTax = planInfo.Price * quantity,
-            UnitPriceExclTax = planInfo.Price,
-            UnitPriceInclTax = planInfo.Price,
-            Quantity = quantity,
-            SystemName = $"{planInfo.Product.SystemName}--{planInfo.PlanName}--{tenantName}",
-            DisplayName = $"[Product: {planInfo.Product.DisplayName}], [Plan: {planInfo.PlanDisplayName}], [Tenant: {tenantDisplayName}]",
-            Specifications = planInfo.Features.Select(x => new OrderItemSpecification
-            {
-                PurchasedEntityId = x.FeatureId,
-                PurchasedEntityType = Common.Enums.EntityType.Feature,
-                SystemName = $"{x.FeatureName}-" +
-                                $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
-                                $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
-                                $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"
-                                .Replace("---", "-")
-                                .Replace("--", "-")
-                                .TrimEnd('-'),
-            }).ToList()
-        }).ToList();
-
-        _orderId = Guid.NewGuid();
-
-        return new Order()
-        {
-            Id = _orderId,
-            TenantId = tenantId,
-            OrderStatus = OrderStatus.Pending,
-            CurrencyRate = 1,
-            UserCurrencyType = CurrencyCode.USD,
-            UserCurrencyCode = CurrencyCode.USD.ToString(),
-            PaymentStatus = null,
-            PaymentMethodType = null,
-            CreatedByUserType = _identityContextService.GetUserType(),
-            CreatedByUserId = _identityContextService.GetActorId(),
-            ModifiedByUserId = _identityContextService.GetActorId(),
-            CreationDate = _date,
-            ModificationDate = _date,
-            OrderSubtotalExclTax = orderItems.Select(x => x.PriceExclTax).Sum(),
-            OrderSubtotalInclTax = orderItems.Select(x => x.PriceInclTax).Sum(),
-            OrderTotal = orderItems.Select(x => x.PriceInclTax).Sum(),
-            OrderItems = orderItems,
-        };
-    }
-
-    private SubscriptionFeatureCycle BuildSubscriptionFeatureCycleEntity(PlanFeatureInfoModel planFeature, PlanDataModel planInfo)
+    private SubscriptionFeatureCycle BuildSubscriptionFeatureCycleEntity(CreateTenantInDBCommand model, PlanFeatureInfoModel planFeature, TenantCreationPreparationModel planInfo)
     {
         return new SubscriptionFeatureCycle()
         {
@@ -330,11 +280,11 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
             FeatureUnit = planFeature.FeatureUnit,
             TotalUsage = planFeature.Limit is null ? null : 0,
             RemainingUsage = planFeature.Limit,
-            PlanCycle = planInfo.PlanCycle,
+            PlanCycle = planInfo.PlanPrice.PlanCycle,
             FeatureDisplayName = planFeature.FeatureDisplayName,
             PlanFeatureId = planFeature.PlanFeatureId,
-            CreatedByUserId = _identityContextService.GetActorId(),
-            ModifiedByUserId = _identityContextService.GetActorId(),
+            CreatedByUserId = model.UserId,
+            ModifiedByUserId = model.UserId,
             CreationDate = _date,
             ModificationDate = _date,
             SubscriptionCycleId = planInfo.GeneratedSubscriptionCycleId,
@@ -357,10 +307,8 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
         });
     }
 
-    private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(Guid tenantId, ICollection<Subscription> subscriptions, Workflow initialProcess)
+    private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(CreateTenantInDBCommand model, Guid tenantId, ICollection<Subscription> subscriptions, Workflow initialProcess)
     {
-
-
         return subscriptions.Select(subscription => new TenantStatusHistory
         {
             Id = Guid.NewGuid(),
@@ -371,21 +319,12 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
             Step = initialProcess.NextStep,
             PreviousStatus = initialProcess.CurrentStatus,
             PreviousStep = initialProcess.CurrentStep,
-            OwnerId = _identityContextService.GetActorId(),
-            OwnerType = _identityContextService.GetUserType(),
+            OwnerId = model.UserId,
+            OwnerType = model.UserType,
             CreationDate = _date,
             TimeStamp = _date,
             Message = initialProcess.Message
         });
-    }
-
-    private async Task<bool> EnsureUniqueNameAsync(List<Guid> productsIds, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
-    {
-        return !await _dbContext.Subscriptions
-                                .Where(x => x.TenantId != id && x.Tenant != null &&
-                                            productsIds.Contains(x.ProductId) &&
-                                            uniqueName.ToLower().Equals(x.Tenant.SystemName))
-                                .AnyAsync(cancellationToken);
     }
 
 
