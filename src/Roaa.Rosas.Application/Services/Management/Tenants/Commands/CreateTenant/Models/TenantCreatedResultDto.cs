@@ -2,22 +2,15 @@
 
 public record TenantCreatedResultDto
 {
-    public TenantCreatedResultDto(Guid id, Guid orderId, IEnumerable<ProductTenantCreatedResultDto> products)
+    public TenantCreatedResultDto(Guid tenantId, string tenantSystemName, IEnumerable<ProductTenantCreatedResultDto> products)
     {
-        Id = id;
-        OrderId = orderId;
+        TenantId = tenantId;
+        TenantSystemName = tenantSystemName;
         Products = products;
-        HasToPay = false;
     }
 
-    public TenantCreatedResultDto(Guid orderId, bool hasToPay)
-    {
-        OrderId = orderId;
-        HasToPay = hasToPay;
-    }
 
-    public bool HasToPay { get; set; }
-    public Guid Id { get; set; }
-    public Guid OrderId { get; set; }
+    public string TenantSystemName { get; set; } = string.Empty;
+    public Guid TenantId { get; set; }
     public IEnumerable<ProductTenantCreatedResultDto> Products { get; set; }
 }

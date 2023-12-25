@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantInDB;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Events.Management;
@@ -47,6 +47,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                                         .Where(x => x.OrderId == @event.OrderId)
                                                         .SingleOrDefaultAsync(cancellationToken);
 
+
             var model = new TenantCreationRequestModel
             {
                 DisplayName = tenantCreationRequest.DisplayName,
@@ -74,15 +75,13 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
             var preparationsResult = await _tenantService.PrepareTenantCreationAsync(model, tenantCreationRequest.Id, cancellationToken);
 
-            var se = String.Join(", ", preparationsResult.Messages);
-            var seas = string.Join(", ", preparationsResult.Messages);
             if (!preparationsResult.Success)
             {
-                throw new Exception(String.Join(", ", preparationsResult.Messages));
+                throw new Exception(String.Join(", ", preparationsResult.Messages.Select(x => x.Message)));
             }
 
             var tenantCreatedResult = await _mediator.Send(
-                                                      new CreateTenantInDBCommand
+                                                      new CreateTenantCommand
                                                       {
                                                           PlanDataList = preparationsResult.Data,
                                                           DisplayName = model.DisplayName,
@@ -94,10 +93,21 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                                       cancellationToken);
             if (!tenantCreatedResult.Success)
             {
-                throw new Exception(String.Join(", ", preparationsResult.Messages));
+                throw new Exception(String.Join(", ", preparationsResult.Messages.Select(x => x.Message)));
             }
 
-            order.TenantId = tenantCreatedResult.Data.Id;
+
+            var productsIds = tenantCreatedResult.Data.Products.Select(x => x.ProductId).ToList();
+
+            var tenantSystemNames = await _dbContext.TenantSystemNames.Where(x => productsIds.Contains(x.ProductId) &&
+                                                               model.SystemName.ToUpper().Equals(x.TenantNormalizedSystemName))
+                                                   .ToListAsync(cancellationToken);
+            foreach (var tenantSystemName in tenantSystemNames)
+            {
+                tenantSystemName.TenantId = tenantCreatedResult.Data.TenantId;
+            }
+
+            order.TenantId = tenantCreatedResult.Data.TenantId;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

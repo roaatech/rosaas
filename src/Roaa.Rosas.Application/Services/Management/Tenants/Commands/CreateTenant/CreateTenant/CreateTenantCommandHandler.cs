@@ -2,13 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Extensions;
-using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
-using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -16,38 +13,26 @@ using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantInDB;
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenant;
 
-public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTenantInDBCommand, Result<TenantCreatedResultDto>>
+public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, Result<TenantCreatedResultDto>>
 {
-    #region Props 
-    private readonly IPublisher _publisher;
+    #region Props  
     private readonly IRosasDbContext _dbContext;
     private readonly ITenantWorkflow _workflow;
-    private readonly IProductService _productService;
-    private readonly IExternalSystemAPI _externalSystemAPI;
-    private readonly IIdentityContextService _identityContextService;
-    private readonly ILogger<CreateTenantInDBCommandHandler> _logger;
+    private readonly ILogger<CreateTenantCommandHandler> _logger;
     private readonly DateTime _date = DateTime.UtcNow;
     private Guid _orderId;
     #endregion
 
     #region Corts
-    public CreateTenantInDBCommandHandler(
-        IPublisher publisher,
+    public CreateTenantCommandHandler(
         IRosasDbContext dbContext,
         ITenantWorkflow workflow,
-        IProductService productService,
-        IExternalSystemAPI externalSystemAPI,
-        IIdentityContextService identityContextService,
-        ILogger<CreateTenantInDBCommandHandler> logger)
+        ILogger<CreateTenantCommandHandler> logger)
     {
-        _publisher = publisher;
         _dbContext = dbContext;
         _workflow = workflow;
-        _productService = productService;
-        _externalSystemAPI = externalSystemAPI;
-        _identityContextService = identityContextService;
         _logger = logger;
     }
 
@@ -55,7 +40,7 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
 
 
     #region Handler   
-    public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantInDBCommand command, CancellationToken cancellationToken)
+    public async Task<Result<TenantCreatedResultDto>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
     {
         var initialProcess = await _workflow.GetNextStageAsync(expectedResourceStatus: ExpectedTenantResourceStatus.None,
                                                                 currentStatus: TenantStatus.None,
@@ -87,7 +72,7 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
             stages.ToActionsResults()));
         }
 
-        return Result<TenantCreatedResultDto>.Successful(new TenantCreatedResultDto(tenant.Id, _orderId, productTenantCreatedResults));
+        return Result<TenantCreatedResultDto>.Successful(new TenantCreatedResultDto(tenant.Id, tenant.SystemName, productTenantCreatedResults));
     }
 
     #endregion
@@ -95,7 +80,7 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
 
     #region Utilities   
 
-    private async Task<Tenant> CreateTenantInDBAsync(CreateTenantInDBCommand model, Workflow Workflow, CancellationToken cancellationToken = default)
+    private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand model, Workflow Workflow, CancellationToken cancellationToken = default)
     {
         var planIds = model.Subscriptions.Select(x => x.PlanId)
                                            .ToList();
@@ -131,7 +116,6 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
 
         var featuresIds = tenant.Subscriptions.SelectMany(x => x.SubscriptionFeatures.Select(x => x.FeatureId).ToList()).ToList();
         var plansPricesIds = tenant.Subscriptions.Select(x => x.PlanPriceId).ToList();
-        var productsIds = tenant.Subscriptions.Select(x => x.ProductId).ToList();
 
 
         var plans = await _dbContext.Plans.Where(x => planIds.Contains(x.Id)).ToListAsync(cancellationToken);
@@ -153,20 +137,11 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
             planPrice.IsSubscribed = true;
         }
 
-        var tenantSystemNames = await _dbContext.TenantSystemNames.Where(x => productsIds.Contains(x.ProductId) &&
-                                                                  tenant.SystemName.ToUpper().Equals(x.TenantNormalizedSystemName))
-                                                      .ToListAsync(cancellationToken);
-        foreach (var tenantSystemName in tenantSystemNames)
-        {
-            tenantSystemName.TenantId = tenant.Id;
-        }
-
-
         var res = await _dbContext.SaveChangesAsync(cancellationToken);
 
         return tenant;
     }
-    private Tenant BuildTenantEntity(CreateTenantInDBCommand model, Workflow workflow)
+    private Tenant BuildTenantEntity(CreateTenantCommand model, Workflow workflow)
     {
         model.PlanDataList?.ForEach(x =>
         {
@@ -276,7 +251,7 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
 
         return res;
     }
-    private SubscriptionFeatureCycle BuildSubscriptionFeatureCycleEntity(CreateTenantInDBCommand model, PlanFeatureInfoModel planFeature, TenantCreationPreparationModel planInfo)
+    private SubscriptionFeatureCycle BuildSubscriptionFeatureCycleEntity(CreateTenantCommand model, PlanFeatureInfoModel planFeature, TenantCreationPreparationModel planInfo)
     {
         return new SubscriptionFeatureCycle()
         {
@@ -318,7 +293,7 @@ public partial class CreateTenantInDBCommandHandler : IRequestHandler<CreateTena
         });
     }
 
-    private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(CreateTenantInDBCommand model, Guid tenantId, ICollection<Subscription> subscriptions, Workflow initialProcess)
+    private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(CreateTenantCommand model, Guid tenantId, ICollection<Subscription> subscriptions, Workflow initialProcess)
     {
         return subscriptions.Select(subscription => new TenantStatusHistory
         {

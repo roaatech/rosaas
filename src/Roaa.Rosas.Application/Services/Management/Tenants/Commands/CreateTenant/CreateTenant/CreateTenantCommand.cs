@@ -3,11 +3,11 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.M
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantInDB;
+namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenant;
 
-public record CreateTenantInDBCommand : IRequest<Result<TenantCreatedResultDto>>
+public record CreateTenantCommand : IRequest<Result<TenantCreatedResultDto>>
 {
-    public CreateTenantInDBCommand()
+    public CreateTenantCommand()
     {
     }
 
