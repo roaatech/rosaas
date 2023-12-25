@@ -306,7 +306,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             }
 
 
-            if (!await EnsureSystemNameIsUniqueAsync(request.Subscriptions.Select(x => x.ProductId).ToList(), request.SystemName, tenantCreationRequestId ?? Guid.NewGuid()))
+            if (!string.IsNullOrWhiteSpace(request.SystemName) && !await EnsureSystemNameIsUniqueAsync(request.Subscriptions.Select(x => x.ProductId).ToList(), request.SystemName, tenantCreationRequestId ?? Guid.NewGuid()))
             {
                 return Result<List<TenantCreationPreparationModel>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(request.SystemName));
             }

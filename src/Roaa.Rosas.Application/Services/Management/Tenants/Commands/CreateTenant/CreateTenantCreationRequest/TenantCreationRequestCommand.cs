@@ -10,7 +10,7 @@ public record TenantCreationRequestCommand : TenantCreationRequestModel, IReques
 public record TenantCreationRequestModel
 {
     public List<CreateSubscriptionModel> Subscriptions { get; set; } = new();
-    public string SystemName { get; set; } = string.Empty;
+    public string? SystemName { get; set; }
     public string DisplayName { get; set; } = string.Empty;
     public bool CreationByOneClick { get; set; }
 }

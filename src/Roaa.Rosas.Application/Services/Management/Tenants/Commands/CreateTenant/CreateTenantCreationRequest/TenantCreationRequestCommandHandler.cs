@@ -120,7 +120,6 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
         }
 
         return Result<TenantCreationRequestResultDto>.Successful(new TenantCreationRequestResultDto(order.Id, order.OrderTotal > 0, navigationUrl));
-
     }
 
     #endregion 

@@ -11,9 +11,12 @@ public partial class TenantCreationRequestCommandValidator : AbstractValidator<T
     public TenantCreationRequestCommandValidator(IIdentityContextService identityContextService)
     {
 
-        RuleFor(x => x.SystemName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        //  RuleFor(x => x.SystemName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
-        RuleFor(x => x.SystemName).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+        When(x => !string.IsNullOrWhiteSpace(x.SystemName), () =>
+        {
+            RuleFor(x => x.SystemName).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+        });
 
         RuleForEach(x => x.Subscriptions).SetValidator(new CreateSubscriptionValidator(identityContextService));
     }
