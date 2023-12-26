@@ -1,4 +1,6 @@
-﻿namespace Roaa.Rosas.Application.Services.Management.Products.Models
+﻿using Roaa.Rosas.Domain.Entities.Management;
+
+namespace Roaa.Rosas.Application.Services.Management.Products.Models
 {
     public record ProductPublishedListItemDto
     {
@@ -8,5 +10,8 @@
         public string? Description { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
+        public ProductTrialType TrialType { get; set; }
+        public int TrialPeriodInDays { get; set; }
+        public Guid? TrialPlanId { get; set; }
     }
 }

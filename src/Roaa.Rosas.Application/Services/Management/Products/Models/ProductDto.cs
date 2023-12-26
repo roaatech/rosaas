@@ -1,4 +1,5 @@
 ﻿using Roaa.Rosas.Common.Models;
+using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Products.Models
 {
@@ -24,6 +25,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
         public string? SubscriptionDowngradeUrl { get; set; }
         public int WarningsNum { get; set; }
         public bool IsPublished { get; set; }
+        public ProductTrialType TrialType { get; set; }
+        public int TrialPeriodInDays { get; set; }
+        public Guid? TrialPlanId { get; set; }
 
     }
 }

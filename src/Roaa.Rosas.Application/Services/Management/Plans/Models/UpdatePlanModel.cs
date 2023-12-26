@@ -6,5 +6,7 @@
         public string DisplayName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public int DisplayOrder { get; set; }
+        public int TrialPeriodInDays { get; set; }
+        public Guid? AlternativePlanID { get; set; }
     }
 }

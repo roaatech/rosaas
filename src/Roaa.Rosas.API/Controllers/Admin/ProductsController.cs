@@ -98,6 +98,18 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         {
             return ListResult(await _mediator.Send(new GetProductWarningsQuery(id), cancellationToken));
         }
+
+        [HttpPost("{id}/publish")]
+        public async Task<IActionResult> PublishProductAsync([FromBody] PublishProductModel model, [FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _productService.PublishProductAsync(id, model, cancellationToken));
+        }
+
+        [HttpPut("{id}/TrialType")]
+        public async Task<IActionResult> ChangeProductTrialTypeAsync([FromBody] ChangeProductTrialTypeModel model, [FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _productService.ChangeProductTrialTypeAsync(id, model, cancellationToken));
+        }
         #endregion
 
 

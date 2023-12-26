@@ -59,6 +59,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               IsSubscribed = plan.IsSubscribed,
                                               IsLockedBySystem = plan.IsLockedBySystem,
                                               TenancyType = plan.TenancyType,
+                                              TrialPeriodInDays = plan.TrialPeriodInDays,
+                                              AlternativePlanID = plan.AlternativePlanID,
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "Description", "SystemName", "DisplayName", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
@@ -90,6 +92,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   IsSubscribed = plan.IsSubscribed,
                                                   IsLockedBySystem = plan.IsLockedBySystem,
                                                   TenancyType = plan.TenancyType,
+                                                  TrialPeriodInDays = plan.TrialPeriodInDays,
+                                                  AlternativePlanID = plan.AlternativePlanID,
                                               })
                                               .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
@@ -116,6 +120,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   IsSubscribed = plan.IsSubscribed,
                                                   IsLockedBySystem = plan.IsLockedBySystem,
                                                   TenancyType = plan.TenancyType,
+                                                  TrialPeriodInDays = plan.TrialPeriodInDays,
+                                                  AlternativePlanID = plan.AlternativePlanID,
                                               })
                                               .OrderByDescending(x => x.DisplayOrder)
                                               .ToListAsync(cancellationToken);
@@ -196,6 +202,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               IsSubscribed = plan.IsSubscribed,
                                               IsLockedBySystem = plan.IsLockedBySystem,
                                               TenancyType = plan.TenancyType,
+                                              TrialPeriodInDays = plan.TrialPeriodInDays,
+                                              AlternativePlanID = plan.AlternativePlanID,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -244,7 +252,9 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 CreationDate = date,
                 ModificationDate = date,
                 TenancyType = tenancyType,
-                IsLockedBySystem = isLockedBySystem
+                IsLockedBySystem = isLockedBySystem,
+                TrialPeriodInDays = model.TrialPeriodInDays,
+                AlternativePlanID = model.AlternativePlanID,
             };
 
             _dbContext.Plans.Add(plan);
@@ -292,6 +302,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             plan.DisplayOrder = model.DisplayOrder;
             plan.ModifiedByUserId = _identityContextService.UserId;
             plan.ModificationDate = DateTime.UtcNow;
+            plan.TrialPeriodInDays = model.TrialPeriodInDays;
+            plan.AlternativePlanID = model.AlternativePlanID;
 
 
             await _dbContext.SaveChangesAsync(cancellationToken);

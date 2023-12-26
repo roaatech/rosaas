@@ -27,5 +27,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         Task<Result> UpdateProductAsync(Guid id, UpdateProductModel model, CancellationToken cancellationToken = default);
 
         Task<Result> DeleteProductAsync(Guid id, CancellationToken cancellationToken = default);
+
+        Task<Result> PublishProductAsync(Guid id, PublishProductModel model, CancellationToken cancellationToken = default);
+
+        Task<Result> ChangeProductTrialTypeAsync(Guid id, ChangeProductTrialTypeModel model, CancellationToken cancellationToken = default);
     }
 }

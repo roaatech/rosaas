@@ -78,6 +78,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
+                                              TrialType = product.TrialType,
+                                              TrialPlanId = product.TrialPlanId,
+                                              TrialPeriodInDays = product.TrialPeriodInDays,
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "Url", "SystemName", "DisplayName", "ClientId", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
@@ -128,6 +131,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                                  Description = product.Description,
                                                  CreatedDate = product.CreationDate,
                                                  EditedDate = product.ModificationDate,
+                                                 TrialType = product.TrialType,
+                                                 TrialPlanId = product.TrialPlanId,
+                                                 TrialPeriodInDays = product.TrialPeriodInDays,
                                              })
                                             .ToListAsync(cancellationToken);
 
@@ -181,6 +187,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               SubscriptionResetUrl = product.SubscriptionResetUrl,
                                               SubscriptionUpgradeUrl = product.SubscriptionUpgradeUrl,
                                               SubscriptionDowngradeUrl = product.SubscriptionDowngradeUrl,
+                                              TrialType = product.TrialType,
+                                              TrialPlanId = product.TrialPlanId,
+                                              TrialPeriodInDays = product.TrialPeriodInDays,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -371,7 +380,32 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         }
 
 
+        public async Task<Result> ChangeProductTrialTypeAsync(Guid id, ChangeProductTrialTypeModel model, CancellationToken cancellationToken = default)
+        {
+            #region Validation  
+            var fValidation = new ChangeProductTrialTypeValidator(_identityContextService).Validate(model);
+            if (!fValidation.IsValid)
+            {
+                return Result.New().WithErrors(fValidation.Errors);
+            }
 
+            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
+            if (product is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+            #endregion
+
+            product.TrialType = model.TrialType;
+            product.TrialPlanId = model.TrialPlanId;
+            product.TrialPeriodInDays = model.TrialPeriodInDays;
+            product.ModificationDate = DateTime.UtcNow;
+            product.ModifiedByUserId = _identityContextService.UserId;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
 
 
         private async Task<bool> EnsureUniqueNameAsync(Guid clientId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
