@@ -360,3 +360,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/src/Roaa.Rosas.API/appsettings.Development.json
+/src/Roaa.Rosas.API/appsettings.Development.json
