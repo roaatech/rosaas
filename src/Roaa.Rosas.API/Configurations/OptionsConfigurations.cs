@@ -24,6 +24,11 @@ namespace Roaa.Rosas.Framework.Configurations
                 configuration.GetSection(GeneralOptions.Section).Bind(options);
             });
 
+            services.Configure<PaymentOptions>(options =>
+            {
+                configuration.GetSection(PaymentOptions.Section).Bind(options);
+            });
+
             return rootOptions;
         }
     }

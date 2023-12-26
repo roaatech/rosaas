@@ -8,5 +8,7 @@ namespace Roaa.Rosas.Domain.Models.Options
         public IdentityServerOptions IdentityServer { get; set; }
         public ConnectionStringsOptions ConnectionStrings { get; set; }
         public GeneralOptions General { get; set; }
+        public PaymentOptions Payment { get; set; }
+
     }
 }

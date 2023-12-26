@@ -84,8 +84,8 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddMediatRAServices();
 
 
-            Stripe.StripeConfiguration.ApiKey = "sk_test_51OI5l1E1TtPRg7pa4T6AXcmiCjV9LfEig2glaELNmdTZPiurAvScKg1jjE60z3hIKoFzrVBvVQwOCsA1J1SHnyIe00cmlLZnso";
-            services.AddPaymentServicesConfigurations();
+
+            services.AddPaymentServicesConfigurations(rootOptions);
 
         }
     }

@@ -1,6 +1,6 @@
 ﻿using Roaa.Rosas.Domain.Settings;
 
-namespace Roaa.Rosas.Application.Payment.Models
+namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 {
     public class StripeSettings : ISettings
     {

@@ -6,8 +6,10 @@ using Roaa.Rosas.Application.Payment.Models;
 using Roaa.Rosas.Application.Payment.Services;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.ApiConfiguration;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Models.Options;
 using Stripe.Checkout;
 
 namespace Roaa.Rosas.Application.Payment.Methods.StripeService
@@ -22,6 +24,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
         private readonly IIdentityContextService _identityContextService;
         private readonly IPaymentProcessingService _paymentProcessingService;
         private readonly ISettingService _settingService;
+        private readonly PaymentOptions _appSettings;
         private Session stripeSession;
         #endregion
 
@@ -31,8 +34,11 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
                                    IRosasDbContext dbContext,
                                    IIdentityContextService identityContextService,
                                    IPaymentProcessingService paymentProcessingService,
+                                   IApiConfigurationService<PaymentOptions> appSettings,
                                    ISettingService settingService)
         {
+
+            _appSettings = appSettings.Options;
             _logger = logger;
             _dbContext = dbContext;
             _identityContextService = identityContextService;
@@ -123,7 +129,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 
             return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
             {
-                NavigationUrl = "http://localhost:3000/success",
+                NavigationUrl = _appSettings.SuccessPageUrl,
             });
         }
 
@@ -148,7 +154,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 
             return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
             {
-                NavigationUrl = "http://localhost:3000/products",
+                NavigationUrl = _appSettings.CancelPageUrl,
             });
         }
 
