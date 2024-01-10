@@ -70,6 +70,12 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
 
         #region Status Actions  
 
+        [HttpPost("{name}")]
+        public async Task<IActionResult> SendCreationRequestAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.SendingCreationRequest, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.None, null), cancellationToken));
+        }
+
 
         [HttpPost("{name}/created")]
         public async Task<IActionResult> SetTenantAsCreatedAsync([FromRoute] string name, CancellationToken cancellationToken = default)

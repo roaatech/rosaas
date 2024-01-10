@@ -64,12 +64,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 
             var settings = (await _settingService.LoadSettingAsync<TenantSettings>(cancellationToken)).Data;
 
-            //if (settings.SendCreationRequestAutomaticallyAfterTenantCreatedInStore)
-            //{
-            //    await SetTenantNextStatusAsync(@event, cancellationToken);
-            //} 
+            if (settings.SendCreationRequestAutomaticallyAfterTenantCreatedInStore &&
+                settings.TenancyTypes.Contains(@event.TenancyType))
+            {
+                await SetTenantNextStatusAsync(@event, cancellationToken);
+            }
 
-            await SetTenantNextStatusAsync(@event, cancellationToken);
+            //  await SetTenantNextStatusAsync(@event, cancellationToken);
         }
 
         private async Task SetTenantNextStatusAsync(TenantCreatedInStoreEvent @event, CancellationToken cancellationToken)
