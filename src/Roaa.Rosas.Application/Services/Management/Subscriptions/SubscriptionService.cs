@@ -45,6 +45,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
 
         #region Services 
+
         public async Task<Result> DeactivateSubscriptionDueToNonPaymentAsync(int periodTimeAfterEndDateInHours, CancellationToken cancellationToken = default)
         {
             var currentDate = DateTime.UtcNow;
@@ -202,6 +203,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result.Successful();
         }
+
         public async Task<List<Subscription>> GetExpiredSubscriptionsAsync(CancellationToken cancellationToken = default)
         {
             return await _dbContext.Subscriptions
@@ -413,8 +415,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             return Result.Successful();
         }
 
-
-
         public async Task<Result> PrepareSubscriptionToChangePlanAsync(Subscription subscription,
                                                                        SubscriptionPlanChanging subscriptionPlanChanging,
                                                                        CancellationToken cancellationToken = default)
@@ -435,11 +435,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result.Successful();
         }
-
-
-
-
-
 
         /// <summary>
         /// Renewing subscription plan that has enabled auto-renewal
@@ -486,9 +481,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             return Result.Successful();
         }
 
-
-
-
         public async Task<Result> SuspendSubscriptionAsync(Subscription subscription, CancellationToken cancellationToken = default)
         {
             string systemComment = "Setting the Subscription As Inactive for the tenant due to non-renewal.";
@@ -501,8 +493,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result.Successful();
         }
-
-
 
         private void PrepareToExtendSubscription(Subscription subscription,
                                       List<SubscriptionFeature> subscriptionFeatures,
@@ -651,7 +641,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             subscription.Comment = systemComment;
         }
 
-
         public async Task<Result> Temp__RenewSubscriptionsAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
         {
             var date = DateTime.UtcNow;
@@ -755,7 +744,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result.Successful();
         }
-
 
         public async Task<Result> Temp__EndSubscriptionAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
         {
