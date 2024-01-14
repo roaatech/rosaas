@@ -14,7 +14,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public bool IsLockedBySystem { get; set; }
         public TenancyType TenancyType { get; set; }
         public int TrialPeriodInDays { get; set; }
-        public Guid? AlternativePlanID { get; set; }
+        public Guid? AlternativePlanId { get; set; }
+        public Guid? AlternativePlanPriceId { get; set; }
         public virtual Product? Product { get; set; }
         public virtual ICollection<PlanFeature>? Features { get; set; }
         public virtual ICollection<PlanPrice>? Prices { get; set; }

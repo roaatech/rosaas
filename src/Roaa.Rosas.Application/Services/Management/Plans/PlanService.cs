@@ -60,7 +60,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               IsLockedBySystem = plan.IsLockedBySystem,
                                               TenancyType = plan.TenancyType,
                                               TrialPeriodInDays = plan.TrialPeriodInDays,
-                                              AlternativePlanID = plan.AlternativePlanID,
+                                              AlternativePlanId = plan.AlternativePlanId,
+                                              AlternativePlanPriceId = plan.AlternativePlanPriceId,
                                           });
 
             sort = sort.HandleDefaultSorting(new string[] { "Description", "SystemName", "DisplayName", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
@@ -93,7 +94,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   IsLockedBySystem = plan.IsLockedBySystem,
                                                   TenancyType = plan.TenancyType,
                                                   TrialPeriodInDays = plan.TrialPeriodInDays,
-                                                  AlternativePlanID = plan.AlternativePlanID,
+                                                  AlternativePlanId = plan.AlternativePlanId,
+                                                  AlternativePlanPriceId = plan.AlternativePlanPriceId,
                                               })
                                               .OrderByDescending(x => x.EditedDate)
                                               .ToListAsync(cancellationToken);
@@ -121,7 +123,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   IsLockedBySystem = plan.IsLockedBySystem,
                                                   TenancyType = plan.TenancyType,
                                                   TrialPeriodInDays = plan.TrialPeriodInDays,
-                                                  AlternativePlanID = plan.AlternativePlanID,
+                                                  AlternativePlanId = plan.AlternativePlanId,
+                                                  AlternativePlanPriceId = plan.AlternativePlanPriceId,
                                               })
                                               .OrderByDescending(x => x.DisplayOrder)
                                               .ToListAsync(cancellationToken);
@@ -203,7 +206,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                               IsLockedBySystem = plan.IsLockedBySystem,
                                               TenancyType = plan.TenancyType,
                                               TrialPeriodInDays = plan.TrialPeriodInDays,
-                                              AlternativePlanID = plan.AlternativePlanID,
+                                              AlternativePlanId = plan.AlternativePlanId,
+                                              AlternativePlanPriceId = plan.AlternativePlanPriceId,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -238,6 +242,24 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
 
             var date = DateTime.UtcNow;
 
+            PlanPrice? alternativePlanPrice = null;
+            Guid? alternativePlanId = model.AlternativePlanId;
+
+            if (model.AlternativePlanPriceId is not null)
+            {
+                alternativePlanPrice = await _dbContext.PlanPrices
+                                                       .Where(x => x.Id == model.AlternativePlanPriceId &&
+                                                                   x.Plan.ProductId == productId)
+                                                       .SingleOrDefaultAsync(cancellationToken);
+
+                if (alternativePlanPrice is null)
+                {
+                    return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(model.AlternativePlanPriceId));
+                }
+
+                alternativePlanId = alternativePlanPrice.PlanId;
+            }
+
             var id = Guid.NewGuid();
             var plan = new Plan
             {
@@ -254,7 +276,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 TenancyType = tenancyType,
                 IsLockedBySystem = isLockedBySystem,
                 TrialPeriodInDays = model.TrialPeriodInDays,
-                AlternativePlanID = model.AlternativePlanID,
+                AlternativePlanId = alternativePlanId,
+                AlternativePlanPriceId = model.AlternativePlanPriceId,
             };
 
             _dbContext.Plans.Add(plan);
@@ -294,6 +317,24 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
             #endregion
+            PlanPrice? alternativePlanPrice = null;
+            Guid? alternativePlanId = model.AlternativePlanId;
+
+            if (model.AlternativePlanPriceId is not null)
+            {
+                alternativePlanPrice = await _dbContext.PlanPrices
+                                                       .Where(x => x.Id == model.AlternativePlanPriceId &&
+                                                                   x.Plan.ProductId == productId)
+                                                       .SingleOrDefaultAsync(cancellationToken);
+
+                if (alternativePlanPrice is null)
+                {
+                    return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(model.AlternativePlanPriceId));
+                }
+
+                alternativePlanId = alternativePlanPrice.PlanId;
+            }
+
             Plan planBeforeUpdate = plan.DeepCopy();
 
             plan.SystemName = model.SystemName;
@@ -303,7 +344,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             plan.ModifiedByUserId = _identityContextService.UserId;
             plan.ModificationDate = DateTime.UtcNow;
             plan.TrialPeriodInDays = model.TrialPeriodInDays;
-            plan.AlternativePlanID = model.AlternativePlanID;
+            plan.AlternativePlanId = alternativePlanId;
+            plan.AlternativePlanPriceId = model.AlternativePlanPriceId;
 
 
             await _dbContext.SaveChangesAsync(cancellationToken);

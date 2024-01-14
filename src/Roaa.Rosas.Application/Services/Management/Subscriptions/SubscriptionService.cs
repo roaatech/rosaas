@@ -239,12 +239,14 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                      .Where(x => expiredSbscriptionsIds.Contains(x.SubscriptionId))
                                                      .ToListAsync();
 
+
             foreach (var subscription in expiredSubscriptions)
             {
                 var subscriptionFeatures = subscriptionsFeatures
                                                 .Where(x => x.SubscriptionId == subscription.Id)
                                                 .ToList();
 
+                #region First Case
                 var subscriptionPlanChanging = subscriptionPlanChanges.Where(x => x.SubscriptionId == subscription.Id).SingleOrDefault();
 
                 // Changing subscription plan that needs to change its plan 
@@ -253,7 +255,9 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     await PrepareSubscriptionToChangePlanAsync(subscription, subscriptionPlanChanging, cancellationToken);
                     continue;
                 }
+                #endregion
 
+                #region Second Case
                 var autoRenewal = subscriptionAutoRenewals.Where(x => x.SubscriptionId == subscription.Id).SingleOrDefault();
 
                 // Renewing subscription plan that has enabled auto-renewal
@@ -262,9 +266,62 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     await RenewSubscriptionAsync(subscription, autoRenewal, subscriptionFeatures, cancellationToken);
                     continue;
                 }
+                #endregion
+
+                #region 3th Case 
+
+                var plan = await _dbContext.Plans
+                                 .AsNoTracking()
+                                 .Where(x => x.Id == subscription.PlanId)
+                                 .Select(x => new
+                                 {
+                                     x.Id,
+                                     x.AlternativePlanId,
+                                     x.AlternativePlanPriceId,
+                                     x.TrialPeriodInDays
+                                 })
+                                 .SingleOrDefaultAsync(cancellationToken);
+
+                if (plan.AlternativePlanId is not null)
+                {
+                    var alternativePlanPrice = await _dbContext.PlanPrices
+                                                               .AsNoTracking()
+                                                               .Where(x => x.Id == plan.AlternativePlanPriceId &&
+                                                                           x.PlanId == plan.AlternativePlanId)
+                                                               .Include(x => x.Plan)
+                                                               .SingleOrDefaultAsync(cancellationToken);
+
+                    var newSubscriptionPlanChanging = new SubscriptionPlanChanging
+                    {
+                        Id = subscription.Id,
+                        Type = PlanChangingType.Downgrade,
+                        SubscriptionId = subscription.Id,
+                        PlanPriceId = alternativePlanPrice.Id,
+                        PlanId = alternativePlanPrice.PlanId,
+                        PlanCycle = alternativePlanPrice.PlanCycle,
+                        Price = alternativePlanPrice.Price,
+                        PlanDisplayName = alternativePlanPrice.Plan.DisplayName ?? "",
+                        IsPaid = true,
+                        //Comment = Comment, 
+                        CreationDate = _date,
+                        ModificationDate = _date,
+                    };
+                    _dbContext.SubscriptionPlanChanges.Add(newSubscriptionPlanChanging);
+
+                    await PrepareSubscriptionToChangePlanAsync(subscription, newSubscriptionPlanChanging, cancellationToken);
+                    continue;
+                }
+                #endregion
+
+                #region 4th Case
 
                 await SuspendSubscriptionAsync(subscription, cancellationToken);
+
+                #endregion
+
             }
+
+
 
             return Result.Successful();
         }
@@ -323,10 +380,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                             subscriptionPlanChanging.Price,
                             subscriptionPlanChanging.PlanDisplayName);
 
-            subscription.AddDomainEvent(new SubscriptionPlanChangePreparedEvent(
-                                          subscription,
-                                          subscriptionPlanChanging,
-                                          previousSubscriptionCycleId));
+
 
             subscription.PlanId = subscriptionPlanChanging.PlanId;
             subscription.PlanPriceId = subscriptionPlanChanging.PlanPriceId;

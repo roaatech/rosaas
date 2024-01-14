@@ -15,6 +15,7 @@ namespace Roaa.Rosas.Domain.Events.Management
         {
         }
 
+
         public SubscriptionPlanChangePreparedEvent(Subscription subscription,
                                         SubscriptionPlanChanging subscriptionPlanChange,
                                         Guid previousSubscriptionCycleId)

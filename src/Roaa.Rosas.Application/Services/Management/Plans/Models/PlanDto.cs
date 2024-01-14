@@ -18,7 +18,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans.Models
         public bool IsLockedBySystem { get; set; }
         public TenancyType TenancyType { get; set; }
         public int TrialPeriodInDays { get; set; }
-        public Guid? AlternativePlanID { get; set; }
+        public Guid? AlternativePlanId { get; set; }
+        public Guid? AlternativePlanPriceId { get; set; }
 
     }
 }
