@@ -28,6 +28,7 @@
                 public const string ClaimType = "type";
                 public const string ClaimAuthenticationMethod = "amth";
                 public const string ExternalSystem = "external_system";
+                public const string ExternalSystemClient = "ext_sys_client";
             }
 
             public class Properties

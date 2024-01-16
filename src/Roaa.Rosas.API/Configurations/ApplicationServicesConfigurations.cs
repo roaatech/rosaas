@@ -60,6 +60,8 @@ namespace Roaa.Rosas.Framework.Configurations
 
 
             #region Management 
+            services.AddScoped<IPermissionService, PermissionService>();
+
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<ITenantWorkflow, TenantWorkflow>();
             services.AddScoped<ManagementDbInitialiser>();

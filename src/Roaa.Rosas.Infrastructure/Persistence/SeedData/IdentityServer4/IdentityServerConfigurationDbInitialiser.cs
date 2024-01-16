@@ -1,11 +1,11 @@
 ﻿using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Mappers;
+using IdentityServer4.EntityFramework.Stores;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Common.ApiConfiguration;
-using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models.Options;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
@@ -18,6 +18,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
         private readonly ILogger<IdentityServerConfigurationDbInitialiser> _logger;
         private readonly IdentityServerOptions _identityServerSettings;
         private readonly IPublisher _publisher;
+        private readonly ClientStore _clientStore;
         #endregion
 
         #region Ctors 
@@ -25,11 +26,13 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
                                                         IdentityServerPersistedGrantDbContext persistedGrantDbContext,
                                                         IApiConfigurationService<IdentityServerOptions> identityServerSettings,
                                                         ILogger<IdentityServerConfigurationDbInitialiser> logger,
+                                                        ClientStore clientStore,
                                                         IPublisher publisher)
         {
             _configurationDbContext = configurationDbContex;
             _persistedGrantDbContext = persistedGrantDbContext;
             _identityServerSettings = identityServerSettings.Options;
+            _clientStore = clientStore;
             _publisher = publisher;
             _logger = logger;
         }
@@ -192,40 +195,52 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.IdentityServer4
 
         }
 
-
         private async Task FixAsync()
         {
-            var clients = IdentityServer4Config.GetClients(_identityServerSettings.Url)
-                                               .Select(x => x.ClientId)
-                                               .ToList();
+            await Remove("roaa-apptomator");
+            await Remove("roaa-shams");
+            await Remove("roaa-osos");
 
-            var clientsInDb = await _configurationDbContext.Clients
-                                                           .Include(x => x.Properties)
-                                                           .Where(x => clients.Contains(x.ClientId))
-                                                           .ToListAsync();
-
-            var clientsIds = clientsInDb.Select(x => x.Id).ToList();
 
             var clientsCustomDetailsInDb = await _configurationDbContext.ClientCustomDetails
-                                                      .Where(x => clientsIds.Contains(x.ClientId))
+                                                      .Where(x => x.ClientType == Domain.Entities.ClientType.None)
                                                       .ToListAsync();
-            foreach (var client in clientsInDb)
+
+
+            foreach (var c in clientsCustomDetailsInDb)
             {
-                if (client.Properties.Any())
-                {
-                    var clientProperty = client.Properties
-                                                .Where(x => x.Key.Equals(SystemConsts.Clients.Properties.RosasUserId))
-                                                .FirstOrDefault();
-
-                    var clientCustomDetailsInDb = clientsCustomDetailsInDb.SingleOrDefault(x => x.ClientId == client.Id);
-
-                    clientCustomDetailsInDb.UserId = new Guid(clientProperty.Value);
-
-                    await _publisher.Publish(new IdentityServerClientCreatedEvent(client, clientCustomDetailsInDb));
-                }
+                c.ClientType = Domain.Entities.ClientType.ExternalSystem;
             }
 
             await _configurationDbContext.SaveChangesAsync();
+        }
+        private async Task Remove(string clientId)
+        {
+            IQueryable<Client> baseQuery = _configurationDbContext.Clients
+                                          .Where(x => x.ClientId == clientId);
+
+            var client = (await baseQuery.ToArrayAsync())
+                            .SingleOrDefault(x => x.ClientId == clientId);
+
+            if (client is not null && client.Created.Year < 2024)
+            {
+                await baseQuery.Include(x => x.AllowedCorsOrigins).SelectMany(c => c.AllowedCorsOrigins).LoadAsync();
+                await baseQuery.Include(x => x.AllowedGrantTypes).SelectMany(c => c.AllowedGrantTypes).LoadAsync();
+                await baseQuery.Include(x => x.AllowedScopes).SelectMany(c => c.AllowedScopes).LoadAsync();
+                await baseQuery.Include(x => x.Claims).SelectMany(c => c.Claims).LoadAsync();
+                await baseQuery.Include(x => x.ClientSecrets).SelectMany(c => c.ClientSecrets).LoadAsync();
+                await baseQuery.Include(x => x.IdentityProviderRestrictions).SelectMany(c => c.IdentityProviderRestrictions).LoadAsync();
+                await baseQuery.Include(x => x.PostLogoutRedirectUris).SelectMany(c => c.PostLogoutRedirectUris).LoadAsync();
+                await baseQuery.Include(x => x.Properties).SelectMany(c => c.Properties).LoadAsync();
+                await baseQuery.Include(x => x.RedirectUris).SelectMany(c => c.RedirectUris).LoadAsync();
+
+                _configurationDbContext.Clients.Remove(client);
+
+                var res = await _configurationDbContext.SaveChangesAsync();
+            }
+
+
+
         }
         #endregion
     }

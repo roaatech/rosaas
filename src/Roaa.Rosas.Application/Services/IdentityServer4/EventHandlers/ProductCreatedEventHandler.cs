@@ -35,7 +35,7 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.EventHandlers
 
             string sysName = $"{clientName}-{@event.Product.SystemName}".ToLower();
 
-            await _clientService.CreateClientAsync(new Clients.Models.CreateClientByProductModel
+            await _clientService.CreateClientAsExternalSystemAsync(new Clients.Models.CreateClientAsExternalSystemModel
             {
                 ClientId = sysName,
                 DisplayName = @event.Product.DisplayName,

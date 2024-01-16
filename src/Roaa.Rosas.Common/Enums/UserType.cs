@@ -8,6 +8,7 @@
         TenantAdmin = 4,
         RosasSystem = 100,
         ExternalSystem = 101,
+        ExternalSystemClient = 102,
     }
 
 
