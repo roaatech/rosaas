@@ -83,7 +83,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             {
                 Id = Guid.NewGuid(),
                 StartDate = date,
-                EndDate = PlanCycleManager.FromKey(planData.PlanPrice.PlanCycle).CalculateExpiryDate(date, planData.PlanPrice.CustomPeriodInDays),
+                EndDate = PlanCycleManager.FromKey(planData.PlanPrice.PlanCycle).CalculateExpiryDate(date, planData.PlanPrice.CustomPeriodInDays, null, planData.Plan.TenancyType),
                 ClientId = planData.Product.ClientId,
                 ProductId = planData.Product.Id,
                 SubscriptionId = planData.GeneratedSubscriptionId,

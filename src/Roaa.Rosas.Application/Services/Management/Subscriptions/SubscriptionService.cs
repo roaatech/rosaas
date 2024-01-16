@@ -639,6 +639,11 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             subscription.IsActive = false;
             subscription.ModificationDate = date;
             subscription.Comment = systemComment;
+
+            if (subscription.SubscriptionMode == SubscriptionMode.Trial)
+            {
+                subscription.SubscriptionMode = SubscriptionMode.PendingToActive;
+            }
         }
 
         public async Task<Result> Temp__RenewSubscriptionsAsync(Guid subscriptionId, CancellationToken cancellationToken = default)

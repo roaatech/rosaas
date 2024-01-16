@@ -1,5 +1,6 @@
 ﻿using Roaa.Rosas.Common.Utilities;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
 {
@@ -22,6 +23,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
         #endregion
 
         #region abst   
+        public abstract DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType);
         public abstract DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays);
         #endregion
 
@@ -36,7 +38,16 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #endregion 
 
             #region overrides  
+            public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
+
+            private DateTime? Calculate(DateTime startDate, int? customPeriodInDays)
             {
                 return startDate.AddDays(1);
             }
@@ -50,7 +61,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #endregion 
 
             #region overrides  
+            public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
+            private DateTime? Calculate(DateTime startDate, int? customPeriodInDays)
             {
                 return startDate.AddDays(3);
             }
@@ -65,7 +84,15 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #endregion 
 
             #region overrides  
+            public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
+            private DateTime? Calculate(DateTime startDate, int? customPeriodInDays)
             {
                 return startDate.AddDays(7);
             }
@@ -80,7 +107,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #endregion 
 
             #region overrides  
+            public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && customPeriodInDays > 0)
+                {
+                    return startDate.AddDays(trialPeriodInDays.Value);
+                }
+
+                return Calculate(startDate, customPeriodInDays);
+            }
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
+            private DateTime? Calculate(DateTime startDate, int? customPeriodInDays)
             {
                 return startDate.AddMonths(1);
             }
@@ -94,7 +134,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #endregion 
 
             #region overrides  
+            public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && customPeriodInDays > 0)
+                {
+                    return startDate.AddDays(trialPeriodInDays.Value);
+                }
+
+                return Calculate(startDate, customPeriodInDays);
+            }
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
+            private DateTime? Calculate(DateTime startDate, int? customPeriodInDays)
             {
                 return startDate.AddYears(1);
             }
@@ -109,7 +162,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #endregion 
 
             #region overrides  
+            public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && customPeriodInDays > 0)
+                {
+                    return startDate.AddDays(trialPeriodInDays.Value);
+                }
+
+                return Calculate(startDate, customPeriodInDays);
+            }
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
+            private DateTime? Calculate(DateTime startDate, int? customPeriodInDays)
             {
                 if (!customPeriodInDays.HasValue)
                 {
@@ -128,7 +194,20 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #endregion 
 
             #region overrides  
+            public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && customPeriodInDays > 0)
+                {
+                    return startDate.AddDays(trialPeriodInDays.Value);
+                }
+
+                return Calculate(startDate, customPeriodInDays);
+            }
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
+            private DateTime? Calculate(DateTime startDate, int? customPeriodInDays)
             {
                 return null;
             }

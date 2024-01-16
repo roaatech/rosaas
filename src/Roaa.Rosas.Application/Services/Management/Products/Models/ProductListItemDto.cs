@@ -15,5 +15,6 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
         public ProductTrialType TrialType { get; set; }
         public int TrialPeriodInDays { get; set; }
         public Guid? TrialPlanId { get; set; }
+        public Guid? TrialPlanPriceId { get; set; }
     }
 }

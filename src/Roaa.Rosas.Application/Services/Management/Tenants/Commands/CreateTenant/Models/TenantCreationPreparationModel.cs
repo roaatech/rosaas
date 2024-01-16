@@ -13,6 +13,7 @@ public record TenantCreationPreparationModel
     public PlanPriceDataModel PlanPrice { get; set; } = new();
     public List<PlanFeatureInfoModel> Features { get; set; } = new();
     public List<SpecificationInfoModel> Specifications { get; set; } = new();
+    public bool HasTrial { get; set; } = new();
 }
 
 
@@ -22,6 +23,9 @@ public record PlandDataModel
     public string DisplayName { get; set; } = string.Empty;
     public string SystemName { get; set; } = string.Empty;
     public TenancyType TenancyType { get; set; }
+    public int TrialPeriodInDays { get; set; }
+    public Guid? AlternativePlanId { get; set; }
+    public Guid? AlternativePlanPriceId { get; set; }
     public bool IsPublished { get; set; }
 }
 

@@ -80,6 +80,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               EditedDate = product.ModificationDate,
                                               TrialType = product.TrialType,
                                               TrialPlanId = product.TrialPlanId,
+                                              TrialPlanPriceId = product.TrialPlanPriceId,
                                               TrialPeriodInDays = product.TrialPeriodInDays,
                                           });
 
@@ -133,6 +134,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                                  EditedDate = product.ModificationDate,
                                                  TrialType = product.TrialType,
                                                  TrialPlanId = product.TrialPlanId,
+                                                 TrialPlanPriceId = product.TrialPlanPriceId,
                                                  TrialPeriodInDays = product.TrialPeriodInDays,
                                              })
                                             .ToListAsync(cancellationToken);
@@ -189,6 +191,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               SubscriptionDowngradeUrl = product.SubscriptionDowngradeUrl,
                                               TrialType = product.TrialType,
                                               TrialPlanId = product.TrialPlanId,
+                                              TrialPlanPriceId = product.TrialPlanPriceId,
                                               TrialPeriodInDays = product.TrialPeriodInDays,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
@@ -398,6 +401,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             product.TrialType = model.TrialType;
             product.TrialPlanId = model.TrialPlanId;
+            product.TrialPlanPriceId = model.TrialPlanPriceId;
             product.TrialPeriodInDays = model.TrialPeriodInDays;
             product.ModificationDate = DateTime.UtcNow;
             product.ModifiedByUserId = _identityContextService.UserId;

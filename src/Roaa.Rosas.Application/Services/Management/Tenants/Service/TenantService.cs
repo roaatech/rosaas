@@ -256,6 +256,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                     SystemName = x.Plan.SystemName,
                                                     TenancyType = x.Plan.TenancyType,
                                                     IsPublished = x.Plan.IsPublished,
+                                                    TrialPeriodInDays = x.Plan.TrialPeriodInDays,
+                                                    AlternativePlanId = x.Plan.AlternativePlanId,
+                                                    AlternativePlanPriceId = x.Plan.AlternativePlanPriceId,
                                                 },
                                                 PlanPrice = new()
                                                 {
@@ -269,7 +272,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                     ClientId = x.Plan.Product.ClientId,
                                                     SystemName = x.Plan.Product.SystemName,
                                                     DisplayName = x.Plan.Product.DisplayName,
-                                                    Url = x.Plan.Product.DefaultHealthCheckUrl
+                                                    Url = x.Plan.Product.DefaultHealthCheckUrl,
+                                                    TrialType = x.Plan.Product.TrialType,
+                                                    TrialPlanId = x.Plan.Product.TrialPlanId,
+                                                    TrialPlanPriceId = x.Plan.Product.TrialPlanPriceId,
+                                                    TrialPeriodInDays = x.Plan.Product.TrialPeriodInDays,
                                                 },
 
                                             })
@@ -331,11 +338,21 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
         }
 
 
-
         #endregion
 
 
         #region Utilities     
+        private bool HasTrial(TenantCreationPreparationModel model)
+        {
+            return (model.Product.TrialType == ProductTrialType.ProductHasTrialPlan &&
+                    model.Product.TrialPeriodInDays > 0 &&
+                    model.Product.TrialPlanId is not null &&
+                    model.Product.TrialPlanPriceId is not null)
+                 ||
+                   (model.Product.TrialType == ProductTrialType.EachPlanHasOptinalTrialPeriod &&
+                    model.Plan.TrialPeriodInDays > 0);
+        }
+
         private async Task<List<TenantCreationPreparationModel>> PreparePlanDataListAsync(TenantCreationRequestModel request, List<TenantCreationPreparationModel> planDataList, CancellationToken cancellationToken = default)
         {
             var planIds = request.Subscriptions.Select(x => x.PlanId)
@@ -377,6 +394,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 item.PlanPrice.CustomPeriodInDays = req.CustomPeriodInDays;
                 item.Features = featuresInfo.Where(x => x.PlanId == item.Plan.Id).ToList();
                 item.Specifications = specifications.Where(x => x.ProductId == item.Product.Id).ToList();
+                item.HasTrial = HasTrial(item);
             }
 
             return planDataList;
@@ -395,6 +413,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                 systemName.ToLower().Equals(x.Tenant.SystemName))
                                     .AnyAsync(cancellationToken);
         }
+
+
 
         #endregion
 

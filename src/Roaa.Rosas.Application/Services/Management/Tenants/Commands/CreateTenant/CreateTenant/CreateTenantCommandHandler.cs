@@ -172,7 +172,12 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             {
                 Id = item.GeneratedSubscriptionId,
                 StartDate = _date,
-                EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle).CalculateExpiryDate(_date, item.PlanPrice.CustomPeriodInDays),
+                EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle)
+                                          .CalculateExpiryDate(_date,
+                                                                item.PlanPrice.CustomPeriodInDays,
+                                                                GetTrialPeriodInDays(item),
+                                                                item.Plan.TenancyType),
+                SubscriptionMode = GetSubscriptionMode(item),
                 TenantId = id,
                 PlanId = item.Plan.Id,
                 PlanPriceId = item.PlanPrice.Id,
@@ -186,6 +191,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 ModificationDate = _date,
                 HealthCheckUrl = item.Product.Url,
                 HealthCheckUrlIsOverridden = false,
+                TrialPeriod = BuildSubscriptionTrialPeriodEntity(item),
                 SubscriptionCycleId = item.GeneratedSubscriptionCycleId,
                 SubscriptionCycles = new List<SubscriptionCycle>()
                 {
@@ -193,7 +199,11 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                      {
                         Id = item.GeneratedSubscriptionCycleId,
                         StartDate = _date,
-                        EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle).CalculateExpiryDate(_date, item.PlanPrice.CustomPeriodInDays),
+                        EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle)
+                                          .CalculateExpiryDate(_date,
+                                                                item.PlanPrice.CustomPeriodInDays,
+                                                                GetTrialPeriodInDays(item),
+                                                                item.Plan.TenancyType),
                         TenantId = id,
                         PlanId = item.Plan.Id,
                         PlanPriceId = item.PlanPrice.Id,
@@ -276,6 +286,69 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             SubscriptionCycleId = planInfo.GeneratedSubscriptionCycleId,
             SubscriptionId = planInfo.GeneratedSubscriptionId,
         };
+    }
+
+
+    private SubscriptionTrialPeriod? BuildSubscriptionTrialPeriodEntity(TenantCreationPreparationModel model)
+    {
+        if (model.HasTrial)
+        {
+            int TrialPeriodInDays;
+            Guid TrialPlanId;
+            Guid TrialPlanPriceId;
+
+            if (model.Product.TrialType == ProductTrialType.ProductHasTrialPlan)
+            {
+                TrialPeriodInDays = model.Product.TrialPeriodInDays;
+                TrialPlanId = model.Product.TrialPlanId.Value;
+                TrialPlanPriceId = model.Product.TrialPlanPriceId.Value;
+            }
+            else
+            {
+                TrialPeriodInDays = model.Plan.TrialPeriodInDays;
+                TrialPlanId = model.Plan.Id;
+                TrialPlanPriceId = model.PlanPrice.Id;
+            }
+
+
+            return new SubscriptionTrialPeriod()
+            {
+                Id = Guid.NewGuid(),
+                StartDate = _date,
+                EndDate = _date.AddDays(TrialPeriodInDays),
+                TrialPeriodInDays = TrialPeriodInDays,
+                PlanId = TrialPlanId,
+                PlanPriceId = TrialPlanPriceId,
+            };
+        }
+        return null;
+    }
+
+    private int? GetTrialPeriodInDays(TenantCreationPreparationModel model)
+    {
+        int? trialPeriodInDays = null;
+
+        if (model.HasTrial)
+        {
+            if (model.Product.TrialType == ProductTrialType.ProductHasTrialPlan)
+            {
+                trialPeriodInDays = model.Product.TrialPeriodInDays;
+            }
+            else
+            {
+                trialPeriodInDays = model.Plan.TrialPeriodInDays;
+            }
+        }
+        return trialPeriodInDays;
+    }
+    private SubscriptionMode GetSubscriptionMode(TenantCreationPreparationModel model)
+    {
+        if (model.HasTrial)
+        {
+            return SubscriptionMode.Trial;
+        }
+
+        return SubscriptionMode.Active;
     }
 
     private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<Subscription> subscriptions)

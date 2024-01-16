@@ -11,7 +11,7 @@ public partial class TenantCreationRequestCommandValidator : AbstractValidator<T
     public TenantCreationRequestCommandValidator(IIdentityContextService identityContextService)
     {
 
-        //  RuleFor(x => x.SystemName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        RuleFor(x => x.SystemName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
         When(x => !string.IsNullOrWhiteSpace(x.SystemName), () =>
         {
