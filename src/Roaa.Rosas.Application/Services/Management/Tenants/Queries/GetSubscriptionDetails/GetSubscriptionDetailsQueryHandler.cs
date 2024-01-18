@@ -66,6 +66,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                          Id = SubscriptionCycle.Id,
                                                          StartDate = SubscriptionCycle.StartDate,
                                                          EndDate = SubscriptionCycle.EndDate,
+                                                         CycleType = SubscriptionCycle.Type,
 
                                                      }),
                                                      Plan = new CustomLookupItemDto<Guid>

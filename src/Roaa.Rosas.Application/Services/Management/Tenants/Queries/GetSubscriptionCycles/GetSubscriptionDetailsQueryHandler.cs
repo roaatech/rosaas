@@ -53,7 +53,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                                  StartDate = SubscriptionCycle.StartDate,
                                                                  EndDate = SubscriptionCycle.EndDate,
                                                                  Cycle = SubscriptionCycle.Cycle,
-                                                                 Type = SubscriptionCycle.Type,
+                                                                 CycleType = SubscriptionCycle.Type,
                                                                  Price = SubscriptionCycle.Price,
                                                                  Plan = new CustomLookupItemDto<Guid>(SubscriptionCycle.PlanId, SubscriptionCycle.PlanDisplayName, SubscriptionCycle.PlanDisplayName),
                                                                  SubscriptionFeaturesCycles = SubscriptionCycle
