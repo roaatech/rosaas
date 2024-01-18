@@ -149,8 +149,8 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
                                         .Where(x => x.Id == orderId)
                                         .SingleOrDefaultAsync(cancellationToken);
 
-            order.OrderStatus = OrderStatus.Pending;
-            order.PaymentStatus = PaymentStatus.Pending;
+            order.OrderStatus = OrderStatus.Initial;
+            order.PaymentStatus = PaymentStatus.Initial;
             order.Reference = session.PaymentIntentId;
             order.AuthorizationTransactionResult = JsonConvert.SerializeObject(session);
 

@@ -33,6 +33,13 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         {
             return ItemResult(await _orderService.GetOrderByIdAsync(id, cancellationToken));
         }
+
+
+        [HttpGet($"/{PrefixSuperAdminMainApiRoute}/tenants/{{tenantId}}/[controller]")]
+        public async Task<IActionResult> GetOrdersListAsync([FromRoute] Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _orderService.GetOrdersListAsync(tenantId, cancellationToken));
+        }
         #endregion
 
 

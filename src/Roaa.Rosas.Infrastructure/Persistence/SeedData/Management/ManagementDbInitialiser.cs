@@ -67,6 +67,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
             {
                 try
                 {
+                    await FixOrderPaymentStatusAsync();
                     await FixPlanPriceNameAsync();
                     await FixFeaturesResetAsync();
                     await FixPlanTenancyTypeAsync();
@@ -271,6 +272,36 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
 
                 await _dbContext.SaveChangesAsync();
             }
+        }
+
+        private async Task FixOrderPaymentStatusAsync()
+        {
+
+            const string key = "SeedData.Management.ManagementDbInitialiser.OrderPaymentStatusFixed";
+
+            if (!await _dbContext.Settings
+                                .Where(x => x.Key.Equals(key))
+                                .AnyAsync())
+            {
+
+                var orders = await _dbContext.Orders.Where(x => x.PaymentStatus == null).ToListAsync();
+
+
+                foreach (var order in orders)
+                {
+
+                    order.PaymentStatus = PaymentStatus.Initial;
+                }
+            }
+
+            _dbContext.Settings.Add(new Setting
+            {
+                Key = key,
+                Value = DateTime.UtcNow.ToString(),
+                Id = Guid.NewGuid()
+            });
+
+            await _dbContext.SaveChangesAsync();
         }
         private List<Client> GetClients()
         {

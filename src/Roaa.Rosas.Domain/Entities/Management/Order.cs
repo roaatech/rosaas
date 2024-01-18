@@ -60,7 +60,9 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
     public enum PaymentStatus
     {
-        Pending = 100,
+        Initial = 100,
+
+        PendingToPay = 150,
 
         Authorized = 200,
 
@@ -80,8 +82,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
     }
     public enum OrderStatus
     {
-        Pending = 1,
-        Processing = 2,
+        Initial = 1,
+        PendingToPay = 2,
         Complete = 3,
         Cancelled = 4
     }

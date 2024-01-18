@@ -56,6 +56,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                                               {
                                                   Id = order.Id,
                                                   TenantId = order.TenantId,
+                                                  OrderNumber = order.OrderNumber,
                                                   OrderStatus = order.OrderStatus,
                                                   OrderSubtotalExclTax = order.OrderSubtotalExclTax,
                                                   OrderSubtotalInclTax = order.OrderSubtotalInclTax,
@@ -75,6 +76,43 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
 
 
+        public async Task<Result<List<OrderDto>>> GetOrdersListAsync(Guid tenantId, CancellationToken cancellationToken = default)
+        {
+            var orders = await _dbContext.Orders
+                                              .AsNoTracking()
+                                            .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                _dbContext.EntityAdminPrivileges
+                                                        .Any(a =>
+                                                            a.UserId == _identityContextService.UserId &&
+                                                            a.EntityId == x.TenantId &&
+                                                            a.EntityType == EntityType.Tenant
+                                                            )
+                                            )
+                                              .Where(x => x.TenantId == tenantId)
+                                              .Select(order => new OrderDto
+                                              {
+                                                  Id = order.Id,
+                                                  TenantId = order.TenantId,
+                                                  OrderNumber = order.OrderNumber,
+                                                  OrderStatus = order.OrderStatus,
+                                                  OrderSubtotalExclTax = order.OrderSubtotalExclTax,
+                                                  OrderSubtotalInclTax = order.OrderSubtotalInclTax,
+                                                  OrderTotal = order.OrderTotal,
+                                                  PaidDate = order.PaidDate,
+                                                  PaymentMethodType = order.PaymentMethodType,
+                                                  PaymentStatus = order.PaymentStatus,
+                                                  UserCurrencyType = order.UserCurrencyType,
+                                                  UserCurrencyCode = order.UserCurrencyCode,
+                                                  CreatedDate = order.CreationDate,
+                                                  EditedDate = order.ModificationDate,
+                                                  HasToPay = order.Tenant.LastOrderId == order.Id &&
+                                                                                 (order.OrderStatus == OrderStatus.Initial || order.OrderStatus == OrderStatus.PendingToPay) &&
+                                                                                 (order.PaymentStatus == PaymentStatus.Initial || order.PaymentStatus == PaymentStatus.PendingToPay),
+                                              })
+                                              .ToListAsync(cancellationToken);
+
+            return Result<List<OrderDto>>.Successful(orders);
+        }
         public Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList)
         {
             var quantity = 1;
@@ -116,11 +154,11 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             {
                 Id = Guid.NewGuid(),
                 TenantId = null,
-                OrderStatus = OrderStatus.Pending,
+                OrderStatus = OrderStatus.Initial,
+                PaymentStatus = PaymentStatus.Initial,
                 CurrencyRate = 1,
                 UserCurrencyType = CurrencyCode.USD,
                 UserCurrencyCode = CurrencyCode.USD.ToString(),
-                PaymentStatus = null,
                 PaymentMethodType = null,
                 CreatedByUserType = _identityContextService.GetUserType(),
                 CreatedByUserId = _identityContextService.GetActorId(),

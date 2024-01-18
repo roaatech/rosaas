@@ -52,8 +52,8 @@ namespace Roaa.Rosas.Application.Payment.Services
 
             var paymentProcessingExpirationDate = await paymentMethod.GetPaymentProcessingExpirationDate(cancellationToken);
 
-            order.OrderStatus = OrderStatus.Processing;
-            order.PaymentStatus = PaymentStatus.Pending;
+            order.OrderStatus = OrderStatus.PendingToPay;
+            order.PaymentStatus = PaymentStatus.Initial;
             order.ModificationDate = DateTime.UtcNow;
             order.PaymentMethodType = paymentMethod.PaymentMethodType;
             order.PaymentProcessingExpirationDate = paymentProcessingExpirationDate;

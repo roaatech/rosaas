@@ -5,7 +5,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
     public class OrderDto
     {
         public Guid Id { get; set; }
-        public int OrderNumber { get; }
+        public int OrderNumber { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public PaymentStatus? PaymentStatus { get; set; }
         public PaymentMethodType? PaymentMethodType { get; set; }
@@ -18,5 +18,6 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
         public Guid? TenantId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
+        public bool HasToPay { get; set; }
     }
 }
