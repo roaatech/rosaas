@@ -20,6 +20,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public bool IsSubscriptionResetUrlExists { get; set; }
         public bool IsSubscriptionUpgradeUrlExists { get; set; }
         public bool IsSubscriptionDowngradeUrlExists { get; set; }
+        public SubscriptionMode SubscriptionMode { get; set; }
         public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public PlanPriceDto PlanPrice { get; set; } = new();
         public SubscriptionAutoRenewalDto? AutoRenewal { get; set; }

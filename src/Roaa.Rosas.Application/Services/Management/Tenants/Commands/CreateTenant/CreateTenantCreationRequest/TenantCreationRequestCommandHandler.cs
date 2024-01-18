@@ -111,7 +111,8 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
 
 
         // >>>  when we have trial period, We will directly create the tenant within the trial plan.  <<<
-        if (preparationsResult.Data.All(x => x.HasTrial))
+        if (preparationsResult.Data.All(x => x.Plan.TenancyType == Domain.Enums.TenancyType.Planed) &&
+            preparationsResult.Data.All(x => x.HasTrial))
         {
             var tenantCreatedResult = await CreateTenantAsync(request, order, preparationsResult.Data, cancellationToken);
 
@@ -119,6 +120,8 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
             {
                 return Result<TenantCreationRequestResultDto>.Fail(tenantCreatedResult.Messages);
             }
+
+            await _orderService.MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(order, cancellationToken);
 
             return Result<TenantCreationRequestResultDto>.Successful(new TenantCreationRequestResultDto(order.Id, false, navigationUrl, tenantCreatedResult.Data.TenantId));
         }
@@ -159,6 +162,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
                                                       DisplayName = model.DisplayName,
                                                       SystemName = model.SystemName,
                                                       Subscriptions = model.Subscriptions,
+                                                      OrderId = order.Id,
                                                       UserId = order.CreatedByUserId,
                                                       UserType = order.CreatedByUserType,
                                                   },

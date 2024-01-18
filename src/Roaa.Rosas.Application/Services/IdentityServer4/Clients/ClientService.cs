@@ -48,7 +48,7 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.Clients
             _identityContextService = identityContextService;
             _permissionService = permissionService;
             _IdentityServerDbContext = dbContext;
-            rosasDbContext = _rosasDbContext;
+            _rosasDbContext = rosasDbContext;
             _tokenService = tokenService;
             _publisher = publisher;
         }

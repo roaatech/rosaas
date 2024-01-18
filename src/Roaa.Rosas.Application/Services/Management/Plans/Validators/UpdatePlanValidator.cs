@@ -17,11 +17,11 @@ namespace Roaa.Rosas.Application.Services.Management.Plans.Validators
 
             RuleFor(x => x.DisplayName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
-            When(model => model.AlternativePlanId is not null, () =>
-            {
-                RuleFor(x => x.AlternativePlanPriceId).NotNull().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
-                RuleFor(x => x.AlternativePlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
-            });
+            //When(model => model.AlternativePlanId is not null, () =>
+            //{
+            //    RuleFor(x => x.AlternativePlanPriceId).NotNull().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+            //    RuleFor(x => x.AlternativePlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+            //});
         }
     }
 }

@@ -90,9 +90,14 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
+            Guid tenantId = await _dbContext.Tenants.Where(x => x.LastOrderId == order.Id)
+                                                      .Select(x => x.Id)
+                                                      .FirstOrDefaultAsync(cancellationToken);
+
             return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
             {
                 NavigationUrl = session.Url,
+                TenantId = tenantId == Guid.Empty ? null : tenantId,
             });
         }
 

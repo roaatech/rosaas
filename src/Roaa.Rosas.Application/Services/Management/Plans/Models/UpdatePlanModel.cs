@@ -8,6 +8,5 @@
         public int DisplayOrder { get; set; }
         public int TrialPeriodInDays { get; set; }
         public Guid? AlternativePlanId { get; set; }
-        public Guid? AlternativePlanPriceId { get; set; }
     }
 }

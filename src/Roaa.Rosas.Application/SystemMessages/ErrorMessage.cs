@@ -135,5 +135,17 @@ namespace Roaa.Rosas.Application.SystemMessages
         Ar = "يجب تحديد طريقة الدفع")]
         SelectPaymentMethod = 3017,
 
+
+        [Localization(
+        En = "The completed order cannot be processed",
+        Ar = "لا يمكن معالجة الطلب المكتمل")]
+        CompletedOrderCannotBeProcessed = 3018,
+
+
+        [Localization(
+        En = "The canceled order cannot be processed",
+        Ar = "لا يمكن معالجة الطلب الملغى")]
+        CanceledOrderCannotBeProcessed = 3019,
+
     }
 }

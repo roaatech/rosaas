@@ -3,5 +3,6 @@
     public enum OrderIntent
     {
         TenantCreation = 1,
+        UpgradingFromTrialToRegularSubscription = 2,
     }
 }

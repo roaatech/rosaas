@@ -58,6 +58,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                             .Select(tenant => new TenantDto
                                             {
                                                 Id = tenant.Id,
+                                                LastOrderId = tenant.LastOrderId,
                                                 SystemName = tenant.SystemName,
                                                 DisplayName = tenant.DisplayName,
                                                 CreatedDate = tenant.CreationDate,
@@ -74,6 +75,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
                                                         Id = subscription.Plan.Id,
                                                         SystemName = subscription.Plan.DisplayName,
                                                     },
+
+                                                    SubscriptionMode = subscription.SubscriptionMode,
                                                     ProductId = subscription.ProductId,
                                                     SubscriptionId = subscription.Id,
                                                     ProductName = subscription.Product.DisplayName,

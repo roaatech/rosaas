@@ -14,6 +14,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
         public IEnumerable<SubscriptionDto> Subscriptions { get; set; } = new List<SubscriptionDto>();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
+        public Guid LastOrderId { get; set; }
 
     }
 
@@ -31,6 +32,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantBy
         public object Metadata { get; set; } = new();
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public SubscriptionMode SubscriptionMode { get; set; }
         public LookupItemDto<Guid> Plan { get; set; } = new();
         public LookupItemDto<Guid> Product { get; set; } = new();
         public ProductTenantHealthStatusDto HealthCheckStatus { get; set; } = new();

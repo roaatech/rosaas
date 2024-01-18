@@ -109,7 +109,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #region overrides  
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
             {
-                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && customPeriodInDays > 0)
+                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && trialPeriodInDays > 0)
                 {
                     return startDate.AddDays(trialPeriodInDays.Value);
                 }
@@ -136,7 +136,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #region overrides  
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
             {
-                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && customPeriodInDays > 0)
+                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && trialPeriodInDays > 0)
                 {
                     return startDate.AddDays(trialPeriodInDays.Value);
                 }
@@ -164,7 +164,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #region overrides  
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
             {
-                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && customPeriodInDays > 0)
+                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && trialPeriodInDays > 0)
                 {
                     return startDate.AddDays(trialPeriodInDays.Value);
                 }
@@ -196,7 +196,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #region overrides  
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
             {
-                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && customPeriodInDays > 0)
+                if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && trialPeriodInDays > 0)
                 {
                     return startDate.AddDays(trialPeriodInDays.Value);
                 }

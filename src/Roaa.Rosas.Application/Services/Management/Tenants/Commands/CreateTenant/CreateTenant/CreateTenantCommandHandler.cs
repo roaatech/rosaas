@@ -162,6 +162,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         var res = new Tenant
         {
             Id = id,
+            LastOrderId = model.OrderId,
             SystemName = name,
             DisplayName = displayName,
             CreatedByUserId = model.UserId,
@@ -348,7 +349,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             return SubscriptionMode.Trial;
         }
 
-        return SubscriptionMode.Active;
+        return SubscriptionMode.Regular;
     }
 
     private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<Subscription> subscriptions)

@@ -17,5 +17,6 @@ public record CreateTenantCommand : IRequest<Result<TenantCreatedResultDto>>
     public string DisplayName { get; set; } = string.Empty;
     public Guid UserId { get; set; }
     public UserType UserType { get; set; }
+    public Guid OrderId { get; set; }
 }
 

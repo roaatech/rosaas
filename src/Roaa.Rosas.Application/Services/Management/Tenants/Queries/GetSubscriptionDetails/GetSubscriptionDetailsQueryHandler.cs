@@ -49,6 +49,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                  .Select(subscription => new SubscriptionDetailsDto
                                                  {
                                                      SubscriptionId = subscription.Id,
+                                                     SubscriptionMode = subscription.SubscriptionMode,
                                                      CurrentSubscriptionCycleId = subscription.SubscriptionCycleId,
                                                      StartDate = subscription.StartDate,
                                                      EndDate = subscription.EndDate,

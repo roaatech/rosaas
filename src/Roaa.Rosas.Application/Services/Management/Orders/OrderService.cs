@@ -136,6 +136,12 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
         }
 
 
+        public async Task MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(Order order, CancellationToken cancellationToken = default)
+        {
+            order.OrderIntent = OrderIntent.UpgradingFromTrialToRegularSubscription;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
 
 
 

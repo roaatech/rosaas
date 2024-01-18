@@ -81,6 +81,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                     OrderIntent = OrderIntent.TenantCreation,
                     Type =  JsonConvert.SerializeObject(typeof(OrderCompletionAchievedForTenantCreationEvent),jsonSettings),
                 },
+                new OrderWorkflowEvent()
+                {
+                    OrderIntent = OrderIntent.UpgradingFromTrialToRegularSubscription,
+                    Type =  JsonConvert.SerializeObject(typeof(OrderCompletionAchievedForUpgradingFromTrialToRegularSubscriptionEvent),jsonSettings),
+                },
             };
 
 

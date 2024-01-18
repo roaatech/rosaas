@@ -14,6 +14,17 @@ namespace Roaa.Rosas.Domain.Events.Management
         }
     }
 
+    public class OrderCompletionAchievedForUpgradingFromTrialToRegularSubscriptionEvent : OrderCompletionAchievedBaseEvent
+    {
+        public OrderCompletionAchievedForUpgradingFromTrialToRegularSubscriptionEvent() : base()
+        {
+        }
+
+        public OrderCompletionAchievedForUpgradingFromTrialToRegularSubscriptionEvent(Guid orderId)
+            : base(orderId)
+        {
+        }
+    }
 
 
     public class OrderCompletionAchievedBaseEvent : BaseInternalEvent

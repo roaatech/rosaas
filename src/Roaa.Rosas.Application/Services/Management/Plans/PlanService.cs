@@ -245,16 +245,18 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             PlanPrice? alternativePlanPrice = null;
             Guid? alternativePlanId = model.AlternativePlanId;
 
-            if (model.AlternativePlanPriceId is not null)
+            if (model.AlternativePlanId is not null)
             {
-                alternativePlanPrice = await _dbContext.PlanPrices
-                                                       .Where(x => x.Id == model.AlternativePlanPriceId &&
-                                                                   x.Plan.ProductId == productId)
-                                                       .SingleOrDefaultAsync(cancellationToken);
+                var alternativePlanPrices = await _dbContext.PlanPrices
+                                                         .Where(x => x.PlanId == model.AlternativePlanId)
+                                                         .ToListAsync(cancellationToken);
+                alternativePlanPrice = alternativePlanPrices.Where(x => x.Price == 0).Any() ?
+                                        alternativePlanPrices.Where(x => x.Price == 0).FirstOrDefault() :
+                                        alternativePlanPrices.FirstOrDefault();
 
                 if (alternativePlanPrice is null)
                 {
-                    return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(model.AlternativePlanPriceId));
+                    return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(model.AlternativePlanId));
                 }
 
                 alternativePlanId = alternativePlanPrice.PlanId;
@@ -277,7 +279,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 IsLockedBySystem = isLockedBySystem,
                 TrialPeriodInDays = model.TrialPeriodInDays,
                 AlternativePlanId = alternativePlanId,
-                AlternativePlanPriceId = model.AlternativePlanPriceId,
+                AlternativePlanPriceId = alternativePlanPrice?.Id,
             };
 
             _dbContext.Plans.Add(plan);
@@ -320,16 +322,18 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             PlanPrice? alternativePlanPrice = null;
             Guid? alternativePlanId = model.AlternativePlanId;
 
-            if (model.AlternativePlanPriceId is not null)
+            if (model.AlternativePlanId is not null)
             {
-                alternativePlanPrice = await _dbContext.PlanPrices
-                                                       .Where(x => x.Id == model.AlternativePlanPriceId &&
-                                                                   x.Plan.ProductId == productId)
-                                                       .SingleOrDefaultAsync(cancellationToken);
+                var alternativePlanPrices = await _dbContext.PlanPrices
+                                                         .Where(x => x.PlanId == model.AlternativePlanId)
+                                                         .ToListAsync(cancellationToken);
+                alternativePlanPrice = alternativePlanPrices.Where(x => x.Price == 0).Any() ?
+                                        alternativePlanPrices.Where(x => x.Price == 0).FirstOrDefault() :
+                                        alternativePlanPrices.FirstOrDefault();
 
                 if (alternativePlanPrice is null)
                 {
-                    return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(model.AlternativePlanPriceId));
+                    return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(model.AlternativePlanId));
                 }
 
                 alternativePlanId = alternativePlanPrice.PlanId;
@@ -345,7 +349,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             plan.ModificationDate = DateTime.UtcNow;
             plan.TrialPeriodInDays = model.TrialPeriodInDays;
             plan.AlternativePlanId = alternativePlanId;
-            plan.AlternativePlanPriceId = model.AlternativePlanPriceId;
+            plan.AlternativePlanPriceId = alternativePlanPrice?.Id;
 
 
             await _dbContext.SaveChangesAsync(cancellationToken);

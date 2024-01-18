@@ -11,5 +11,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
         Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList);
 
+        Task MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(Order order, CancellationToken cancellationToken = default);
+
     }
 }
