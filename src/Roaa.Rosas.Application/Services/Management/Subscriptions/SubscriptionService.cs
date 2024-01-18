@@ -668,6 +668,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                 PlanDisplayName = planDisplayName,
                 Cycle = planCycle,
                 Price = planPrice,
+                Type = SubscriptionCycleType.Normal,
             };
 
             return subscriptionCycle;
@@ -766,7 +767,8 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                         CreationDate = date,
                         ModificationDate = date,
                         Price = subscription.PlanPrice.Price,
-                        SubscriptionId = subscription.Id
+                        SubscriptionId = subscription.Id,
+                        Type = SubscriptionCycleType.Normal,
                     };
 
 

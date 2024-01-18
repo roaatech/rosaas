@@ -205,6 +205,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                                                 item.PlanPrice.CustomPeriodInDays,
                                                                 GetTrialPeriodInDays(item),
                                                                 item.Plan.TenancyType),
+                        Type = GetSubscriptionCycleType( item),
                         TenantId = id,
                         PlanId = item.Plan.Id,
                         PlanPriceId = item.PlanPrice.Id,
@@ -350,6 +351,15 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         }
 
         return SubscriptionMode.Normal;
+    }
+    private SubscriptionCycleType GetSubscriptionCycleType(TenantCreationPreparationModel model)
+    {
+        if (model.HasTrial)
+        {
+            return SubscriptionCycleType.Trial;
+        }
+
+        return SubscriptionCycleType.Normal;
     }
 
     private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<Subscription> subscriptions)
