@@ -67,9 +67,9 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
             foreach (var subscription in subscriptions)
             {
-                if (subscription.SubscriptionMode == SubscriptionMode.PendingToRegular || subscription.SubscriptionMode == SubscriptionMode.Trial)
+                if (subscription.SubscriptionMode == SubscriptionMode.PendingToNormal || subscription.SubscriptionMode == SubscriptionMode.Trial)
                 {
-                    await _subscriptionService.ResetSubscriptionPlanAsync(subscription, true, SubscriptionMode.Regular);
+                    await _subscriptionService.ResetSubscriptionPlanAsync(subscription, true, SubscriptionMode.Normal);
                 }
             }
 

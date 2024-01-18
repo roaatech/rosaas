@@ -349,7 +349,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             return SubscriptionMode.Trial;
         }
 
-        return SubscriptionMode.Regular;
+        return SubscriptionMode.Normal;
     }
 
     private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<Subscription> subscriptions)

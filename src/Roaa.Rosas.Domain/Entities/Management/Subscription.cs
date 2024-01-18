@@ -70,8 +70,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
     }
     public enum SubscriptionMode
     {
-        Regular = 1,
+        Normal = 1,
         Trial = 2,
-        PendingToRegular = 3,
+        PendingToNormal = 3,
     }
 }

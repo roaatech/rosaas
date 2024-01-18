@@ -248,7 +248,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                 .Where(x => x.SubscriptionId == subscription.Id)
                                                 .ToList();
 
-                #region First Case
+                #region First Case (Subscription Plan Changing)
                 var subscriptionPlanChanging = subscriptionPlanChanges.Where(x => x.SubscriptionId == subscription.Id).SingleOrDefault();
 
                 // Changing subscription plan that needs to change its plan 
@@ -259,7 +259,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                 }
                 #endregion
 
-                #region Second Case
+                #region Second Case (Subscription Auto Renewal)
                 var autoRenewal = subscriptionAutoRenewals.Where(x => x.SubscriptionId == subscription.Id).SingleOrDefault();
 
                 // Renewing subscription plan that has enabled auto-renewal
@@ -270,7 +270,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                 }
                 #endregion
 
-                #region 3th Case 
+                if (subscription.SubscriptionMode == SubscriptionMode.Trial)
+                {
+                    subscription.SubscriptionMode = SubscriptionMode.PendingToNormal;
+                }
+
+                #region 3th Case (Alternative Plan)
 
                 var plan = await _dbContext.Plans
                                  .AsNoTracking()
@@ -721,11 +726,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             subscription.IsActive = false;
             subscription.ModificationDate = date;
             subscription.Comment = systemComment;
-
-            if (subscription.SubscriptionMode == SubscriptionMode.Trial)
-            {
-                subscription.SubscriptionMode = SubscriptionMode.PendingToRegular;
-            }
         }
 
         public async Task<Result> Temp__RenewSubscriptionsAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
