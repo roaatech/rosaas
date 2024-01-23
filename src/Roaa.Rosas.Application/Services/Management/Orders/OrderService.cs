@@ -55,6 +55,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                                               .Select(order => new OrderDto
                                               {
                                                   Id = order.Id,
+                                                  OrderId = order.Id,
                                                   TenantId = order.TenantId,
                                                   OrderNumber = order.OrderNumber,
                                                   OrderStatus = order.OrderStatus,
