@@ -5,6 +5,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
     public class OrderDto
     {
         public Guid Id { get; set; }
+        public Guid OrderId { get; set; }
         public int OrderNumber { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public PaymentStatus? PaymentStatus { get; set; }
