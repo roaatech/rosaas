@@ -402,11 +402,14 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             if (model.TrialType == ProductTrialType.ProductHasTrialPlan &&
                 model.TrialPlanPriceId is null)
             {
-                trialPlanPrice = await _dbContext.PlanPrices
-                                                       .Where(x => x.PlanId == model.TrialPlanId)
-                                                       .OrderByDescending(x => x.Price)
-                                                       .FirstOrDefaultAsync(cancellationToken);
+                var trialPlanPrices = await _dbContext.PlanPrices
+                                                        .Where(x => x.PlanId == model.TrialPlanId)
+                                                        .OrderByDescending(x => x.Price)
+                                                        .ToListAsync(cancellationToken);
 
+                trialPlanPrice = trialPlanPrices.Any(x => x.IsPublished) ?
+                                  trialPlanPrices.Where(x => x.IsPublished).FirstOrDefault() :
+                                  trialPlanPrices.FirstOrDefault();
 
                 if (trialPlanPrice is null)
                 {
