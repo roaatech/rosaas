@@ -26,11 +26,15 @@ public partial class CreateSubscriptionValidator : AbstractValidator<CreateSubsc
 {
     public CreateSubscriptionValidator(IIdentityContextService identityContextService)
     {
-        RuleFor(x => x.PlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
-
         RuleFor(x => x.ProductId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
-        RuleFor(x => x.PlanId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        //RuleFor(x => x.PlanId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+
+        When(x => x.PlanId is not null, () =>
+        {
+            RuleFor(x => x.PlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        });
+
 
         RuleFor(x => x.Specifications)
          .Must(specification => !specification

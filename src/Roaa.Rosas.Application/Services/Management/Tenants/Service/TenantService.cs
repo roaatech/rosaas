@@ -242,6 +242,37 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
         public async Task<Result<List<TenantCreationPreparationModel>>> PrepareTenantCreationAsync(TenantCreationRequestModel request, Guid? tenantCreationRequestId, CancellationToken cancellationToken = default)
         {
             #region Validation  
+
+            if (request.Subscriptions.Any(x => x.PlanId is null))
+            {
+                foreach (var sub in request.Subscriptions)
+                {
+                    var product = await _dbContext.Products
+                                                 .AsNoTracking()
+                                                 .Where(x => x.Id == sub.ProductId)
+                                                 .SingleOrDefaultAsync(cancellationToken);
+
+                    if (product.TrialType != ProductTrialType.ProductHasTrialPlan ||
+                        product.TrialPlanId is null ||
+                        product.TrialPlanPriceId is null)
+                    {
+                        return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, "PlanId");
+                    }
+
+                    sub.PlanId = product.TrialPlanId;
+                    sub.PlanPriceId = product.TrialPlanPriceId;
+                }
+
+            }
+
+
+            var productsIds = request.Subscriptions.Select(x => x.ProductId).ToList();
+            var products = await _dbContext.Products
+                                             .AsNoTracking()
+                                             .Where(x => productsIds.Contains(x.Id))
+                                             .ToListAsync(cancellationToken);
+
+
             var planPriceIds = request.Subscriptions.Select(x => x.PlanPriceId).ToList();
 
             var planDataList = await _dbContext.PlanPrices
@@ -347,7 +378,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             return (model.Product.TrialType == ProductTrialType.ProductHasTrialPlan &&
                     model.Product.TrialPeriodInDays > 0 &&
                     model.Product.TrialPlanId is not null &&
-                    model.Product.TrialPlanPriceId is not null)
+                    model.Product.TrialPlanPriceId is not null &&
+                    model.Plan.Id == model.Product.TrialPlanId)
                  ||
                    (model.Product.TrialType == ProductTrialType.EachPlanHasOptinalTrialPeriod &&
                     model.Plan.TrialPeriodInDays > 0);

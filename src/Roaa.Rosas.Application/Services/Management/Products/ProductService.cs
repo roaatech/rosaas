@@ -397,11 +397,27 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
+
+            PlanPrice? trialPlanPrice = null;
+            if (model.TrialType == ProductTrialType.ProductHasTrialPlan &&
+                model.TrialPlanPriceId is null)
+            {
+                trialPlanPrice = await _dbContext.PlanPrices
+                                                       .Where(x => x.PlanId == model.TrialPlanId)
+                                                       .OrderByDescending(x => x.Price)
+                                                       .FirstOrDefaultAsync(cancellationToken);
+
+
+                if (trialPlanPrice is null)
+                {
+                    return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(model.TrialPlanPriceId));
+                }
+            }
             #endregion
 
             product.TrialType = model.TrialType;
             product.TrialPlanId = model.TrialPlanId;
-            product.TrialPlanPriceId = model.TrialPlanPriceId;
+            product.TrialPlanPriceId = trialPlanPrice?.Id;
             product.TrialPeriodInDays = model.TrialPeriodInDays;
             product.ModificationDate = DateTime.UtcNow;
             product.ModifiedByUserId = _identityContextService.UserId;
