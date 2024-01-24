@@ -57,6 +57,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<TenantProcessHistory> TenantProcessHistory { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<SubscriptionAutoRenewal> SubscriptionAutoRenewals { get; set; }
         public DbSet<SubscriptionAutoRenewalHistory> SubscriptionAutoRenewalHistories { get; set; }
         public DbSet<SubscriptionPlanChanging> SubscriptionPlanChanges { get; set; }

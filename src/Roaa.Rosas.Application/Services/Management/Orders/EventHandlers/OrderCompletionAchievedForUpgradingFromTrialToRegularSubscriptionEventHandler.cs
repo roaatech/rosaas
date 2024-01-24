@@ -23,11 +23,11 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
         public OrderCompletionAchievedForUpgradingFromTrialToRegularSubscriptionEventHandler(ITenantWorkflow workflow,
                                             IRosasDbContext dbContext,
-                                            IIdentityContextService identityContextService,
-                                            ISubscriptionService subscriptionService,
-                                            ITenantService tenantService,
-                                            ISender mediator,
-                                            ILogger<OrderCompletionAchievedForTenantCreationEventHandler> logger)
+                                        IIdentityContextService identityContextService,
+                                        ISubscriptionService subscriptionService,
+                                        ITenantService tenantService,
+                                        ISender mediator,
+                                        ILogger<OrderCompletionAchievedForTenantCreationEventHandler> logger)
         {
             _workflow = workflow;
             _dbContext = dbContext;
@@ -63,17 +63,24 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                                     .Where(x => x.TenantId == tenantId)
                                                     .ToListAsync(cancellationToken);
 
-            var date = DateTime.UtcNow;
 
             foreach (var subscription in subscriptions)
             {
                 if (subscription.SubscriptionMode == SubscriptionMode.PendingToNormal || subscription.SubscriptionMode == SubscriptionMode.Trial)
                 {
-                    await _subscriptionService.ResetSubscriptionPlanAsync(subscription, true, SubscriptionMode.Normal);
+                    var orderItem = await _dbContext.OrderItems
+                                         .Where(x => x.OrderId == @event.OrderId && x.SubscriptionId == subscription.Id)
+                                         .Select(x => new { x.SubscriptionId, x.PlanId, x.PlanPriceId })
+                                         .SingleOrDefaultAsync(cancellationToken);
+
+                    if (orderItem is null)
+                    {
+                        throw new NullReferenceException($"The orderItem can't be null.");
+                    }
+                    await _subscriptionService.ResetSubscriptionPlanAsync(subscription, orderItem.PlanId, orderItem.PlanPriceId, true, SubscriptionMode.Normal);
                 }
             }
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
     }

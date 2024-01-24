@@ -6,10 +6,12 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Orders.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
+using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 
@@ -21,6 +23,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
         private readonly ILogger<OrderService> _logger;
         private readonly IRosasDbContext _dbContext;
         private readonly IIdentityContextService _identityContextService;
+        private readonly int _quantity = 1;
         #endregion
 
 
@@ -117,7 +120,6 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
         }
         public Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList)
         {
-            var quantity = 1;
             var date = DateTime.UtcNow;
             var orderItems = plansDataList.Select(planData => new OrderItem()
             {
@@ -130,11 +132,11 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 PlanId = planData.Plan.Id,
                 PlanPriceId = planData.PlanPrice.Id,
                 CustomPeriodInDays = planData.PlanPrice.CustomPeriodInDays,
-                PriceExclTax = planData.PlanPrice.Price * quantity,
-                PriceInclTax = planData.PlanPrice.Price * quantity,
+                PriceExclTax = planData.PlanPrice.Price * _quantity,
+                PriceInclTax = planData.PlanPrice.Price * _quantity,
                 UnitPriceExclTax = planData.PlanPrice.Price,
                 UnitPriceInclTax = planData.PlanPrice.Price,
-                Quantity = quantity,
+                Quantity = _quantity,
                 SystemName = $"{planData.Product.SystemName}--{planData.Plan.SystemName}--{tenantName}",
                 DisplayName = $"[Product: {planData.Product.DisplayName}], [Plan: {planData.Plan.DisplayName}], [Tenant: {tenantDisplayName}]",
                 Specifications = planData.Features.Select(x => new OrderItemSpecification
@@ -184,6 +186,95 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
         }
 
 
+        public async Task<Result> ChangeOrderPlanAsync(Guid orderId, ChangeOrderPlanModel model, CancellationToken cancellationToken = default)
+        {
+            var order = await _dbContext.Orders
+                                        .Include(x => x.OrderItems)
+                                            .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                _dbContext.EntityAdminPrivileges
+                                                        .Any(a =>
+                                                            a.UserId == _identityContextService.UserId &&
+                                                            a.EntityId == x.TenantId &&
+                                                            a.EntityType == EntityType.Tenant
+                                                            )
+                                            )
+                                              .Where(x => x.Id == orderId)
+                                              .SingleOrDefaultAsync(cancellationToken);
+
+            if (order is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
+            if (order.OrderStatus == OrderStatus.Complete)
+            {
+                return Result.Fail(ErrorMessage.CompletedOrderCannotBeProcessed, _identityContextService.Locale);
+            }
+
+            if (order.OrderStatus == OrderStatus.Cancelled)
+            {
+                return Result.Fail(ErrorMessage.CanceledOrderCannotBeProcessed, _identityContextService.Locale);
+            }
+
+            if (order.PaymentStatus != PaymentStatus.Initial && order.PaymentStatus != PaymentStatus.PendingToPay)
+            {
+                return Result.Fail(ErrorMessage.OrderCannotBeProcessedWithPaymentStatus, _identityContextService.Locale);
+            }
+
+            var tenant = await _dbContext.Tenants
+                                        .Where(x => x.Id == order.TenantId)
+                                        .Select(x => new { x.SystemName, x.DisplayName })
+                                        .SingleOrDefaultAsync();
+
+            if (tenant is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, "Tenant");
+            }
+
+            var date = DateTime.UtcNow;
+
+
+
+            foreach (var item in order.OrderItems)
+            {
+                var planPrice = await _dbContext.PlanPrices
+                                          .Include(p => p.Plan)
+                                          .Include(p => p.Plan.Product)
+                                         .Where(x => x.Id == model.PlanPriceId &&
+                                                    x.PlanId == model.PlanId &&
+                                                    x.Plan.ProductId == item.ProductId)
+                                         .SingleOrDefaultAsync();
+                if (planPrice is null)
+                {
+                    return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, "PlanPriceId");
+                }
+
+
+                item.StartDate = date;
+                item.EndDate = PlanCycleManager.FromKey(planPrice.PlanCycle).CalculateExpiryDate(date, null);
+                item.PlanId = planPrice.PlanId;
+                item.PlanPriceId = planPrice.Id;
+                item.PriceExclTax = planPrice.Price * _quantity;
+                item.PriceInclTax = planPrice.Price * _quantity;
+                item.UnitPriceExclTax = planPrice.Price;
+                item.UnitPriceInclTax = planPrice.Price;
+                item.Quantity = _quantity;
+                item.SystemName = $"{planPrice.Plan.Product.SystemName}--{planPrice.Plan.SystemName}--{tenant.SystemName}";
+                item.DisplayName = $"[Product: {planPrice.Plan.Product.DisplayName}], [Plan: {planPrice.Plan.DisplayName}], [Tenant: {tenant.DisplayName}]";
+            }
+
+            order.OrderSubtotalExclTax = order.OrderItems.Select(x => x.PriceExclTax).Sum();
+            order.OrderSubtotalInclTax = order.OrderItems.Select(x => x.PriceInclTax).Sum();
+            order.OrderTotal = order.OrderItems.Select(x => x.PriceInclTax).Sum();
+            order.OrderIntent = OrderIntent.UpgradingFromTrialToRegularSubscription;
+            order.ModifiedByUserId = _identityContextService.GetActorId();
+            order.ModificationDate = date;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+
+            return Result.Successful();
+        }
 
 
         #endregion

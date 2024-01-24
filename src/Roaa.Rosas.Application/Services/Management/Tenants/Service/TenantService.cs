@@ -243,7 +243,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
         {
             #region Validation  
 
-            if (request.Subscriptions.Any(x => x.PlanId is null))
+            if (request.Subscriptions.Any(x => x.PlanId is null) || request.Subscriptions.Any(x => x.PlanPriceId is null))
             {
                 foreach (var sub in request.Subscriptions)
                 {
@@ -256,9 +256,17 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                         product.TrialPlanId is null ||
                         product.TrialPlanPriceId is null)
                     {
-                        return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, "PlanId");
+                        return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.ParameterIsRequired,
+                                                                                 _identityContextService.Locale,
+                                                                                 sub.PlanId is null ? nameof(sub.PlanId) : nameof(sub.PlanPriceId));
                     }
 
+                    if (sub.PlanId is not null && sub.PlanId != product.TrialPlanId)
+                    {
+                        return Result<List<TenantCreationPreparationModel>>.Fail(CommonErrorKeys.ParameterIsRequired,
+                                                                                 _identityContextService.Locale,
+                                                                                 nameof(sub.PlanPriceId));
+                    }
                     sub.PlanId = product.TrialPlanId;
                     sub.PlanPriceId = product.TrialPlanPriceId;
                 }

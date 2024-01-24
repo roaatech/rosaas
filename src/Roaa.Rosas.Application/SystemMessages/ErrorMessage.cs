@@ -147,5 +147,12 @@ namespace Roaa.Rosas.Application.SystemMessages
         Ar = "لا يمكن معالجة الطلب الملغى")]
         CanceledOrderCannotBeProcessed = 3019,
 
+
+
+        [Localization(
+        En = "The order cannot be processed with the current payment status.",
+        Ar = "لا يمكن معالجة الطلبية مع حالة الدفع الحالية")]
+        OrderCannotBeProcessedWithPaymentStatus = 3020,
+
     }
 }

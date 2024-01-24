@@ -30,10 +30,10 @@ public partial class CreateSubscriptionValidator : AbstractValidator<CreateSubsc
 
         //RuleFor(x => x.PlanId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
-        When(x => x.PlanId is not null, () =>
-        {
-            RuleFor(x => x.PlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
-        });
+        //When(x => x.PlanId is not null, () =>
+        //{
+        //    RuleFor(x => x.PlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        //});
 
 
         RuleFor(x => x.Specifications)

@@ -15,5 +15,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
         Task MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(Order order, CancellationToken cancellationToken = default);
 
+        Task<Result> ChangeOrderPlanAsync(Guid orderId, ChangeOrderPlanModel model, CancellationToken cancellationToken = default);
+
     }
 }

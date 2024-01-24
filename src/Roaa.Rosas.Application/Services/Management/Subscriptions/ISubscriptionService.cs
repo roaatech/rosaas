@@ -10,6 +10,8 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
         Task<Result> DeactivateSubscriptionDueToNonPaymentAsync(int periodTimeAfterEndDateInHours, CancellationToken cancellationToken = default);
 
         Task<Result> ResetSubscriptionPlanAsync(Subscription subscription,
+                                                Guid planId,
+                                                Guid planPriceId,
                                                 bool? isActive = null,
                                                 SubscriptionMode? subscriptionMode = null,
                                                 CancellationToken cancellationToken = default);

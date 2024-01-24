@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Orders;
+using Roaa.Rosas.Application.Services.Management.Orders.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
@@ -28,12 +29,19 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #region Actions   
 
 
+
+        [HttpPut("{id}/plan")]
+        public async Task<IActionResult> ChangeOrderPlanAsync([FromRoute] Guid id, ChangeOrderPlanModel model, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _orderService.ChangeOrderPlanAsync(id, model, cancellationToken));
+        }
+
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProductByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
             return ItemResult(await _orderService.GetOrderByIdAsync(id, cancellationToken));
         }
-
 
         [HttpGet($"/{PrefixSuperAdminMainApiRoute}/tenants/{{tenantId}}/[controller]")]
         public async Task<IActionResult> GetOrdersListAsync([FromRoute] Guid tenantId, CancellationToken cancellationToken = default)

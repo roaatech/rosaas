@@ -423,15 +423,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
 
         public async Task<Result> ResetSubscriptionPlanAsync(Subscription subscription,
-                                                            bool? isActive = null,
-                                                            SubscriptionMode? subscriptionMode = null,
-                                                            CancellationToken cancellationToken = default)
+                                                                Guid planId,
+                                                                Guid planPriceId,
+                                                                bool? isActive = null,
+                                                                SubscriptionMode? subscriptionMode = null,
+                                                                CancellationToken cancellationToken = default)
         {
-
-            var planId = subscription.PlanId;
-            var planPriceId = subscription.PlanPriceId;
-
-
             var previousSubscriptionCycleId = subscription.SubscriptionCycleId;
 
             var previousSubscriptionFeatures = await _dbContext.SubscriptionFeatures
