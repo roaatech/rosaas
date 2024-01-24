@@ -20,5 +20,25 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public bool HasToPay { get; set; }
+        public List<OrderItemDto> OrderItems { get; set; } = new();
+    }
+
+    public class OrderItemDto
+    {
+        public Guid Id { get; set; }
+        public Guid OrderId { get; set; }
+        public Guid ProductId { get; set; }
+        public Guid SubscriptionId { get; set; }
+        public Guid PlanId { get; set; }
+        public Guid PlanPriceId { get; set; }
+        public int? CustomPeriodInDays { get; set; } = null;
+        public string DisplayName { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public int Quantity { get; set; }
+        public decimal UnitPriceInclTax { get; set; }
+        public decimal UnitPriceExclTax { get; set; }
+
     }
 }

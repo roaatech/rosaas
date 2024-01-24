@@ -72,6 +72,25 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                                                   UserCurrencyCode = order.UserCurrencyCode,
                                                   CreatedDate = order.CreationDate,
                                                   EditedDate = order.ModificationDate,
+                                                  OrderItems = order.OrderItems.Select(orderItem => new OrderItemDto
+                                                  {
+                                                      Id = orderItem.Id,
+                                                      OrderId = orderItem.OrderId,
+                                                      CustomPeriodInDays = orderItem.CustomPeriodInDays,
+                                                      DisplayName = orderItem.DisplayName,
+                                                      EndDate = orderItem.EndDate,
+                                                      PlanId = orderItem.PlanId,
+                                                      PlanPriceId = orderItem.PlanPriceId,
+                                                      ProductId = orderItem.ProductId,
+                                                      Quantity = orderItem.Quantity,
+                                                      StartDate = orderItem.StartDate,
+                                                      SubscriptionId = orderItem.SubscriptionId,
+                                                      SystemName = orderItem.SystemName,
+                                                      UnitPriceExclTax = orderItem.UnitPriceExclTax,
+                                                      UnitPriceInclTax = orderItem.UnitPriceInclTax
+
+
+                                                  }).ToList()
                                               })
                                               .SingleOrDefaultAsync(cancellationToken);
 
@@ -113,6 +132,25 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                                                   HasToPay = order.Tenant.LastOrderId == order.Id &&
                                                                                  (order.OrderStatus == OrderStatus.Initial || order.OrderStatus == OrderStatus.PendingToPay) &&
                                                                                  (order.PaymentStatus == PaymentStatus.Initial || order.PaymentStatus == PaymentStatus.PendingToPay),
+                                                  OrderItems = order.OrderItems.Select(orderItem => new OrderItemDto
+                                                  {
+                                                      Id = orderItem.Id,
+                                                      OrderId = orderItem.OrderId,
+                                                      CustomPeriodInDays = orderItem.CustomPeriodInDays,
+                                                      DisplayName = orderItem.DisplayName,
+                                                      EndDate = orderItem.EndDate,
+                                                      PlanId = orderItem.PlanId,
+                                                      PlanPriceId = orderItem.PlanPriceId,
+                                                      ProductId = orderItem.ProductId,
+                                                      Quantity = orderItem.Quantity,
+                                                      StartDate = orderItem.StartDate,
+                                                      SubscriptionId = orderItem.SubscriptionId,
+                                                      SystemName = orderItem.SystemName,
+                                                      UnitPriceExclTax = orderItem.UnitPriceExclTax,
+                                                      UnitPriceInclTax = orderItem.UnitPriceInclTax
+
+
+                                                  }).ToList()
                                               })
                                               .ToListAsync(cancellationToken);
 
