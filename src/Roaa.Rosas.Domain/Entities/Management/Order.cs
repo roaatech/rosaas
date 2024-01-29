@@ -46,6 +46,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public OrderIntent OrderIntent { get; set; }
 
+        public bool IsMustChangePlan { get; set; }
+
         public virtual Tenant? Tenant { get; set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

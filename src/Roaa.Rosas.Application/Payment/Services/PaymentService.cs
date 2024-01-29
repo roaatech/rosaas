@@ -75,6 +75,11 @@ namespace Roaa.Rosas.Application.Payment.Services
                 return Result<CheckoutResultModel>.Fail(ErrorMessage.CanceledOrderCannotBeProcessed, _identityContextService.Locale);
             }
 
+            if (order.IsMustChangePlan)
+            {
+                return Result<CheckoutResultModel>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
             var paymentMethodType = order.OrderTotal == 0 ? PaymentMethodType.Manwal : model.PaymentMethod;
 
             var paymentMethod = _paymentMethodFactory.GetPaymentMethod(paymentMethodType);

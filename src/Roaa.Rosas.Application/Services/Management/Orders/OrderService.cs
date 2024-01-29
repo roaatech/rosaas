@@ -159,6 +159,10 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
         public Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList)
         {
             var date = DateTime.UtcNow;
+
+            var isMustChangePlan = plansDataList.Any(x => x.HasTrial) && plansDataList.Any(x => x.Product.TrialType == ProductTrialType.ProductHasTrialPlan);
+
+
             var orderItems = plansDataList.Select(planData => new OrderItem()
             {
                 Id = Guid.NewGuid(),
@@ -212,6 +216,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 OrderTotal = orderItems.Select(x => x.PriceInclTax).Sum(),
                 OrderItems = orderItems,
                 OrderIntent = OrderIntent.TenantCreation,
+                IsMustChangePlan = isMustChangePlan,
             };
         }
 
