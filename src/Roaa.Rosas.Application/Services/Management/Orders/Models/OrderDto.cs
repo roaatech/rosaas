@@ -20,6 +20,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public bool HasToPay { get; set; }
+        public bool IsMustChangePlan { get; set; }
         public List<OrderItemDto> OrderItems { get; set; } = new();
     }
 

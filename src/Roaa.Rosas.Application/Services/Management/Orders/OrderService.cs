@@ -72,6 +72,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                                                   UserCurrencyCode = order.UserCurrencyCode,
                                                   CreatedDate = order.CreationDate,
                                                   EditedDate = order.ModificationDate,
+                                                  IsMustChangePlan = order.IsMustChangePlan,
                                                   OrderItems = order.OrderItems.Select(orderItem => new OrderItemDto
                                                   {
                                                       Id = orderItem.Id,
@@ -129,6 +130,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                                                   UserCurrencyCode = order.UserCurrencyCode,
                                                   CreatedDate = order.CreationDate,
                                                   EditedDate = order.ModificationDate,
+                                                  IsMustChangePlan = order.IsMustChangePlan,
                                                   HasToPay = order.Tenant.LastOrderId == order.Id &&
                                                                                  (order.OrderStatus == OrderStatus.Initial || order.OrderStatus == OrderStatus.PendingToPay) &&
                                                                                  (order.PaymentStatus == PaymentStatus.Initial || order.PaymentStatus == PaymentStatus.PendingToPay),
