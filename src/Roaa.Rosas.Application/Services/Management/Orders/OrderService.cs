@@ -314,6 +314,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             order.OrderIntent = OrderIntent.UpgradingFromTrialToRegularSubscription;
             order.ModifiedByUserId = _identityContextService.GetActorId();
             order.ModificationDate = date;
+            order.IsMustChangePlan = false;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
