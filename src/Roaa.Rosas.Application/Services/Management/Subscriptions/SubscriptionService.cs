@@ -465,7 +465,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             var planPrice = await _dbContext.PlanPrices
                                          .AsNoTracking()
                                          .Include(x => x.Plan)
-                                         .Where(x => x.Id == subscription.PlanPriceId)
+                                         .Where(x => x.Id == planPriceId)
                                          .SingleOrDefaultAsync(cancellationToken);
 
             _dbContext.SubscriptionFeatures.AddRange(subscriptionFeatures);
