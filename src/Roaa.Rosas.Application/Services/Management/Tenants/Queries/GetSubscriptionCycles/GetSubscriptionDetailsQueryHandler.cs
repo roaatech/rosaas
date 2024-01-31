@@ -45,7 +45,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                         )
                                                  .Where(x => x.SubscriptionId == request.SubscriptionId &&
                                                                                 (request.SubscriptionCycleId == null ||
-                                                                                 request.SubscriptionCycleId == request.SubscriptionCycleId))
+                                                                                 x.Id == request.SubscriptionCycleId))
                                                              .Select(SubscriptionCycle => new SubscriptionCycleDto
                                                              {
                                                                  Id = SubscriptionCycle.Id,
