@@ -123,6 +123,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
                                                 subscription.SubscriptionResetStatus == SubscriptionResetStatus.Done) &&
                                                 subscription.IsSubscriptionResetUrlExists;
 
+
+            subscription.SubscriptionCycles = subscription.SubscriptionCycles.OrderByDescending(x => x.StartDate).ToList();
+
             return Result<SubscriptionDetailsDto>.Successful(subscription);
         }
         #endregion
