@@ -81,7 +81,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                                                                dynamic? receivedRequestBody,
                                                                                                CancellationToken cancellationToken = default)
         {
-            var stepStatus = await _workflow.GetStepStatusAsync(status, cancellationToken);
+            // var stepStatus = await _workflow.GetStepStatusAsync(status, cancellationToken);
 
 
             var result = await SetTenantNextStatusAsync(new SetTenantNextStatusModel
