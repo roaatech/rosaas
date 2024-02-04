@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
@@ -49,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 
 
             // Unique Name tenant retrieving  
-            Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
+            Expression<Func<Tenant, string>> tenantSelector = x => x.SystemName;
 
             var tenantResult = await _tenantService.GetByIdAsync(@event.TenantId, tenantSelector, cancellationToken);
 
@@ -89,8 +90,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 Status = workflow.NextStatus,
                 Step = workflow.NextStep,
                 Action = workflow.Action,
-                UserType = workflow.OwnerType,
-                EditorBy = _identityContextService.UserId,
+                UserType = UserType.ExternalSystem,
+                EditorBy = _identityContextService.GetActorId(),
                 DispatchedRequest = new DispatchedRequestModel(callingResult.Data.DurationInMillisecond, callingResult.Data.Url, callingResult.Data.SerializedResponseContent),
                 ExpectedResourceStatus = null,
             });

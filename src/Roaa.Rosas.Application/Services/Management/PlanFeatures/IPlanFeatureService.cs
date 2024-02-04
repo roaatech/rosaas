@@ -5,6 +5,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
 {
     public interface IPlanFeatureService
     {
+        Task<Result<List<PlanFeatureListItemDto>>> GetPlanFeaturesListByProductNameAsync(string productName, CancellationToken cancellationToken = default);
+
         Task<Result<List<PlanFeatureListItemDto>>> GetPlanFeaturesListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 
         Task<Result<CreatedResult<Guid>>> CreatePlanFeatureAsync(CreatePlanFeatureModel model, Guid productId, CancellationToken cancellationToken = default);

@@ -14,5 +14,6 @@ namespace Roaa.Rosas.Domain.Models
         public FeatureUnit? FeatureUnit { get; set; }
         public FeatureReset FeatureReset { get; set; }
         public string FeatureDisplayName { get; set; } = string.Empty;
+        public string FeatureName { get; set; } = string.Empty;
     }
 }

@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Events.Management;
@@ -35,6 +37,14 @@ public class CancelSubscriptionAutoRenewalCommandHandler : IRequestHandler<Cance
     public async Task<Result> Handle(CancelSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken)
     {
         var autoRenewal = await _dbContext.SubscriptionAutoRenewals
+                                .Where(x => _identityContextService.IsSuperAdmin() ||
+                                            _dbContext.EntityAdminPrivileges
+                                                        .Any(a =>
+                                                            a.UserId == _identityContextService.UserId &&
+                                                            a.EntityId == x.Subscription.TenantId &&
+                                                            a.EntityType == EntityType.Tenant
+                                                            )
+                                        )
                                 .Where(x => x.Id == command.SubscriptionId)
                                   .SingleOrDefaultAsync();
         if (autoRenewal is null)

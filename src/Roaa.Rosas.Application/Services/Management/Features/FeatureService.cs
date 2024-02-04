@@ -49,10 +49,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             var selectedQuery = query.Select(feature => new FeatureListItemDto
             {
                 Id = feature.Id,
-                Name = feature.Name,
-                Title = feature.DisplayName,
+                SystemName = feature.SystemName,
+                DisplayName = feature.DisplayName,
                 Description = feature.Description,
-                Reset = feature.FeatureReset,
                 Type = feature.Type,
                 DisplayOrder = feature.DisplayOrder,
                 CreatedDate = feature.CreationDate,
@@ -75,10 +74,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               .Select(feature => new FeatureListItemDto
                                               {
                                                   Id = feature.Id,
-                                                  Name = feature.Name,
-                                                  Title = feature.DisplayName,
+                                                  SystemName = feature.SystemName,
+                                                  DisplayName = feature.DisplayName,
                                                   Description = feature.Description,
-                                                  Reset = feature.FeatureReset,
                                                   Type = feature.Type,
                                                   DisplayOrder = feature.DisplayOrder,
                                                   CreatedDate = feature.CreationDate,
@@ -99,9 +97,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                               .Select(feature => new LookupItemDto<Guid>
                                               {
                                                   Id = feature.Id,
-                                                  Name = feature.DisplayName,
+                                                  SystemName = feature.DisplayName,
                                               })
-                                               .OrderBy(x => x.Name)
+                                               .OrderBy(x => x.SystemName)
                                               .ToListAsync(cancellationToken);
 
             return Result<List<LookupItemDto<Guid>>>.Successful(features);
@@ -116,10 +114,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                                           .Select(feature => new FeatureDto
                                           {
                                               Id = feature.Id,
-                                              Name = feature.Name,
-                                              Title = feature.DisplayName,
+                                              SystemName = feature.SystemName,
+                                              DisplayName = feature.DisplayName,
                                               Description = feature.Description,
-                                              Reset = feature.FeatureReset,
                                               Type = feature.Type,
                                               DisplayOrder = feature.DisplayOrder,
                                               CreatedDate = feature.CreationDate,
@@ -145,9 +142,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, "productId");
             }
 
-            if (!await EnsureUniqueNameAsync(productId, model.Name))
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
             #endregion
 
@@ -159,10 +156,9 @@ namespace Roaa.Rosas.Application.Services.Management.Features
             {
                 Id = id,
                 ProductId = productId,
-                Name = model.Name,
-                DisplayName = model.Title,
+                SystemName = model.SystemName,
+                DisplayName = model.DisplayName,
                 Description = model.Description,
-                FeatureReset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset,
                 Type = model.Type,
                 DisplayOrder = model.DisplayOrder,
                 CreatedByUserId = _identityContextService.UserId,
@@ -198,18 +194,17 @@ namespace Roaa.Rosas.Application.Services.Management.Features
                 return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
             }
 
-            if (!await EnsureUniqueNameAsync(productId, model.Name, id))
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName, id))
             {
-                return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
 
             #endregion
             Feature featureBeforeUpdate = feature.DeepCopy();
 
-            feature.Name = model.Name;
-            feature.DisplayName = model.Title;
+            feature.SystemName = model.SystemName;
+            feature.DisplayName = model.DisplayName;
             feature.Description = model.Description;
-            feature.FeatureReset = model.Type == FeatureType.Boolean ? FeatureReset.NonResettable : model.Reset;
             feature.Type = model.Type;
             feature.DisplayOrder = model.DisplayOrder;
             feature.ModifiedByUserId = _identityContextService.UserId;
@@ -256,12 +251,12 @@ namespace Roaa.Rosas.Application.Services.Management.Features
 
 
 
-        private async Task<bool> EnsureUniqueNameAsync(Guid productId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
+        private async Task<bool> EnsureUniqueNameAsync(Guid productId, string systemName, Guid id = new Guid(), CancellationToken cancellationToken = default)
         {
             return !await _dbContext.Features
                                     .Where(x => x.Id != id &&
                                                x.ProductId == productId &&
-                                                uniqueName.ToLower().Equals(x.Name))
+                                                systemName.ToLower().Equals(x.SystemName))
                                     .AnyAsync(cancellationToken);
         }
     }

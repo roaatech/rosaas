@@ -5,6 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Persistence\SQLScripts\**" />
+    <EmbeddedResource Remove="Persistence\SQLScripts\**" />
+    <None Remove="Persistence\SQLScripts\**" />
+  </ItemGroup>
  
  <ItemGroup> 
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
@@ -30,7 +36,6 @@
    <Folder Include="Persistence\Migrations\IdentityServerConfiguration\" />
    <Folder Include="Persistence\Migrations\IdentityServerGrants\" />
    <Folder Include="Persistence\Migrations\Identity\" />
-   <Folder Include="Persistence\SQLScripts\" />
  </ItemGroup>
 
 

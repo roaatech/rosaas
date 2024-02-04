@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Enums;
@@ -37,18 +39,30 @@ public class DeleteTenantCommandHandler : IRequestHandler<DeleteTenantCommand, R
     #region Handler   
     public async Task<Result> Handle(DeleteTenantCommand model, CancellationToken cancellationToken)
     {
-        var productTenants = await _dbContext.Subscriptions.Where(x => x.Id == model.TenantId).ToListAsync(cancellationToken);
+        var tenant = await _dbContext.Tenants
+                                     .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                _dbContext.EntityAdminPrivileges
+                                                        .Any(a =>
+                                                            a.UserId == _identityContextService.UserId &&
+                                                            a.EntityId == x.Id &&
+                                                            a.EntityType == EntityType.Tenant
+                                                            )
+                                            )
+                                    .Where(x => x.Id == model.TenantId)
+                                    .SingleOrDefaultAsync();
+        if (tenant is null)
+        {
+            return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+        }
+
+        var productTenants = await _dbContext.Subscriptions
+                                             .Where(x => x.Id == model.TenantId)
+                                             .ToListAsync(cancellationToken);
 
 
         if (productTenants is not null && productTenants.Any(x => x.Status != TenantStatus.Deleted))
         {
             return Result.Fail(CommonErrorKeys.OperationFaild, _identityContextService.Locale);
-        }
-
-        var tenant = await _dbContext.Tenants.Where(x => x.Id == model.TenantId).SingleOrDefaultAsync();
-        if (tenant is null)
-        {
-            return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
         }
 
         _dbContext.Tenants.Remove(tenant);

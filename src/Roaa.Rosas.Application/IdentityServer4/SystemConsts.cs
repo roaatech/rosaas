@@ -6,8 +6,8 @@
         {
             public const string Api = "api_scope";
             public const string SuperAdmin = "super_admin_scope";
-            public const string ClientAdmin = "client_admin_scope";
-            public const string Tenant = "tenant_scope";
+            public const string ProductOwner = "product_owner_scope";
+            public const string TenantOwner = "tenant_owner_scope";
             public const string ExternalSystem = "external_system_scope";
         }
         public class Resources
@@ -28,12 +28,14 @@
                 public const string ClaimType = "type";
                 public const string ClaimAuthenticationMethod = "amth";
                 public const string ExternalSystem = "external_system";
+                public const string ExternalSystemClient = "ext_sys_client";
             }
 
             public class Properties
             {
                 public const string RosasClientId = "RosasClientId";
                 public const string RosasProductId = "RosasProductId";
+                public const string RosasUserId = "RosasUserId";
 
                 public class Vlaue
                 {
@@ -43,6 +45,12 @@
                     public const string ShamsProductId = "858df12a-9980-4e38-b8e1-3a19ee5bc600";
                 }
             }
+        }
+
+
+        public class Users
+        {
+            public const string RosaasSystem = "794bd14b-7dcf-42c4-9b66-687831db2727";
         }
     }
 }

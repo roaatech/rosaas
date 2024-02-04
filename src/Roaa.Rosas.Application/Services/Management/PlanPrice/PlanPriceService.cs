@@ -7,7 +7,6 @@ using Roaa.Rosas.Application.Services.Management.PlanPrices.Validators;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
-using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -46,11 +45,13 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               .Select(planPrice => new PlanPriceListItemDto
                                               {
                                                   Id = planPrice.Id,
-                                                  Plan = new CustomLookupItemDto<Guid>(planPrice.Plan.Id, planPrice.Plan.Name, planPrice.Plan.DisplayName),
+                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.SystemName, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
                                                   IsPublished = planPrice.IsPublished,
+                                                  IsLockedBySystem = planPrice.IsLockedBySystem,
+                                                  SystemName = planPrice.SystemName,
                                                   Description = planPrice.Description,
                                                   CreatedDate = planPrice.CreationDate,
                                                   EditedDate = planPrice.ModificationDate,
@@ -59,6 +60,30 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               .ToListAsync(cancellationToken);
 
             return Result<List<PlanPriceListItemDto>>.Successful(planPrice);
+        }
+
+        public async Task<Result<List<PlanPricePublishedListItemDto>>> GetPublishedPlanPricesListByProductNameAsync(string productName, CancellationToken cancellationToken = default)
+        {
+            var planPrice = await _dbContext.PlanPrices
+                                              .AsNoTracking()
+                                              .Where(pp => productName.ToLower().Equals(pp.Plan.Product.SystemName))
+                                              .Select(planPrice => new PlanPricePublishedListItemDto
+                                              {
+                                                  Id = planPrice.Id,
+                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.SystemName, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
+                                                  Cycle = planPrice.PlanCycle,
+                                                  Price = planPrice.Price,
+                                                  IsSubscribed = planPrice.IsSubscribed,
+                                                  IsPublished = planPrice.IsPublished,
+                                                  IsLockedBySystem = planPrice.IsLockedBySystem,
+                                                  SystemName = planPrice.SystemName,
+                                                  Description = planPrice.Description,
+                                                  CreatedDate = planPrice.CreationDate,
+                                                  EditedDate = planPrice.ModificationDate,
+                                              })
+                                              .ToListAsync(cancellationToken);
+
+            return Result<List<PlanPricePublishedListItemDto>>.Successful(planPrice);
         }
 
         public async Task<Result<CreatedResult<Guid>>> CreatePlanPriceAsync(CreatePlanPriceModel model, Guid productId, CancellationToken cancellationToken = default)
@@ -70,6 +95,33 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName))
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
+            }
+
+            var plan = await _dbContext.Plans.Where(x => x.Id == model.PlanId && x.ProductId == productId).SingleOrDefaultAsync();
+            if (plan is null)
+            {
+                return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(model.PlanId));
+            }
+
+            if (plan.TenancyType == Domain.Enums.TenancyType.Planed && (model.Cycle == PlanCycle.Custom || model.Cycle == PlanCycle.Unlimited))
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.PlannedPlanCannotBeCustomized, _identityContextService.Locale, nameof(model.PlanId));
+            }
+
+            if (plan.TenancyType == Domain.Enums.TenancyType.Unlimited &&
+                plan.TenancyType == Domain.Enums.TenancyType.Limited &&
+                model.Price > 0)
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.LimitedAndUnlimitedPlansHaveToBeFree, _identityContextService.Locale, nameof(model.PlanId));
+            }
+
+            if (plan.TenancyType == Domain.Enums.TenancyType.Unlimited && model.Cycle != PlanCycle.Unlimited)
+            {
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.UnlimitedPlansHaveToBeUnlimitedCycle, _identityContextService.Locale, nameof(model.PlanId));
+            }
             #endregion
 
             var date = DateTime.UtcNow;
@@ -77,6 +129,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             var planPrice = new PlanPrice
             {
                 Id = Guid.NewGuid(),
+                SystemName = model.SystemName,
                 PlanId = model.PlanId,
                 PlanCycle = model.Cycle,
                 Price = model.Price,
@@ -109,6 +162,12 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
+
+            if (planPrice.IsLockedBySystem)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueLockedBySystem, _identityContextService.Locale);
+            }
+
             if (planPrice.IsSubscribed)
             {
                 return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
@@ -136,6 +195,11 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
+            if (planPrice.IsLockedBySystem)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueLockedBySystem, _identityContextService.Locale);
+            }
+
             #endregion
 
             planPrice.IsPublished = model.IsPublished;
@@ -156,6 +220,11 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
 
+            if (planPrice.IsLockedBySystem)
+            {
+                return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueLockedBySystem, _identityContextService.Locale);
+            }
+
             if (planPrice.IsSubscribed)
             {
                 return Result.Fail(ErrorMessage.ModificationOrIsNotAllowedDueToSubscription, _identityContextService.Locale);
@@ -171,5 +240,15 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
 
 
         #endregion
+
+
+        private async Task<bool> EnsureUniqueNameAsync(Guid productId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
+        {
+            return !await _dbContext.PlanPrices
+                                    .Where(x => x.Id != id &&
+                                               x.Plan.ProductId == productId &&
+                                                uniqueName.ToLower().Equals(x.SystemName))
+                                    .AnyAsync(cancellationToken);
+        }
     }
 }

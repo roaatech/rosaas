@@ -10,14 +10,16 @@ namespace Roaa.Rosas.Domain.Events.Management
         public TenantStatus Status { get; set; }
         public TenantStep Step { get; set; }
         public ExpectedTenantResourceStatus ExpectedResourceStatus { get; set; }
+        public TenancyType TenancyType { get; set; }
 
 
-        public TenantCreatedInStoreEvent(Tenant tenant, ExpectedTenantResourceStatus expectedResourceStatus, TenantStatus status, TenantStep step)
+        public TenantCreatedInStoreEvent(Tenant tenant, ExpectedTenantResourceStatus expectedResourceStatus, TenantStatus status, TenantStep step, TenancyType tenancyType)
         {
             Tenant = tenant;
             Status = status;
             Step = step;
             ExpectedResourceStatus = expectedResourceStatus;
+            TenancyType = tenancyType;
         }
     }
 }

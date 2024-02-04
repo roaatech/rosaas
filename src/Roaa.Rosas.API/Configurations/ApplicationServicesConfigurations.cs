@@ -2,12 +2,15 @@
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.JWT;
+using Roaa.Rosas.Application.Payment;
 using Roaa.Rosas.Application.Services.Identity.Accounts;
 using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Application.Services.IdentityServer4.Auth;
 using Roaa.Rosas.Application.Services.IdentityServer4.Clients;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets;
+using Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges;
 using Roaa.Rosas.Application.Services.Management.Features;
+using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures;
 using Roaa.Rosas.Application.Services.Management.PlanPrices;
 using Roaa.Rosas.Application.Services.Management.Plans;
@@ -57,6 +60,8 @@ namespace Roaa.Rosas.Framework.Configurations
 
 
             #region Management 
+            services.AddScoped<IPermissionService, PermissionService>();
+
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<ITenantWorkflow, TenantWorkflow>();
             services.AddScoped<ManagementDbInitialiser>();
@@ -74,8 +79,15 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<ITenantHealthCheckSettingsService, TenantHealthCheckSettingsService>();
             services.AddScoped<ISubscriptionService, SubscriptionService>();
             services.AddScoped<ISpecificationService, SpecificationService>();
+            services.AddScoped<IEntityAdminPrivilegeService, EntityAdminPrivilegeService>();
+            services.AddScoped<IOrderService, OrderService>();
+
 
             services.AddMediatRAServices();
+
+
+
+            services.AddPaymentServicesConfigurations(rootOptions);
 
         }
     }

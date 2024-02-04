@@ -6,8 +6,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
 {
     public record ProductTenantDto
     {
-        public string Title { get; set; } = string.Empty;
-        public string UniqueName { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
         public string HealthCheckUrl { get; set; } = string.Empty;
         public bool HealthCheckUrlIsOverridden { get; set; }
         public TenantStatus Status { get; set; }
@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
         public bool IsActive { get; set; }
         public object Metadata { get; set; } = new();
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public DateTime? LastResetDate { get; set; }
@@ -25,7 +25,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentBy
     }
     public record SpecificationListItemDto
     {
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
 
         public LocalizedString DisplayName { get; set; } = new();
 

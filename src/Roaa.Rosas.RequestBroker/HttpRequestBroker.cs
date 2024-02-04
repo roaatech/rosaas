@@ -12,10 +12,12 @@ namespace Roaa.Rosas.RequestBroker
     public class HttpRequestBroker : IRequestBroker
     {
 
+
         #region Props
         private readonly ILogger<HttpRequestBroker> _logger;
         private readonly JsonSerializerSettings _serializerSettings;
         private readonly IHttpClientFactory _httpClientFactory;
+        private const string formUrlEncodedMediaType = "application/x-www-form-urlencoded";
         #endregion
 
         #region Ctrs
@@ -59,6 +61,12 @@ namespace Roaa.Rosas.RequestBroker
             HttpClient httpClient = CreateHttpClient(requestModel);
 
             return await SendRequestAsync<TResult, TRequest>(requestModel, "POST", httpClient.PostAsync);
+        }
+        public async Task<RequestResult<TResult>> PostAsFormUrlEncodedContentAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, CancellationToken cancellationToken = default)
+        {
+            HttpClient httpClient = CreateHttpClient(requestModel);
+
+            return await SendRequestAsync<TResult, TRequest>(requestModel, "POST", httpClient.PostAsync, formUrlEncodedMediaType);
         }
 
         public async Task<RequestResult<TResult>> PutAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, CancellationToken cancellationToken = default)
@@ -117,18 +125,24 @@ namespace Roaa.Rosas.RequestBroker
             return handledResponse.Result;
         }
 
-        private async Task<RequestResult<TResult>> SendRequestAsync<TResult, TRequest>(RequestModel<TRequest> requestModel, string methodName, Func<string, HttpContent, Task<HttpResponseMessage>> doRequestAsync)
+        private async Task<RequestResult<TResult>> SendRequestAsync<TResult, TRequest>(
+                                                        RequestModel<TRequest> requestModel,
+                                                        string methodName,
+                                                        Func<string, HttpContent, Task<HttpResponseMessage>> doRequestAsync,
+                                                        string mediaType = System.Net.Mime.MediaTypeNames.Application.Json)
         {
             string uri = HandleRequestUri(requestModel);
 
             var JsonData = JsonConvert.SerializeObject(requestModel.Data);
 
-            var content = new StringContent(JsonData, Encoding.UTF8, System.Net.Mime.MediaTypeNames.Application.Json);
+            var content = new StringContent(JsonData, Encoding.UTF8, mediaType);
 
             _logger.LogInformation($"{{0}}: Sending HTTP {{1}} request to {{2}}, jsonBody:{{3}}.", "Request Broker", methodName, uri, JsonData);
 
             DateTime startTime = DateTime.UtcNow;
             HttpResponseMessage response = await doRequestAsync(uri, content);
+
+            // response.EnsureSuccessStatusCode();
 
             var handledResponse = await HandleResponse<TResult>(response, uri, startTime);
 

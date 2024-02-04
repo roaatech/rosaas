@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.IdentityServer4.Clients;
 using Roaa.Rosas.Application.Services.IdentityServer4.Clients.Models;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets.Models;
+using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class ClientCredentialController : BaseSuperAdminIdentityApiController
+    [Authorize(Policy = AuthPolicy.Identity.ClientCredential, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class ClientCredentialController : BaseIdentityApiController
     {
         #region Props 
         private readonly ILogger<ClientCredentialController> _logger;
@@ -34,54 +38,86 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
         #region Actions   
 
+        [HttpGet("ExternalSystem/{productOwnerClientId}/{productId}")]
+        public async Task<IActionResult> GetClientIdOfExternalSystemAsync([FromRoute] Guid productId, [FromRoute] Guid ProductOwnerClientId, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _clientService.GetClientIdOfExternalSystemAsync(new GetClientOfExternalSystemModel(productId, ProductOwnerClientId, Domain.Entities.ClientType.ExternalSystem), cancellationToken));
+        }
+
+
+        #region Clients   
+
+
+        // New
+        [HttpGet("{productOwnerClientId}/{productId}")]
+        public async Task<IActionResult> GetClientsListByProductAsync([FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _clientService.GetClientsListByProductAsync(productId, cancellationToken));
+        }
+
+        [HttpPost("{productOwnerClientId}/{productId}")]
+        public async Task<IActionResult> CreateClientAsExternalSystemClientAsync([FromBody] CreateClientAsExternalSystemClientModel model,
+                                                                                 [FromRoute] Guid productOwnerClientId,
+                                                                                 [FromRoute] Guid productId,
+                                                                                 CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _clientService.CreateClientAsExternalSystemClientAsync(model, productOwnerClientId, productId, cancellationToken));
+        }
+
+        [HttpPut("{clientRecordId}/{productId}")]
+        public async Task<IActionResult> UpdateClientByProductAsync([FromBody] UpdateClientByProductModel model, [FromRoute] int clientRecordId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _clientService.UpdateClientByProductAsync(model, clientRecordId, productId, cancellationToken));
+        }
+
+        [HttpPost("{clientRecordId}/{productId}/active")]
+        public async Task<IActionResult> ActivateClientByProductAsync([FromBody] ActivateClientModel model, [FromRoute] int clientRecordId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _clientService.ActivateClientByProductAsync(model, clientRecordId, productId, cancellationToken));
+        }
+
+        [HttpDelete("{clientRecordId}/{productId}")]
+        public async Task<IActionResult> DeleteClientByProductAsync([FromRoute] int clientRecordId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _clientService.DeleteClientByProductAsync(clientRecordId, productId, cancellationToken));
+        }
+
+        #endregion
+
 
 
         #region Client Secrets    
-
-        [HttpGet("{productOwnerClientId}/{productId}")]
-        public async Task<IActionResult> GetClientIdByProductAsync([FromRoute] Guid productId, [FromRoute] Guid ProductOwnerClientId, CancellationToken cancellationToken = default)
+        // New
+        [HttpGet("{clientRecordId}/{productId}/Secrets")]
+        public async Task<IActionResult> GetClientSecretsListByClientIdAsync([FromRoute] int clientRecordId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _clientService.GetClientIdByProductAsync(new GetClientByProductModel(productId, ProductOwnerClientId), cancellationToken));
+            return ListResult(await _clientSecretService.GetClientSecretsListByClientIdAsync(clientRecordId, productId, cancellationToken));
         }
 
-        [HttpGet("Secrets/{productOwnerClientId}/{productId}")]
-        public async Task<IActionResult> GetClientSecretsListAsync([FromRoute] Guid productId, [FromRoute] Guid ProductOwnerClientId, CancellationToken cancellationToken = default)
+        [HttpPost("{clientRecordId}/{productId}/Secrets")]
+        public async Task<IActionResult> CreateClientSecretAsync([FromBody] CreateClientSecretModel model, [FromRoute] int clientRecordId, [FromRoute] Guid productId, CancellationToken cancellationToken = default)
         {
-            return ListResult(await _clientSecretService.GetClientSecretsListAsync(new GetClientByProductModel(productId, ProductOwnerClientId), cancellationToken));
+            return ItemResult(await _clientSecretService.CreateClientSecretAsync(model, clientRecordId, productId, cancellationToken));
         }
 
-
-        [HttpPost("{clientRecordId}/Secrets")]
-        public async Task<IActionResult> CreateClientSecretAsync([FromBody] CreateClientSecretModel model, [FromRoute] int clientRecordId, CancellationToken cancellationToken = default)
+        [HttpPut("{clientRecordId}/{productId}/Secrets/{seretId}")]
+        public async Task<IActionResult> UpdateClientSecretAsync([FromBody] UpdateClientSecretModel model, [FromRoute] int clientRecordId, [FromRoute] Guid productId, [FromRoute] int seretId, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _clientSecretService.CreateClientSecretAsync(model, clientRecordId, cancellationToken));
-        }
-
-        [HttpPost("Secrets/{productOwnerClientId}/{productId}")]
-        public async Task<IActionResult> CreateClientSecretAsync([FromBody] CreateClientSecretModel model, [FromRoute] Guid productId, [FromRoute] Guid ProductOwnerClientId, CancellationToken cancellationToken = default)
-        {
-            return ItemResult(await _clientSecretService.CreateClientSecretAsync(model, productId, ProductOwnerClientId, cancellationToken));
+            return EmptyResult(await _clientSecretService.UpdateClientSecretAsync(model, clientRecordId, productId, seretId, cancellationToken));
         }
 
 
-        [HttpPut("{clientRecordId}/Secrets/{seretId}")]
-        public async Task<IActionResult> UpdateClientSecretAsync([FromBody] UpdateClientSecretModel model, [FromRoute] int clientRecordId, [FromRoute] int seretId, CancellationToken cancellationToken = default)
+        [HttpPost("{clientRecordId}/{productId}/Secrets/{seretId}/Regenerate")]
+        public async Task<IActionResult> RegenerateClientSecretAsync([FromRoute] int clientRecordId, [FromRoute] Guid productId, [FromRoute] int seretId, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _clientSecretService.UpdateClientSecretAsync(model, clientRecordId, seretId, cancellationToken));
+            return ItemResult(await _clientSecretService.RegenerateClientSecretAsync(clientRecordId, productId, seretId, cancellationToken));
         }
 
 
-        [HttpPost("{clientRecordId}/Secrets/{seretId}/Regenerate")]
-        public async Task<IActionResult> RegenerateClientSecretAsync([FromRoute] int clientRecordId, [FromRoute] int seretId, CancellationToken cancellationToken = default)
+        [HttpDelete("{clientRecordId}/{productId}/Secrets/{seretId}")]
+        public async Task<IActionResult> DeleteClientSecretAsync([FromRoute] int clientRecordId, [FromRoute] Guid productId, [FromRoute] int seretId, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _clientSecretService.RegenerateClientSecretAsync(clientRecordId, seretId, cancellationToken));
-        }
-
-
-        [HttpDelete("{clientRecordId}/Secrets/{seretId}")]
-        public async Task<IActionResult> DeleteClientSecretAsync([FromRoute] int clientRecordId, [FromRoute] int seretId, CancellationToken cancellationToken = default)
-        {
-            return EmptyResult(await _clientSecretService.DeleteClientSecretAsync(clientRecordId, seretId, cancellationToken));
+            return EmptyResult(await _clientSecretService.DeleteClientSecretAsync(clientRecordId, productId, seretId, cancellationToken));
         }
 
         #endregion

@@ -8,7 +8,7 @@
 
         }
 
-        public LookupItemDto(TId id, string name) : base(id, name)
+        public LookupItemDto(TId id, string systemName) : base(id, systemName)
         {
         }
         #endregion
@@ -27,12 +27,12 @@
         public LookupItemDto(TId id, TName name)
         {
             Id = id;
-            Name = name;
+            SystemName = name;
         }
         #endregion
 
         public TId Id { get; set; }
-        public TName? Name { get; set; }
+        public TName? SystemName { get; set; }
 
     }
 
@@ -44,17 +44,18 @@
 
         }
 
-        public CustomLookupItemDto(TId id, string name, string title)
+        public CustomLookupItemDto(TId id, string systemName, string displayName)
         {
             Id = id;
-            Name = name;
-            Title = title;
+            SystemName = systemName;
+            DisplayName = displayName;
         }
         #endregion
 
         public TId Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
 
     }
+
 }

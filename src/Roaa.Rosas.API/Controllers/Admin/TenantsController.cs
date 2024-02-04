@@ -1,7 +1,9 @@
-﻿using MediatR;
+﻿using IdentityServer4.AccessTokenValidation;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.DeleteTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantSpecifications;
@@ -17,7 +19,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class TenantsController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.Management.Tenants, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class TenantsController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<TenantsController> _logger;
@@ -73,7 +76,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpPost()]
-        public async Task<IActionResult> CreateTenantAsync([FromBody] CreateTenantCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CreateTenantAsync([FromBody] TenantCreationRequestCommand command, CancellationToken cancellationToken = default)
         {
             return ItemResult(await _mediator.Send(command, cancellationToken));
         }

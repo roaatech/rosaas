@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Products.Validators;
@@ -72,16 +73,20 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                           {
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
-                                              Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
-                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
-                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
+                                              SystemName = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
+                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
+                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
+                                              TrialType = product.TrialType,
+                                              TrialPlanId = product.TrialPlanId,
+                                              TrialPlanPriceId = product.TrialPlanPriceId,
+                                              TrialPeriodInDays = product.TrialPeriodInDays,
                                           });
 
-            sort = sort.HandleDefaultSorting(new string[] { "Url", "Name", "ClientId", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
+            sort = sort.HandleDefaultSorting(new string[] { "Url", "SystemName", "DisplayName", "ClientId", "EditedDate", "CreatedDate" }, "EditedDate", SortDirection.Desc);
 
-            query = query.Where(filters, new string[] { "_Url", "_Name", "ClientId" }, "CreatedDate");
+            query = query.Where(filters, new string[] { "_Url", "_SystemName", "_DisplayName", "ClientId" }, "CreatedDate");
 
             query = query.OrderBy(sort);
 
@@ -91,6 +96,56 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         }
 
 
+
+        public async Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(string clientName, CancellationToken cancellationToken = default)
+        {
+
+
+            var products = await _dbContext.Products
+                                           .Where(x => string.IsNullOrWhiteSpace(clientName) ||
+                                                        clientName.ToLower().Equals(x.Client.SystemName))
+                                            .AsNoTracking()
+                                            .Select(x => new CustomLookupItemDto<Guid>
+                                            {
+                                                Id = x.Id,
+                                                SystemName = x.SystemName,
+                                                DisplayName = x.DisplayName,
+                                            })
+                                            .ToListAsync(cancellationToken);
+
+            return Result<List<CustomLookupItemDto<Guid>>>.Successful(products);
+        }
+
+        public async Task<Result<List<ProductPublishedListItemDto>>> GetProductPublishedListAsync(string clientName, CancellationToken cancellationToken = default)
+        {
+
+
+            var products = await _dbContext.Products
+                                           .Where(x => string.IsNullOrWhiteSpace(clientName) ||
+                                                        clientName.ToLower().Equals(x.Client.SystemName))
+                                            .AsNoTracking()
+                                             .Select(product => new ProductPublishedListItemDto
+                                             {
+                                                 Id = product.Id,
+                                                 SystemName = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
+                                                 DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
+                                                 Description = product.Description,
+                                                 CreatedDate = product.CreationDate,
+                                                 EditedDate = product.ModificationDate,
+                                                 TrialType = product.TrialType,
+                                                 TrialPlanId = product.TrialPlanId,
+                                                 TrialPlanPriceId = product.TrialPlanPriceId,
+                                                 TrialPeriodInDays = product.TrialPeriodInDays,
+                                             })
+                                            .ToListAsync(cancellationToken);
+
+            return Result<List<ProductPublishedListItemDto>>.Successful(products);
+        }
+
+
+
+
+
         public async Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(CancellationToken cancellationToken = default)
         {
             var products = await _dbContext.Products
@@ -98,8 +153,8 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               .Select(x => new CustomLookupItemDto<Guid>
                                               {
                                                   Id = x.Id,
-                                                  Name = x.DisplayName,
-                                                  Title = x.DisplayName,
+                                                  SystemName = !string.IsNullOrWhiteSpace(x.SystemName) ? x.SystemName : x.DisplayName,
+                                                  DisplayName = x.DisplayName,
                                               })
                                               .ToListAsync(cancellationToken);
 
@@ -119,9 +174,11 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               HealthStatusChangeUrl = product.HealthStatusInformerUrl,
-                                              Name = !string.IsNullOrWhiteSpace(product.Name) ? product.Name : product.DisplayName,
-                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.Name,
-                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.Name),
+                                              SystemName = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
+                                              DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
+                                              Description = product.Description,
+                                              IsPublished = product.IsPublished,
+                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
                                               ActivationEndpoint = product.ActivationUrl,
@@ -132,6 +189,10 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               SubscriptionResetUrl = product.SubscriptionResetUrl,
                                               SubscriptionUpgradeUrl = product.SubscriptionUpgradeUrl,
                                               SubscriptionDowngradeUrl = product.SubscriptionDowngradeUrl,
+                                              TrialType = product.TrialType,
+                                              TrialPlanId = product.TrialPlanId,
+                                              TrialPlanPriceId = product.TrialPlanPriceId,
+                                              TrialPeriodInDays = product.TrialPeriodInDays,
                                           })
                                           .SingleOrDefaultAsync(cancellationToken);
 
@@ -172,9 +233,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueNameAsync(model.ClientId, model.Name))
+            if (!await EnsureUniqueNameAsync(model.ClientId, model.SystemName))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
 
             //if (!await EnsureUniqueUrlAsync(model.DefaultHealthCheckUrl))
@@ -191,8 +252,10 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             {
                 Id = id,
                 ClientId = model.ClientId,
-                Name = model.Name,
+                SystemName = model.SystemName,
                 DisplayName = model.DisplayName,
+                Description = model.Description,
+                IsPublished = model.IsPublished,
                 DefaultHealthCheckUrl = model.DefaultHealthCheckUrl,
                 HealthStatusInformerUrl = model.HealthStatusChangeUrl,
                 CreatedByUserId = _identityContextService.UserId,
@@ -209,7 +272,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 ModificationDate = date,
             };
 
-            product.AddDomainEvent(new ProductCreatedEvent(product));
+            product.AddDomainEvent(new ProductCreatedEvent(product, _identityContextService.UserId, _identityContextService.GetUserType()));
 
             _dbContext.Products.Add(product);
 
@@ -252,6 +315,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             Product productBeforeUpdate = product.DeepCopy();
 
             product.DisplayName = model.DisplayName;
+            product.Description = model.Description;
             product.HealthStatusInformerUrl = model.HealthStatusChangeUrl;
             product.DefaultHealthCheckUrl = model.DefaultHealthCheckUrl;
             product.ModifiedByUserId = _identityContextService.UserId;
@@ -295,18 +359,90 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             return Result.Successful();
         }
+
+
+
+
+        public async Task<Result> PublishProductAsync(Guid id, PublishProductModel model, CancellationToken cancellationToken = default)
+        {
+            #region Validation 
+
+            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
+            if (product is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
+            #endregion 
+
+            product.IsPublished = model.IsPublished;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
+
+        public async Task<Result> ChangeProductTrialTypeAsync(Guid id, ChangeProductTrialTypeModel model, CancellationToken cancellationToken = default)
+        {
+            #region Validation  
+            var fValidation = new ChangeProductTrialTypeValidator(_identityContextService).Validate(model);
+            if (!fValidation.IsValid)
+            {
+                return Result.New().WithErrors(fValidation.Errors);
+            }
+
+            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
+            if (product is null)
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
+            PlanPrice? trialPlanPrice = null;
+            if (model.TrialType == ProductTrialType.ProductHasTrialPlan &&
+                model.TrialPlanPriceId is null)
+            {
+                var trialPlanPrices = await _dbContext.PlanPrices
+                                                        .Where(x => x.PlanId == model.TrialPlanId)
+                                                        .OrderByDescending(x => x.Price)
+                                                        .ToListAsync(cancellationToken);
+
+                trialPlanPrice = trialPlanPrices.Any(x => x.IsPublished) ?
+                                  trialPlanPrices.Where(x => x.IsPublished).FirstOrDefault() :
+                                  trialPlanPrices.FirstOrDefault();
+
+                if (trialPlanPrice is null)
+                {
+                    return Result<CreatedResult<Guid>>.Fail(CommonErrorKeys.InvalidParameters, _identityContextService.Locale, nameof(model.TrialPlanPriceId));
+                }
+            }
+            #endregion
+
+            product.TrialType = model.TrialType;
+            product.TrialPlanId = model.TrialPlanId;
+            product.TrialPlanPriceId = trialPlanPrice?.Id;
+            product.TrialPeriodInDays = model.TrialPeriodInDays;
+            product.ModificationDate = DateTime.UtcNow;
+            product.ModifiedByUserId = _identityContextService.UserId;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
+
         private async Task<bool> EnsureUniqueNameAsync(Guid clientId, string uniqueName, Guid id = new Guid(), CancellationToken cancellationToken = default)
         {
             return !await _dbContext.Products
                                     .Where(x => x.Id != id &&
                                                x.ClientId == clientId &&
-                                                uniqueName.ToLower().Equals(x.Name))
+                                                uniqueName.ToLower().Equals(x.SystemName))
                                     .AnyAsync(cancellationToken);
         }
         private async Task<bool> EnsureUniqueUrlAsync(string url, Guid id = new Guid(), CancellationToken cancellationToken = default)
         {
             return !await _dbContext.Tenants
-                                    .Where(x => url.ToLower().Equals(x.UniqueName) && x.Id != id)
+                                    .Where(x => url.ToLower().Equals(x.SystemName) && x.Id != id)
                                     .AnyAsync(cancellationToken);
         }
 

@@ -43,7 +43,7 @@ public class ChangeTenantStatusCommandHandler : IRequestHandler<ChangeTenantStat
 
         var tenantId = await _dbContext.Subscriptions
                                            .Where(x => x.ProductId == request.ProductId &&
-                                                         request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
+                                                         request.TenantName.ToLower().Equals(x.Tenant.SystemName))
                                            .Select(x => x.TenantId)
                                            .SingleOrDefaultAsync(cancellationToken);
 

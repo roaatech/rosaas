@@ -412,7 +412,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.S
         {
             var tenantName = await _dbContext.Tenants
                                        .Where(x => x.Id == jobTask.TenantId)
-                                       .Select(x => x.UniqueName)
+                                       .Select(x => x.SystemName)
                                        .SingleOrDefaultAsync(cancellationToken);
             return tenantName;
         }

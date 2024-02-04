@@ -46,7 +46,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.H
 
                 var tenantName = await _dbContext.Tenants
                                .Where(x => x.Id == @event.TenantId)
-                               .Select(x => x.UniqueName)
+                               .Select(x => x.SystemName)
                                .SingleOrDefaultAsync(cancellationToken);
 
                 _backgroundWorkerStore.AddAvailableTenantTask(jobTask, tenantName);

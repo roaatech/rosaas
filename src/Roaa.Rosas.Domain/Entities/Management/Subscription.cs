@@ -8,7 +8,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public Guid PlanId { get; set; }
         public Guid PlanPriceId { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public Guid ProductId { get; set; }
         public Guid TenantId { get; set; }
         public TenantStatus Status { get; set; }
@@ -24,6 +24,9 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public DateTime? LastLimitsResetDate { get; set; }
         public SubscriptionResetStatus? SubscriptionResetStatus { get; set; }
         public SubscriptionPlanChangeStatus? SubscriptionPlanChangeStatus { get; set; }
+        public int? CustomPeriodInDays { get; set; } = null;
+        public SubscriptionMode SubscriptionMode { get; set; }
+        public virtual SubscriptionTrialPeriod? TrialPeriod { get; set; }
         public virtual Plan? Plan { get; set; }
         public virtual PlanPrice? PlanPrice { get; set; }
         public virtual Tenant? Tenant { get; set; }
@@ -35,6 +38,17 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public virtual ICollection<SubscriptionCycle>? SubscriptionCycles { get; set; }
         public virtual ICollection<SpecificationValue>? SpecificationsValues { get; set; }
 
+    }
+
+    public class SubscriptionTrialPeriod : BaseEntity
+    {
+        public Guid SubscriptionId { get; set; }
+        public Guid PlanId { get; set; }
+        public Guid PlanPriceId { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public int TrialPeriodInDays { get; set; }
+        public virtual Subscription? Subscription { get; set; }
     }
 
 
@@ -53,5 +67,11 @@ namespace Roaa.Rosas.Domain.Entities.Management
         InProgress = 2,
         Done = 3,
         Failure = 4,
+    }
+    public enum SubscriptionMode
+    {
+        Normal = 1,
+        Trial = 2,
+        PendingToNormal = 3,
     }
 }

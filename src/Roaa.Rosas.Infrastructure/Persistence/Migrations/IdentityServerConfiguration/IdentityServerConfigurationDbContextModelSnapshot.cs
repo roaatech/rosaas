@@ -729,10 +729,16 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.IdentityServerConfigu
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int>("ClientType")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("ProductOwnerClientId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
 
                     b.HasKey("ClientId");

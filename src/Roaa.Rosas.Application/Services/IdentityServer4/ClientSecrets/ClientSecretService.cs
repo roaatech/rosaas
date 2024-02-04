@@ -3,11 +3,14 @@ using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
+using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.IdentityServer4.Clients.Models;
 using Roaa.Rosas.Application.Services.IdentityServer4.Clients.Validators;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets.Models;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
@@ -21,6 +24,7 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets
         private readonly ILogger<ClientSecretService> _logger;
         private readonly IIdentityContextService _identityContextService;
         private readonly IIdentityServerConfigurationDbContext _dbContext;
+        private readonly IPermissionService _permissionService;
         #endregion
 
 
@@ -28,10 +32,12 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets
         public ClientSecretService(
             ILogger<ClientSecretService> logger,
             IIdentityContextService identityContextService,
+            IPermissionService permissionService,
             IIdentityServerConfigurationDbContext dbContext)
         {
             _logger = logger;
             _identityContextService = identityContextService;
+            _permissionService = permissionService;
             _dbContext = dbContext;
         }
         #endregion
@@ -60,13 +66,52 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets
 
 
 
-        public async Task<Result<ClientSecretCreatedResult>> CreateClientSecretAsync(CreateClientSecretModel model, int clientRecordId, CancellationToken cancellationToken = default)
+        public async Task<Result<List<ClientSecretDto>>> GetClientSecretsListByClientIdAsync(int clientRecordId, Guid productId, CancellationToken cancellationToken = default)
+        {
+            if (!await _permissionService.HasPermissionAsync(_identityContextService.UserId,
+                                                        _identityContextService.GetUserType(),
+                                                        productId,
+                                                        EntityType.Product,
+                                                        cancellationToken))
+            {
+                return Result<List<ClientSecretDto>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+            var dtos = await (from s in _dbContext.ClientSecrets
+                              join c in _dbContext.Clients on s.ClientId equals c.Id
+                              where s.ClientId == clientRecordId
+
+                              select new ClientSecretDto
+                              {
+                                  Id = s.Id,
+                                  ClientRecordId = s.ClientId,
+                                  ClientId = c.ClientId,
+                                  Created = s.Created,
+                                  Description = s.Description,
+                                  Expiration = s.Expiration,
+                              }).ToListAsync(cancellationToken);
+
+            return Result<List<ClientSecretDto>>.Successful(dtos);
+        }
+
+
+
+        public async Task<Result<ClientSecretCreatedResult>> CreateClientSecretAsync(CreateClientSecretModel model, int clientRecordId, Guid productId, CancellationToken cancellationToken = default)
         {
             #region Validation
             var fValidation = new CreateClientSecretModelValidator(_identityContextService).Validate(model);
             if (!fValidation.IsValid)
             {
                 return Result<ClientSecretCreatedResult>.New().WithErrors(fValidation.Errors);
+            }
+
+
+            if (!await _permissionService.HasPermissionAsync(_identityContextService.UserId,
+                                                        _identityContextService.GetUserType(),
+                                                        productId,
+                                                        EntityType.Product,
+                                                        cancellationToken))
+            {
+                return Result<ClientSecretCreatedResult>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
             #endregion
 
@@ -114,7 +159,6 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets
             return await CreateSecretAsync(new CreateClientSecretModel(model.Description, model.Expiration), client.ClientRecordId, cancellationToken);
         }
 
-
         public async Task<Result<ClientSecretCreatedResult>> CreateSecretAsync(CreateClientSecretModel model, int clientRecordId, CancellationToken cancellationToken = default)
         {
             string decryptedSecret = StringGenarator.Random(60);
@@ -136,7 +180,7 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets
         }
 
 
-        public async Task<Result> UpdateClientSecretAsync(UpdateClientSecretModel model, int clientRecordId, int seretId, CancellationToken cancellationToken = default)
+        public async Task<Result> UpdateClientSecretAsync(UpdateClientSecretModel model, int clientRecordId, Guid productId, int seretId, CancellationToken cancellationToken = default)
         {
             #region Validation
             var fValidation = new UpdateClientSecretModelValidator(_identityContextService).Validate(model);
@@ -144,6 +188,17 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets
             {
                 return Result.New().WithErrors(fValidation.Errors);
             }
+
+
+            if (!await _permissionService.HasPermissionAsync(_identityContextService.UserId,
+                                                        _identityContextService.GetUserType(),
+                                                        productId,
+                                                        EntityType.Product,
+                                                        cancellationToken))
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
             #endregion
 
             var clientSecret = await _dbContext.ClientSecrets
@@ -165,8 +220,17 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets
 
 
 
-        public async Task<Result<string>> RegenerateClientSecretAsync(int clientRecordId, int seretId, CancellationToken cancellationToken = default)
+        public async Task<Result<string>> RegenerateClientSecretAsync(int clientRecordId, Guid productId, int seretId, CancellationToken cancellationToken = default)
         {
+            if (!await _permissionService.HasPermissionAsync(_identityContextService.UserId,
+                                                          _identityContextService.GetUserType(),
+                                                          productId,
+                                                          EntityType.Product,
+                                                          cancellationToken))
+            {
+                return Result<string>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
             var clientSecret = await _dbContext.ClientSecrets
                                                 .Where(x => x.Id == seretId &&
                                                             x.ClientId == clientRecordId)
@@ -187,8 +251,17 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets
 
 
 
-        public async Task<Result> DeleteClientSecretAsync(int clientRecordId, int seretId, CancellationToken cancellationToken = default)
+        public async Task<Result> DeleteClientSecretAsync(int clientRecordId, Guid productId, int seretId, CancellationToken cancellationToken = default)
         {
+            if (!await _permissionService.HasPermissionAsync(_identityContextService.UserId,
+                                                            _identityContextService.GetUserType(),
+                                                            productId,
+                                                            EntityType.Product,
+                                                            cancellationToken))
+            {
+                return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+            }
+
             var clientSecret = await _dbContext.ClientSecrets
                                                 .Where(x => x.Id == seretId &&
                                                             x.ClientId == clientRecordId)

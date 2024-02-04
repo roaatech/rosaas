@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Roaa.Rosas.Application.Extensions;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
@@ -45,6 +45,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
 
         #region Services 
+
         public async Task<Result> DeactivateSubscriptionDueToNonPaymentAsync(int periodTimeAfterEndDateInHours, CancellationToken cancellationToken = default)
         {
             var currentDate = DateTime.UtcNow;
@@ -183,7 +184,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                             .Where(x => x.SubscriptionId == subscription.Id)
                                                             .Select(x => new SubscriptionFeatureItemModel(
                                                                                             subscriptionFeatureId: x.Id,
-                                                                                            name: x.Feature?.Name ?? ""))
+                                                                                            name: x.Feature?.SystemName ?? ""))
                                                             .ToList();
 
                         subscription.AddDomainEvent(new SubscriptionFeaturesLimitsResetEvent(
@@ -202,6 +203,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result.Successful();
         }
+
         public async Task<List<Subscription>> GetExpiredSubscriptionsAsync(CancellationToken cancellationToken = default)
         {
             return await _dbContext.Subscriptions
@@ -239,12 +241,14 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                      .Where(x => expiredSbscriptionsIds.Contains(x.SubscriptionId))
                                                      .ToListAsync();
 
+
             foreach (var subscription in expiredSubscriptions)
             {
                 var subscriptionFeatures = subscriptionsFeatures
                                                 .Where(x => x.SubscriptionId == subscription.Id)
                                                 .ToList();
 
+                #region First Case (Subscription Plan Changing)
                 var subscriptionPlanChanging = subscriptionPlanChanges.Where(x => x.SubscriptionId == subscription.Id).SingleOrDefault();
 
                 // Changing subscription plan that needs to change its plan 
@@ -253,7 +257,9 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     await PrepareSubscriptionToChangePlanAsync(subscription, subscriptionPlanChanging, cancellationToken);
                     continue;
                 }
+                #endregion
 
+                #region Second Case (Subscription Auto Renewal)
                 var autoRenewal = subscriptionAutoRenewals.Where(x => x.SubscriptionId == subscription.Id).SingleOrDefault();
 
                 // Renewing subscription plan that has enabled auto-renewal
@@ -262,9 +268,67 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     await RenewSubscriptionAsync(subscription, autoRenewal, subscriptionFeatures, cancellationToken);
                     continue;
                 }
+                #endregion
+
+                if (subscription.SubscriptionMode == SubscriptionMode.Trial)
+                {
+                    subscription.SubscriptionMode = SubscriptionMode.PendingToNormal;
+                }
+
+                #region 3th Case (Alternative Plan)
+
+                var plan = await _dbContext.Plans
+                                 .AsNoTracking()
+                                 .Where(x => x.Id == subscription.PlanId)
+                                 .Select(x => new
+                                 {
+                                     x.Id,
+                                     x.AlternativePlanId,
+                                     x.AlternativePlanPriceId,
+                                     x.TrialPeriodInDays
+                                 })
+                                 .SingleOrDefaultAsync(cancellationToken);
+
+                if (plan.AlternativePlanId is not null)
+                {
+                    var alternativePlanPrice = await _dbContext.PlanPrices
+                                                               .AsNoTracking()
+                                                               .Where(x => x.Id == plan.AlternativePlanPriceId &&
+                                                                           x.PlanId == plan.AlternativePlanId)
+                                                               .Include(x => x.Plan)
+                                                               .SingleOrDefaultAsync(cancellationToken);
+
+                    var newSubscriptionPlanChanging = new SubscriptionPlanChanging
+                    {
+                        Id = subscription.Id,
+                        Type = PlanChangingType.Downgrade,
+                        SubscriptionId = subscription.Id,
+                        PlanPriceId = alternativePlanPrice.Id,
+                        PlanId = alternativePlanPrice.PlanId,
+                        PlanCycle = alternativePlanPrice.PlanCycle,
+                        Price = alternativePlanPrice.Price,
+                        PlanDisplayName = alternativePlanPrice.Plan.DisplayName ?? "",
+                        IsPaid = true,
+                        //Comment = Comment, 
+                        CreationDate = _date,
+                        ModificationDate = _date,
+                    };
+                    _dbContext.SubscriptionPlanChanges.Add(newSubscriptionPlanChanging);
+
+                    await PrepareSubscriptionToChangePlanAsync(subscription, newSubscriptionPlanChanging, cancellationToken);
+                    continue;
+                }
+                #endregion
+
+                #region 4th Case
 
                 await SuspendSubscriptionAsync(subscription, cancellationToken);
+
+                #endregion
+
             }
+
+
 
             return Result.Successful();
         }
@@ -300,7 +364,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                              Limit = x.Limit,
                                              FeatureDisplayName = x.Feature.DisplayName,
                                              FeatureType = x.Feature.Type,
-                                             FeatureReset = x.Feature.FeatureReset,
+                                             FeatureReset = x.FeatureReset,
                                          })
                                          .ToListAsync(cancellationToken);
 
@@ -323,10 +387,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                             subscriptionPlanChanging.Price,
                             subscriptionPlanChanging.PlanDisplayName);
 
-            subscription.AddDomainEvent(new SubscriptionPlanChangePreparedEvent(
-                                          subscription,
-                                          subscriptionPlanChanging,
-                                          previousSubscriptionCycleId));
+
 
             subscription.PlanId = subscriptionPlanChanging.PlanId;
             subscription.PlanPriceId = subscriptionPlanChanging.PlanPriceId;
@@ -361,6 +422,83 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
 
 
+        public async Task<Result> ResetSubscriptionPlanAsync(Subscription subscription,
+                                                                Guid planId,
+                                                                Guid planPriceId,
+                                                                bool? isActive = null,
+                                                                SubscriptionMode? subscriptionMode = null,
+                                                                CancellationToken cancellationToken = default)
+        {
+            var previousSubscriptionCycleId = subscription.SubscriptionCycleId;
+
+            var previousSubscriptionFeatures = await _dbContext.SubscriptionFeatures
+                                                          .Where(x => x.SubscriptionId == subscription.Id)
+                                                          .ToListAsync();
+
+            _dbContext.SubscriptionFeatures.RemoveRange(previousSubscriptionFeatures);
+
+            var planFeaturesInfo = await _dbContext.PlanFeatures
+                                         .AsNoTracking()
+                                         .Where(x => x.PlanId == planId)
+                                         .Select(x => new PlanFeatureInfoModel
+                                         {
+                                             PlanFeatureId = x.Id,
+                                             FeatureId = x.FeatureId,
+                                             FeatureUnit = x.FeatureUnit,
+                                             PlanId = x.PlanId,
+                                             Limit = x.Limit,
+                                             FeatureDisplayName = x.Feature.DisplayName,
+                                             FeatureType = x.Feature.Type,
+                                             FeatureReset = x.FeatureReset,
+                                         })
+                                         .ToListAsync(cancellationToken);
+
+            var subscriptionFeatures = planFeaturesInfo.Select(x =>
+                                            BuildSubscriptionFeatureEntity(subscription.Id,
+                                                                            x.FeatureId,
+                                                                            x.PlanFeatureId,
+                                                                            x.FeatureReset,
+                                                                            x.Limit))
+                                                       .ToList();
+
+
+            var planPrice = await _dbContext.PlanPrices
+                                         .AsNoTracking()
+                                         .Include(x => x.Plan)
+                                         .Where(x => x.Id == planPriceId)
+                                         .SingleOrDefaultAsync(cancellationToken);
+
+            _dbContext.SubscriptionFeatures.AddRange(subscriptionFeatures);
+
+            PrepareToExtendSubscription(subscription,
+                            subscriptionFeatures,
+                            planFeaturesInfo,
+                            planId,
+                            planPriceId,
+                            planPrice.PlanCycle,
+                            planPrice.Price,
+                            planPrice.Plan.DisplayName);
+
+
+
+            subscription.PlanId = planId;
+            subscription.PlanPriceId = planPriceId;
+            subscription.ModificationDate = DateTime.UtcNow;
+
+            if (isActive is not null)
+            {
+                subscription.IsActive = isActive.Value;
+            }
+            if (subscriptionMode is not null)
+            {
+                subscription.SubscriptionMode = subscriptionMode.Value;
+            }
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
+
         public async Task<Result> PrepareSubscriptionToChangePlanAsync(Subscription subscription,
                                                                        SubscriptionPlanChanging subscriptionPlanChanging,
                                                                        CancellationToken cancellationToken = default)
@@ -381,11 +519,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result.Successful();
         }
-
-
-
-
-
 
         /// <summary>
         /// Renewing subscription plan that has enabled auto-renewal
@@ -432,9 +565,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             return Result.Successful();
         }
 
-
-
-
         public async Task<Result> SuspendSubscriptionAsync(Subscription subscription, CancellationToken cancellationToken = default)
         {
             string systemComment = "Setting the Subscription As Inactive for the tenant due to non-renewal.";
@@ -447,8 +577,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result.Successful();
         }
-
-
 
         private void PrepareToExtendSubscription(Subscription subscription,
                                       List<SubscriptionFeature> subscriptionFeatures,
@@ -524,7 +652,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             {
                 Id = Guid.NewGuid(),
                 StartDate = _date,
-                EndDate = PlanCycleManager.FromKey(planCycle).GetExpiryDate(_date),
+                EndDate = PlanCycleManager.FromKey(planCycle).CalculateExpiryDate(_date, null),
                 SubscriptionId = subscription.Id,
                 TenantId = subscription.TenantId,
                 PlanId = planId,
@@ -537,12 +665,13 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                 PlanDisplayName = planDisplayName,
                 Cycle = planCycle,
                 Price = planPrice,
+                Type = SubscriptionCycleType.Normal,
             };
 
             return subscriptionCycle;
         }
 
-        private void UpdateSubscriptionEntity(Subscription subscription, Guid subscriptionCycleId, DateTime startDate, DateTime endDate)
+        private void UpdateSubscriptionEntity(Subscription subscription, Guid subscriptionCycleId, DateTime startDate, DateTime? endDate)
         {
             subscription.SubscriptionCycleId = subscriptionCycleId;
             subscription.StartDate = startDate;
@@ -597,7 +726,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             subscription.Comment = systemComment;
         }
 
-
         public async Task<Result> Temp__RenewSubscriptionsAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
         {
             var date = DateTime.UtcNow;
@@ -624,7 +752,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     {
                         Id = Guid.NewGuid(),
                         StartDate = date,
-                        EndDate = PlanCycleManager.FromKey(subscription.PlanPrice.PlanCycle).GetExpiryDate(date),
+                        EndDate = PlanCycleManager.FromKey(subscription.PlanPrice.PlanCycle).CalculateExpiryDate(date, null),
                         TenantId = subscription.TenantId,
                         PlanId = subscription.PlanId,
                         PlanPriceId = subscription.PlanPriceId,
@@ -636,7 +764,8 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                         CreationDate = date,
                         ModificationDate = date,
                         Price = subscription.PlanPrice.Price,
-                        SubscriptionId = subscription.Id
+                        SubscriptionId = subscription.Id,
+                        Type = SubscriptionCycleType.Normal,
                     };
 
 
@@ -702,7 +831,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             return Result.Successful();
         }
 
-
         public async Task<Result> Temp__EndSubscriptionAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
         {
             var date = DateTime.UtcNow;
@@ -742,7 +870,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                              Limit = x.Limit,
                                              FeatureDisplayName = x.Feature.DisplayName,
                                              FeatureType = x.Feature.Type,
-                                             FeatureReset = x.Feature.FeatureReset,
+                                             FeatureReset = x.FeatureReset,
                                          })
                                          .ToListAsync(cancellationToken);
 

@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using IdentityServer4.AccessTokenValidation;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
@@ -12,7 +14,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class ProductsController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.Management.Products, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class ProductsController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<ProductsController> _logger;
@@ -94,6 +97,18 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         public async Task<IActionResult> GetProductWarningsAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
             return ListResult(await _mediator.Send(new GetProductWarningsQuery(id), cancellationToken));
+        }
+
+        [HttpPost("{id}/publish")]
+        public async Task<IActionResult> PublishProductAsync([FromBody] PublishProductModel model, [FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _productService.PublishProductAsync(id, model, cancellationToken));
+        }
+
+        [HttpPost("{id}/TrialType")]
+        public async Task<IActionResult> ChangeProductTrialTypeAsync([FromBody] ChangeProductTrialTypeModel model, [FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _productService.ChangeProductTrialTypeAsync(id, model, cancellationToken));
         }
         #endregion
 

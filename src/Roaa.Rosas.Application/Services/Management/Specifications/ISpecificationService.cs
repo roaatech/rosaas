@@ -18,5 +18,9 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
         Task<Result> SetSpecificationsAsSubscribedAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
         Task<Result> SetSpecificationsAsSubscribedAsync(List<Guid> ids, CancellationToken cancellationToken = default);
+
+
+
+        Task<Result<List<ExternalSystemSpecificationListItemDto>>> GetSpecificationsListOfExternalSystemByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
     }
 }

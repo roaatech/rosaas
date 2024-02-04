@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
@@ -40,7 +42,17 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
 
         #region Validation
 
-        var tenant = await _dbContext.Tenants.Where(x => x.Id == request.Id).SingleOrDefaultAsync();
+        var tenant = await _dbContext.Tenants
+                             .Where(x => _identityContextService.IsSuperAdmin() ||
+                                        _dbContext.EntityAdminPrivileges
+                                                .Any(a =>
+                                                    a.UserId == _identityContextService.UserId &&
+                                                    a.EntityId == x.Id &&
+                                                    a.EntityType == EntityType.Tenant
+                                                    )
+                                    )
+                            .Where(x => x.Id == request.Id)
+                            .SingleOrDefaultAsync();
         if (tenant is null)
         {
             return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
@@ -52,7 +64,7 @@ public class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, R
         DateTime date = DateTime.UtcNow;
 
 
-        tenant.DisplayName = request.Title;
+        tenant.DisplayName = request.DisplayName;
         tenant.ModifiedByUserId = _identityContextService.UserId;
         tenant.ModificationDate = date;
 

@@ -24,10 +24,13 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<Client> Clients { get; }
         public DbSet<Product> Products { get; }
         public DbSet<Tenant> Tenants { get; }
+        public DbSet<EntityAdminPrivilege> EntityAdminPrivileges { get; }
         public DbSet<TenantStatusHistory> TenantStatusHistory { get; }
         public DbSet<TenantHealthCheckHistory> TenantHealthCheckHistory { get; }
         public DbSet<TenantProcessHistory> TenantProcessHistory { get; }
         public DbSet<Subscription> Subscriptions { get; }
+        public DbSet<Order> Orders { get; }
+        public DbSet<OrderItem> OrderItems { get; }
         public DbSet<SubscriptionAutoRenewal> SubscriptionAutoRenewals { get; }
         public DbSet<SubscriptionAutoRenewalHistory> SubscriptionAutoRenewalHistories { get; }
         public DbSet<SubscriptionPlanChanging> SubscriptionPlanChanges { get; }
@@ -45,6 +48,9 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<PlanPrice> PlanPrices { get; }
         public DbSet<JobTask> JobTasks { get; }
         public DbSet<Setting> Settings { get; }
+        public DbSet<TenantCreationRequest> TenantCreationRequests { get; }
+        public DbSet<TenantCreationRequestSpecification> TenantCreationRequestSpecifications { get; }
+        public DbSet<TenantSystemName> TenantSystemNames { get; }
 
         #endregion
 

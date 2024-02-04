@@ -1,10 +1,13 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using System.Linq.Expressions;
 
@@ -48,11 +51,23 @@ public class ResetSubscriptionFeatureLimitCommandHandler : IRequestHandler<Reset
                              x.Id == command.SubscriptionFeatureId;
         }
 
-
         var subscriptionFeatures = await _dbContext.SubscriptionFeatures
-                                                   .Include(x => x.Feature)
+                                                   .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                                _dbContext.EntityAdminPrivileges
+                                                                        .Any(a =>
+                                                                            a.UserId == _identityContextService.UserId &&
+                                                                            a.EntityId == x.Subscription.TenantId &&
+                                                                            a.EntityType == EntityType.Tenant
+                                                                            )
+                                                          )
                                                    .Where(predicate)
+                                                   .Include(x => x.Feature)
                                                    .ToListAsync();
+
+        if (subscriptionFeatures is null || !subscriptionFeatures.Any())
+        {
+            return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.TenantId));
+        }
 
         var result = await _subscriptionservice.ResetSubscriptionsFeaturesAsync(subscriptionFeatures, command.Comment, null, cancellationToken);
 

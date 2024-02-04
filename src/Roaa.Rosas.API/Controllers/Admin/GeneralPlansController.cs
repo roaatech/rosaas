@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.GeneralPlans;
 using Roaa.Rosas.Application.Services.Management.GeneralPlans.Models;
 using Roaa.Rosas.Authorization.Utilities;
@@ -8,7 +10,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
     [NonController]
-    public class GeneralPlansController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.Management.GeneralPlans, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class GeneralPlansController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<GeneralPlansController> _logger;

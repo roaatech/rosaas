@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Roaa.Rosas.Application.Extensions;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequestByExternalSystem;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsDowngradeApplied;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsUpgradeApplied;
@@ -42,6 +43,13 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
 
         #region Actions  
 
+        [HttpPost()]
+        public async Task<IActionResult> CreateTenantByExternalSysytemAsync([FromBody] CreateTenantCreationRequestByExternalSystemCommand command, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _mediator.Send(command, cancellationToken));
+        }
+
+
         [HttpGet()]
         public async Task<IActionResult> GetTenantsSubscriptionsListAsync(CancellationToken cancellationToken = default)
         {
@@ -49,7 +57,7 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         }
 
         [HttpGet("{name}")]
-        public async Task<IActionResult> GetTenantsSubscriptionsListAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetTenantSubscriptionAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
             return ItemResult(await _mediator.Send(new GetTenentByNameAndProductIdQuery(name, _identityContextService.GetProductId()), cancellationToken));
         }
@@ -60,7 +68,45 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
             return ItemResult(await _mediator.Send(new GetTenantStatusByNameQuery(name, _identityContextService.GetProductId()), cancellationToken));
         }
 
+
+
+
         #region Status Actions  
+
+
+        #region  External System's Clients (Like Nander)
+        [HttpPost("{name}")]
+        public async Task<IActionResult> SendCreationRequestAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.SendingCreationRequest, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.None, null), cancellationToken));
+        }
+
+        [HttpPost("{name}/ActivationRequest")]
+        public async Task<IActionResult> SendActivationRequestAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name,
+                                                                                  TenantStatus.SendingActivationRequest,
+                                                                                  _identityContextService.GetProductId(),
+                                                                                  ExpectedTenantResourceStatus.Inactive,
+                                                                                  null),
+                                                                                  cancellationToken));
+        }
+
+
+        [HttpPost("{name}/DeactivationRequest")]
+        public async Task<IActionResult> SendDeactivationRequestAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name,
+                                                                                  TenantStatus.SendingDeactivationRequest,
+                                                                                  _identityContextService.GetProductId(),
+                                                                                  ExpectedTenantResourceStatus.Active,
+                                                                                  null),
+                                                                                  cancellationToken));
+        }
+
+
+        #endregion
+
 
         [HttpPost("{name}/created")]
         public async Task<IActionResult> SetTenantAsCreatedAsync([FromRoute] string name, CancellationToken cancellationToken = default)

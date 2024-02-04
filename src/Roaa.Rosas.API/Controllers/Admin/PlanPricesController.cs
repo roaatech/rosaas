@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.PlanPrices;
 using Roaa.Rosas.Application.Services.Management.PlanPrices.Models;
 using Roaa.Rosas.Authorization.Utilities;
@@ -7,7 +9,8 @@ using Roaa.Rosas.Framework.Controllers.Common;
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
     [Route($"{PrefixSuperAdminMainApiRoute}/products/{{productId}}/[controller]")]
-    public class PlanPricesController : BaseSuperAdminMainApiController
+    [Authorize(Policy = AuthPolicy.Management.PlanPrices, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
+    public class PlanPricesController : BaseManagementApiController
     {
         #region Props 
         private readonly ILogger<PlanPricesController> _logger;

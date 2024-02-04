@@ -57,20 +57,17 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             var urlItemResult = await _productService.GetProductEndpointByIdAsync(@event.Subscription.ProductId, selector, cancellationToken);
 
             // Unique Name tenant retrieving  
-            Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
+            Expression<Func<Tenant, string>> tenantSelector = x => x.SystemName;
             var tenantResult = await _tenantService.GetByIdAsync(@event.Subscription.TenantId, tenantSelector, cancellationToken);
 
-            // External System calling to upgrade the tenant resorces 
-            var callingResult = await _externalSystemAPI.UpgradeTenantAsync(
-                new ExternalSystemRequestModel<UpgradeTenantModel>
+            // External System calling to downgrade the tenant resorces 
+            var callingResult = await _externalSystemAPI.DowngradeTenantAsync(
+                new ExternalSystemRequestModel<DowngradeTenantModel>
                 {
                     BaseUrl = urlItemResult.Data.Url,
                     ApiKey = urlItemResult.Data.ApiKey,
                     TenantId = @event.Subscription.TenantId,
-                    Data = new()
-                    {
-                        TenantName = tenantResult.Data,
-                    }
+                    Data = new() { TenantName = tenantResult.Data, }
                 },
                 cancellationToken);
 

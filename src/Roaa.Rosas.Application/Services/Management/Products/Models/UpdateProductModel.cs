@@ -3,6 +3,7 @@
     public record UpdateProductModel
     {
         public string DisplayName { get; set; } = string.Empty;
+        public string? Description { get; set; }
         public string? DefaultHealthCheckUrl { get; set; }
         public string? HealthStatusChangeUrl { get; set; }
         public string? CreationEndpoint { get; set; }

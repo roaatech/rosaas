@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                                                 Id = field.Id,
                                                 DisplayName = field.DisplayName,
                                                 Description = field.Description,
-                                                Name = field.Name,
+                                                SystemName = field.SystemName,
                                                 DataType = field.DataType,
                                                 InputType = field.InputType,
                                                 IsRequired = field.IsRequired,
@@ -69,6 +69,29 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
         }
 
 
+        public async Task<Result<List<ExternalSystemSpecificationListItemDto>>> GetSpecificationsListOfExternalSystemByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
+        {
+            var fields = await _dbContext.Specifications
+                                            .AsNoTracking()
+                                            .Where(f => f.ProductId == productId)
+                                            .Select(field => new ExternalSystemSpecificationListItemDto
+                                            {
+                                                DisplayName = field.DisplayName,
+                                                Description = field.Description,
+                                                SystemName = field.SystemName,
+                                                IsRequired = field.IsRequired,
+                                                IsUserEditable = field.IsUserEditable,
+                                                //ValidationFailureDescription = field.ValidationFailureDescription,
+                                                RegularExpression = field.RegularExpression,
+                                                IsSubscribed = field.IsSubscribed,
+                                                IsPublished = field.IsPublished,
+                                            })
+                                            .ToListAsync(cancellationToken);
+
+            return Result<List<ExternalSystemSpecificationListItemDto>>.Successful(fields);
+        }
+
+
         public async Task<Result<CreatedResult<Guid>>> CreateSpecificationAsync(Guid productId, CreateSpecificationModel model, CancellationToken cancellationToken = default)
         {
             #region Validation
@@ -78,9 +101,9 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueNameAsync(productId, model.Name, null, cancellationToken))
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName, null, cancellationToken))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
             #endregion
 
@@ -92,8 +115,8 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             {
                 Id = id,
                 ProductId = productId,
-                Name = model.Name,
-                NormalizedName = model.Name.ToUpper(),
+                SystemName = model.SystemName,
+                NormalizedSystemName = model.SystemName.ToUpper(),
                 DisplayName = model.DisplayName,
                 Description = model.Description,
                 DataType = model.DataType,
@@ -126,9 +149,9 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            if (!await EnsureUniqueNameAsync(productId, model.Name, id, cancellationToken))
+            if (!await EnsureUniqueNameAsync(productId, model.SystemName, id, cancellationToken))
             {
-                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.Name));
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
             }
 
             var field = await _dbContext.Specifications.Where(x => x.Id == id && x.ProductId == productId).SingleOrDefaultAsync();
@@ -145,8 +168,8 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
 
             Specification fieldBeforeUpdate = field.DeepCopy();
 
-            field.Name = model.Name;
-            field.NormalizedName = model.Name.ToUpper();
+            field.SystemName = model.SystemName;
+            field.NormalizedSystemName = model.SystemName.ToUpper();
             field.DisplayName = model.DisplayName;
             field.Description = model.Description;
             field.DataType = model.DataType;
@@ -247,7 +270,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             return !await _dbContext.Specifications
                                     .Where(x => x.Id != id &&
                                                 x.ProductId == productId &&
-                                                name.ToUpper().Equals(x.NormalizedName))
+                                                name.ToUpper().Equals(x.NormalizedSystemName))
                                     .AnyAsync(cancellationToken);
         }
         #endregion

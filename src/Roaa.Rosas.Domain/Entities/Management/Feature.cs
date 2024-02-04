@@ -4,7 +4,7 @@
     {
         public Guid ProductId { get; set; }
         public string DisplayName { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
+        public string SystemName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public FeatureType Type { get; set; }
         public FeatureReset FeatureReset { get; set; }

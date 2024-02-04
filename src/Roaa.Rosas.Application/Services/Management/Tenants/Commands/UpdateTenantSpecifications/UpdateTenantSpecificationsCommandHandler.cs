@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
@@ -40,9 +42,17 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
 
         #region Validation
         var subscription = await _dbContext.Subscriptions
-                                  .Where(x => x.ProductId == request.ProductId &&
-                                               x.TenantId == request.TenantId)
-                                  .SingleOrDefaultAsync(cancellationToken);
+                                             .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                        _dbContext.EntityAdminPrivileges
+                                                                .Any(a =>
+                                                                    a.UserId == _identityContextService.UserId &&
+                                                                    a.EntityId == x.TenantId &&
+                                                                    a.EntityType == EntityType.Tenant
+                                                                    )
+                                                    )
+                                              .Where(x => x.ProductId == request.ProductId &&
+                                                           x.TenantId == request.TenantId)
+                                              .SingleOrDefaultAsync(cancellationToken);
 
         if (subscription is null)
         {
@@ -63,7 +73,7 @@ public class UpdateTenantSpecificationsCommandHandler : IRequestHandler<UpdateTe
                                          .Select(x => new SpecificationModel
                                          {
                                              SpecificationId = x.Id,
-                                             SpecificationName = x.Name,
+                                             SpecificationName = x.SystemName,
                                          })
                                          .ToListAsync();
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
@@ -54,14 +55,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 
 
             // Unique Name tenant retrieving  
-            Expression<Func<Tenant, string>> tenantSelector = x => x.UniqueName;
+            Expression<Func<Tenant, string>> tenantSelector = x => x.SystemName;
 
             var tenantResult = await _tenantService.GetByIdAsync(@event.TenantId, tenantSelector, cancellationToken);
 
             var specifications = await _dbContext.SpecificationValues
                                             .Where(x => x.SubscriptionId == @event.SubscriptionId)
                                             .Include(x => x.Specification)
-                                            .ToDictionaryAsync<SpecificationValue, string, dynamic>(val => val.Specification.Name, val => val.Value);
+                                            .ToDictionaryAsync<SpecificationValue, string, dynamic>(val => val.Specification.SystemName, val => val.Value);
 
 
 
@@ -99,8 +100,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 Status = workflow.NextStatus,
                 Step = workflow.NextStep,
                 Action = workflow.Action,
-                UserType = workflow.OwnerType,
-                EditorBy = _identityContextService.UserId,
+                UserType = UserType.ExternalSystem,
+                EditorBy = _identityContextService.GetActorId(),
                 DispatchedRequest = new DispatchedRequestModel(callingResult.Data.DurationInMillisecond, callingResult.Data.Url, callingResult.Data.SerializedResponseContent),
                 ExpectedResourceStatus = null,
             });

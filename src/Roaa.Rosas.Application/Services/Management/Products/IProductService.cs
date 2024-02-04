@@ -12,6 +12,10 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
         Task<Result<T>> GetProductEndpointByIdAsync<T>(Guid productId, Expression<Func<Product, T>> selector, CancellationToken cancellationToken = default);
 
+        Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(string clientName, CancellationToken cancellationToken = default);
+
+        Task<Result<List<ProductPublishedListItemDto>>> GetProductPublishedListAsync(string clientName, CancellationToken cancellationToken = default);
+
         Task<PaginatedResult<ProductListItemDto>> GetProductsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default);
 
         Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(CancellationToken cancellationToken = default);
@@ -23,5 +27,9 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         Task<Result> UpdateProductAsync(Guid id, UpdateProductModel model, CancellationToken cancellationToken = default);
 
         Task<Result> DeleteProductAsync(Guid id, CancellationToken cancellationToken = default);
+
+        Task<Result> PublishProductAsync(Guid id, PublishProductModel model, CancellationToken cancellationToken = default);
+
+        Task<Result> ChangeProductTrialTypeAsync(Guid id, ChangeProductTrialTypeModel model, CancellationToken cancellationToken = default);
     }
 }

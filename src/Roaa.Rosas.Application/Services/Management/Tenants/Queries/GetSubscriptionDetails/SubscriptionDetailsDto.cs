@@ -8,7 +8,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public Guid SubscriptionId { get; set; }
         public Guid CurrentSubscriptionCycleId { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public DateTime? LastResetDate { get; set; }
         public DateTime? LastLimitsResetDate { get; set; }
         public SubscriptionResetStatus? SubscriptionResetStatus { get; set; }
@@ -20,6 +20,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
         public bool IsSubscriptionResetUrlExists { get; set; }
         public bool IsSubscriptionUpgradeUrlExists { get; set; }
         public bool IsSubscriptionDowngradeUrlExists { get; set; }
+        public SubscriptionMode SubscriptionMode { get; set; }
         public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public PlanPriceDto PlanPrice { get; set; } = new();
         public SubscriptionAutoRenewalDto? AutoRenewal { get; set; }
@@ -50,7 +51,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscrip
     {
         public Guid Id { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public SubscriptionCycleType CycleType { get; set; }
     }
 
 

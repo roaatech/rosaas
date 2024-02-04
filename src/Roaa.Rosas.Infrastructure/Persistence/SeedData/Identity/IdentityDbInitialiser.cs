@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Common.ApiConfiguration;
 using Roaa.Rosas.Common.Enums;
@@ -132,17 +133,38 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Identity
                 UserType = UserType.SuperAdmin,
             };
 
+
+
+            var admin3 = new User
+            {
+                Id = new Guid(SystemConsts.Users.RosaasSystem),
+                UserName = "system.admin",
+                NormalizedUserName = "system.admin".ToUpper(),
+                Email = "system.admin@roaa.com",
+                NormalizedEmail = "system.admin@roaa.com".ToUpper(),
+                CreationDate = DateTime.Now,
+                ModificationDate = DateTime.Now,
+                EmailConfirmed = true,
+                IsActive = true,
+                Locale = "en",
+                Status = UserStatus.Ready,
+                UserType = UserType.RosasSystem,
+            };
+
+
             // create a new password hasher
             var hasher = new PasswordHasher<User>();
 
             // hash the password and set it for the user
             var hashedPassword1 = hasher.HashPassword(admin1, "U3hsvI1Kc#J0$U3d7@RH");
             var hashedPassword2 = hasher.HashPassword(admin2, "E8$r13z^u6Eav#^4OAaP");
+            var hashedPassword3 = hasher.HashPassword(admin3, "E8$r13z^u6Eav#^4OAaP");
 
             admin1.PasswordHash = hashedPassword1;
             admin2.PasswordHash = hashedPassword2;
+            admin3.PasswordHash = hashedPassword3;
 
-            return new List<User> { admin1, admin2 };
+            return new List<User> { admin1, admin2, admin3 };
         }
     }
 }

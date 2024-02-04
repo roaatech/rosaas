@@ -11,12 +11,17 @@ namespace Roaa.Rosas.Application.Services.Management.Plans.Validators
     {
         public UpdatePlanValidator(IIdentityContextService identityContextService)
         {
-            RuleFor(x => x.Name).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+            RuleFor(x => x.SystemName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
-            RuleFor(x => x.Name).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
+            RuleFor(x => x.SystemName).Matches(@"^[a-zA-Z0-9?><;,{}[\]\-_]*$").WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
 
-            RuleFor(x => x.Title).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+            RuleFor(x => x.DisplayName).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
+            //When(model => model.AlternativePlanId is not null, () =>
+            //{
+            //    RuleFor(x => x.AlternativePlanPriceId).NotNull().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+            //    RuleFor(x => x.AlternativePlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+            //});
         }
     }
 }

@@ -159,6 +159,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsLockedBySystem")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("LastLoginDate")
                         .HasColumnType("datetime");
 
@@ -327,7 +330,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("SystemName")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
@@ -335,6 +338,47 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.HasKey("Id");
 
                     b.ToTable("rosas_clients", (string)null);
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.EntityAdminPrivilege", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("EntityType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsLockedBySystem")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsMajor")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("ModificationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("ModifiedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("rosas_entity_admin_privileges", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.ExternalSystemDispatch", b =>
@@ -415,14 +459,14 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Name")
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("SystemName")
                         .IsRequired()
                         .HasMaxLength(250)
                         .IsUnicode(true)
                         .HasColumnType("varchar(250)");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("char(36)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -460,10 +504,197 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.ToTable("rosas_job_tasks", (string)null);
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("AuthorizationTransactionCode")
+                        .HasMaxLength(250)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<string>("AuthorizationTransactionId")
+                        .HasMaxLength(250)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<string>("AuthorizationTransactionResult")
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("CreatedByUserType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<decimal>("CurrencyRate")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<bool>("IsMustChangePlan")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("ModificationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("ModifiedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("OrderIntent")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderStatus")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("OrderSubtotalExclTax")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal>("OrderSubtotalInclTax")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal>("OrderTotal")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<DateTime?>("PaidDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid?>("PayerUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("PayerUserType")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PaymentMethodType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PaymentProcessingExpirationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<int?>("PaymentStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(250)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("UserCurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(3)");
+
+                    b.Property<int>("UserCurrencyType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("OrderNumber");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("rosas_orders", (string)null);
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.OrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("CustomPeriodInDays")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(500)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("PlanPriceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal>("PriceExclTax")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal>("PriceInclTax")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Specifications")
+                        .IsRequired()
+                        .IsUnicode(true)
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("SystemName")
+                        .HasMaxLength(500)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<decimal>("UnitPriceExclTax")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal>("UnitPriceInclTax")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("rosas_order_items", (string)null);
+                });
+
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Plan", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("AlternativePlanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("AlternativePlanPriceId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("CreatedByUserId")
@@ -485,6 +716,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsLockedBySystem")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("IsPublished")
                         .HasColumnType("tinyint(1)");
 
@@ -497,14 +731,20 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Name")
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("SystemName")
                         .IsRequired()
                         .HasMaxLength(250)
                         .IsUnicode(true)
                         .HasColumnType("varchar(250)");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("TenancyType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TrialPeriodInDays")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -533,6 +773,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("FeatureId")
                         .HasColumnType("char(36)");
 
+                    b.Property<int>("FeatureReset")
+                        .HasColumnType("int");
+
                     b.Property<int?>("FeatureUnit")
                         .HasColumnType("int");
 
@@ -547,6 +790,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<Guid>("PlanId")
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("UnitDisplayName")
+                        .HasMaxLength(150)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(150)");
 
                     b.HasKey("Id");
 
@@ -574,6 +822,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .IsUnicode(true)
                         .HasColumnType("varchar(500)");
 
+                    b.Property<bool>("IsLockedBySystem")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("IsPublished")
                         .HasColumnType("tinyint(1)");
 
@@ -595,6 +846,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<decimal>("Price")
                         .HasPrecision(8, 2)
                         .HasColumnType("decimal(8,2)");
+
+                    b.Property<string>("SystemName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(250)");
 
                     b.HasKey("Id");
 
@@ -642,6 +899,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(500)");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -656,16 +918,14 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime>("ModificationDate")
                         .HasColumnType("datetime");
 
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
 
                     b.Property<string>("SubscriptionDowngradeUrl")
                         .HasColumnType("longtext");
@@ -676,6 +936,23 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<string>("SubscriptionUpgradeUrl")
                         .HasColumnType("longtext");
+
+                    b.Property<string>("SystemName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<int>("TrialPeriodInDays")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("TrialPlanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("TrialPlanPriceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("TrialType")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -752,13 +1029,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(true)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("NormalizedName")
+                    b.Property<string>("NormalizedSystemName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(true)
@@ -771,6 +1042,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasMaxLength(250)
                         .IsUnicode(true)
                         .HasColumnType("varchar(250)");
+
+                    b.Property<string>("SystemName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("ValidationFailureDescription")
                         .HasMaxLength(250)
@@ -844,7 +1121,10 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<int?>("CustomPeriodInDays")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime");
 
                     b.Property<int>("ExpectedResourceStatus")
@@ -900,6 +1180,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<Guid>("SubscriptionCycleId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int>("SubscriptionMode")
+                        .HasColumnType("int");
 
                     b.Property<int?>("SubscriptionPlanChangeStatus")
                         .HasColumnType("int");
@@ -1034,7 +1317,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<int>("Cycle")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime");
 
                     b.Property<DateTime>("ModificationDate")
@@ -1070,6 +1353,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("char(36)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1339,6 +1625,38 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.ToTable("rosas_subscription_plan_changes", (string)null);
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionTrialPeriod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("PlanPriceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("TrialPeriodInDays")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionId")
+                        .IsUnique();
+
+                    b.ToTable("rosas_subscription_trial_periods", (string)null);
+                });
+
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1360,13 +1678,16 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false);
 
+                    b.Property<Guid>("LastOrderId")
+                        .HasColumnType("char(36)");
+
                     b.Property<DateTime>("ModificationDate")
                         .HasColumnType("datetime");
 
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("UniqueName")
+                    b.Property<string>("SystemName")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
@@ -1374,6 +1695,68 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.HasKey("Id");
 
                     b.ToTable("rosas_tenants", (string)null);
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantCreationRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<DateTime>("ModificationDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("ModifiedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("NormalizedSystemName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("rosas_tenant_creation_requests", (string)null);
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantCreationRequestSpecification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SpecificationId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("TenantCreationRequestId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Value")
+                        .HasMaxLength(500)
+                        .IsUnicode(true)
+                        .HasColumnType("varchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantCreationRequestId");
+
+                    b.ToTable("rosas_tenant_creation_request_specifications", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantHealthCheckHistory", b =>
@@ -1567,6 +1950,31 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.ToTable("rosas_tenant_status_history", (string)null);
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantSystemName", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("TenantCreationRequestId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("TenantNormalizedSystemName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("rosas_tenant_system_names", (string)null);
+                });
+
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.RoleClaim", b =>
                 {
                     b.HasOne("Roaa.Rosas.Domain.Entities.Identity.Role", null)
@@ -1627,6 +2035,27 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Order", b =>
+                {
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Tenant", "Tenant")
+                        .WithMany("Orders")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.OrderItem", b =>
+                {
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Order", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Plan", b =>
@@ -1857,6 +2286,28 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Navigation("Subscription");
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionTrialPeriod", b =>
+                {
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
+                        .WithOne("TrialPeriod")
+                        .HasForeignKey("Roaa.Rosas.Domain.Entities.Management.SubscriptionTrialPeriod", "SubscriptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Subscription");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantCreationRequestSpecification", b =>
+                {
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.TenantCreationRequest", "TenantCreationRequest")
+                        .WithMany("Specifications")
+                        .HasForeignKey("TenantCreationRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("TenantCreationRequest");
+                });
+
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantHealthStatus", b =>
                 {
                     b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
@@ -1878,6 +2329,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Navigation("Plans");
 
                     b.Navigation("SubscriptionFeatures");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Order", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Plan", b =>
@@ -1936,6 +2392,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Navigation("SubscriptionFeatures");
 
                     b.Navigation("SubscriptionPlanChanging");
+
+                    b.Navigation("TrialPeriod");
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionCycle", b =>
@@ -1945,9 +2403,16 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Tenant", b =>
                 {
+                    b.Navigation("Orders");
+
                     b.Navigation("SpecificationsValues");
 
                     b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TenantCreationRequest", b =>
+                {
+                    b.Navigation("Specifications");
                 });
 #pragma warning restore 612, 618
         }

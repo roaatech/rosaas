@@ -51,10 +51,13 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<Client> Clients { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
+        public DbSet<EntityAdminPrivilege> EntityAdminPrivileges { get; set; }
         public DbSet<TenantStatusHistory> TenantStatusHistory { get; set; }
         public DbSet<TenantHealthCheckHistory> TenantHealthCheckHistory { get; set; }
         public DbSet<TenantProcessHistory> TenantProcessHistory { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<SubscriptionAutoRenewal> SubscriptionAutoRenewals { get; set; }
         public DbSet<SubscriptionAutoRenewalHistory> SubscriptionAutoRenewalHistories { get; set; }
         public DbSet<SubscriptionPlanChanging> SubscriptionPlanChanges { get; set; }
@@ -72,6 +75,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<PlanPrice> PlanPrices { get; set; }
         public DbSet<JobTask> JobTasks { get; set; }
         public DbSet<Setting> Settings { get; set; }
+        public DbSet<TenantCreationRequest> TenantCreationRequests { get; set; }
+        public DbSet<TenantCreationRequestSpecification> TenantCreationRequestSpecifications { get; set; }
+        public DbSet<TenantSystemName> TenantSystemNames { get; set; }
         public DbSet<AuditEntity> Audits { get; set; }
         #endregion
 

@@ -33,7 +33,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantSt
         {
             var tenantStatus = await _dbContext.Subscriptions.AsNoTracking()
                                                  .Where(x => x.ProductId == request.ProductId &&
-                                                         request.TenantName.ToLower().Equals(x.Tenant.UniqueName))
+                                                         request.TenantName.ToLower().Equals(x.Tenant.SystemName))
                                                   .Select(x => new TenantStatusDto
                                                   {
                                                       Status = x.Status,

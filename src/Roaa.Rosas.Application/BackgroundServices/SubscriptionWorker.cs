@@ -64,6 +64,8 @@ namespace Roaa.Rosas.Application.BackgroundServices
                 {
                     using var scope = _serviceScopeFactory.CreateScope();
                     var subscriptionService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
+
+                    // Reset Subscriptions Features
                     await subscriptionService.ResetSubscriptionsFeaturesAsync();
                 });
 
@@ -71,6 +73,8 @@ namespace Roaa.Rosas.Application.BackgroundServices
                 {
                     using var scope = _serviceScopeFactory.CreateScope();
                     var subscriptionService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
+
+                    // Try To Extend Or Suspend Subscriptions
                     await subscriptionService.TryToExtendOrSuspendSubscriptionsAsync();
                 });
 
@@ -81,6 +85,7 @@ namespace Roaa.Rosas.Application.BackgroundServices
                     var settingService = scope.ServiceProvider.GetRequiredService<ISettingService>();
                     var settings = (await settingService.LoadSettingAsync<SubscriptionSettings>(cancellationToken)).Data;
 
+                    // Deactivate Subscription Due To Non-Payment
                     await subscriptionService.DeactivateSubscriptionDueToNonPaymentAsync(settings.AllowedPeriodTimeBeforeDeactivatingSubscriptionforNonPayment);
                 });
             }

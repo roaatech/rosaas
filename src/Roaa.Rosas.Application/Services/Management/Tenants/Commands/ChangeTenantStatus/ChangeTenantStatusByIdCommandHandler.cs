@@ -1,8 +1,12 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Common.SystemMessages;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 
@@ -37,6 +41,23 @@ public class ChangeTenantStatusByIdCommandHandler : IRequestHandler<ChangeTenant
     #region Handler   
     public async Task<Result<List<TenantStatusChangedResultDto>>> Handle(ChangeTenantStatusByIdCommand request, CancellationToken cancellationToken)
     {
+
+        var any = await _dbContext.Tenants
+                                    .AsNoTracking()
+                                    .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                _dbContext.EntityAdminPrivileges
+                                                            .Any(a =>
+                                                                a.UserId == _identityContextService.UserId &&
+                                                                a.EntityId == x.Id &&
+                                                                a.EntityType == EntityType.Tenant
+                                                                )
+                                            )
+                                    .AnyAsync(cancellationToken);
+        if (!any)
+        {
+            return Result<List<TenantStatusChangedResultDto>>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+        }
+
         return await _tenantService.SetTenantNextStatusAsync(tenantId: request.TenantId,
                                                             status: request.Status,
                                                             productId: request.ProductId,

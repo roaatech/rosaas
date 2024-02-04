@@ -38,13 +38,13 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
                                     .Where(x => x.Status == TenantStatus.Active ||
                                                 x.Status == TenantStatus.CreatedAsActive)
                                     .OrderBy(x => x.ModificationDate)
-                                    .Select(x => new { x.Id, x.ProductId, x.TenantId, x.Tenant.UniqueName, x.Product.ApiKey })
+                                    .Select(x => new { x.Id, x.ProductId, x.TenantId, x.Tenant.SystemName, x.Product.ApiKey })
                                     .ToListAsync();
 
 
             activeSubscriptions.ForEach(x =>
             {
-                _store.AddTenantsNames(x.TenantId, x.UniqueName);
+                _store.AddTenantsNames(x.TenantId, x.SystemName);
                 _store.AddProductAPIKey(x.ProductId, x.ApiKey);
             });
 
@@ -154,7 +154,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
                 TenantId = subscription.TenantId,
                 CreationDate = DateTime.UtcNow,
                 Type = JobTaskType.Available,
-            }, subscription.UniqueName));
+            }, subscription.SystemName));
 
 
 

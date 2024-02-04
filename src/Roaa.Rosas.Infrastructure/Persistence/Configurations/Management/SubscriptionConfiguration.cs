@@ -19,6 +19,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.HasOne(b => b.HealthCheckStatus).WithOne(p => p.Subscription).HasForeignKey<TenantHealthStatus>(e => e.Id).OnDelete(DeleteBehavior.Restrict);
             builder.HasOne(b => b.AutoRenewal).WithOne(p => p.Subscription).HasForeignKey<SubscriptionAutoRenewal>(e => e.Id).OnDelete(DeleteBehavior.Restrict);
             builder.HasOne(b => b.SubscriptionPlanChanging).WithOne(p => p.Subscription).HasForeignKey<SubscriptionPlanChanging>(e => e.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(b => b.TrialPeriod).WithOne(p => p.Subscription).HasForeignKey<SubscriptionTrialPeriod>(e => e.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
             builder.Property(r => r.HealthCheckUrl).IsRequired(true).HasMaxLength(250);
             builder.Property(r => r.HealthCheckUrlIsOverridden).IsRequired(true);
             builder.Property(r => r.IsActive).IsRequired(true);
@@ -29,7 +30,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.CreatedByUserId).IsRequired(true);
             builder.Property(r => r.ModifiedByUserId).IsRequired(true);
             builder.Property(r => r.StartDate).IsRequired(true);
-            builder.Property(r => r.EndDate).IsRequired(true);
+            builder.Property(r => r.EndDate).IsRequired(false);
             builder.Property(r => r.CreationDate).IsRequired(true);
             builder.Property(r => r.ModificationDate).IsRequired(true);
             builder.Ignore(r => r.DomainEvents);

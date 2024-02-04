@@ -5,10 +5,12 @@
         public Guid PlanId { get; set; }
         public PlanCycle PlanCycle { get; set; }
         public decimal Price { get; set; }
+        public string SystemName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public bool IsPublished { get; set; }
         public bool IsSubscribed { get; set; }
         public virtual Plan? Plan { get; set; }
+        public bool IsLockedBySystem { get; set; }
         public virtual ICollection<Subscription>? Subscriptions { get; set; }
         public virtual ICollection<SubscriptionAutoRenewal>? SubscriptionAutoRenewals { get; set; }
         public virtual ICollection<SubscriptionPlanChanging>? SubscriptionPlanChanges { get; set; }
@@ -21,6 +23,8 @@
         Month = 3,
         Year = 4,
         OneDay = 5,
-        ThreeDays = 6
+        ThreeDays = 6,
+        Custom = 10,
+        Unlimited = 11,
     }
 }

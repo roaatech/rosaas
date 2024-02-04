@@ -37,6 +37,53 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
 
 
         #region Services  
+
+        public async Task<Result<List<PlanFeatureListItemDto>>> GetPlanFeaturesListByProductNameAsync(string productName, CancellationToken cancellationToken = default)
+        {
+            var planFeatures = await _dbContext.PlanFeatures
+                                              .AsNoTracking()
+                                              .Where(pf => productName.ToLower().Equals(pf.Feature.Product.SystemName))
+                                              .Select(planFeature => new PlanFeatureListItemDto
+                                              {
+                                                  Id = planFeature.Id,
+                                                  Reset = planFeature.FeatureReset,
+                                                  Limit = planFeature.Limit,
+                                                  Unit = planFeature.FeatureUnit,
+                                                  UnitDisplayName = planFeature.UnitDisplayName,
+                                                  Description = planFeature.Description,
+                                                  CreatedDate = planFeature.CreationDate,
+                                                  EditedDate = planFeature.ModificationDate,
+                                                  Plan = new PlanItemDto
+                                                  {
+                                                      Id = planFeature.PlanId,
+                                                      SystemName = planFeature.Plan.SystemName,
+                                                      DisplayName = planFeature.Plan.DisplayName,
+                                                      DisplayOrder = planFeature.Plan.DisplayOrder,
+                                                      IsPublished = planFeature.Plan.IsPublished,
+                                                      IsSubscribed = planFeature.Plan.IsSubscribed,
+                                                  },
+                                                  Feature = new FeatureItemDto
+                                                  {
+                                                      Id = planFeature.Feature.Id,
+                                                      SystemName = planFeature.Feature.SystemName,
+                                                      DisplayName = planFeature.Feature.DisplayName,
+                                                      Type = planFeature.Feature.Type,
+                                                      IsSubscribed = planFeature.Feature.IsSubscribed,
+                                                      DisplayOrder = planFeature.Feature.DisplayOrder,
+                                                      Reset = planFeature.FeatureReset,
+                                                  },
+                                              })
+                                              .OrderBy(x => x.Plan.DisplayOrder)
+                                              .ToListAsync(cancellationToken);
+
+
+
+
+
+
+            return Result<List<PlanFeatureListItemDto>>.Successful(planFeatures);
+        }
+
         public async Task<Result<List<PlanFeatureListItemDto>>> GetPlanFeaturesListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
             var planFeatures = await _dbContext.PlanFeatures
@@ -45,28 +92,31 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                               .Select(planFeature => new PlanFeatureListItemDto
                                               {
                                                   Id = planFeature.Id,
+                                                  Reset = planFeature.FeatureReset,
+                                                  Limit = planFeature.Limit,
+                                                  Unit = planFeature.FeatureUnit,
+                                                  UnitDisplayName = planFeature.UnitDisplayName,
+                                                  Description = planFeature.Description,
+                                                  CreatedDate = planFeature.CreationDate,
+                                                  EditedDate = planFeature.ModificationDate,
                                                   Plan = new PlanItemDto
                                                   {
                                                       Id = planFeature.PlanId,
-                                                      Name = planFeature.Plan.Name,
-                                                      Title = planFeature.Plan.DisplayName,
+                                                      SystemName = planFeature.Plan.SystemName,
+                                                      DisplayName = planFeature.Plan.DisplayName,
                                                       DisplayOrder = planFeature.Plan.DisplayOrder,
                                                       IsPublished = planFeature.Plan.IsPublished,
                                                       IsSubscribed = planFeature.Plan.IsSubscribed,
                                                   },
-                                                  Limit = planFeature.Limit,
-                                                  Unit = planFeature.FeatureUnit,
-                                                  Description = planFeature.Description,
-                                                  CreatedDate = planFeature.CreationDate,
-                                                  EditedDate = planFeature.ModificationDate,
                                                   Feature = new FeatureItemDto
                                                   {
                                                       Id = planFeature.Feature.Id,
-                                                      Name = planFeature.Feature.Name,
-                                                      Title = planFeature.Feature.DisplayName,
+                                                      SystemName = planFeature.Feature.SystemName,
+                                                      DisplayName = planFeature.Feature.DisplayName,
                                                       Type = planFeature.Feature.Type,
                                                       IsSubscribed = planFeature.Feature.IsSubscribed,
-                                                      Reset = planFeature.Feature.FeatureReset,
+                                                      DisplayOrder = planFeature.Feature.DisplayOrder,
+                                                      Reset = planFeature.FeatureReset,
                                                   },
                                               })
                                               .OrderBy(x => x.Plan.DisplayOrder)
@@ -82,8 +132,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                                    Plan = new PlanItemDto
                                    {
                                        Id = plan.Id,
-                                       Name = plan.Name,
-                                       Title = plan.DisplayName,
+                                       SystemName = plan.SystemName,
+                                       DisplayName = plan.DisplayName,
                                        DisplayOrder = plan.DisplayOrder,
                                    },
                                })
@@ -131,6 +181,13 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             }
             #endregion
 
+
+            var featureType = await _dbContext.Features
+                                            .Where(x => x.Id == model.FeatureId &&
+                                                        x.ProductId == productId)
+                                            .Select(x => x.Type)
+                                            .SingleOrDefaultAsync(cancellationToken);
+
             var date = DateTime.UtcNow;
 
             var planFeature = new PlanFeature
@@ -139,7 +196,10 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
                 FeatureId = model.FeatureId,
                 PlanId = model.PlanId,
                 Limit = model.Limit,
+                FeatureReset = featureType == FeatureType.Boolean || !model.Reset.HasValue ?
+                                                      FeatureReset.NonResettable : model.Reset.Value,
                 FeatureUnit = model.Unit,
+                UnitDisplayName = model.UnitDisplayName,
                 Description = model.Description,
                 CreatedByUserId = _identityContextService.UserId,
                 ModifiedByUserId = _identityContextService.UserId,
@@ -181,8 +241,17 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             #endregion
             PlanFeature featureBeforeUpdate = planFeature.DeepCopy();
 
+            var featureType = await _dbContext.Features
+                                            .Where(x => x.Id == planFeature.FeatureId &&
+                                                        x.ProductId == productId)
+                                            .Select(x => x.Type)
+                                            .SingleOrDefaultAsync(cancellationToken);
+
+            planFeature.FeatureReset = featureType == FeatureType.Boolean || !model.Reset.HasValue ?
+                                                      FeatureReset.NonResettable : model.Reset.Value;
             planFeature.Limit = model.Limit;
             planFeature.FeatureUnit = model.Unit;
+            planFeature.UnitDisplayName = model.UnitDisplayName;
             planFeature.Description = model.Description;
             planFeature.ModifiedByUserId = _identityContextService.UserId;
             planFeature.ModificationDate = DateTime.UtcNow;
