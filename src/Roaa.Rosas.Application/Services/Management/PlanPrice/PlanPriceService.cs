@@ -86,6 +86,31 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             return Result<List<PlanPricePublishedListItemDto>>.Successful(planPrice);
         }
 
+        public async Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceByPlanPriceNameAsync(string productName, string planPriceName, CancellationToken cancellationToken = default)
+        {
+            var planPrice = await _dbContext.PlanPrices
+                                              .AsNoTracking()
+                                              .Where(pp => planPriceName.ToLower().Equals(pp.SystemName) && productName.ToLower().Equals(pp.Plan.Product.SystemName))
+                                              .Select(planPrice => new PlanPricePublishedDto
+                                              {
+                                                  Id = planPrice.Id,
+                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.SystemName, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
+                                                  Product = new ProductListItemDto(planPrice.Plan.Product.Id, planPrice.Plan.Product.SystemName, planPrice.Plan.Product.DisplayName),
+                                                  Cycle = planPrice.PlanCycle,
+                                                  Price = planPrice.Price,
+                                                  IsSubscribed = planPrice.IsSubscribed,
+                                                  IsPublished = planPrice.IsPublished,
+                                                  IsLockedBySystem = planPrice.IsLockedBySystem,
+                                                  SystemName = planPrice.SystemName,
+                                                  Description = planPrice.Description,
+                                                  CreatedDate = planPrice.CreationDate,
+                                                  EditedDate = planPrice.ModificationDate,
+                                              })
+                                              .SingleOrDefaultAsync(cancellationToken);
+
+            return Result<PlanPricePublishedDto>.Successful(planPrice);
+        }
+
         public async Task<Result<CreatedResult<Guid>>> CreatePlanPriceAsync(CreatePlanPriceModel model, Guid productId, CancellationToken cancellationToken = default)
         {
             #region Validation
