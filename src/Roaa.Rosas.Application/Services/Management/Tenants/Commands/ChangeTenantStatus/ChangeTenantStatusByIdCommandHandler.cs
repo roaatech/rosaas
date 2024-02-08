@@ -44,7 +44,7 @@ public class ChangeTenantStatusByIdCommandHandler : IRequestHandler<ChangeTenant
 
         var any = await _dbContext.Tenants
                                     .AsNoTracking()
-                                    .Where(x => _identityContextService.IsSuperAdmin() ||
+                                    .Where(x => _identityContextService.GetUserType() == UserType.RosasSystem || _identityContextService.IsSuperAdmin() ||
                                                 _dbContext.EntityAdminPrivileges
                                                             .Any(a =>
                                                                 a.UserId == _identityContextService.UserId &&
