@@ -49,15 +49,17 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices.Models
         }
 
 
-        public ProductListItemDto(Guid id, string systemName, string displayName)
+        public ProductListItemDto(Guid id, string systemName, string displayName, ProductTrialType trialType)
         {
             Id = id;
             SystemName = systemName;
             DisplayName = displayName;
+            TrialType = trialType;
         }
 
         public Guid Id { get; set; }
         public string SystemName { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
+        public ProductTrialType TrialType { get; set; }
     }
 }
