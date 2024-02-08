@@ -10,6 +10,7 @@ using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Specifications
 {
@@ -42,9 +43,21 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
 
         public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
+            return await GetSpecificationsListByProductNamesync(x => x.ProductId == productId, cancellationToken);
+        }
+
+        public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductNamesync(string productName, CancellationToken cancellationToken = default)
+        {
+            return await GetSpecificationsListByProductNamesync(x => string.IsNullOrWhiteSpace(productName) ||
+                                                                     productName.ToLower().Equals(x.Product.SystemName), cancellationToken);
+        }
+
+
+        public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductNamesync(Expression<Func<Specification, bool>> predicate, CancellationToken cancellationToken = default)
+        {
             var fields = await _dbContext.Specifications
                                             .AsNoTracking()
-                                            .Where(f => f.ProductId == productId)
+                                            .Where(predicate)
                                             .Select(field => new SpecificationListItemDto
                                             {
                                                 Id = field.Id,
@@ -67,6 +80,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
 
             return Result<List<SpecificationListItemDto>>.Successful(fields);
         }
+
 
 
         public async Task<Result<List<ExternalSystemSpecificationListItemDto>>> GetSpecificationsListOfExternalSystemByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)

@@ -5,6 +5,9 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
 {
     public interface ISpecificationService
     {
+
+        Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductNamesync(string productName, CancellationToken cancellationToken = default);
+
         Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 
         Task<Result<CreatedResult<Guid>>> CreateSpecificationAsync(Guid productId, CreateSpecificationModel model, CancellationToken cancellationToken = default);
@@ -18,7 +21,6 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
         Task<Result> SetSpecificationsAsSubscribedAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
         Task<Result> SetSpecificationsAsSubscribedAsync(List<Guid> ids, CancellationToken cancellationToken = default);
-
 
 
         Task<Result<List<ExternalSystemSpecificationListItemDto>>> GetSpecificationsListOfExternalSystemByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
