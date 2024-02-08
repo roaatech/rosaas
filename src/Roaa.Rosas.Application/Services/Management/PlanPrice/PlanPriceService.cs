@@ -111,7 +111,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               {
                                                   Id = planPrice.Id,
                                                   Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.SystemName, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
-                                                  Product = new ProductListItemDto(planPrice.Plan.Product.Id, planPrice.Plan.Product.SystemName, planPrice.Plan.Product.DisplayName, planPrice.Plan.Product.TrialType),
+                                                  Product = new ProductListItemDto(planPrice.Plan.Product.Id, planPrice.Plan.Product.SystemName,
+                                                                                    planPrice.Plan.Product.DisplayName, planPrice.Plan.Product.TrialType, planPrice.Plan.Product.TrialPlanId),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
