@@ -14,6 +14,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders
 {
@@ -55,53 +56,27 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                                                             )
                                             )
                                               .Where(x => x.Id == orderId)
-                                              .Select(order => new OrderDto
-                                              {
-                                                  Id = order.Id,
-                                                  OrderId = order.Id,
-                                                  TenantId = order.TenantId,
-                                                  OrderNumber = order.OrderNumber,
-                                                  OrderStatus = order.OrderStatus,
-                                                  OrderSubtotalExclTax = order.OrderSubtotalExclTax,
-                                                  OrderSubtotalInclTax = order.OrderSubtotalInclTax,
-                                                  OrderTotal = order.OrderTotal,
-                                                  PaidDate = order.PaidDate,
-                                                  PaymentMethodType = order.PaymentMethodType,
-                                                  PaymentStatus = order.PaymentStatus,
-                                                  UserCurrencyType = order.UserCurrencyType,
-                                                  UserCurrencyCode = order.UserCurrencyCode,
-                                                  CreatedDate = order.CreationDate,
-                                                  EditedDate = order.ModificationDate,
-                                                  IsMustChangePlan = order.IsMustChangePlan,
-                                                  HasToPay = (order.TenantId == null || order.Tenant.LastOrderId == order.Id) &&
-                                                                                 (order.OrderStatus == OrderStatus.Initial || order.OrderStatus == OrderStatus.PendingToPay) &&
-                                                                                 (order.PaymentStatus == PaymentStatus.Initial || order.PaymentStatus == PaymentStatus.PendingToPay) &&
-                                                                                 order.OrderTotal > 0,
-
-                                                  OrderItems = order.OrderItems.Select(orderItem => new OrderItemDto
-                                                  {
-                                                      Id = orderItem.Id,
-                                                      OrderId = orderItem.OrderId,
-                                                      CustomPeriodInDays = orderItem.CustomPeriodInDays,
-                                                      DisplayName = orderItem.DisplayName,
-                                                      EndDate = orderItem.EndDate,
-                                                      PlanId = orderItem.PlanId,
-                                                      PlanPriceId = orderItem.PlanPriceId,
-                                                      ProductId = orderItem.ProductId,
-                                                      Quantity = orderItem.Quantity,
-                                                      StartDate = orderItem.StartDate,
-                                                      SubscriptionId = orderItem.SubscriptionId,
-                                                      SystemName = orderItem.SystemName,
-                                                      UnitPriceExclTax = orderItem.UnitPriceExclTax,
-                                                      UnitPriceInclTax = orderItem.UnitPriceInclTax
-
-
-                                                  }).ToList()
-                                              })
+                                              .Select(GetOrderDtoSelector())
                                               .SingleOrDefaultAsync(cancellationToken);
 
             return Result<OrderDto>.Successful(order);
         }
+
+        public async Task<Result<OrderDto>> GetOrderByIdForAnonymousAsync(Guid orderId, CancellationToken cancellationToken = default)
+        {
+            var allowedOrderStatus = new List<OrderStatus> { OrderStatus.PendingToPay, OrderStatus.Initial };
+            var allowedPaymentStatus = new List<PaymentStatus> { PaymentStatus.PendingToPay, PaymentStatus.Initial };
+            var order = await _dbContext.Orders
+                                              .AsNoTracking()
+                                              .Where(x => x.Id == orderId &&
+                                                          allowedOrderStatus.Contains(x.OrderStatus) &&
+                                                          (x.PaymentStatus == null || allowedPaymentStatus.Contains(x.PaymentStatus.Value)))
+                                              .Select(GetOrderDtoSelector())
+                                              .SingleOrDefaultAsync(cancellationToken);
+
+            return Result<OrderDto>.Successful(order);
+        }
+
 
 
 
@@ -118,51 +93,57 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                                                             )
                                             )
                                               .Where(x => x.TenantId == tenantId)
-                                              .Select(order => new OrderDto
-                                              {
-                                                  Id = order.Id,
-                                                  OrderId = order.Id,
-                                                  TenantId = order.TenantId,
-                                                  OrderNumber = order.OrderNumber,
-                                                  OrderStatus = order.OrderStatus,
-                                                  OrderSubtotalExclTax = order.OrderSubtotalExclTax,
-                                                  OrderSubtotalInclTax = order.OrderSubtotalInclTax,
-                                                  OrderTotal = order.OrderTotal,
-                                                  PaidDate = order.PaidDate,
-                                                  PaymentMethodType = order.PaymentMethodType,
-                                                  PaymentStatus = order.PaymentStatus,
-                                                  UserCurrencyType = order.UserCurrencyType,
-                                                  UserCurrencyCode = order.UserCurrencyCode,
-                                                  CreatedDate = order.CreationDate,
-                                                  EditedDate = order.ModificationDate,
-                                                  IsMustChangePlan = order.IsMustChangePlan,
-                                                  HasToPay = (order.TenantId == null || order.Tenant.LastOrderId == order.Id) &&
-                                                                                 (order.OrderStatus == OrderStatus.Initial || order.OrderStatus == OrderStatus.PendingToPay) &&
-                                                                                 (order.PaymentStatus == PaymentStatus.Initial || order.PaymentStatus == PaymentStatus.PendingToPay) &&
-                                                                                 order.OrderTotal > 0,
-                                                  OrderItems = order.OrderItems.Select(orderItem => new OrderItemDto
-                                                  {
-                                                      Id = orderItem.Id,
-                                                      OrderId = orderItem.OrderId,
-                                                      CustomPeriodInDays = orderItem.CustomPeriodInDays,
-                                                      DisplayName = orderItem.DisplayName,
-                                                      EndDate = orderItem.EndDate,
-                                                      PlanId = orderItem.PlanId,
-                                                      PlanPriceId = orderItem.PlanPriceId,
-                                                      ProductId = orderItem.ProductId,
-                                                      Quantity = orderItem.Quantity,
-                                                      StartDate = orderItem.StartDate,
-                                                      SubscriptionId = orderItem.SubscriptionId,
-                                                      SystemName = orderItem.SystemName,
-                                                      UnitPriceExclTax = orderItem.UnitPriceExclTax,
-                                                      UnitPriceInclTax = orderItem.UnitPriceInclTax
-
-
-                                                  }).ToList()
-                                              })
+                                              .Select(GetOrderDtoSelector())
                                               .ToListAsync(cancellationToken);
 
             return Result<List<OrderDto>>.Successful(orders);
+        }
+
+        public Expression<Func<Order, OrderDto>> GetOrderDtoSelector()
+        {
+            return order => new OrderDto
+            {
+                Id = order.Id,
+                OrderId = order.Id,
+                TenantId = order.TenantId,
+                OrderNumber = order.OrderNumber,
+                OrderStatus = order.OrderStatus,
+                OrderSubtotalExclTax = order.OrderSubtotalExclTax,
+                OrderSubtotalInclTax = order.OrderSubtotalInclTax,
+                OrderTotal = order.OrderTotal,
+                PaidDate = order.PaidDate,
+                PaymentMethodType = order.PaymentMethodType,
+                PaymentStatus = order.PaymentStatus,
+                UserCurrencyType = order.UserCurrencyType,
+                UserCurrencyCode = order.UserCurrencyCode,
+                CreatedDate = order.CreationDate,
+                EditedDate = order.ModificationDate,
+                IsMustChangePlan = order.IsMustChangePlan,
+                HasToPay = (order.TenantId == null || order.Tenant.LastOrderId == order.Id) &&
+                                                                                  (order.OrderStatus == OrderStatus.Initial || order.OrderStatus == OrderStatus.PendingToPay) &&
+                                                                                  (order.PaymentStatus == PaymentStatus.Initial || order.PaymentStatus == PaymentStatus.PendingToPay) &&
+                                                                                  order.OrderTotal > 0,
+
+                OrderItems = order.OrderItems.Select(orderItem => new OrderItemDto
+                {
+                    Id = orderItem.Id,
+                    OrderId = orderItem.OrderId,
+                    CustomPeriodInDays = orderItem.CustomPeriodInDays,
+                    DisplayName = orderItem.DisplayName,
+                    EndDate = orderItem.EndDate,
+                    PlanId = orderItem.PlanId,
+                    PlanPriceId = orderItem.PlanPriceId,
+                    ProductId = orderItem.ProductId,
+                    Quantity = orderItem.Quantity,
+                    StartDate = orderItem.StartDate,
+                    SubscriptionId = orderItem.SubscriptionId,
+                    SystemName = orderItem.SystemName,
+                    UnitPriceExclTax = orderItem.UnitPriceExclTax,
+                    UnitPriceInclTax = orderItem.UnitPriceInclTax
+
+
+                }).ToList()
+            };
         }
         public Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList)
         {
