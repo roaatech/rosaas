@@ -10,6 +10,7 @@ using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.PlanPrices
 {
@@ -66,7 +67,7 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
         {
             var planPrice = await _dbContext.PlanPrices
                                               .AsNoTracking()
-                                              .Where(pp => productName.ToLower().Equals(pp.Plan.Product.SystemName))
+                                              .Where(pp => productName.ToLower().Equals(pp.Plan.Product.SystemName) && pp.IsPublished)
                                               .Select(planPrice => new PlanPricePublishedListItemDto
                                               {
                                                   Id = planPrice.Id,
@@ -88,9 +89,24 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
 
         public async Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceByPlanPriceNameAsync(string productName, string planPriceName, CancellationToken cancellationToken = default)
         {
+            return await GetPublishedPlanPriceAsync((pp => planPriceName.ToLower().Equals(pp.SystemName) &&
+                                                           productName.ToLower().Equals(pp.Plan.Product.SystemName) &&
+                                                           pp.IsPublished),
+                                                           cancellationToken);
+        }
+
+        public async Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceByIdAsync(Guid planPriceId, CancellationToken cancellationToken = default)
+        {
+            return await GetPublishedPlanPriceAsync((pp => pp.Id == planPriceId &&
+                                                           pp.IsPublished),
+                                                           cancellationToken);
+        }
+
+        public async Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceAsync(Expression<Func<PlanPrice, bool>> predicate, CancellationToken cancellationToken = default)
+        {
             var planPrice = await _dbContext.PlanPrices
                                               .AsNoTracking()
-                                              .Where(pp => planPriceName.ToLower().Equals(pp.SystemName) && productName.ToLower().Equals(pp.Plan.Product.SystemName))
+                                              .Where(predicate)
                                               .Select(planPrice => new PlanPricePublishedDto
                                               {
                                                   Id = planPrice.Id,

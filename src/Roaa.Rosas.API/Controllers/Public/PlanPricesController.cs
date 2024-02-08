@@ -36,6 +36,12 @@ namespace Roaa.Rosas.Framework.Controllers.Public
             return ItemResult(await _planPriceService.GetPublishedPlanPriceByPlanPriceNameAsync(productName, name, cancellationToken));
         }
 
+        [HttpGet("[controller]/{id}")]
+        public async Task<IActionResult> GetPublishedPlanPriceByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _planPriceService.GetPublishedPlanPriceByIdAsync(id, cancellationToken));
+        }
+
         #endregion
     }
 }

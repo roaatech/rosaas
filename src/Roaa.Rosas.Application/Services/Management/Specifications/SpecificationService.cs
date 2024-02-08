@@ -43,17 +43,17 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
 
         public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
-            return await GetSpecificationsListByProductNamesync(x => x.ProductId == productId, cancellationToken);
+            return await GetSpecificationsListAsync(x => x.ProductId == productId, cancellationToken);
         }
 
         public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductNamesync(string productName, CancellationToken cancellationToken = default)
         {
-            return await GetSpecificationsListByProductNamesync(x => string.IsNullOrWhiteSpace(productName) ||
+            return await GetSpecificationsListAsync(x => string.IsNullOrWhiteSpace(productName) ||
                                                                      productName.ToLower().Equals(x.Product.SystemName), cancellationToken);
         }
 
 
-        public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductNamesync(Expression<Func<Specification, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListAsync(Expression<Func<Specification, bool>> predicate, CancellationToken cancellationToken = default)
         {
             var fields = await _dbContext.Specifications
                                             .AsNoTracking()
