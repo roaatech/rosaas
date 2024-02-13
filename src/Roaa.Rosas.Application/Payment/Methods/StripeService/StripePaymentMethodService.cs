@@ -62,12 +62,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
                 {
                     "card"
                 },
-                PaymentIntentData = new Stripe.Checkout.SessionPaymentIntentDataOptions
-                {
-                    SetupFutureUsage = "off_session",
-                },
                 Mode = "payment", // One-time payment. Stripe supports recurring 'subscription' payments.
-                Customer = "cus_PXgNESU8G1Giqg",
                 LineItems = order.OrderItems.Select(OrderItem =>
                 new SessionLineItemOptions
                 {

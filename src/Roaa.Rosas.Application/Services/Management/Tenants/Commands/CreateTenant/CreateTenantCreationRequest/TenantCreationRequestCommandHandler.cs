@@ -130,7 +130,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
 
         if (request.CreationByOneClick)
         {
-            var result = await _paymentService.HandelPaymentProcessAsyncAsync(
+            var result = await _paymentService.CheckoutAsync(
                                                       new CheckoutModel
                                                       {
                                                           OrderId = order.Id,

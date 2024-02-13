@@ -4,7 +4,6 @@
     {
         public string? NavigationUrl { get; set; }
         public Guid? TenantId { get; set; }
-        //  public string SystemName { get; set; } = string.Empty;
     }
 
 

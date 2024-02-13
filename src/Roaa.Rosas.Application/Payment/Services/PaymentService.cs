@@ -50,7 +50,7 @@ namespace Roaa.Rosas.Application.Payment.Services
 
 
 
-        public async Task<Result<CheckoutResultModel>> HandelPaymentProcessAsyncAsync(CheckoutModel model, CancellationToken cancellationToken = default)
+        public async Task<Result<CheckoutResultModel>> CheckoutAsync(CheckoutModel model, CancellationToken cancellationToken = default)
         {
             var order = await _dbContext.Orders.Where(x => x.Id == model.OrderId)
                                                .Include(x => x.OrderItems)
@@ -88,6 +88,9 @@ namespace Roaa.Rosas.Application.Payment.Services
 
             return await paymentMethod.HandelPaymentProcessAsync(order, cancellationToken);
         }
+
+
+
     }
 }
 

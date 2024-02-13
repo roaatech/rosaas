@@ -5,7 +5,7 @@ namespace Roaa.Rosas.Application.Payment.Services
 {
     public interface IPaymentService
     {
-        Task<Result<CheckoutResultModel>> HandelPaymentProcessAsyncAsync(CheckoutModel model, CancellationToken cancellationToken = default);
+        Task<Result<CheckoutResultModel>> CheckoutAsync(CheckoutModel model, CancellationToken cancellationToken = default);
     }
 
 

@@ -35,7 +35,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpPost("Checkout")]
         public async Task<IActionResult> ProcessPaymentAsync(CheckoutModel model, CancellationToken cancellationToken = default)
         {
-            var result = await _paymentService.HandelPaymentProcessAsyncAsync(model, cancellationToken);
+            var result = await _paymentService.CheckoutAsync(model, cancellationToken);
 
             return ItemResult(result);
         }
