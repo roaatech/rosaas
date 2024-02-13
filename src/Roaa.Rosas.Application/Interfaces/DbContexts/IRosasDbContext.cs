@@ -48,6 +48,7 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<PlanPrice> PlanPrices { get; }
         public DbSet<JobTask> JobTasks { get; }
         public DbSet<Setting> Settings { get; }
+        public DbSet<GenericAttribute> GenericAttributes { get; }
         public DbSet<TenantCreationRequest> TenantCreationRequests { get; }
         public DbSet<TenantCreationRequestSpecification> TenantCreationRequestSpecifications { get; }
         public DbSet<TenantSystemName> TenantSystemNames { get; }

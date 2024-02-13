@@ -75,6 +75,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<PlanPrice> PlanPrices { get; set; }
         public DbSet<JobTask> JobTasks { get; set; }
         public DbSet<Setting> Settings { get; set; }
+        public DbSet<GenericAttribute> GenericAttributes { get; set; }
         public DbSet<TenantCreationRequest> TenantCreationRequests { get; set; }
         public DbSet<TenantCreationRequestSpecification> TenantCreationRequestSpecifications { get; set; }
         public DbSet<TenantSystemName> TenantSystemNames { get; set; }
