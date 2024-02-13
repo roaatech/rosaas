@@ -92,7 +92,6 @@ namespace Roaa.Rosas.Common.Utilities
 
         public static T To<T>(object value)
         {
-            //return (T)Convert.ChangeType(value, typeof(T), CultureInfo.InvariantCulture);
             return (T)To(value, typeof(T));
         }
     }

@@ -10,6 +10,7 @@ using Roaa.Rosas.Application.Services.IdentityServer4.Clients;
 using Roaa.Rosas.Application.Services.IdentityServer4.ClientSecrets;
 using Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges;
 using Roaa.Rosas.Application.Services.Management.Features;
+using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures;
 using Roaa.Rosas.Application.Services.Management.PlanPrices;
@@ -81,6 +82,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<ISpecificationService, SpecificationService>();
             services.AddScoped<IEntityAdminPrivilegeService, EntityAdminPrivilegeService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IGenericAttributeService, GenericAttributeService>();
 
 
             services.AddMediatRAServices();
