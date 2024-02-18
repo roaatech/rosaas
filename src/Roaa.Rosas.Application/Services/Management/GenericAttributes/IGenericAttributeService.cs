@@ -9,12 +9,14 @@ namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
 
         Task DeleteAttributesAsync(List<Guid> attributesIds, CancellationToken cancellationToken = default);
 
-        Task SaveAttributeAsync<TPropType>(BaseEntity entity, string key, TPropType value, CancellationToken cancellationToken = default);
+        Task SaveAttributeAsync<TPropType>(IBaseEntity entity, string key, TPropType value, CancellationToken cancellationToken = default);
+
+        Task SaveAttributeAsync<TEntity, TPropType>(Guid entityId, string key, TPropType value, CancellationToken cancellationToken = default) where TEntity : IBaseEntity;
 
         Task<List<GenericAttribute>> GetAttributesForEntityAsync(Guid entityId, string keyGroup, CancellationToken cancellationToken = default);
 
-        Task<TPropType> GetAttributeAsync<TPropType>(BaseEntity entity, string key, TPropType defaultValue = default, CancellationToken cancellationToken = default);
+        Task<TPropType> GetAttributeAsync<TPropType>(IBaseEntity entity, string key, TPropType defaultValue = default, CancellationToken cancellationToken = default);
 
-        Task<TPropType> GetAttributeAsync<TEntity, TPropType>(Guid entityId, string key, TPropType defaultValue = default, CancellationToken cancellationToken = default) where TEntity : BaseEntity;
+        Task<TPropType> GetAttributeAsync<TEntity, TPropType>(Guid entityId, string key, TPropType defaultValue = default, CancellationToken cancellationToken = default) where TEntity : IBaseEntity;
     }
 }

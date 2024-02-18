@@ -106,7 +106,7 @@ namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
         }
 
 
-        public virtual async Task SaveAttributeAsync<TPropType>(BaseEntity entity, string key, TPropType value, CancellationToken cancellationToken = default)
+        public async Task SaveAttributeAsync<TPropType>(IBaseEntity entity, string key, TPropType value, CancellationToken cancellationToken = default)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -153,7 +153,16 @@ namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
             }
         }
 
-        public virtual async Task<TPropType> GetAttributeAsync<TPropType>(BaseEntity entity, string key, TPropType defaultValue = default, CancellationToken cancellationToken = default)
+        public async Task SaveAttributeAsync<TEntity, TPropType>(Guid entityId, string key, TPropType value, CancellationToken cancellationToken = default) where TEntity : IBaseEntity
+        {
+            var entity = (TEntity)Activator.CreateInstance(typeof(TEntity));
+
+            entity.Id = entityId;
+
+            await SaveAttributeAsync(entity, key, value, cancellationToken);
+        }
+
+        public virtual async Task<TPropType> GetAttributeAsync<TPropType>(IBaseEntity entity, string key, TPropType defaultValue = default, CancellationToken cancellationToken = default)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -180,7 +189,7 @@ namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
 
 
         public virtual async Task<TPropType> GetAttributeAsync<TEntity, TPropType>(Guid entityId, string key, TPropType defaultValue = default, CancellationToken cancellationToken = default)
-            where TEntity : BaseEntity
+            where TEntity : IBaseEntity
         {
             var entity = (TEntity)Activator.CreateInstance(typeof(TEntity));
 
