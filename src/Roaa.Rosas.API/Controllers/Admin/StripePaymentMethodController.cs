@@ -31,10 +31,10 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [AllowAnonymous]
-        [HttpGet("stripe/success")]
-        public async Task<IActionResult> SuccessHandlerAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
+        [HttpGet("stripe/session/success")]
+        public async Task<IActionResult> CompleteSuccessfulSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
         {
-            var result = await _stripePaymentMethod.SuccessAsync(sessionId, orderId, cancellationToken);
+            var result = await _stripePaymentMethod.CompleteSuccessfulSessionPaymentAsync(sessionId, orderId, cancellationToken);
 
             Response.Headers.Add("Location", result.Data.NavigationUrl);
 
@@ -43,10 +43,10 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [AllowAnonymous]
-        [HttpGet("stripe/failed")]
-        public async Task<IActionResult> FailedHandlerAAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
+        [HttpGet("stripe/session/failed")]
+        public async Task<IActionResult> CompleteFailedSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
         {
-            var result = await _stripePaymentMethod.CancelAsync(sessionId, orderId, cancellationToken);
+            var result = await _stripePaymentMethod.CompleteFailedSessionPaymentAsync(sessionId, orderId, cancellationToken);
 
             Response.Headers.Add("Location", result.Data.NavigationUrl);
 

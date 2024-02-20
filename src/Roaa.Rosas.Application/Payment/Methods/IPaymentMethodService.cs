@@ -6,11 +6,11 @@ namespace Roaa.Rosas.Application.Payment.Methods
 {
     public interface IPaymentMethodService
     {
-        Task<Result<CheckoutResultModel>> HandelPaymentProcessAsync(Order order, CancellationToken cancellationToken = default);
+        Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, CancellationToken cancellationToken = default);
 
-        Task<Result<Order>> CompletePaymentProcessAsync(Guid orderId, CancellationToken cancellationToken = default);
+        Task<Result<Order>> CompleteSuccessfulPaymentProcessAsync(Guid orderId, CancellationToken cancellationToken = default);
 
-        Task<DateTime> GetPaymentProcessingExpirationDate(CancellationToken cancellationToken = default);
+        Task<Result> CapturePaymentAsync(Order order, CancellationToken cancellationToken = default);
 
         PaymentMethodType PaymentMethodType { get; }
     }

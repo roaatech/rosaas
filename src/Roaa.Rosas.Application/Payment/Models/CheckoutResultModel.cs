@@ -7,6 +7,12 @@
     }
 
 
+    public record PaymentMethodCheckoutResultModel
+    {
+        public string? PaymentLink { get; set; }
+    }
+
+
 
 
 

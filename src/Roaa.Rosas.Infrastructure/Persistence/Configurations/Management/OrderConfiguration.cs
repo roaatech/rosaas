@@ -15,9 +15,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.HasAlternateKey(r => r.OrderNumber);
             builder.Property(r => r.OrderNumber).ValueGeneratedOnAdd();
             builder.Property(r => r.UserCurrencyCode).IsRequired(true).HasMaxLength(3).IsUnicode();
-            builder.Property(r => r.AuthorizationTransactionId).IsRequired(false).HasMaxLength(250).IsUnicode();
-            builder.Property(r => r.AuthorizationTransactionCode).IsRequired(false).HasMaxLength(250).IsUnicode();
-            builder.Property(r => r.Reference).IsRequired(false).HasMaxLength(250).IsUnicode();
+            builder.Property(r => r.ProcessedPaymentId).IsRequired(false).HasMaxLength(250).IsUnicode();
+            builder.Property(r => r.AltProcessedPaymentId).IsRequired(false).HasMaxLength(250).IsUnicode();
+            builder.Property(r => r.ProcessedPaymentResult).IsRequired(false).HasMaxLength(250).IsUnicode();
+            builder.Property(r => r.CapturedPaymentResult).IsRequired(false).HasMaxLength(250).IsUnicode();
+            builder.Property(r => r.AuthorizedPaymentResult).IsRequired(false).HasMaxLength(250).IsUnicode();
+            builder.Property(r => r.ProcessedPaymentReferenceType).IsRequired(false).HasMaxLength(250).IsUnicode();
             builder.Property(r => r.CurrencyRate).HasPrecision(8, 2).IsRequired();
             builder.Property(r => r.OrderSubtotalInclTax).HasPrecision(8, 2).IsRequired();
             builder.Property(r => r.OrderSubtotalExclTax).HasPrecision(8, 2).IsRequired();

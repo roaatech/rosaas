@@ -28,13 +28,19 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public decimal OrderTotal { get; set; }
 
-        public string? AuthorizationTransactionId { get; set; }
+        public string? ProcessedPaymentId { get; set; }
 
-        public string? AuthorizationTransactionCode { get; set; }
+        public string? AltProcessedPaymentId { get; set; }
 
-        public string? AuthorizationTransactionResult { get; set; }
+        public string? ProcessedPaymentResult { get; set; }
 
-        public string? Reference { get; set; }
+        public string? CapturedPaymentResult { get; set; }
+
+        public string? AuthorizedPaymentResult { get; set; }
+
+        public string? ProcessedPaymentReference { get; set; }
+
+        public string? ProcessedPaymentReferenceType { get; set; }
 
         public DateTime? PaidDate { get; set; }
 
@@ -62,20 +68,19 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
     public enum PaymentStatus
     {
-        Initial = 100,
+        None = 1,
 
-        PendingToPay = 150,
+        Paid = 200,
 
-        Authorized = 200,
-
-        Paid = 300,
+        Authorized = 300,
 
         Refunded = 400,
 
-        Voided = 500,
+        Failed = 500,
 
-        PartiallyRefunded = 600,
+        Voided = 600,
 
+        PartiallyRefunded = 700,
     }
 
     public enum CurrencyCode

@@ -148,11 +148,16 @@ namespace Roaa.Rosas.Application.SystemMessages
         CanceledOrderCannotBeProcessed = 3019,
 
 
-
         [Localization(
         En = "The order cannot be processed with the current payment status.",
         Ar = "لا يمكن معالجة الطلبية مع حالة الدفع الحالية")]
         OrderCannotBeProcessedWithPaymentStatus = 3020,
+
+
+        [Localization(
+        En = "An unauthorized payment cannot be captured.",
+        Ar = "لا يمكن إجراء عملية التقاط لهذه الدفعة بسبب عدم الإذن")]
+        UnauthorizedPaymentCannotBeCaptured = 3021,
 
     }
 }

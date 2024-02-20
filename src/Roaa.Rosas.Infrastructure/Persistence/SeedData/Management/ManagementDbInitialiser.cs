@@ -290,7 +290,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 foreach (var order in orders)
                 {
 
-                    order.PaymentStatus = PaymentStatus.Initial;
+                    order.PaymentStatus = PaymentStatus.None;
                 }
             }
 

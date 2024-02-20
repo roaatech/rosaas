@@ -55,41 +55,113 @@ namespace Roaa.Rosas.Application.Payment.Services
             var order = await _dbContext.Orders.Where(x => x.Id == model.OrderId)
                                                .Include(x => x.OrderItems)
                                                .SingleOrDefaultAsync(cancellationToken);
-            if (order is null)
+            if (!CanDoPayment(order, true))
             {
-                return Result<CheckoutResultModel>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
-            }
-
-            if (order.OrderTotal > 0 && !model.PaymentMethod.HasValue)
-            {
-                return Result<CheckoutResultModel>.Fail(ErrorMessage.SelectPaymentMethod, _identityContextService.Locale);
-            }
-
-            if (order.OrderStatus == OrderStatus.Complete)
-            {
-                return Result<CheckoutResultModel>.Fail(ErrorMessage.CompletedOrderCannotBeProcessed, _identityContextService.Locale);
-            }
-
-            if (order.OrderStatus == OrderStatus.Cancelled)
-            {
-                return Result<CheckoutResultModel>.Fail(ErrorMessage.CanceledOrderCannotBeProcessed, _identityContextService.Locale);
-            }
-
-            if (order.IsMustChangePlan)
-            {
-                return Result<CheckoutResultModel>.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
+                return Result<CheckoutResultModel>.Fail(FetchNonPaymentTransactionReasons(order, model.PaymentMethod), _identityContextService.Locale);
             }
 
             var paymentMethodType = order.OrderTotal == 0 ? PaymentMethodType.Manwal : model.PaymentMethod;
 
             var paymentMethod = _paymentMethodFactory.GetPaymentMethod(paymentMethodType);
 
-            await _paymentProcessingService.MarkOrderAsProcessingAsync(order, paymentMethodType, cancellationToken);
 
-            return await paymentMethod.HandelPaymentProcessAsync(order, cancellationToken);
+            var result = await paymentMethod.CreatePaymentAsync(order, order.OrderItems.Any(x => x.TrialPeriodInDays > 0), cancellationToken);
+
+            if (!result.Success)
+            {
+                return Result<CheckoutResultModel>.Fail(result.Messages);
+            }
+
+            Guid tenantId = await _dbContext.Tenants.Where(x => x.LastOrderId == order.Id)
+                                                 .Select(x => x.Id)
+                                                 .FirstOrDefaultAsync(cancellationToken);
+
+            return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
+            {
+                NavigationUrl = result.Data.PaymentLink,
+                TenantId = tenantId == Guid.Empty ? null : tenantId,
+            });
+        }
+
+        public async Task<Result> CapturePaymentAsync(Guid orderId, CancellationToken cancellationToken = default)
+        {
+            var order = await _dbContext.Orders.Where(x => x.Id == orderId)
+                                               .Include(x => x.OrderItems)
+                                               .SingleOrDefaultAsync(cancellationToken);
+
+            if (order.PaymentStatus != PaymentStatus.Authorized)
+            {
+                return Result.Fail(ErrorMessage.UnauthorizedPaymentCannotBeCaptured, _identityContextService.Locale);
+            }
+
+            var paymentMethod = _paymentMethodFactory.GetPaymentMethod(order.PaymentMethodType);
+
+            return await paymentMethod.CapturePaymentAsync(order, cancellationToken);
         }
 
 
+
+        public bool CanDoPayment(Order order, bool ignoreOrderTotal)
+        {
+
+            if (order is null)
+            {
+                return false;
+            }
+
+            if (!ignoreOrderTotal && order.OrderTotal == 0)
+            {
+                return false;
+            }
+
+            if (order.OrderStatus == OrderStatus.Complete)
+            {
+                return false;
+            }
+
+            if (order.OrderStatus == OrderStatus.Cancelled)
+            {
+                return false;
+            }
+
+            if (order.IsMustChangePlan)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public Enum FetchNonPaymentTransactionReasons(Order order, PaymentMethodType? paymentMethod)
+        {
+
+            if (order is null)
+            {
+                return CommonErrorKeys.ResourcesNotFoundOrAccessDenied;
+            }
+
+            if (order.OrderTotal > 0 && !paymentMethod.HasValue)
+            {
+                return ErrorMessage.SelectPaymentMethod;
+            }
+
+            if (order.OrderStatus == OrderStatus.Complete)
+            {
+                return ErrorMessage.CompletedOrderCannotBeProcessed;
+            }
+
+            if (order.OrderStatus == OrderStatus.Cancelled)
+            {
+                return ErrorMessage.CanceledOrderCannotBeProcessed;
+            }
+
+            if (order.IsMustChangePlan)
+            {
+                return CommonErrorKeys.ResourcesNotFoundOrAccessDenied;
+            }
+
+            throw new NotImplementedException();
+        }
 
     }
 }

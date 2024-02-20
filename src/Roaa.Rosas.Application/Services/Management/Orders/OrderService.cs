@@ -65,7 +65,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
         public async Task<Result<OrderDto>> GetOrderByIdForAnonymousAsync(Guid orderId, CancellationToken cancellationToken = default)
         {
             var allowedOrderStatus = new List<OrderStatus> { OrderStatus.PendingToPay, OrderStatus.Initial };
-            var allowedPaymentStatus = new List<PaymentStatus> { PaymentStatus.PendingToPay, PaymentStatus.Initial };
+            var allowedPaymentStatus = new List<PaymentStatus> { PaymentStatus.None };
             var order = await _dbContext.Orders
                                               .AsNoTracking()
                                               .Where(x => x.Id == orderId &&
@@ -121,7 +121,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 IsMustChangePlan = order.IsMustChangePlan,
                 HasToPay = (order.TenantId == null || order.Tenant.LastOrderId == order.Id) &&
                                                                                   (order.OrderStatus == OrderStatus.Initial || order.OrderStatus == OrderStatus.PendingToPay) &&
-                                                                                  (order.PaymentStatus == PaymentStatus.Initial || order.PaymentStatus == PaymentStatus.PendingToPay) &&
+                                                                                  (order.PaymentStatus == PaymentStatus.None) &&
                                                                                   order.OrderTotal > 0,
 
                 OrderItems = order.OrderItems.Select(orderItem => new OrderItemDto
@@ -151,6 +151,21 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
             var isMustChangePlan = plansDataList.Any(x => x.HasTrial) && plansDataList.Any(x => x.Product.TrialType == ProductTrialType.ProductHasTrialPlan);
 
+            int FeatchTrialPeriodInDays(TenantCreationPreparationModel model)
+            {
+                if (!model.HasTrial) return 0;
+
+                if (model.Product.TrialType == ProductTrialType.ProductHasTrialPlan)
+                {
+                    return model.Product.TrialPeriodInDays;
+                }
+                else
+                {
+                    return model.Plan.TrialPeriodInDays;
+                }
+
+
+            }
 
             var orderItems = plansDataList.Select(planData => new OrderItem()
             {
@@ -170,6 +185,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 Quantity = _quantity,
                 SystemName = $"{planData.Product.SystemName}--{planData.Plan.SystemName}--{tenantName}",
                 DisplayName = $"[Product: {planData.Product.DisplayName}], [Plan: {planData.Plan.DisplayName}], [Tenant: {tenantDisplayName}]",
+                TrialPeriodInDays = FeatchTrialPeriodInDays(planData),
                 Specifications = planData.Features.Select(x => new OrderItemSpecification
                 {
                     PurchasedEntityId = x.FeatureId,
@@ -190,7 +206,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 Id = Guid.NewGuid(),
                 TenantId = null,
                 OrderStatus = OrderStatus.Initial,
-                PaymentStatus = PaymentStatus.Initial,
+                PaymentStatus = PaymentStatus.None,
                 CurrencyRate = 1,
                 UserCurrencyType = CurrencyCode.USD,
                 UserCurrencyCode = CurrencyCode.USD.ToString(),
@@ -248,7 +264,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 return Result.Fail(ErrorMessage.CanceledOrderCannotBeProcessed, _identityContextService.Locale);
             }
 
-            if (order.PaymentStatus != PaymentStatus.Initial && order.PaymentStatus != PaymentStatus.PendingToPay)
+            if (order.PaymentStatus != PaymentStatus.None)
             {
                 return Result.Fail(ErrorMessage.OrderCannotBeProcessedWithPaymentStatus, _identityContextService.Locale);
             }

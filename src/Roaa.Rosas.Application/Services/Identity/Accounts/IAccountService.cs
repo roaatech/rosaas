@@ -6,5 +6,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Accounts
     public interface IAccountService
     {
         Task<Result<AccountResultModel<dynamic>>> GetCurrentUserAccountAsync(CancellationToken cancellationToken = default);
+
+        Task<Result<UserCustomerDto>> GetUserAsCustomerAsync(Guid userId, CancellationToken cancellationToken = default);
     }
 }

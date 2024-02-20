@@ -40,7 +40,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.ManwalService
         }
         #endregion
 
-        public async Task<Result<Order>> CompletePaymentProcessAsync(Guid orderId, CancellationToken cancellationToken = default)
+        public async Task<Result<Order>> CompleteSuccessfulPaymentProcessAsync(Guid orderId, CancellationToken cancellationToken = default)
         {
             var order = await _dbContext.Orders
                                         .Where(x => x.Id == orderId)
@@ -48,33 +48,29 @@ namespace Roaa.Rosas.Application.Payment.Methods.ManwalService
 
             await _paymentProcessingService.MarkOrderAsPaidAsync(order);
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
             return Result<Order>.Successful(order);
         }
 
 
-        public async Task<Result<CheckoutResultModel>> HandelPaymentProcessAsync(Order order, CancellationToken cancellationToken = default)
+        public async Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, CancellationToken cancellationToken = default)
         {
-            var resultModel = new CheckoutResultModel();
+            var resultModel = new PaymentMethodCheckoutResultModel();
+
+            await _paymentProcessingService.MarkOrderAsProcessingAsync(order, PaymentMethodType, cancellationToken);
 
             // Price Is Free
             if (order.OrderTotal == 0)
             {
-                var result = await CompletePaymentProcessAsync(order.Id, cancellationToken);
-
-                resultModel.TenantId = result.Data.TenantId;
+                var result = await CompleteSuccessfulPaymentProcessAsync(order.Id, cancellationToken);
             }
 
-            return Result<CheckoutResultModel>.Successful(resultModel);
+            return Result<PaymentMethodCheckoutResultModel>.Successful(resultModel);
         }
 
-
-        public async Task<DateTime> GetPaymentProcessingExpirationDate(CancellationToken cancellationToken = default)
+        public Task<Result> CapturePaymentAsync(Order order, CancellationToken cancellationToken = default)
         {
-            return DateTime.UtcNow.AddMinutes(5);
+            throw new NotImplementedException();
         }
-
 
         public PaymentMethodType PaymentMethodType
         {
