@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Common.Utilities;
 using Roaa.Rosas.Domain.Entities;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
 {
@@ -121,7 +123,17 @@ namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
             var prop = props.FirstOrDefault(ga =>
                 ga.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase)); //should be culture invariant
 
-            var valueStr = Helpers.To<string>(value);
+            var valueStr = string.Empty;
+
+            if (typeof(TPropType).IsClass)
+            {
+                valueStr = JsonConvert.SerializeObject(value);
+            }
+            else
+            {
+                valueStr = Helpers.To<string>(value);
+            }
+
 
             if (prop != null)
             {
@@ -168,21 +180,21 @@ namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
                 throw new ArgumentNullException(nameof(entity));
 
             var keyGroup = entity.GetType().Name;
-
-            var props = await GetAttributesForEntityAsync(entity.Id, keyGroup, cancellationToken);
-
-            //little hack here (only for unit testing). we should write expect-return rules in unit tests for such cases
-            if (props == null)
-                return defaultValue;
-
-            if (!props.Any())
-                return defaultValue;
-
-            var prop = props.FirstOrDefault(ga =>
-                ga.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase)); //should be culture invariant
+            key = key.ToUpper();
+            var prop = await _dbContext.GenericAttributes
+                                       .Where(x => x.EntityId == entity.Id &&
+                                       x.KeyGroup.Equals(keyGroup) &&
+                                       EF.Functions.Like(x.Key, key))
+                                       .FirstOrDefaultAsync(cancellationToken);
 
             if (prop == null || string.IsNullOrEmpty(prop.Value))
                 return defaultValue;
+
+            var dd = typeof(TenantStep?);
+            if (typeof(TPropType).IsClass)
+            {
+                return JsonConvert.DeserializeObject<TPropType>(prop.Value);
+            }
 
             return Helpers.To<TPropType>(prop.Value);
         }

@@ -18,5 +18,7 @@ namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
         Task<TPropType> GetAttributeAsync<TPropType>(IBaseEntity entity, string key, TPropType defaultValue = default, CancellationToken cancellationToken = default);
 
         Task<TPropType> GetAttributeAsync<TEntity, TPropType>(Guid entityId, string key, TPropType defaultValue = default, CancellationToken cancellationToken = default) where TEntity : IBaseEntity;
+
+
     }
 }

@@ -70,13 +70,19 @@ namespace Roaa.Rosas.Common.Utilities
             if (value == null)
                 return null;
 
+            if (destinationType.IsEnum && value is not int)
+                return Enum.Parse(destinationType, value.ToString(), true);
+
+            var valueStr = TypeDescriptor.GetConverter(destinationType).ConvertToInvariantString(value);
             var sourceType = value.GetType();
 
             var destinationConverter = TypeDescriptor.GetConverter(destinationType);
+
             if (destinationConverter.CanConvertFrom(value.GetType()))
                 return destinationConverter.ConvertFrom(null, culture, value);
 
             var sourceConverter = TypeDescriptor.GetConverter(sourceType);
+
             if (sourceConverter.CanConvertTo(destinationType))
                 return sourceConverter.ConvertTo(null, culture, value, destinationType);
 

@@ -4,7 +4,7 @@
     {
         public class GenericAttributeKey
         {
-            public const string CustomerData = "customer-data";
+            public const string UserProfile = "user-profile";
             public const string StripeCustomerId = "stripe-customer-id";
         }
     }
