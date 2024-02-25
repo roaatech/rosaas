@@ -1,4 +1,5 @@
-﻿using Roaa.Rosas.Application.Payment.Models;
+﻿using Roaa.Rosas.Application.Payment.Methods.StripeService.Models;
+using Roaa.Rosas.Application.Payment.Models;
 using Roaa.Rosas.Common.Models.Results;
 
 namespace Roaa.Rosas.Application.Payment.Methods.StripeService
@@ -10,6 +11,14 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
         Task<Result<CheckoutResultModel>> CompleteFailedSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default);
 
         Task UpdateCustomerAsync(string name, string phone, Guid userId, CancellationToken cancellationToken = default);
+
+        Task<Result<List<PaymentMethodCardDto>>> GetPaymentMethodsCardsListByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+
+        Task<Result> AttachPaymentMethodCardAsync(Guid userId, string stripeCardId, CancellationToken cancellationToken = default);
+
+        Task<Result> DetachPaymentMethodCardAsync(string stripeCardId, CancellationToken cancellationToken = default);
+
+        Task<Result> MarkPaymentMethodAsDefaultAsync(Guid userId, string stripeCardId, CancellationToken cancellationToken = default);
     }
 }
 

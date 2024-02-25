@@ -167,8 +167,14 @@ namespace Roaa.Rosas.Application.SystemMessages
 
 
         [Localization(
-            En = "User AccountNot Active. Please contact the administrator.",
-            Ar = "تم إيقاف حساب المتسخدم, يرجى الإتصال بمسؤول النظام")]
+        En = "User AccountNot Active. Please contact the administrator.",
+        Ar = "تم إيقاف حساب المتسخدم, يرجى الإتصال بمسؤول النظام")]
         UserAccountNotActive = 3023,
+
+
+        [Localization(
+          En = "The payment-method customer is not exist",
+          Ar = "عميل طريقة الدفع غير موجود")]
+        StripeCustomerNotExist = 3024,
     }
 }

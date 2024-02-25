@@ -5,11 +5,13 @@ using Newtonsoft.Json;
 using Roaa.Rosas.Application.Constatns;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Payment.Methods.StripeService.Models;
 using Roaa.Rosas.Application.Payment.Models;
 using Roaa.Rosas.Application.Payment.Services;
 using Roaa.Rosas.Application.Services.Identity.Accounts.Queries.GetUserProfileByUserId;
 using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.Services.Management.Settings;
+using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.ApiConfiguration;
 using Roaa.Rosas.Common.Models.Results;
@@ -78,6 +80,8 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             return await service.GetAsync(paymentIntentId, null, null, cancellationToken);
         }
 
+
+
         public async Task<Customer> CreateCustomerAsync(string email, string name, string phone, Guid userId, CancellationToken cancellationToken = default)
         {
             var options = new CustomerCreateOptions
@@ -102,13 +106,19 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             return customer;
         }
 
+        public async Task<string> FeatchStripeCustomerIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            return await _genericAttributeService.GetAttributeAsync<User, string>(
+                                                       userId,
+                                                       Consts.GenericAttributeKey.StripeCustomerId,
+                                                       string.Empty,
+                                                       cancellationToken);
+        }
+
         public async Task UpdateCustomerAsync(string name, string phone, Guid userId, CancellationToken cancellationToken = default)
         {
-            var stripeCustomerId = await _genericAttributeService.GetAttributeAsync<User, string?>(
-                                                      userId,
-                                                      Consts.GenericAttributeKey.StripeCustomerId,
-                                                      null,
-                                                      cancellationToken);
+            var stripeCustomerId = await FeatchStripeCustomerIdAsync(userId, cancellationToken);
+
             if (string.IsNullOrWhiteSpace(stripeCustomerId))
             {
                 return;
@@ -126,6 +136,37 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             return;
         }
 
+
+        public async Task<Customer> MarkPaymentMethodAsDefaultAsync(string customerId, string stripeCardId, CancellationToken cancellationToken = default)
+        {
+            var options = new CustomerUpdateOptions
+            {
+                InvoiceSettings = new CustomerInvoiceSettingsOptions
+                {
+                    DefaultPaymentMethod = stripeCardId,
+                }
+            };
+            var service = new CustomerService();
+
+            var nCustomer = await service.UpdateAsync(customerId, options, null, cancellationToken);
+
+            return nCustomer;
+        }
+
+        public async Task<Result> MarkPaymentMethodAsDefaultAsync(Guid userId, string stripeCardId, CancellationToken cancellationToken = default)
+        {
+            var stripeCustomerId = await FeatchStripeCustomerIdAsync(userId, cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(stripeCustomerId))
+            {
+                return Result.Fail(ErrorMessage.StripeCustomerNotExist, _identityContextService.Locale);
+            }
+
+            await MarkPaymentMethodAsDefaultAsync(stripeCustomerId, stripeCardId);
+
+            return Result.Successful();
+        }
+
         public async Task<string> FeatchCurrentCustomerIdAsync(CancellationToken cancellationToken = default)
         {
             if (!_identityContextService.IsTenantAdmin())
@@ -133,11 +174,8 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
                 return null;
             }
 
-            var stripeCustomerId = await _genericAttributeService.GetAttributeAsync<User, string?>(
-                                                        _identityContextService.UserId,
-                                                        Consts.GenericAttributeKey.StripeCustomerId,
-                                                        null,
-                                                        cancellationToken);
+
+            var stripeCustomerId = await FeatchStripeCustomerIdAsync(_identityContextService.UserId, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(stripeCustomerId))
             {
@@ -202,6 +240,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
                 {
                     "card"
                 },
+
                 Mode = "payment", // One-time payment. Stripe supports recurring 'subscription' payments. 
                 LineItems = order.OrderItems.Select(OrderItem =>
                 new SessionLineItemOptions
@@ -231,7 +270,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             {
                 options.PaymentIntentData = new Stripe.Checkout.SessionPaymentIntentDataOptions
                 {
-                    SetupFutureUsage = "off_session",
+                    SetupFutureUsage = "on_session",
                 };
             }
 
@@ -264,12 +303,74 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             };
             return service.Capture(paymentIntentId, options);
         }
+
+        public Task<StripeList<PaymentMethod>> GetCustomerPaymentMethodCardsListAsync(string customerId, CancellationToken cancellationToken = default)
+        {
+            var service = new CustomerService();
+            return service.ListPaymentMethodsAsync(customerId, new CustomerListPaymentMethodsOptions { Type = "card" }, null, cancellationToken);
+        }
+
+        public async Task AttachPaymentMethodAsync(string customerId, string cardId)
+        {
+            var service = new PaymentMethodService();
+            await service.AttachAsync(cardId, new PaymentMethodAttachOptions { Customer = customerId });
+        }
+        public async Task DetachPaymentMethodAsync(string cardId)
+        {
+            var service = new PaymentMethodService();
+            await service.DetachAsync(cardId);
+        }
         #endregion
 
 
 
 
         #region Services
+
+        public async Task<Result> AttachPaymentMethodCardAsync(Guid userId, string stripeCardId, CancellationToken cancellationToken = default)
+        {
+            var stripeCustomerId = await FeatchStripeCustomerIdAsync(userId, cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(stripeCustomerId))
+            {
+                return Result.Fail(ErrorMessage.StripeCustomerNotExist, _identityContextService.Locale);
+            }
+
+            await AttachPaymentMethodAsync(stripeCustomerId, stripeCardId);
+
+            return Result.Successful();
+        }
+
+        public async Task<Result> DetachPaymentMethodCardAsync(string stripeCardId, CancellationToken cancellationToken = default)
+        {
+
+            await DetachPaymentMethodAsync(stripeCardId);
+
+            return Result.Successful();
+        }
+        public async Task<Result<List<PaymentMethodCardDto>>> GetPaymentMethodsCardsListByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            var stripeCustomerId = await FeatchStripeCustomerIdAsync(userId, cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(stripeCustomerId))
+            {
+                return Result<List<PaymentMethodCardDto>>.Successful(new List<PaymentMethodCardDto>());
+            }
+
+            var stripeResults = await GetCustomerPaymentMethodCardsListAsync(stripeCustomerId, cancellationToken);
+
+            var cards = stripeResults.Select(x => new PaymentMethodCardDto
+            {
+                StripeCardId = x.Id,
+                Brand = x.Card.Brand,
+                ExpirationMonth = (int)x.Card.ExpMonth,
+                ExpirationYear = (int)x.Card.ExpYear,
+                Last4Digits = x.Card.Last4,
+                CardholderName = x.BillingDetails.Name,
+            }).ToList();
+
+            return Result<List<PaymentMethodCardDto>>.Successful(cards);
+        }
         public async Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, CancellationToken cancellationToken = default)
         {
             Session session = await CreateSessionPaymentAsync(order, setAuthorizedPayment, true, cancellationToken);
