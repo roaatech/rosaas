@@ -8,6 +8,8 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
         Task<Result<CheckoutResultModel>> CompleteSuccessfulSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default);
 
         Task<Result<CheckoutResultModel>> CompleteFailedSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default);
+
+        Task UpdateCustomerAsync(string name, string phone, Guid userId, CancellationToken cancellationToken = default);
     }
 }
 

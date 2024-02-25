@@ -7,7 +7,7 @@ using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Payment.Models;
 using Roaa.Rosas.Application.Payment.Services;
-using Roaa.Rosas.Application.Services.Identity.Accounts.Queries.GetUserAsCustomerByUserId;
+using Roaa.Rosas.Application.Services.Identity.Accounts.Queries.GetUserProfileByUserId;
 using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Authorization.Utilities;
@@ -102,6 +102,30 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             return customer;
         }
 
+        public async Task UpdateCustomerAsync(string name, string phone, Guid userId, CancellationToken cancellationToken = default)
+        {
+            var stripeCustomerId = await _genericAttributeService.GetAttributeAsync<User, string?>(
+                                                      userId,
+                                                      Consts.GenericAttributeKey.StripeCustomerId,
+                                                      null,
+                                                      cancellationToken);
+            if (string.IsNullOrWhiteSpace(stripeCustomerId))
+            {
+                return;
+            }
+
+            var options = new CustomerUpdateOptions
+            {
+                Name = name,
+                Phone = phone,
+            };
+            var service = new CustomerService();
+
+            var nCustomer = await service.UpdateAsync(stripeCustomerId, options, null, cancellationToken);
+
+            return;
+        }
+
         public async Task<string> FeatchCurrentCustomerIdAsync(CancellationToken cancellationToken = default)
         {
             if (!_identityContextService.IsTenantAdmin())
@@ -117,14 +141,14 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 
             if (string.IsNullOrWhiteSpace(stripeCustomerId))
             {
-                var result = await _mediatR.Send(new GetUserAsCustomerByUserIdQuery(_identityContextService.UserId));
+                var result = await _mediatR.Send(new GetUserProfileByUserIdQuery(_identityContextService.UserId));
 
                 if (result.Success)
                 {
 
                     var customer = await CreateCustomerAsync(result.Data.UserAccount.Email,
-                                                             result.Data.CustomerData.Name,
-                                                             result.Data.CustomerData.MobileNumber,
+                                                             result.Data.UserProfile.FullName,
+                                                             result.Data.UserProfile.MobileNumber,
                                                              _identityContextService.UserId);
                     stripeCustomerId = customer.Id;
                 }
