@@ -1,8 +1,8 @@
 ﻿namespace Roaa.Rosas.Domain.Models
 {
-    public class CustomerModel
+    public class UserProfileModel
     {
-        public string Name { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
         public string MobileNumber { get; set; } = string.Empty;
     }
 }

@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.Constatns;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Identity.Auth.Mappers;
 using Roaa.Rosas.Application.Services.Identity.Auth.Models;
 using Roaa.Rosas.Application.Services.Identity.Auth.Validators;
+using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
@@ -19,6 +21,7 @@ using Roaa.Rosas.Common.Utilities;
 using Roaa.Rosas.Domain.Common;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Events.Management;
+using Roaa.Rosas.Domain.Models;
 using System.Data;
 
 namespace Roaa.Rosas.Application.Services.Identity.Auth
@@ -33,6 +36,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
         private readonly IIdentityContextService _identityContextService;
         private readonly IAuthTokenService _tokenService;
         private readonly ValidationBuilder _validationBuilder;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly IPublisher _publisher;
         private User _user = new();
         #endregion
@@ -46,6 +50,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             IWebHostEnvironment environment,
             IIdentityContextService identityContextService,
             IAuthTokenService tokenService,
+            IGenericAttributeService genericAttributeService,
             IPublisher publisher)
         {
             _userManager = userManager;
@@ -54,6 +59,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
             _environment = environment;
             _identityContextService = identityContextService;
             _tokenService = tokenService;
+            _genericAttributeService = genericAttributeService;
             _publisher = publisher;
             _validationBuilder = new ValidationBuilder(identityContextService.Locale);
         }
@@ -83,6 +89,8 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
 
         #region SignUp 
 
+
+
         public async Task<Result<AuthResultModel<AdminDto>>> SignUpUserByEmailAsync(SignUpUserByEmailModel model, UserType userType, CancellationToken cancellationToken = default)
         {
             #region Validation 
@@ -110,6 +118,16 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
                     scope.Rollback();
                     return identityResult.FailResult<AuthResultModel<AdminDto>>(_identityContextService.Locale);
                 }
+
+                await _genericAttributeService.SaveAttributeAsync(_user,
+                                                                Consts.GenericAttributeKey.UserProfile,
+                                                                new UserProfileModel
+                                                                {
+                                                                    FullName = model.FullName,
+                                                                    MobileNumber = model.MobileNumber
+                                                                },
+                                                                cancellationToken);
+                await scope.CommitAsync(cancellationToken);
 
                 return await SignInUserAsync<AdminDto>(_user, AuthenticationMethod.Email, cancellationToken);
             }

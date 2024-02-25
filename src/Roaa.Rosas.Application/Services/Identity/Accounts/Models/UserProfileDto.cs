@@ -2,9 +2,9 @@
 
 namespace Roaa.Rosas.Application.Services.Identity.Accounts.Models
 {
-    public record UserCustomerDto
+    public record UserProfileDto
     {
         public UserAccountItem? UserAccount { get; set; }
-        public CustomerModel? CustomerData { get; set; }
+        public UserProfileModel? UserProfile { get; set; }
     }
 }

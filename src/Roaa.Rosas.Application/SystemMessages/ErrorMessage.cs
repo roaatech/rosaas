@@ -159,5 +159,16 @@ namespace Roaa.Rosas.Application.SystemMessages
         Ar = "لا يمكن إجراء عملية التقاط لهذه الدفعة بسبب عدم الإذن")]
         UnauthorizedPaymentCannotBeCaptured = 3021,
 
+
+        [Localization(
+        En = "Can not use the same as the current password, try a new one",
+        Ar = "لا يمكن استخدام نفس كلمة المرور الحالية")]
+        NewPasswordAndCurrentMustNotEqual = 3022,
+
+
+        [Localization(
+            En = "User AccountNot Active. Please contact the administrator.",
+            Ar = "تم إيقاف حساب المتسخدم, يرجى الإتصال بمسؤول النظام")]
+        UserAccountNotActive = 3023,
     }
 }
