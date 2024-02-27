@@ -4,6 +4,7 @@ using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Public
 {
+    [Route($"{PublicApiRoute}/[controller]")]
     public class OrdersController : BaseRosasPublicApiController
     {
         #region Props 

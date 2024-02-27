@@ -38,7 +38,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetOrderByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
             return ItemResult(await _orderService.GetOrderByIdAsync(id, cancellationToken));
         }
