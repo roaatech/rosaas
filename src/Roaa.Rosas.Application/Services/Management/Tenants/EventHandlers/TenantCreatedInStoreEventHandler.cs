@@ -47,14 +47,14 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
 
         public async Task Handle(TenantCreatedInStoreEvent @event, CancellationToken cancellationToken)
         {
-            if (_identityContextService.IsAuthenticated && _identityContextService.IsResourceAdmin())
+            if (@event.Tenant.CreatedByUserType.IsResourceAdmin())
             {
                 await _tenantAdminService.CreateEntityAdminPrivilegeAsync(new CreateEntityAdminPrivilegeModel
                 {
                     EntityId = @event.Tenant.Id,
                     EntityType = EntityType.Tenant,
-                    UserId = _identityContextService.UserId,
-                    UserType = _identityContextService.GetUserType(),
+                    UserId = @event.Tenant.CreatedByUserId,
+                    UserType = @event.Tenant.CreatedByUserType,
                     IsMajor = true,
                 });
             }
