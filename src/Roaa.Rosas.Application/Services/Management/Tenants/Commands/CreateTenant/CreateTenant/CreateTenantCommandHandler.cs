@@ -165,6 +165,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             LastOrderId = model.OrderId,
             SystemName = name,
             DisplayName = displayName,
+            CreatedByUserType = model.UserType,
             CreatedByUserId = model.UserId,
             ModifiedByUserId = model.UserId,
             CreationDate = _date,
