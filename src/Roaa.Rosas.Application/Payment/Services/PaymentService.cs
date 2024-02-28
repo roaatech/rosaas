@@ -65,7 +65,7 @@ namespace Roaa.Rosas.Application.Payment.Services
             var paymentMethod = _paymentMethodFactory.GetPaymentMethod(paymentMethodType);
 
 
-            var result = await paymentMethod.CreatePaymentAsync(order, order.OrderItems.Any(x => x.TrialPeriodInDays > 0), cancellationToken);
+            var result = await paymentMethod.CreatePaymentAsync(order, order.OrderItems.Any(x => x.TrialPeriodInDays > 0), model.AllowStoringCardInfo, cancellationToken);
 
             if (!result.Success)
             {

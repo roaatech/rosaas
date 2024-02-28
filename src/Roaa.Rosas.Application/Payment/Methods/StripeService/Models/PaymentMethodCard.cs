@@ -17,5 +17,8 @@
 
 
         public string Last4Digits { get; set; } = string.Empty;
+
+
+        public bool IsDefault { get; set; }
     }
 }

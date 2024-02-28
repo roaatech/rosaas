@@ -29,7 +29,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
         public Guid Id { get; set; }
         public Guid OrderId { get; set; }
         public Guid ProductId { get; set; }
-        public Guid SubscriptionId { get; set; }
+        public Guid? SubscriptionId { get; set; }
         public Guid PlanId { get; set; }
         public Guid PlanPriceId { get; set; }
         public int? CustomPeriodInDays { get; set; } = null;
@@ -40,6 +40,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
         public int Quantity { get; set; }
         public decimal UnitPriceInclTax { get; set; }
         public decimal UnitPriceExclTax { get; set; }
+        public int TrialPeriodInDays { get; set; }
 
     }
 }

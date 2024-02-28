@@ -52,7 +52,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.ManwalService
         }
 
 
-        public async Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, CancellationToken cancellationToken = default)
+        public async Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, bool storeCardInfo, CancellationToken cancellationToken = default)
         {
             var resultModel = new PaymentMethodCheckoutResultModel();
 

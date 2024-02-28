@@ -19,5 +19,6 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
         Task<Result> ChangeOrderPlanAsync(Guid orderId, ChangeOrderPlanModel model, CancellationToken cancellationToken = default);
 
+        Task SetSubscriptionIdToOrderItemsAsync(Guid orderId, Guid tenantId, List<Subscription> subscriptions, CancellationToken cancellationToken);
     }
 }

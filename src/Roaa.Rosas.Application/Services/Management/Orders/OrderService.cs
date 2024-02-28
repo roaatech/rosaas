@@ -139,7 +139,8 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                     SubscriptionId = orderItem.SubscriptionId,
                     SystemName = orderItem.SystemName,
                     UnitPriceExclTax = orderItem.UnitPriceExclTax,
-                    UnitPriceInclTax = orderItem.UnitPriceInclTax
+                    UnitPriceInclTax = orderItem.UnitPriceInclTax,
+                    TrialPeriodInDays = orderItem.TrialPeriodInDays,
 
 
                 }).ToList()
@@ -174,7 +175,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 EndDate = PlanCycleManager.FromKey(planData.PlanPrice.PlanCycle).CalculateExpiryDate(date, planData.PlanPrice.CustomPeriodInDays, null, planData.Plan.TenancyType),
                 ClientId = planData.Product.ClientId,
                 ProductId = planData.Product.Id,
-                SubscriptionId = planData.GeneratedSubscriptionId,
+                // SubscriptionId = planData.GeneratedSubscriptionId,
                 PlanId = planData.Plan.Id,
                 PlanPriceId = planData.PlanPrice.Id,
                 CustomPeriodInDays = planData.PlanPrice.CustomPeriodInDays,
@@ -325,6 +326,40 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             return Result.Successful();
         }
 
+
+        public async Task SetSubscriptionIdToOrderItemsAsync(Guid orderId, Guid tenantId, List<Subscription> subscriptions, CancellationToken cancellationToken)
+        {
+
+            var orderItems = await _dbContext.OrderItems
+                                        .Where(x => x.OrderId == orderId)
+                                        .ToListAsync(cancellationToken);
+
+            subscriptions = subscriptions ?? new List<Subscription>();
+
+            if (subscriptions.Any())
+            {
+                subscriptions = await _dbContext.Subscriptions
+                                  .Where(x => x.TenantId == tenantId)
+                                  .ToListAsync(cancellationToken);
+            }
+            foreach (var item in orderItems)
+            {
+                var subscription = subscriptions.Where(x => x.ProductId == item.ProductId &&
+                                                            x.PlanId == item.PlanId &&
+                                                            x.PlanPriceId == item.PlanPriceId &&
+                                                            x.CustomPeriodInDays == item.CustomPeriodInDays)
+                                                .FirstOrDefault();
+
+                if (subscription is null)
+                {
+                    throw new NullReferenceException($"The subscription can't be null.");
+                }
+
+                item.SubscriptionId = subscription.Id;
+            }
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
 
         #endregion
     }

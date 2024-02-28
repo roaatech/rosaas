@@ -6,7 +6,7 @@ namespace Roaa.Rosas.Application.Payment.Methods
 {
     public interface IPaymentMethodService
     {
-        Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, CancellationToken cancellationToken = default);
+        Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, bool storeCardInfo, CancellationToken cancellationToken = default);
 
         Task<Result<Order>> CompleteSuccessfulPaymentProcessAsync(Guid orderId, CancellationToken cancellationToken = default);
 
