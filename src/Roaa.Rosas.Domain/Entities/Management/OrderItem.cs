@@ -7,7 +7,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public Guid OrderId { get; set; }
         public Guid ClientId { get; set; }
         public Guid ProductId { get; set; }
-        public Guid SubscriptionId { get; set; }
+        public Guid? SubscriptionId { get; set; }
         public Guid PlanId { get; set; }
         public Guid PlanPriceId { get; set; }
         public int? CustomPeriodInDays { get; set; } = null;
@@ -25,9 +25,11 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public int TrialPeriodInDays { get; set; }
         public virtual Order? Order { get; set; }
+        public virtual Subscription? Subscription { get; set; }
         public List<OrderItemSpecification> Specifications { get; set; } = new();
 
     }
+
     public class OrderItemSpecification
     {
         public Guid PurchasedEntityId { get; set; }

@@ -20,6 +20,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.PriceInclTax).HasPrecision(8, 2).IsRequired();
             builder.Property(r => r.PriceExclTax).HasPrecision(8, 2).IsRequired();
             builder.HasOne(b => b.Order).WithMany(p => p.OrderItems).HasForeignKey(f => f.OrderId).OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(b => b.Subscription).WithMany(p => p.OrderItems).HasForeignKey(f => f.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
             builder.Property(r => r.Specifications)
                    .IsUnicode()
                    .HasConversion(
