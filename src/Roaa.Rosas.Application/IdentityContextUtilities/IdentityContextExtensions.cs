@@ -35,8 +35,13 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
 
         public static bool IsResourceAdmin(this IIdentityContextService identityContext)
         {
+            return identityContext.GetUserType().IsResourceAdmin();
+        }
+
+        public static bool IsResourceAdmin(this UserType userType)
+        {
             var allowedTypes = new UserType[] { UserType.ClientAdmin, UserType.ProductAdmin, UserType.TenantAdmin };
-            return allowedTypes.Contains(identityContext.GetUserType());
+            return allowedTypes.Contains(userType);
         }
 
         public static bool IsTenantAdmin(this IIdentityContextService identityContext)
