@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
@@ -19,25 +18,17 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
         private readonly ILogger<SubscriptionAutoRenewalService> _logger;
         private readonly IIdentityContextService _identityContextService;
         private readonly IRosasDbContext _dbContext;
-        private readonly IPublisher _publisher;
-        private readonly IMediator _mediator;
-        private DateTime _date;
         #endregion
 
 
         #region Corts
         public SubscriptionAutoRenewalService(ILogger<SubscriptionAutoRenewalService> logger,
                                    IIdentityContextService identityContextService,
-                                   IRosasDbContext dbContext,
-                                   IPublisher publisher,
-                                   IMediator mediator)
+                                   IRosasDbContext dbContext)
         {
             _logger = logger;
             _identityContextService = identityContextService;
             _dbContext = dbContext;
-            _publisher = publisher;
-            _mediator = mediator;
-            _date = DateTime.UtcNow;
         }
 
         #endregion
