@@ -1,14 +1,8 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Roaa.Rosas.Application.IdentityContextUtilities;
-using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
 using Roaa.Rosas.Authorization.Utilities;
-using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
-using Roaa.Rosas.Common.SystemMessages;
-using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAutoRenewal;
 
@@ -17,95 +11,28 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
     #region Props 
     private readonly ILogger<SetSubscriptionAutoRenewalCommandHandler> _logger;
     private readonly IIdentityContextService _identityContextService;
-    private readonly IRosasDbContext _dbContext;
+    private readonly ISubscriptionAutoRenewalService _subscriptionAutoRenewalService;
     #endregion
 
 
 
     #region Corts
     public SetSubscriptionAutoRenewalCommandHandler(IIdentityContextService identityContextService,
-                                                    IRosasDbContext dbContext,
+                                                    ISubscriptionAutoRenewalService subscriptionAutoRenewalService,
                                                     ILogger<SetSubscriptionAutoRenewalCommandHandler> logger)
     {
         _identityContextService = identityContextService;
-        _dbContext = dbContext;
+        _subscriptionAutoRenewalService = subscriptionAutoRenewalService;
         _logger = logger;
     }
     #endregion
 
 
+
     #region Handler   
     public async Task<Result> Handle(SetSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken)
     {
-        if (!await _dbContext.Subscriptions
-                             .Where(x => _identityContextService.IsSuperAdmin() ||
-                                        _dbContext.EntityAdminPrivileges
-                                                .Any(a =>
-                                                    a.UserId == _identityContextService.UserId &&
-                                                    a.EntityId == x.TenantId &&
-                                                    a.EntityType == EntityType.Tenant
-                                                    )
-                                    )
-                             .Where(x => x.Id == command.SubscriptionId)
-                             .AnyAsync())
-        {
-            return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.SubscriptionId));
-        }
-
-
-        var planPrice = await _dbContext.PlanPrices
-                                        .Include(p => p.Plan)
-                                        .Where(x => x.Id == command.PlanPriceId)
-                                        .SingleOrDefaultAsync();
-        if (planPrice is null)
-        {
-            return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(command.PlanPriceId));
-        }
-
-
-        var date = DateTime.UtcNow;
-        var autoRenewal = await _dbContext.SubscriptionAutoRenewals
-                                            .Where(x => x.Id == command.SubscriptionId)
-                                            .SingleOrDefaultAsync();
-        if (autoRenewal is null)
-        {
-            autoRenewal = new SubscriptionAutoRenewal
-            {
-                Id = command.SubscriptionId,
-                SubscriptionId = command.SubscriptionId,
-                PlanPriceId = command.PlanPriceId,
-                PlanId = planPrice.PlanId,
-                PlanCycle = planPrice.PlanCycle,
-                Price = planPrice.Price,
-                PlanDisplayName = planPrice.Plan.DisplayName,
-                UpcomingAutoRenewalsCount = 1,
-                IsPaid = true,
-                Comment = command.Comment,
-                CreatedByUserId = _identityContextService.UserId,
-                ModifiedByUserId = _identityContextService.UserId,
-                CreationDate = date,
-                ModificationDate = date,
-            };
-
-            _dbContext.SubscriptionAutoRenewals.Add(autoRenewal);
-        }
-        else
-        {
-            autoRenewal.PlanPriceId = command.PlanPriceId;
-            autoRenewal.PlanId = planPrice.PlanId;
-            autoRenewal.PlanCycle = planPrice.PlanCycle;
-            autoRenewal.Price = planPrice.Price;
-            autoRenewal.PlanDisplayName = planPrice.Plan.DisplayName;
-            autoRenewal.Comment = command.Comment;
-            autoRenewal.ModifiedByUserId = _identityContextService.UserId;
-            autoRenewal.ModificationDate = date;
-        }
-
-        autoRenewal.AddDomainEvent(new SubscriptionAutoRenewalEnabledEvent(autoRenewal, command.Comment));
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return Result.Successful();
+        return await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(command.SubscriptionId, command.PlanPriceId, command.Comment, cancellationToken);
     }
     #endregion
 }

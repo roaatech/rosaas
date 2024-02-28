@@ -19,6 +19,7 @@ using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Application.Services.Management.Specifications;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
@@ -79,6 +80,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<ITenantHealthCheckService, TenantHealthCheckService>();
             services.AddScoped<ITenantHealthCheckSettingsService, TenantHealthCheckSettingsService>();
             services.AddScoped<ISubscriptionService, SubscriptionService>();
+            services.AddScoped<ISubscriptionAutoRenewalService, SubscriptionAutoRenewalService>();
             services.AddScoped<ISpecificationService, SpecificationService>();
             services.AddScoped<IEntityAdminPrivilegeService, EntityAdminPrivilegeService>();
             services.AddScoped<IOrderService, OrderService>();
