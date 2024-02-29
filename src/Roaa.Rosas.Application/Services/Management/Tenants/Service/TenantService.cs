@@ -224,6 +224,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                 DisplayName = displayName,
                 CreatedByUserId = _identityContextService.GetActorId(),
                 ModifiedByUserId = _identityContextService.GetActorId(),
+                CreatedByUserType = _identityContextService.GetUserType(),
                 CreationDate = DateTime.UtcNow,
                 ModificationDate = DateTime.UtcNow,
                 Specifications = specifications.Select(spec =>

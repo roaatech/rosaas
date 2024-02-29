@@ -184,7 +184,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 UnitPriceExclTax = planData.PlanPrice.Price,
                 UnitPriceInclTax = planData.PlanPrice.Price,
                 Quantity = _quantity,
-                SystemName = $"{planData.Product.SystemName}--{planData.Plan.SystemName}--{tenantName}",
+                SystemName = $"{tenantName}",
                 DisplayName = $"[Product: {planData.Product.DisplayName}], [Plan: {planData.Plan.DisplayName}], [Tenant: {tenantDisplayName}]",
                 TrialPeriodInDays = FeatchTrialPeriodInDays(planData),
                 Specifications = planData.Features.Select(x => new OrderItemSpecification

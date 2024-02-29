@@ -1,10 +1,13 @@
-﻿namespace Roaa.Rosas.Domain.Entities.Management
+﻿using Roaa.Rosas.Common.Enums;
+
+namespace Roaa.Rosas.Domain.Entities.Management
 {
     public class TenantCreationRequest : BaseAuditableEntity
     {
         public string NormalizedSystemName { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public Guid OrderId { get; set; }
+        public UserType CreatedByUserType { get; set; }
         public virtual ICollection<TenantCreationRequestSpecification> Specifications { get; set; } = new List<TenantCreationRequestSpecification>();
     }
 
