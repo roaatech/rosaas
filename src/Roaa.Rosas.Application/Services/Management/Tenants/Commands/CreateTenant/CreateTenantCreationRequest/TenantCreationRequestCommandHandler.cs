@@ -7,6 +7,7 @@ using Roaa.Rosas.Application.Payment.Models;
 using Roaa.Rosas.Application.Payment.Services;
 using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.Products;
+using Roaa.Rosas.Application.Services.Management.TenantCreationRequests;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
@@ -26,6 +27,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
     private readonly IProductService _productService;
     private readonly IOrderService _orderService;
     private readonly ITenantService _tenantService;
+    private readonly ITenantCreationRequestService _tenantCreationRequestService;
     private readonly IPaymentService _paymentService;
     private readonly IExternalSystemAPI _externalSystemAPI;
     private readonly IIdentityContextService _identityContextService;
@@ -46,6 +48,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
          IPaymentService paymentService,
         IExternalSystemAPI externalSystemAPI,
         IIdentityContextService identityContextService,
+        ITenantCreationRequestService tenantCreationRequestService,
         ILogger<TenantCreationRequestCommandHandler> logger)
     {
         _publisher = publisher;
@@ -58,6 +61,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
         _paymentService = paymentService;
         _externalSystemAPI = externalSystemAPI;
         _identityContextService = identityContextService;
+        _tenantCreationRequestService = tenantCreationRequestService;
         _logger = logger;
     }
 
@@ -70,7 +74,7 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
 
     public async Task<Result<TenantCreationRequestResultDto>> Handle(TenantCreationRequestCommand request, CancellationToken cancellationToken)
     {
-        var preparationsResult = await _tenantService.PrepareTenantCreationAsync(request, null, cancellationToken);
+        var preparationsResult = await _tenantCreationRequestService.PrepareTenantCreationAsync(request, null, cancellationToken);
 
         if (!preparationsResult.Success)
         {
@@ -79,19 +83,18 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
 
         var order = _orderService.BuildOrderEntity(request.SystemName, request.DisplayName, preparationsResult.Data);
 
-        var tenantCreationRequestEntity = _tenantService.BuildTenantCreationRequestEntity(
-                                                                              order.Id,
-                                                                              request.SystemName,
-                                                                              request.DisplayName,
-                                                                              request.Subscriptions
-                                                                             .SelectMany(x => x.Specifications
-                                                                                .Select(spec => new TenantCreationRequestSpecification
-                                                                                {
-                                                                                    ProductId = x.ProductId,
-                                                                                    SpecificationId = spec.SpecificationId,
-                                                                                    Value = spec.Value
-                                                                                }))
-                                                                             .ToList());
+        var tenantCreationRequestEntity = _tenantCreationRequestService.BuildTenantCreationRequestEntity(order.Id,
+                                                                                                          request.SystemName,
+                                                                                                          request.DisplayName,
+                                                                                                          request.Subscriptions
+                                                                                                         .SelectMany(x => x.Specifications
+                                                                                                            .Select(spec => new TenantCreationRequestSpecification
+                                                                                                            {
+                                                                                                                ProductId = x.ProductId,
+                                                                                                                SpecificationId = spec.SpecificationId,
+                                                                                                                Value = spec.Value
+                                                                                                            }))
+                                                                                                         .ToList());
 
         var tenantNameEntities = _tenantService.BuildTenantSystemNameEntities(request.SystemName,
                                                                                  request.Subscriptions
@@ -107,26 +110,6 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         string? navigationUrl = null;
-
-
-
-        // >>>  when we have trial period, We will directly create the tenant within the trial plan.  <<<
-        //if (preparationsResult.Data.All(x => x.Plan.TenancyType == Domain.Enums.TenancyType.Planed) &&
-        //    preparationsResult.Data.All(x => x.HasTrial))
-        //{
-        //    var tenantCreatedResult = await CreateTenantAsync(request, order, preparationsResult.Data, cancellationToken);
-
-        //    if (!tenantCreatedResult.Success)
-        //    {
-        //        return Result<TenantCreationRequestResultDto>.Fail(tenantCreatedResult.Messages);
-        //    }
-
-        //    await _orderService.MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(order, cancellationToken);
-
-        //    return Result<TenantCreationRequestResultDto>.Successful(new TenantCreationRequestResultDto(order.Id, false, navigationUrl, tenantCreatedResult.Data.TenantId));
-        //}
-
-
 
         if (request.CreationByOneClick)
         {
@@ -149,6 +132,26 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
     }
 
 
+
+
+
+
+
+    // >>>  when we have trial period, We will directly create the tenant within the trial plan.  <<<
+    //if (preparationsResult.Data.All(x => x.Plan.TenancyType == Domain.Enums.TenancyType.Planed) &&
+    //    preparationsResult.Data.All(x => x.HasTrial))
+    //{
+    //    var tenantCreatedResult = await CreateTenantAsync(request, order, preparationsResult.Data, cancellationToken);
+
+    //    if (!tenantCreatedResult.Success)
+    //    {
+    //        return Result<TenantCreationRequestResultDto>.Fail(tenantCreatedResult.Messages);
+    //    }
+
+    //    await _orderService.MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(order, cancellationToken);
+
+    //    return Result<TenantCreationRequestResultDto>.Successful(new TenantCreationRequestResultDto(order.Id, false, navigationUrl, tenantCreatedResult.Data.TenantId));
+    //}
     // TODO
     public async Task<Result<TenantCreatedResultDto>> CreateTenantAsync(TenantCreationRequestCommand model,
                                                                         Order order,

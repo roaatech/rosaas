@@ -11,9 +11,17 @@
         public int? UpcomingAutoRenewalsCount { get; set; }
         public bool IsPaid { get; set; }
         public string? Comment { get; set; }
+        //    public string? PaymentMethodCardReferenceId { get; set; }
+        //   public SubscriptionAutoRenewalStatus? Status { get; set; }
         public virtual Plan? Plan { get; set; }
         public virtual PlanPrice? PlanPrice { get; set; }
         public virtual Subscription? Subscription { get; set; }
+    }
+
+    public enum SubscriptionAutoRenewalStatus
+    {
+        Prepared = 1,
+        Failed = 2,
     }
 
 }

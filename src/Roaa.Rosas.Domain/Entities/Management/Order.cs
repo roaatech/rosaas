@@ -54,12 +54,21 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public bool IsMustChangePlan { get; set; }
 
+        public PaymentMethodCard? PaymentMethodCard { get; set; }
+
         public virtual Tenant? Tenant { get; set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-
     }
-
+    public class PaymentMethodCard
+    {
+        public string ReferenceId { get; set; } = string.Empty;
+        public string Brand { get; set; } = string.Empty;
+        public int ExpirationMonth { get; set; }
+        public int ExpirationYear { get; set; }
+        public string CardholderName { get; set; } = string.Empty;
+        public string Last4Digits { get; set; } = string.Empty;
+    }
     public enum PaymentMethodType
     {
         Manwal = 1,

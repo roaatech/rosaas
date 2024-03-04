@@ -6,7 +6,7 @@ using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Products.Queries.GetProductWarnings;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionDetails;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsListByProduct;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -90,7 +90,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpGet("{id}/subscriptions")]
         public async Task<IActionResult> GetSubscriptionsListAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(id), cancellationToken));
+            return ItemResult(await _mediator.Send(new GetSubscriptionsListByProductQuery(id), cancellationToken));
         }
 
         [HttpGet("{id}/Warnings")]

@@ -11,6 +11,7 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscript
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionCycles;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionFeatures;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -47,6 +48,11 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #endregion
 
         #region Actions   
+        [HttpGet()]
+        public async Task<IActionResult> GetSubscriptionsListAsync(CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _mediator.Send(new GetSubscriptionsListQuery(), cancellationToken));
+        }
 
 
         [HttpPost("Reset")]

@@ -20,6 +20,7 @@ using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Application.Services.Management.Specifications;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
+using Roaa.Rosas.Application.Services.Management.TenantCreationRequests;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
@@ -65,6 +66,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<IPermissionService, PermissionService>();
 
             services.AddScoped<ITenantService, TenantService>();
+            services.AddScoped<ITenantCreationRequestService, TenantCreationRequestService>();
             services.AddScoped<ITenantWorkflow, TenantWorkflow>();
             services.AddScoped<ManagementDbInitialiser>();
             #endregion

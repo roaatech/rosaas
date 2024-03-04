@@ -1,6 +1,4 @@
 ﻿using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -26,8 +24,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
         List<TenantSystemName> BuildTenantSystemNameEntities(string systemName, List<Guid> productIdS, Guid tenantCreationRequestId, Guid? tenantId = null);
 
-        TenantCreationRequest BuildTenantCreationRequestEntity(Guid orderId, string systemName, string displayName, List<TenantCreationRequestSpecification> specifications);
 
-        Task<Result<List<TenantCreationPreparationModel>>> PrepareTenantCreationAsync(TenantCreationRequestModel request, Guid? tenantCreationRequestId, CancellationToken cancellationToken = default);
+
     }
 }

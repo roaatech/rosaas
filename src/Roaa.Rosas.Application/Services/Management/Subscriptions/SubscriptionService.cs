@@ -3,14 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
+using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 {
@@ -46,6 +49,69 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
         #region Services 
 
+
+        public async Task<Result<List<MySubscriptionListItemDto>>> GetSubscriptionsListByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            var tenants = await _dbContext.Subscriptions.AsNoTracking()
+                                                        .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                                    _dbContext.EntityAdminPrivileges
+                                                                            .Any(a => a.UserId == userId &&
+                                                                                      a.EntityId == x.TenantId &&
+                                                                                      a.EntityType == EntityType.Tenant
+                                                                                ))
+                                                         .Select(subscription => new MySubscriptionListItemDto
+                                                         {
+                                                             Id = subscription.Id,
+                                                             SubscriptionId = subscription.Id,
+                                                             SystemName = subscription.Tenant.SystemName,
+                                                             DisplayName = subscription.Tenant.DisplayName,
+                                                             IsActive = subscription.IsActive,
+                                                             EndDate = subscription.EndDate,
+                                                             StartDate = subscription.StartDate,
+                                                             Plan = new Common.Models.CustomLookupItemDto<Guid>(subscription.PlanId, subscription.Plan.SystemName, subscription.Plan.DisplayName),
+                                                             CreatedDate = subscription.Tenant.CreationDate,
+                                                             EditedDate = subscription.Tenant.ModificationDate,
+                                                             AutoRenewalIsEnabled = subscription.AutoRenewal == null ? false : true,
+                                                             PlanChangingIsEnabled = subscription.SubscriptionPlanChanging == null ? false : true,
+                                                             PlanChangingType = subscription.SubscriptionPlanChanging == null ? null : subscription.SubscriptionPlanChanging.Type,
+                                                         })
+                                                         .ToListAsync(cancellationToken);
+
+            return Result<List<MySubscriptionListItemDto>>.Successful(tenants);
+        }
+
+        public async Task<Result<List<SubscriptionListItemDto>>> GetSubscriptionsListByProductIdAsync(Guid productId, CancellationToken cancellationToken)
+        {
+            var tenants = await _dbContext.Subscriptions.AsNoTracking()
+                                                 .Where(x => x.ProductId == productId)
+                                                 .Select(GetSubscriptionDtoSelector())
+                                                 .ToListAsync(cancellationToken);
+
+            return Result<List<SubscriptionListItemDto>>.Successful(tenants);
+        }
+
+
+        public Expression<Func<Subscription, SubscriptionListItemDto>> GetSubscriptionDtoSelector()
+        {
+            return x => new SubscriptionListItemDto
+            {
+                Id = x.Id,
+                SubscriptionId = x.Id,
+                TenantId = x.TenantId,
+                SystemName = x.Tenant.SystemName,
+                HealthCheckUrl = x.HealthCheckUrl,
+                HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
+                DisplayName = x.Tenant.DisplayName,
+                Status = x.Status,
+                IsActive = x.IsActive,
+                EndDate = x.EndDate,
+                StartDate = x.StartDate,
+                Plan = new Common.Models.CustomLookupItemDto<Guid>(x.PlanId, x.Plan.SystemName, x.Plan.DisplayName),
+                CreatedDate = x.Tenant.CreationDate,
+                EditedDate = x.Tenant.ModificationDate,
+
+            };
+        }
         public async Task<Result> DeactivateSubscriptionDueToNonPaymentAsync(int periodTimeAfterEndDateInHours, CancellationToken cancellationToken = default)
         {
             var currentDate = DateTime.UtcNow;

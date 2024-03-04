@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
+using Roaa.Rosas.Application.Services.Management.TenantCreationRequests;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
@@ -20,14 +21,14 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
         private readonly ITenantWorkflow _workflow;
         private readonly IIdentityContextService _identityContextService;
         private readonly ISubscriptionService _subscriptionService;
-        private readonly ITenantService _tenantService;
+        private readonly ITenantCreationRequestService _tenantCreationRequestService;
         private readonly ISender _mediator;
 
         public OrderCompletionAchievedForTenantCreationEventHandler(ITenantWorkflow workflow,
                                             IRosasDbContext dbContext,
                                             IIdentityContextService identityContextService,
                                             ISubscriptionService subscriptionService,
-                                            ITenantService tenantService,
+                                            ITenantCreationRequestService tenantCreationRequestService,
                                             ISender mediator,
                                             ILogger<OrderCompletionAchievedForTenantCreationEventHandler> logger)
         {
@@ -35,7 +36,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
             _dbContext = dbContext;
             _identityContextService = identityContextService;
             _subscriptionService = subscriptionService;
-            _tenantService = tenantService;
+            _tenantCreationRequestService = tenantCreationRequestService;
             _logger = logger;
             _mediator = mediator;
         }
@@ -76,7 +77,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                                         .ToList(),
             };
 
-            var preparationsResult = await _tenantService.PrepareTenantCreationAsync(model, tenantCreationRequest.Id, cancellationToken);
+            var preparationsResult = await _tenantCreationRequestService.PrepareTenantCreationAsync(model, tenantCreationRequest.Id, cancellationToken);
 
             if (!preparationsResult.Success)
             {

@@ -1,15 +1,14 @@
 ﻿using MediatR;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Models;
 using Roaa.Rosas.Common.Models.Results;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList
 {
-    public record GetSubscriptionsListQuery : IRequest<Result<List<SubscriptionListItemDto>>>
+    public record GetSubscriptionsListQuery : IRequest<Result<List<MySubscriptionListItemDto>>>
     {
-        public GetSubscriptionsListQuery(Guid productId)
+        public GetSubscriptionsListQuery()
         {
-            ProductId = productId;
         }
 
-        public Guid ProductId { get; set; }
     }
 }

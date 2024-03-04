@@ -2,10 +2,11 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Infrastructure.Common;
+using Roaa.Rosas.Infrastructure.Persistence.Configurations.Shared;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
 {
-    public class OrderConfiguration : IEntityTypeConfiguration<Order>
+    public class OrderConfiguration : BaseEntityConfiguration<Order>, IEntityTypeConfiguration<Order>
     {
         #region Configure 
         public void Configure(EntityTypeBuilder<Order> builder)
@@ -31,6 +32,14 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.ModificationDate).IsRequired();
             builder.Ignore(r => r.DomainEvents);
             builder.HasOne(b => b.Tenant).WithMany(p => p.Orders).HasForeignKey(f => f.TenantId).OnDelete(DeleteBehavior.Restrict);
+            builder.Property(r => r.PaymentMethodCard)
+                .IsRequired(false)
+                .HasMaxLength(1000)
+                .IsUnicode()
+                .HasConversion(
+                        ConvertLocalizedStringToJson<PaymentMethodCard>(),
+                        ConvertJsonToLocalizedString<PaymentMethodCard>()
+                    );
         }
         #endregion
     }

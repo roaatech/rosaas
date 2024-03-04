@@ -290,8 +290,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             SubscriptionId = planInfo.GeneratedSubscriptionId,
         };
     }
-
-
     private SubscriptionTrialPeriod? BuildSubscriptionTrialPeriodEntity(TenantCreationPreparationModel model)
     {
         if (model.HasTrial)
@@ -326,7 +324,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
         }
         return null;
     }
-
     private int? GetTrialPeriodInDays(TenantCreationPreparationModel model)
     {
         int? trialPeriodInDays = null;
@@ -362,7 +359,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         return SubscriptionCycleType.Normal;
     }
-
     private IEnumerable<TenantHealthStatus> BuildProductTenantHealthStatusEntities(ICollection<Subscription> subscriptions)
     {
         return subscriptions.Select(item => new TenantHealthStatus
@@ -377,7 +373,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             IsChecked = false,
         });
     }
-
     private IEnumerable<TenantStatusHistory> BuildTenantStatusHistoryEntities(CreateTenantCommand model, Guid tenantId, ICollection<Subscription> subscriptions, Workflow initialProcess)
     {
         return subscriptions.Select(subscription => new TenantStatusHistory
@@ -397,7 +392,6 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             Message = initialProcess.Message
         });
     }
-
 
     #endregion
 }

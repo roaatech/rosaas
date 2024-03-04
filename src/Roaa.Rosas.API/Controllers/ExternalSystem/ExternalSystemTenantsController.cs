@@ -8,7 +8,7 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscript
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsDowngradeApplied;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsUpgradeApplied;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
+using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsListByProduct;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantMetadataByName;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantStatusByName;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentByNameAndProductId;
@@ -53,7 +53,7 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         [HttpGet()]
         public async Task<IActionResult> GetTenantsSubscriptionsListAsync(CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetSubscriptionsListQuery(_identityContextService.GetProductId()), cancellationToken));
+            return ItemResult(await _mediator.Send(new GetSubscriptionsListByProductQuery(_identityContextService.GetProductId()), cancellationToken));
         }
 
         [HttpGet("{name}")]

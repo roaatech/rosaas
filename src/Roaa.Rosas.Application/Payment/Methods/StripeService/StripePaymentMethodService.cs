@@ -141,10 +141,15 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             var service = new PaymentMethodService();
             await service.DetachAsync(cardId);
         }
-        private Task<StripeList<PaymentMethod>> GetCustomerPaymentMethodCardsListAsync(string customerId, CancellationToken cancellationToken = default)
+        private Task<StripeList<PaymentMethod>> GetCustomerPaymentMethodCardsListAsync(string paymentMethodId, CancellationToken cancellationToken = default)
         {
             var service = new CustomerService();
-            return service.ListPaymentMethodsAsync(customerId, new CustomerListPaymentMethodsOptions { Type = "card" }, null, cancellationToken);
+            return service.ListPaymentMethodsAsync(paymentMethodId, new CustomerListPaymentMethodsOptions { Type = "card" }, null, cancellationToken);
+        }
+        private async Task<PaymentMethod> GetPaymentMethodAsync(string paymentMethodId, CancellationToken cancellationToken = default)
+        {
+            var service = new PaymentMethodService();
+            return await service.GetAsync(paymentMethodId, null, null, cancellationToken);
         }
         private async Task<Session> GetSessionAsync(string sessionId, CancellationToken cancellationToken = default)
         {
@@ -490,6 +495,19 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             order.ProcessedPaymentId = paymentIntent.Id;
             order.ProcessedPaymentReferenceType = paymentIntent.GetType().Name;
             order.ProcessedPaymentReference = JsonConvert.SerializeObject(paymentIntent);
+            var paymentMethod = await GetPaymentMethodAsync(paymentIntent.PaymentMethodId, cancellationToken);
+            if (paymentMethod != null)
+            {
+                order.PaymentMethodCard = new Domain.Entities.Management.PaymentMethodCard
+                {
+                    ReferenceId = paymentMethod.Id,
+                    Brand = paymentMethod.Card.Brand,
+                    ExpirationMonth = (int)paymentMethod.Card.ExpMonth,
+                    ExpirationYear = (int)paymentMethod.Card.ExpYear,
+                    Last4Digits = paymentMethod.Card.Last4,
+                    CardholderName = paymentMethod.BillingDetails.Name,
+                };
+            }
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Result<CheckoutResultModel>.Successful(new CheckoutResultModel

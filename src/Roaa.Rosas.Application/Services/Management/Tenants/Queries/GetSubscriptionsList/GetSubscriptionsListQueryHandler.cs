@@ -1,60 +1,51 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Orders;
+using Roaa.Rosas.Application.Services.Management.Subscriptions;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Models;
 using Roaa.Rosas.Authorization.Utilities;
-using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models.Results;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList
 {
-    public class GetSubscriptionsListQueryHandler : IRequestHandler<GetSubscriptionsListQuery, Result<List<SubscriptionListItemDto>>>
+    public class GetSubscriptionsListQueryHandler : IRequestHandler<GetSubscriptionsListQuery, Result<List<MySubscriptionListItemDto>>>
     {
         #region Props 
-        private readonly IRosasDbContext _dbContext;
+        private readonly ISubscriptionService _subscriptionService;
+        private readonly IOrderService _orderService;
         private readonly IIdentityContextService _identityContextService;
         #endregion
 
 
         #region Corts
-        public GetSubscriptionsListQueryHandler(IRosasDbContext dbContext,
-                                                  IIdentityContextService identityContextService)
+        public GetSubscriptionsListQueryHandler(ISubscriptionService subscriptionService,
+                                                IOrderService orderService,
+                                                IIdentityContextService identityContextService)
         {
-            _dbContext = dbContext;
+            _subscriptionService = subscriptionService;
+            _orderService = orderService;
             _identityContextService = identityContextService;
         }
         #endregion
 
 
         #region Handler   
-        public async Task<Result<List<SubscriptionListItemDto>>> Handle(GetSubscriptionsListQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<MySubscriptionListItemDto>>> Handle(GetSubscriptionsListQuery request, CancellationToken cancellationToken)
         {
-            var tenants = await _dbContext.Subscriptions.AsNoTracking()
-                                                 //.Where(x => _identityContextService.GetUserType() == Common.Enums.UserType.SuperAdmin ||
-                                                 //             _dbContext.ProductAdmins.Any(a => a.UserId == _identityContextService.UserId &&
-                                                 //                                              a.ProductId == x.ProductId
-                                                 //                                        )
-                                                 //      )
-                                                 .Where(x => x.ProductId == request.ProductId)
-                                                 .Select(x => new SubscriptionListItemDto
-                                                 {
-                                                     SubscriptionId = x.Id,
-                                                     TenantId = x.TenantId,
-                                                     SystemName = x.Tenant.SystemName,
-                                                     HealthCheckUrl = x.HealthCheckUrl,
-                                                     HealthCheckUrlIsOverridden = x.HealthCheckUrlIsOverridden,
-                                                     DisplayName = x.Tenant.DisplayName,
-                                                     Status = x.Status,
-                                                     IsActive = x.IsActive,
-                                                     EndDate = x.EndDate,
-                                                     StartDate = x.StartDate,
-                                                     Plan = new Common.Models.CustomLookupItemDto<Guid>(x.PlanId, x.Plan.SystemName, x.Plan.DisplayName),
-                                                     CreatedDate = x.Tenant.CreationDate,
-                                                     EditedDate = x.Tenant.ModificationDate,
-                                                 })
-                                                 .ToListAsync(cancellationToken);
+            var result = await _subscriptionService.GetSubscriptionsListByUserIdAsync(_identityContextService.UserId, cancellationToken);
 
-            return Result<List<SubscriptionListItemDto>>.Successful(tenants);
+            if (result.Data != null && result.Data.Any())
+            {
+                var cards = await _orderService.GetPaymentMethodCardsListAsync(result.Data.Select(x => new Guid?(x.SubscriptionId)).ToList(), cancellationToken);
+
+                foreach (var subscription in result.Data)
+                {
+                    subscription.PaymentMethodCard = cards.Where(x => x.Key == subscription.Id).Select(x => x.Value).FirstOrDefault();
+                }
+            }
+
+            return result;
         }
+
         #endregion
     }
 }

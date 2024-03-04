@@ -14,6 +14,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Models;
 using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders
@@ -98,6 +99,27 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
             return Result<List<OrderDto>>.Successful(orders);
         }
+
+        public async Task<List<KeyValuePair<Guid, PaymentMethodCardDto>>> GetPaymentMethodCardsListAsync(List<Guid?> subscriptions, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.OrderItems
+                                    .Where(x => x.SubscriptionId != null &&
+                                                subscriptions.Contains(x.SubscriptionId) &&
+                                                x.Order.PaymentMethodCard != null)
+                                    .Select(x => new KeyValuePair<Guid, PaymentMethodCardDto>(
+                                        x.SubscriptionId.Value,
+                                        new PaymentMethodCardDto
+                                        {
+                                            ReferenceId = x.Order.PaymentMethodCard.ReferenceId,
+                                            Brand = x.Order.PaymentMethodCard.Brand,
+                                            ExpirationMonth = x.Order.PaymentMethodCard.ExpirationMonth,
+                                            ExpirationYear = x.Order.PaymentMethodCard.ExpirationYear,
+                                            CardholderName = x.Order.PaymentMethodCard.CardholderName,
+                                            Last4Digits = x.Order.PaymentMethodCard.Last4Digits,
+                                        }))
+                                    .ToListAsync(cancellationToken);
+        }
+
 
         public Expression<Func<Order, OrderDto>> GetOrderDtoSelector()
         {
