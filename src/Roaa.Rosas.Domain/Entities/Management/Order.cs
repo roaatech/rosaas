@@ -10,6 +10,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public OrderStatus OrderStatus { get; set; }
         public PaymentStatus? PaymentStatus { get; set; }
         public PaymentMethodType? PaymentMethodType { get; set; }
+        public PaymentPlatform? PaymentPlatform { get; set; }
         public DateTime? PaymentProcessingExpirationDate { get; set; } = null;
         public CurrencyCode UserCurrencyType { get; set; }
         public string UserCurrencyCode { get; set; } = string.Empty;
@@ -56,6 +57,8 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public PaymentMethodCard? PaymentMethodCard { get; set; }
 
+        public PaymentMethod? PaymentMethod { get; set; }
+
         public virtual Tenant? Tenant { get; set; }
 
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
@@ -69,7 +72,18 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public string CardholderName { get; set; } = string.Empty;
         public string Last4Digits { get; set; } = string.Empty;
     }
+
+    public class PaymentMethod
+    {
+        public PaymentMethodCard? Card { get; set; }
+    }
+
     public enum PaymentMethodType
+    {
+        None = 1,
+        Card = 2,
+    }
+    public enum PaymentPlatform
     {
         Manwal = 1,
         Stripe = 2,

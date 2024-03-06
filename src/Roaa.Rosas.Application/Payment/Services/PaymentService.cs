@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Payment.Factories;
@@ -11,6 +12,7 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Payment.Services
 {
@@ -21,6 +23,7 @@ namespace Roaa.Rosas.Application.Payment.Services
         private readonly IPaymentMethodFactory _paymentMethodFactory;
         private readonly IRosasDbContext _dbContext;
         private readonly IIdentityContextService _identityContextService;
+        private readonly IPublisher _publisher;
         private readonly ISettingService _settingService;
         private readonly IOrderService _orderService;
         private readonly IPaymentProcessingService _paymentProcessingService;
@@ -34,6 +37,7 @@ namespace Roaa.Rosas.Application.Payment.Services
                                    IPaymentMethodFactory paymentMethodFactory,
                                    IRosasDbContext dbContext,
                                    IIdentityContextService identityContextService,
+                                   IPublisher publisher,
                                    IOrderService orderService,
                                    IPaymentProcessingService paymentProcessingService,
                                    ISettingService settingService)
@@ -42,6 +46,7 @@ namespace Roaa.Rosas.Application.Payment.Services
             _paymentMethodFactory = paymentMethodFactory;
             _dbContext = dbContext;
             _identityContextService = identityContextService;
+            _publisher = publisher;
             _orderService = orderService;
             _paymentProcessingService = paymentProcessingService;
             _settingService = settingService;
@@ -60,12 +65,17 @@ namespace Roaa.Rosas.Application.Payment.Services
                 return Result<CheckoutResultModel>.Fail(FetchNonPaymentTransactionReasons(order, model.PaymentMethod), _identityContextService.Locale);
             }
 
-            var paymentMethodType = order.OrderTotal == 0 ? PaymentMethodType.Manwal : model.PaymentMethod;
+            await _publisher.Publish(new PaymentProcessingPreparationEvent(model.OrderId, model.EnableAutoRenewal));
 
-            var paymentMethod = _paymentMethodFactory.GetPaymentMethod(paymentMethodType);
+            var paymentPlatformType = order.OrderTotal == 0 ? PaymentPlatform.Manwal : model.PaymentMethod;
+
+            // TODO : [Determine the payment method (card or other) by the end user]
+            var paymentMethodType = paymentPlatformType == PaymentPlatform.Manwal ? PaymentMethodType.None : PaymentMethodType.Card;
+
+            var paymentPlatform = _paymentMethodFactory.GetPaymentMethod(paymentPlatformType);
 
 
-            var result = await paymentMethod.CreatePaymentAsync(order, order.OrderItems.Any(x => x.TrialPeriodInDays > 0), model.AllowStoringCardInfo, cancellationToken);
+            var result = await paymentPlatform.CreatePaymentAsync(order, order.OrderItems.Any(x => x.TrialPeriodInDays > 0), model.AllowStoringCardInfo, paymentMethodType, cancellationToken);
 
             if (!result.Success)
             {
@@ -94,9 +104,9 @@ namespace Roaa.Rosas.Application.Payment.Services
                 return Result.Fail(ErrorMessage.UnauthorizedPaymentCannotBeCaptured, _identityContextService.Locale);
             }
 
-            var paymentMethod = _paymentMethodFactory.GetPaymentMethod(order.PaymentMethodType);
+            var paymentPlatform = _paymentMethodFactory.GetPaymentMethod(order.PaymentPlatform);
 
-            return await paymentMethod.CapturePaymentAsync(order, cancellationToken);
+            return await paymentPlatform.CapturePaymentAsync(order, cancellationToken);
         }
 
 
@@ -132,7 +142,7 @@ namespace Roaa.Rosas.Application.Payment.Services
             return true;
         }
 
-        public Enum FetchNonPaymentTransactionReasons(Order order, PaymentMethodType? paymentMethod)
+        public Enum FetchNonPaymentTransactionReasons(Order order, PaymentPlatform? paymentPlatform)
         {
 
             if (order is null)
@@ -140,9 +150,9 @@ namespace Roaa.Rosas.Application.Payment.Services
                 return CommonErrorKeys.ResourcesNotFoundOrAccessDenied;
             }
 
-            if (order.OrderTotal > 0 && !paymentMethod.HasValue)
+            if (order.OrderTotal > 0 && !paymentPlatform.HasValue)
             {
-                return ErrorMessage.SelectPaymentMethod;
+                return ErrorMessage.SelectPaymentPlatform;
             }
 
             if (order.OrderStatus == OrderStatus.Complete)
@@ -157,7 +167,7 @@ namespace Roaa.Rosas.Application.Payment.Services
 
             if (order.IsMustChangePlan)
             {
-                return CommonErrorKeys.ResourcesNotFoundOrAccessDenied;
+                return ErrorMessage.YouMustSelectPaidPlan;
             }
 
             throw new NotImplementedException();

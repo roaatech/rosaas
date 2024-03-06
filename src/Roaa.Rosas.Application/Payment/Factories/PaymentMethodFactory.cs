@@ -23,19 +23,19 @@ namespace Roaa.Rosas.Application.Payment.Factories
         #endregion
 
 
-        public IPaymentMethodService GetPaymentMethod(PaymentMethodType? type)
+        public IPaymentMethodService GetPaymentMethod(PaymentPlatform? paymentPlatform)
         {
-            switch (type)
+            switch (paymentPlatform)
             {
 
-                case PaymentMethodType.Stripe:
+                case PaymentPlatform.Stripe:
                     {
                         return _serviceProvider.GetService<StripePaymentMethodService>();
                     }
 
                 default:
                 case null:
-                case PaymentMethodType.Manwal:
+                case PaymentPlatform.Manwal:
                     {
                         return _serviceProvider.GetService<ManwalPaymentMethodService>();
                     }

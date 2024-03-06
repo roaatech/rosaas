@@ -117,7 +117,11 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
                                                       new CheckoutModel
                                                       {
                                                           OrderId = order.Id,
-                                                          PaymentMethod = preparationsResult.Data.Any(x => x.PlanPrice.Price > 0) ? PaymentMethodType.Stripe : null,
+                                                          PaymentPlatform = preparationsResult.Data.Any(x => x.PlanPrice.Price > 0) ? PaymentPlatform.Stripe : null,
+                                                          //  TODO
+                                                          PaymentMethod = preparationsResult.Data.Any(x => x.PlanPrice.Price > 0) ? PaymentPlatform.Stripe : null,
+                                                          //  AllowStoringCardInfo = false,
+                                                          // EnableAutoRenewal = false,
                                                       },
                                                       cancellationToken);
             if (!result.Success)

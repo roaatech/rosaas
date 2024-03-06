@@ -80,6 +80,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<TenantCreationRequestSpecification> TenantCreationRequestSpecifications { get; set; }
         public DbSet<TenantSystemName> TenantSystemNames { get; set; }
         public DbSet<AuditEntity> Audits { get; set; }
+        public DbSet<LinkedCard> LinkedCards { get; set; }
         #endregion
 
 

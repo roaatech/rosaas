@@ -8,5 +8,7 @@
         Tenant = 4,
         Feature = 5,
         Plan = 6,
+        Subscription = 7,
+        SubscriptionAutoRenewal = 8,
     }
 }

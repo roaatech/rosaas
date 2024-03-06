@@ -32,7 +32,12 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
     #region Handler   
     public async Task<Result> Handle(SetSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken)
     {
-        return await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(command.SubscriptionId, command.PlanPriceId, command.Comment, cancellationToken);
+        return await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(command.SubscriptionId,
+                                                                            command.CardReferenceId,
+                                                                            command.PaymentPlatform,
+                                                                            command.PlanPriceId,
+                                                                            command.Comment,
+                                                                            cancellationToken);
     }
     #endregion
 }

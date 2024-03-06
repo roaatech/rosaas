@@ -4,12 +4,14 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
 using Roaa.Rosas.Application.Services.Management.TenantCreationRequests;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenant;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
@@ -22,6 +24,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
         private readonly IIdentityContextService _identityContextService;
         private readonly ISubscriptionService _subscriptionService;
         private readonly ITenantCreationRequestService _tenantCreationRequestService;
+        private readonly ISubscriptionAutoRenewalService _subscriptionAutoRenewalService;
         private readonly ISender _mediator;
 
         public OrderCompletionAchievedForTenantCreationEventHandler(ITenantWorkflow workflow,
@@ -29,6 +32,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                             IIdentityContextService identityContextService,
                                             ISubscriptionService subscriptionService,
                                             ITenantCreationRequestService tenantCreationRequestService,
+                                            ISubscriptionAutoRenewalService subscriptionAutoRenewalService,
                                             ISender mediator,
                                             ILogger<OrderCompletionAchievedForTenantCreationEventHandler> logger)
         {
@@ -37,6 +41,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
             _identityContextService = identityContextService;
             _subscriptionService = subscriptionService;
             _tenantCreationRequestService = tenantCreationRequestService;
+            _subscriptionAutoRenewalService = subscriptionAutoRenewalService;
             _logger = logger;
             _mediator = mediator;
         }
@@ -115,6 +120,21 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
             order.TenantId = tenantCreatedResult.Data.TenantId;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+
+            // Enable Auto-Renewal
+            var subscriptions = await _dbContext.Subscriptions
+                                                 .Where(x => x.TenantId == tenantCreatedResult.Data.TenantId)
+                                                 .Select(x => new { x.Id, x.SubscriptionMode, x.PlanPriceId })
+                                                 .ToListAsync(cancellationToken);
+
+            foreach (var subscription in subscriptions)
+            {
+                if (subscription.SubscriptionMode == SubscriptionMode.Normal && tenantCreationRequest.AutoRenewalIsEnabled)
+                {
+                    await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(subscription.Id, @event.CardReferenceId, @event.PaymentPlatform, subscription.PlanPriceId, null, cancellationToken);
+                }
+            }
 
         }
 

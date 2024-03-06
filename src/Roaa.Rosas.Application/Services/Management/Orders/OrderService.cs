@@ -14,7 +14,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
-using Roaa.Rosas.Domain.Models;
+using Roaa.Rosas.Domain.Models.Payment;
 using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders
@@ -105,17 +105,17 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             return await _dbContext.OrderItems
                                     .Where(x => x.SubscriptionId != null &&
                                                 subscriptions.Contains(x.SubscriptionId) &&
-                                                x.Order.PaymentMethodCard != null)
+                                                x.Order.PaymentMethod != null)
                                     .Select(x => new KeyValuePair<Guid, PaymentMethodCardDto>(
                                         x.SubscriptionId.Value,
                                         new PaymentMethodCardDto
                                         {
-                                            ReferenceId = x.Order.PaymentMethodCard.ReferenceId,
-                                            Brand = x.Order.PaymentMethodCard.Brand,
-                                            ExpirationMonth = x.Order.PaymentMethodCard.ExpirationMonth,
-                                            ExpirationYear = x.Order.PaymentMethodCard.ExpirationYear,
-                                            CardholderName = x.Order.PaymentMethodCard.CardholderName,
-                                            Last4Digits = x.Order.PaymentMethodCard.Last4Digits,
+                                            ReferenceId = x.Order.PaymentMethod.Card.ReferenceId,
+                                            Brand = x.Order.PaymentMethod.Card.Brand,
+                                            ExpirationMonth = x.Order.PaymentMethod.Card.ExpirationMonth,
+                                            ExpirationYear = x.Order.PaymentMethod.Card.ExpirationYear,
+                                            CardholderName = x.Order.PaymentMethod.Card.CardholderName,
+                                            Last4Digits = x.Order.PaymentMethod.Card.Last4Digits,
                                         }))
                                     .ToListAsync(cancellationToken);
         }
@@ -135,6 +135,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 OrderTotal = order.OrderTotal,
                 PaidDate = order.PaidDate,
                 PaymentMethodType = order.PaymentMethodType,
+                PaymentPlatform = order.PaymentPlatform,
                 PaymentStatus = order.PaymentStatus,
                 UserCurrencyType = order.UserCurrencyType,
                 UserCurrencyCode = order.UserCurrencyCode,

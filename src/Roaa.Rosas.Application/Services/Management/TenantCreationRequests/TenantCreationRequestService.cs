@@ -178,7 +178,18 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
             return Result<List<TenantCreationPreparationModel>>.Successful(planDataList);
         }
 
+        public async Task EnableAutoRenewalAsync(Guid orderId, bool autoRenewalIsEnabled, CancellationToken cancellationToken = default)
+        {
+            var tenantCreationRequest = await _dbContext.TenantCreationRequests
+                                                      .Where(x => x.OrderId == orderId)
+                                                      .SingleOrDefaultAsync(cancellationToken);
+            if (tenantCreationRequest != null)
+            {
+                tenantCreationRequest.AutoRenewalIsEnabled = autoRenewalIsEnabled;
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
 
+        }
         public TenantCreationRequest BuildTenantCreationRequestEntity(Guid orderId, string systemName, string displayName, List<TenantCreationRequestSpecification> specifications)
         {
             return new TenantCreationRequest

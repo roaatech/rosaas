@@ -32,6 +32,14 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.ModificationDate).IsRequired();
             builder.Ignore(r => r.DomainEvents);
             builder.HasOne(b => b.Tenant).WithMany(p => p.Orders).HasForeignKey(f => f.TenantId).OnDelete(DeleteBehavior.Restrict);
+            builder.Property(r => r.PaymentMethod)
+                  .IsRequired(false)
+                .HasMaxLength(1000)
+                .IsUnicode()
+                .HasConversion(
+                        ConvertLocalizedStringToJson<PaymentMethod>(),
+                        ConvertJsonToLocalizedString<PaymentMethod>()
+                    );
             builder.Property(r => r.PaymentMethodCard)
                 .IsRequired(false)
                 .HasMaxLength(1000)

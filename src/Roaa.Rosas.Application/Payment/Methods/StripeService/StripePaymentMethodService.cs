@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Roaa.Rosas.Application.Constatns;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Payment.Methods.StripeService.Models;
 using Roaa.Rosas.Application.Payment.Models;
 using Roaa.Rosas.Application.Payment.Services;
 using Roaa.Rosas.Application.Services.Identity.Accounts.Queries.GetUserProfileByUserId;
@@ -18,6 +17,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models.Options;
+using Roaa.Rosas.Domain.Models.Payment;
 using Stripe;
 using Stripe.Checkout;
 
@@ -62,11 +62,11 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
         }
         #endregion
 
-        public PaymentMethodType PaymentMethodType
+        public PaymentPlatform PaymentPlatform
         {
             get
             {
-                return PaymentMethodType.Stripe;
+                return PaymentPlatform.Stripe;
             }
         }
 
@@ -141,12 +141,12 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             var service = new PaymentMethodService();
             await service.DetachAsync(cardId);
         }
-        private Task<StripeList<PaymentMethod>> GetCustomerPaymentMethodCardsListAsync(string paymentMethodId, CancellationToken cancellationToken = default)
+        private Task<StripeList<Stripe.PaymentMethod>> GetCustomerPaymentMethodCardsListAsync(string paymentMethodId, CancellationToken cancellationToken = default)
         {
             var service = new CustomerService();
             return service.ListPaymentMethodsAsync(paymentMethodId, new CustomerListPaymentMethodsOptions { Type = "card" }, null, cancellationToken);
         }
-        private async Task<PaymentMethod> GetPaymentMethodAsync(string paymentMethodId, CancellationToken cancellationToken = default)
+        private async Task<Stripe.PaymentMethod> GetPaymentMethodAsync(string paymentMethodId, CancellationToken cancellationToken = default)
         {
             var service = new PaymentMethodService();
             return await service.GetAsync(paymentMethodId, null, null, cancellationToken);
@@ -380,13 +380,13 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 
             return Result.Successful();
         }
-        public async Task<Result<List<PaymentMethodCardDto>>> GetPaymentMethodsCardsListByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<Result<List<PaymentMethodCardListItem>>> GetPaymentMethodsCardsListByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             var stripeCustomerId = await FeatchStripeCustomerIdFromStoreAsync(userId, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(stripeCustomerId))
             {
-                return Result<List<PaymentMethodCardDto>>.Successful(new List<PaymentMethodCardDto>());
+                return Result<List<PaymentMethodCardListItem>>.Successful(new List<PaymentMethodCardListItem>());
             }
 
             var stripeResults = await GetCustomerPaymentMethodCardsListAsync(stripeCustomerId, cancellationToken);
@@ -396,24 +396,26 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             string defaultPaymentMethodId = customer.InvoiceSettings.DefaultPaymentMethodId ?? string.Empty;
 
 
-            var cards = stripeResults.Select(x => new PaymentMethodCardDto
+            var cards = stripeResults.Select(x => new PaymentMethodCardListItem
             {
                 StripeCardId = x.Id,
+                ReferenceId = x.Id,
                 Brand = x.Card.Brand,
                 ExpirationMonth = (int)x.Card.ExpMonth,
                 ExpirationYear = (int)x.Card.ExpYear,
                 Last4Digits = x.Card.Last4,
                 CardholderName = x.BillingDetails.Name,
                 IsDefault = string.Equals(x.Id, defaultPaymentMethodId),
+                PaymentPlatform = PaymentPlatform.Stripe,
             }).ToList();
 
-            return Result<List<PaymentMethodCardDto>>.Successful(cards);
+            return Result<List<PaymentMethodCardListItem>>.Successful(cards);
         }
-        public async Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, bool storeCardInfo, CancellationToken cancellationToken = default)
+        public async Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, bool storeCardInfo, PaymentMethodType paymentMethodType, CancellationToken cancellationToken = default)
         {
             Session session = await CreateSessionPaymentAsync(order, setAuthorizedPayment, storeCardInfo, cancellationToken);
 
-            await _paymentProcessingService.MarkOrderAsProcessingAsync(order, PaymentMethodType, cancellationToken);
+            await _paymentProcessingService.MarkOrderAsProcessingAsync(order, PaymentPlatform, paymentMethodType, cancellationToken);
 
             order.AltProcessedPaymentId = session.Id;
             order.ProcessedPaymentReferenceType = session.GetType().Name;
@@ -435,7 +437,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 
             paymentIntent = await CaptureFundsAsync(paymentIntentId, paymentIntent.Amount, cancellationToken);
 
-            order = await _paymentProcessingService.MarkOrderAsPaidAsync(order, cancellationToken);
+            order = await _paymentProcessingService.MarkOrderAsPaidAsync(order, paymentIntent.PaymentMethodId, PaymentPlatform, cancellationToken);
 
             order.ProcessedPaymentId = paymentIntent.Id;
             order.ProcessedPaymentResult = paymentIntent.Status;
@@ -454,8 +456,6 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             order.ProcessedPaymentReference = stripeSession.PaymentIntentId;
             order.AuthorizedPaymentResult = JsonConvert.SerializeObject(stripeSession);
 
-
-
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Result<Order>.Successful(order);
@@ -473,7 +473,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
             {
                 // Paid Payment
                 case Consts.StripeDefaults.PaymentIntentPaidStatus:
-                    order = await _paymentProcessingService.MarkOrderAsPaidAsync(orderId, cancellationToken);
+                    order = await _paymentProcessingService.MarkOrderAsPaidAsync(orderId, paymentIntent.PaymentMethodId, PaymentPlatform, cancellationToken);
                     order.ProcessedPaymentResult = paymentIntent.Status;
                     break;
                 // Authorized Payment
@@ -491,21 +491,25 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
                     });
             }
 
-
             order.ProcessedPaymentId = paymentIntent.Id;
             order.ProcessedPaymentReferenceType = paymentIntent.GetType().Name;
             order.ProcessedPaymentReference = JsonConvert.SerializeObject(paymentIntent);
+
             var paymentMethod = await GetPaymentMethodAsync(paymentIntent.PaymentMethodId, cancellationToken);
+
             if (paymentMethod != null)
             {
-                order.PaymentMethodCard = new Domain.Entities.Management.PaymentMethodCard
+                order.PaymentMethod = new Domain.Entities.Management.PaymentMethod
                 {
-                    ReferenceId = paymentMethod.Id,
-                    Brand = paymentMethod.Card.Brand,
-                    ExpirationMonth = (int)paymentMethod.Card.ExpMonth,
-                    ExpirationYear = (int)paymentMethod.Card.ExpYear,
-                    Last4Digits = paymentMethod.Card.Last4,
-                    CardholderName = paymentMethod.BillingDetails.Name,
+                    Card = new Domain.Entities.Management.PaymentMethodCard
+                    {
+                        ReferenceId = paymentMethod.Id,
+                        Brand = paymentMethod.Card.Brand,
+                        ExpirationMonth = (int)paymentMethod.Card.ExpMonth,
+                        ExpirationYear = (int)paymentMethod.Card.ExpYear,
+                        Last4Digits = paymentMethod.Card.Last4,
+                        CardholderName = paymentMethod.BillingDetails.Name,
+                    }
                 };
             }
             await _dbContext.SaveChangesAsync(cancellationToken);

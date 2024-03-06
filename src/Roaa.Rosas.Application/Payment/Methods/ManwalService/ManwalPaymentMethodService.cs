@@ -46,17 +46,17 @@ namespace Roaa.Rosas.Application.Payment.Methods.ManwalService
                                         .Where(x => x.Id == orderId)
                                         .SingleOrDefaultAsync(cancellationToken);
 
-            await _paymentProcessingService.MarkOrderAsPaidAsync(order);
+            await _paymentProcessingService.MarkOrderAsPaidAsync(order, null, PaymentPlatform, cancellationToken);
 
             return Result<Order>.Successful(order);
         }
 
 
-        public async Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, bool storeCardInfo, CancellationToken cancellationToken = default)
+        public async Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, bool storeCardInfo, PaymentMethodType paymentMethodType, CancellationToken cancellationToken = default)
         {
             var resultModel = new PaymentMethodCheckoutResultModel();
 
-            await _paymentProcessingService.MarkOrderAsProcessingAsync(order, PaymentMethodType, cancellationToken);
+            await _paymentProcessingService.MarkOrderAsProcessingAsync(order, PaymentPlatform, paymentMethodType, cancellationToken);
 
             // Price Is Free
             if (order.OrderTotal == 0)
@@ -72,11 +72,11 @@ namespace Roaa.Rosas.Application.Payment.Methods.ManwalService
             throw new NotImplementedException();
         }
 
-        public PaymentMethodType PaymentMethodType
+        public PaymentPlatform PaymentPlatform
         {
             get
             {
-                return PaymentMethodType.Manwal;
+                return PaymentPlatform.Manwal;
             }
         }
 

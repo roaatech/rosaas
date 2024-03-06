@@ -1,6 +1,6 @@
 ﻿using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Models;
+using Roaa.Rosas.Domain.Models.Payment;
 
 namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Models
 {

@@ -176,5 +176,15 @@ namespace Roaa.Rosas.Application.SystemMessages
           En = "The payment-method customer is not exist",
           Ar = "عميل طريقة الدفع غير موجود")]
         StripeCustomerNotExist = 3024,
+
+        [Localization(
+      En = "You have to select a payment paltform",
+      Ar = "يجب تحديد منصة الدفع")]
+        SelectPaymentPlatform = 3025,
+
+        [Localization(
+            En = "You must select the paid paln",
+            Ar = "لا يسمح لكم بتغيير حالة المستأجر")]
+        YouMustSelectPaidPlan = 3026,
     }
 }

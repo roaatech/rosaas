@@ -2,7 +2,7 @@
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Models;
+using Roaa.Rosas.Domain.Models.Payment;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders
 {

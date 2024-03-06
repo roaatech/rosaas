@@ -5,7 +5,7 @@ namespace Roaa.Rosas.Application.Payment.Factories
 {
     public interface IPaymentMethodFactory
     {
-        IPaymentMethodService GetPaymentMethod(PaymentMethodType? type);
+        IPaymentMethodService GetPaymentMethod(PaymentPlatform? paymentPlatform);
     }
 }
 

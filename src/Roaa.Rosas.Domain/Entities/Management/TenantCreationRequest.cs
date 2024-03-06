@@ -8,6 +8,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public string DisplayName { get; set; } = string.Empty;
         public Guid OrderId { get; set; }
         public UserType CreatedByUserType { get; set; }
+        public bool AutoRenewalIsEnabled { get; set; }
         public virtual ICollection<TenantCreationRequestSpecification> Specifications { get; set; } = new List<TenantCreationRequestSpecification>();
     }
 

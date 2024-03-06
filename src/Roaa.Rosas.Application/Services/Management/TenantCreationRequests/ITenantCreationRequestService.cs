@@ -7,6 +7,8 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
 {
     public interface ITenantCreationRequestService
     {
+        Task EnableAutoRenewalAsync(Guid orderId, bool autoRenewalIsEnabled, CancellationToken cancellationToken = default);
+
         Task<Result<List<TenantCreationPreparationModel>>> PrepareTenantCreationAsync(TenantCreationRequestModel request, Guid? tenantCreationRequestId, CancellationToken cancellationToken = default);
 
         TenantCreationRequest BuildTenantCreationRequestEntity(Guid orderId, string systemName, string displayName, List<TenantCreationRequestSpecification> specifications);

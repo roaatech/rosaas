@@ -42,11 +42,12 @@ namespace Roaa.Rosas.Application.Payment.Services
 
 
 
-        public async Task<Order> MarkOrderAsProcessingAsync(Order order, PaymentMethodType paymentMethodType, CancellationToken cancellationToken = default)
+        public async Task<Order> MarkOrderAsProcessingAsync(Order order, PaymentPlatform paymentPlatform, PaymentMethodType paymentMethodType, CancellationToken cancellationToken = default)
         {
             order.OrderStatus = OrderStatus.PendingToPay;
             order.ModificationDate = DateTime.UtcNow;
             order.PaymentMethodType = paymentMethodType;
+            order.PaymentPlatform = paymentPlatform;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
             return order;
@@ -85,7 +86,7 @@ namespace Roaa.Rosas.Application.Payment.Services
             order.PayerUserId = _identityContextService.GetActorId();
             order.PayerUserType = _identityContextService.GetUserType();
 
-            order.AddDomainEvent(new OrderPaidEvent(order.Id, order.OrderIntent));
+            order.AddDomainEvent(new OrderPaidEvent(order.Id, order.OrderIntent, order.PaymentMethod?.Card?.ReferenceId, order.PaymentPlatform.Value));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -104,7 +105,7 @@ namespace Roaa.Rosas.Application.Payment.Services
 
 
 
-        public async Task<Order> MarkOrderAsPaidAsync(Order order, CancellationToken cancellationToken = default)
+        public async Task<Order> MarkOrderAsPaidAsync(Order order, string cardReferenceId, PaymentPlatform paymentPlatform, CancellationToken cancellationToken = default)
         {
             order.OrderStatus = OrderStatus.Complete;
             order.PaymentStatus = PaymentStatus.Paid;
@@ -112,19 +113,19 @@ namespace Roaa.Rosas.Application.Payment.Services
             order.PayerUserId = _identityContextService.GetActorId();
             order.PayerUserType = _identityContextService.GetUserType();
 
-            order.AddDomainEvent(new OrderPaidEvent(order.Id, order.OrderIntent));
+            order.AddDomainEvent(new OrderPaidEvent(order.Id, order.OrderIntent, cardReferenceId, paymentPlatform));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return order;
         }
-        public async Task<Order> MarkOrderAsPaidAsync(Guid orderId, CancellationToken cancellationToken = default)
+        public async Task<Order> MarkOrderAsPaidAsync(Guid orderId, string cardReferenceId, PaymentPlatform paymentPlatform, CancellationToken cancellationToken = default)
         {
             var order = await _dbContext.Orders
                                        .Where(x => x.Id == orderId)
                                        .SingleOrDefaultAsync(cancellationToken);
 
-            return await MarkOrderAsPaidAsync(order, cancellationToken);
+            return await MarkOrderAsPaidAsync(order, cardReferenceId, paymentPlatform, cancellationToken);
         }
     }
 }

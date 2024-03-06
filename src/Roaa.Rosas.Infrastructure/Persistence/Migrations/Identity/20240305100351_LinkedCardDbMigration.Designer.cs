@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 
@@ -10,9 +11,11 @@ using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 {
     [DbContext(typeof(RosasDbContext))]
-    partial class RosasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240305100351_LinkedCardDbMigration")]
+    partial class LinkedCardDbMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -551,7 +554,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<int>("EntityType")
                         .HasColumnType("int");
 
-                    b.Property<int>("PaymentPlatform")
+                    b.Property<int>("PaymentMethodType")
                         .HasColumnType("int");
 
                     b.Property<string>("ReferenceId")
@@ -639,20 +642,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<int>("PayerUserType")
                         .HasColumnType("int");
 
-                    b.Property<string>("PaymentMethod")
-                        .HasMaxLength(1000)
-                        .IsUnicode(true)
-                        .HasColumnType("varchar(1000)");
-
                     b.Property<string>("PaymentMethodCard")
                         .HasMaxLength(1000)
                         .IsUnicode(true)
                         .HasColumnType("varchar(1000)");
 
                     b.Property<int?>("PaymentMethodType")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PaymentPlatform")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("PaymentProcessingExpirationDate")
@@ -1799,9 +1794,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<bool>("AutoRenewalIsEnabled")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("char(36)");

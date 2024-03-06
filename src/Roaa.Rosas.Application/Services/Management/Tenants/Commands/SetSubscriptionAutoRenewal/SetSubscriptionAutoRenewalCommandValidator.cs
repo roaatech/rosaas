@@ -10,7 +10,9 @@ public partial class SetSubscriptionAutoRenewalCommandValidator : AbstractValida
     public SetSubscriptionAutoRenewalCommandValidator(IIdentityContextService identityContextService)
     {
         RuleFor(x => x.SubscriptionId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        RuleFor(x => x.CardReferenceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        RuleFor(x => x.PaymentPlatform).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
 
-        RuleFor(x => x.PlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+        // RuleFor(x => x.PlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
     }
 }

@@ -2,9 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Roaa.Rosas.Application.Interfaces;
-using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
-using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
@@ -12,23 +10,14 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
     public class OrderPaidEventHandler : IInternalDomainEventHandler<OrderPaidEvent>
     {
         private readonly ILogger<OrderPaidEventHandler> _logger;
-        private readonly IRosasDbContext _dbContext;
         private readonly ITenantWorkflow _workflow;
         private readonly IPublisher _publisher;
-        private readonly IIdentityContextService _identityContextService;
-        private readonly ITenantService _tenantService;
 
         public OrderPaidEventHandler(ITenantWorkflow workflow,
-                                            IRosasDbContext dbContext,
-                                            IIdentityContextService identityContextService,
-                                            IPublisher publisher,
-                                            ITenantService tenantService,
-                                            ILogger<OrderPaidEventHandler> logger)
+                                     IPublisher publisher,
+                                     ILogger<OrderPaidEventHandler> logger)
         {
             _workflow = workflow;
-            _dbContext = dbContext;
-            _identityContextService = identityContextService;
-            _tenantService = tenantService;
             _publisher = publisher;
             _logger = logger;
         }
@@ -39,7 +28,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
             var eventType = JsonConvert.DeserializeObject<Type>(workflowEvent.Type, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
-            var workflowEventInstance = Activator.CreateInstance(eventType, @event.OrderId);
+            var workflowEventInstance = Activator.CreateInstance(eventType, @event.OrderId, @event.CardReferenceId, @event.PaymentPlatform);
 
             var wfEvent = workflowEventInstance as OrderCompletionAchievedBaseEvent;
 

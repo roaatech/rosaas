@@ -10,6 +10,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
         public OrderStatus OrderStatus { get; set; }
         public PaymentStatus? PaymentStatus { get; set; }
         public PaymentMethodType? PaymentMethodType { get; set; }
+        public PaymentPlatform? PaymentPlatform { get; set; }
         public CurrencyCode UserCurrencyType { get; set; }
         public string UserCurrencyCode { get; set; } = string.Empty;
         public decimal OrderSubtotalInclTax { get; set; }

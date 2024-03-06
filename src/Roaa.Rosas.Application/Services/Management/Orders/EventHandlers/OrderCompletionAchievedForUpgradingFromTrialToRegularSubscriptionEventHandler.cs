@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -18,6 +19,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
         private readonly ITenantWorkflow _workflow;
         private readonly IIdentityContextService _identityContextService;
         private readonly ISubscriptionService _subscriptionService;
+        private readonly ISubscriptionAutoRenewalService _subscriptionAutoRenewalService;
         private readonly ITenantService _tenantService;
         private readonly ISender _mediator;
 
@@ -26,6 +28,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                         IIdentityContextService identityContextService,
                                         ISubscriptionService subscriptionService,
                                         ITenantService tenantService,
+                                        ISubscriptionAutoRenewalService subscriptionAutoRenewalService,
                                         ISender mediator,
                                         ILogger<OrderCompletionAchievedForTenantCreationEventHandler> logger)
         {
@@ -34,6 +37,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
             _identityContextService = identityContextService;
             _subscriptionService = subscriptionService;
             _tenantService = tenantService;
+            _subscriptionAutoRenewalService = subscriptionAutoRenewalService;
             _logger = logger;
             _mediator = mediator;
         }
@@ -44,7 +48,11 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                                         .Include(x => x.Specifications)
                                                         .Where(x => x.OrderId == @event.OrderId)
                                                         .SingleOrDefaultAsync(cancellationToken);
+            if (tenantCreationRequest is null)
+            {
+                throw new NullReferenceException($"The tenantCreationRequest of order [OrderId:{@event.OrderId}] can't be null.");
 
+            }
             var tenantId = await _dbContext.Tenants
                                 .Where(x => tenantCreationRequest.NormalizedSystemName
                                                                  .ToLower()
@@ -77,10 +85,15 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                     {
                         throw new NullReferenceException($"The orderItem can't be null.");
                     }
+
                     await _subscriptionService.ResetSubscriptionPlanAsync(subscription, orderItem.PlanId, orderItem.PlanPriceId, true, SubscriptionMode.Normal);
+
+                    if (tenantCreationRequest.AutoRenewalIsEnabled)
+                    {
+                        await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(subscription.Id, @event.CardReferenceId, @event.PaymentPlatform, subscription.PlanPriceId, null, cancellationToken);
+                    }
                 }
             }
-
         }
 
     }
