@@ -1,8 +1,8 @@
 ﻿using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application.Payment.Methods.StripeService;
 using Roaa.Rosas.Application.Payment.Models;
+using Roaa.Rosas.Application.Payment.Platforms.StripeService;
 using Roaa.Rosas.Application.Payment.Services;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -18,7 +18,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         private readonly IPaymentService _paymentService;
         private readonly IWebHostEnvironment _environment;
         private readonly IIdentityContextService _identityContextService;
-        private readonly IStripePaymentMethodService _stripePaymentMethod;
+        private readonly IStripePaymentPlatformService _stripePaymentMethod;
         #endregion
 
         #region Corts
@@ -27,7 +27,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
                                   IWebHostEnvironment environment,
                                   IPaymentService paymentService,
                                   IIdentityContextService identityContextService,
-                                  IStripePaymentMethodService stripePaymentMethod)
+                                  IStripePaymentPlatformService stripePaymentMethod)
         {
             _logger = logger;
             _environment = environment;

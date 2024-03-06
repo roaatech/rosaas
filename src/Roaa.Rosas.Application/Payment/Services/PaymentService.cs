@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Payment.Factories;
-using Roaa.Rosas.Application.Payment.Methods;
 using Roaa.Rosas.Application.Payment.Models;
+using Roaa.Rosas.Application.Payment.Platforms;
 using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Application.SystemMessages;
@@ -20,21 +20,21 @@ namespace Roaa.Rosas.Application.Payment.Services
     {
         #region Props 
         private readonly ILogger<PaymentService> _logger;
-        private readonly IPaymentMethodFactory _paymentMethodFactory;
+        private readonly IPaymentPlatformFactory _paymentMethodFactory;
         private readonly IRosasDbContext _dbContext;
         private readonly IIdentityContextService _identityContextService;
         private readonly IPublisher _publisher;
         private readonly ISettingService _settingService;
         private readonly IOrderService _orderService;
         private readonly IPaymentProcessingService _paymentProcessingService;
-        private IPaymentMethodService? _paymentMethod = null;
+        private IPaymentPlatformService? _paymentMethod = null;
         private PaymentMethodType? _paymentMethodType = null;
 
         #endregion 
 
         #region Corts
         public PaymentService(ILogger<PaymentService> logger,
-                                   IPaymentMethodFactory paymentMethodFactory,
+                                   IPaymentPlatformFactory paymentMethodFactory,
                                    IRosasDbContext dbContext,
                                    IIdentityContextService identityContextService,
                                    IPublisher publisher,

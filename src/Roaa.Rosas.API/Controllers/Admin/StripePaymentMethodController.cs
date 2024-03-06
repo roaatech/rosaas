@@ -1,7 +1,7 @@
 ﻿using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application.Payment.Methods.StripeService;
+using Roaa.Rosas.Application.Payment.Platforms.StripeService;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
@@ -13,13 +13,13 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
     {
         #region Props 
         private readonly ILogger<AuthController> _logger;
-        private readonly IStripePaymentMethodService _stripePaymentMethod;
+        private readonly IStripePaymentPlatformService _stripePaymentMethod;
         #endregion
 
         #region Corts
 
         public StripePaymentMethodController(ILogger<AuthController> logger,
-                                  IStripePaymentMethodService stripePaymentMethod)
+                                  IStripePaymentPlatformService stripePaymentMethod)
         {
             _logger = logger;
             _stripePaymentMethod = stripePaymentMethod;

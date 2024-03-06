@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Roaa.Rosas.Application.Payment.Methods;
-using Roaa.Rosas.Application.Payment.Methods.ManwalService;
-using Roaa.Rosas.Application.Payment.Methods.StripeService;
+using Roaa.Rosas.Application.Payment.Platforms;
+using Roaa.Rosas.Application.Payment.Platforms.ManwalService;
+using Roaa.Rosas.Application.Payment.Platforms.StripeService;
 using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Payment.Factories
 {
-    public class PaymentMethodFactory : IPaymentMethodFactory
+    public class PaymentPlatformFactory : IPaymentPlatformFactory
     {
 
         #region Props          
@@ -16,28 +16,28 @@ namespace Roaa.Rosas.Application.Payment.Factories
 
 
         #region Ctors
-        public PaymentMethodFactory(IServiceProvider serviceProvider)
+        public PaymentPlatformFactory(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
         #endregion
 
 
-        public IPaymentMethodService GetPaymentMethod(PaymentPlatform? paymentPlatform)
+        public IPaymentPlatformService GetPaymentMethod(PaymentPlatform? paymentPlatform)
         {
             switch (paymentPlatform)
             {
 
                 case PaymentPlatform.Stripe:
                     {
-                        return _serviceProvider.GetService<StripePaymentMethodService>();
+                        return _serviceProvider.GetService<StripePaymentPlatformService>();
                     }
 
                 default:
                 case null:
                 case PaymentPlatform.Manwal:
                     {
-                        return _serviceProvider.GetService<ManwalPaymentMethodService>();
+                        return _serviceProvider.GetService<ManwalPaymentPlatformService>();
                     }
             }
         }

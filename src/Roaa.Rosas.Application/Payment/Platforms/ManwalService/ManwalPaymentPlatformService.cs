@@ -9,12 +9,12 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Payment.Methods.ManwalService
+namespace Roaa.Rosas.Application.Payment.Platforms.ManwalService
 {
-    public class ManwalPaymentMethodService : IPaymentMethodService
+    public class ManwalPaymentPlatformService : IPaymentPlatformService
     {
         #region Props 
-        private readonly ILogger<ManwalPaymentMethodService> _logger;
+        private readonly ILogger<ManwalPaymentPlatformService> _logger;
         private readonly IRosasDbContext _dbContext;
         private readonly IIdentityContextService _identityContextService;
         private readonly IPaymentProcessingService _paymentProcessingService;
@@ -24,7 +24,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.ManwalService
 
 
         #region Corts
-        public ManwalPaymentMethodService(ILogger<ManwalPaymentMethodService> logger,
+        public ManwalPaymentPlatformService(ILogger<ManwalPaymentPlatformService> logger,
                                    IRosasDbContext dbContext,
                                    IIdentityContextService identityContextService,
                                    IPaymentProcessingService paymentProcessingService,

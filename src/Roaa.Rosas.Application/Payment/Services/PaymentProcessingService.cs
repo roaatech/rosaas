@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Application.Payment.Services
     {
         #region Props 
         private readonly ILogger<PaymentProcessingService> _logger;
-        private readonly IPaymentMethodFactory _paymentMethodFactory;
+        private readonly IPaymentPlatformFactory _paymentMethodFactory;
         private readonly IRosasDbContext _dbContext;
         private readonly IIdentityContextService _identityContextService;
         private readonly ISettingService _settingService;
@@ -25,7 +25,7 @@ namespace Roaa.Rosas.Application.Payment.Services
 
         #region Corts
         public PaymentProcessingService(ILogger<PaymentProcessingService> logger,
-                                   IPaymentMethodFactory paymentMethodFactory,
+                                   IPaymentPlatformFactory paymentMethodFactory,
                                    IRosasDbContext dbContext,
                                    IIdentityContextService identityContextService,
                                    IOrderService orderService,

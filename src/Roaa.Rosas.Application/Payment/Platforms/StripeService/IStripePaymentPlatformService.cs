@@ -2,9 +2,9 @@
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Models.Payment;
 
-namespace Roaa.Rosas.Application.Payment.Methods.StripeService
+namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 {
-    public interface IStripePaymentMethodService
+    public interface IStripePaymentPlatformService
     {
         Task<Result<CheckoutResultModel>> CompleteSuccessfulSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default);
 

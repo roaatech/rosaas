@@ -21,14 +21,14 @@ using Roaa.Rosas.Domain.Models.Payment;
 using Stripe;
 using Stripe.Checkout;
 
-namespace Roaa.Rosas.Application.Payment.Methods.StripeService
+namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 {
-    public class StripePaymentMethodService : IStripePaymentMethodService, IPaymentMethodService
+    public class StripePaymentPlatformService : IStripePaymentPlatformService, IPaymentPlatformService
     {
 
 
         #region Props 
-        private readonly ILogger<StripePaymentMethodService> _logger;
+        private readonly ILogger<StripePaymentPlatformService> _logger;
         private readonly IRosasDbContext _dbContext;
         private readonly IIdentityContextService _identityContextService;
         private readonly IGenericAttributeService _genericAttributeService;
@@ -41,7 +41,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 
 
         #region Corts
-        public StripePaymentMethodService(ILogger<StripePaymentMethodService> logger,
+        public StripePaymentPlatformService(ILogger<StripePaymentPlatformService> logger,
                                    IRosasDbContext dbContext,
                                    IIdentityContextService identityContextService,
                                    IPaymentProcessingService paymentProcessingService,
@@ -293,7 +293,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 
                 if (storeCardInfo)
                 {
-                    options.PaymentIntentData = new Stripe.Checkout.SessionPaymentIntentDataOptions
+                    options.PaymentIntentData = new SessionPaymentIntentDataOptions
                     {
                         SetupFutureUsage = "on_session",
                     };
@@ -302,7 +302,7 @@ namespace Roaa.Rosas.Application.Payment.Methods.StripeService
 
             if (isCaptureMethod)
             {
-                options.PaymentIntentData = new Stripe.Checkout.SessionPaymentIntentDataOptions
+                options.PaymentIntentData = new SessionPaymentIntentDataOptions
                 {
                     CaptureMethod = "manual",
                 };

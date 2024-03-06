@@ -2,9 +2,9 @@
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Payment.Methods
+namespace Roaa.Rosas.Application.Payment.Platforms
 {
-    public interface IPaymentMethodService
+    public interface IPaymentPlatformService
     {
         Task<Result<PaymentMethodCheckoutResultModel>> CreatePaymentAsync(Order order, bool setAuthorizedPayment, bool storeCardInfo, PaymentMethodType paymentMethodType, CancellationToken cancellationToken = default);
 
