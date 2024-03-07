@@ -69,6 +69,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                              EndDate = subscription.EndDate,
                                                              StartDate = subscription.StartDate,
                                                              Plan = new Common.Models.CustomLookupItemDto<Guid>(subscription.PlanId, subscription.Plan.SystemName, subscription.Plan.DisplayName),
+                                                             Product = new Common.Models.CustomLookupItemDto<Guid>(subscription.ProductId, subscription.Product.SystemName, subscription.Product.DisplayName),
                                                              CreatedDate = subscription.Tenant.CreationDate,
                                                              EditedDate = subscription.Tenant.ModificationDate,
                                                              AutoRenewalIsEnabled = subscription.AutoRenewal == null ? false : true,

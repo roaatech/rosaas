@@ -14,6 +14,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Models
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public CustomLookupItemDto<Guid> Plan { get; set; } = new();
+        public CustomLookupItemDto<Guid> Product { get; set; } = new();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public bool AutoRenewalIsEnabled { get; set; }

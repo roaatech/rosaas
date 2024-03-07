@@ -20,11 +20,6 @@ namespace Roaa.Rosas.Application.Payment
             services.AddScoped<ManwalPaymentPlatformService>();
         }
     }
-
-
-
-
-
 }
 
 
