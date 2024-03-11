@@ -49,6 +49,13 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         }
 
 
+        [HttpGet("invoices")]
+        public async Task<IActionResult> GetInvoicesListAsync(CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _orderService.GetOrdersListByPaymentStatusAsync(Domain.Entities.Management.PaymentStatus.Paid, cancellationToken));
+        }
+
+
         [HttpGet($"/{PrefixSuperAdminMainApiRoute}/tenants/{{tenantId}}/[controller]")]
         public async Task<IActionResult> GetOrdersListAsync([FromRoute] Guid tenantId, CancellationToken cancellationToken = default)
         {

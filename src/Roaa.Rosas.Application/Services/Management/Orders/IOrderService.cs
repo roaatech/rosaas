@@ -16,6 +16,8 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
         Task<Result<List<OrderDto>>> GetOrdersListAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
+        Task<Result<List<OrderDto>>> GetOrdersListByPaymentStatusAsync(PaymentStatus paymentStatus, CancellationToken cancellationToken = default);
+
         Task<Result<List<OrderDto>>> GetOrdersListAsync(CancellationToken cancellationToken = default);
 
         Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList);

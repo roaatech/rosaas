@@ -112,6 +112,23 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             return Result<List<OrderDto>>.Successful(orders);
         }
 
+        public async Task<Result<List<OrderDto>>> GetOrdersListByPaymentStatusAsync(PaymentStatus paymentStatus, CancellationToken cancellationToken = default)
+        {
+            var orders = await _dbContext.Orders
+                                        .AsNoTracking()
+                                        .Where(x => _dbContext.EntityAdminPrivileges
+                                                .Any(a =>
+                                                    a.UserId == _identityContextService.UserId &&
+                                                    a.EntityId == x.TenantId &&
+                                                    a.EntityType == EntityType.Tenant
+                                                    ))
+                                        .Where(x => x.PaymentStatus == paymentStatus)
+                                        .Select(GetOrderDtoSelector())
+                                        .ToListAsync(cancellationToken);
+
+            return Result<List<OrderDto>>.Successful(orders);
+        }
+
         public async Task<List<KeyValuePair<Guid, PaymentMethodCardDto>>> GetPaymentMethodCardsListAsync(List<Guid?> subscriptions, CancellationToken cancellationToken = default)
         {
             return await _dbContext.OrderItems
