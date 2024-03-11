@@ -78,24 +78,36 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             return Result<OrderDto>.Successful(order);
         }
 
-
-
-
         public async Task<Result<List<OrderDto>>> GetOrdersListAsync(Guid tenantId, CancellationToken cancellationToken = default)
         {
             var orders = await _dbContext.Orders
                                               .AsNoTracking()
-                                            .Where(x => _identityContextService.IsSuperAdmin() ||
+                                              .Where(x => _identityContextService.IsSuperAdmin() ||
                                                 _dbContext.EntityAdminPrivileges
                                                         .Any(a =>
                                                             a.UserId == _identityContextService.UserId &&
                                                             a.EntityId == x.TenantId &&
                                                             a.EntityType == EntityType.Tenant
-                                                            )
-                                            )
+                                                            ))
                                               .Where(x => x.TenantId == tenantId)
                                               .Select(GetOrderDtoSelector())
                                               .ToListAsync(cancellationToken);
+
+            return Result<List<OrderDto>>.Successful(orders);
+        }
+
+        public async Task<Result<List<OrderDto>>> GetOrdersListAsync(CancellationToken cancellationToken = default)
+        {
+            var orders = await _dbContext.Orders
+                                        .AsNoTracking()
+                                        .Where(x => _dbContext.EntityAdminPrivileges
+                                                .Any(a =>
+                                                    a.UserId == _identityContextService.UserId &&
+                                                    a.EntityId == x.TenantId &&
+                                                    a.EntityType == EntityType.Tenant
+                                                    ))
+                                        .Select(GetOrderDtoSelector())
+                                        .ToListAsync(cancellationToken);
 
             return Result<List<OrderDto>>.Successful(orders);
         }
@@ -119,7 +131,6 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                                         }))
                                     .ToListAsync(cancellationToken);
         }
-
 
         public Expression<Func<Order, OrderDto>> GetOrderDtoSelector()
         {
@@ -169,6 +180,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 }).ToList()
             };
         }
+
         public Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList)
         {
             var date = DateTime.UtcNow;
@@ -249,14 +261,12 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             };
         }
 
-
         public async Task MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(Order order, CancellationToken cancellationToken = default)
         {
             order.OrderIntent = OrderIntent.UpgradingFromTrialToRegularSubscription;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
-
 
         public async Task<Result> ChangeOrderPlanAsync(Guid orderId, ChangeOrderPlanModel model, CancellationToken cancellationToken = default)
         {
@@ -348,7 +358,6 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
             return Result.Successful();
         }
-
 
         public async Task SetSubscriptionIdToOrderItemsAsync(Guid orderId, Guid tenantId, List<Subscription> subscriptions, CancellationToken cancellationToken)
         {

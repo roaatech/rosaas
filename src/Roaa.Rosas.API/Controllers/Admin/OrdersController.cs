@@ -28,8 +28,6 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
         #region Actions   
 
-
-
         [HttpPut("{id}/plan")]
         public async Task<IActionResult> ChangeOrderPlanAsync([FromRoute] Guid id, ChangeOrderPlanModel model, CancellationToken cancellationToken = default)
         {
@@ -42,6 +40,14 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         {
             return ItemResult(await _orderService.GetOrderByIdAsync(id, cancellationToken));
         }
+
+
+        [HttpGet()]
+        public async Task<IActionResult> GetOrdersListAsync(CancellationToken cancellationToken = default)
+        {
+            return ItemResult(await _orderService.GetOrdersListAsync(cancellationToken));
+        }
+
 
         [HttpGet($"/{PrefixSuperAdminMainApiRoute}/tenants/{{tenantId}}/[controller]")]
         public async Task<IActionResult> GetOrdersListAsync([FromRoute] Guid tenantId, CancellationToken cancellationToken = default)
