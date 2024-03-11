@@ -7,6 +7,7 @@ using Roaa.Rosas.Application.Services.Management.PlanPrices.Validators;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
+using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -72,6 +73,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               {
                                                   Id = planPrice.Id,
                                                   Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.SystemName, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
+                                                  Product = new LookupItemDto<Guid>(planPrice.Plan.ProductId, planPrice.Plan.Product.DisplayName),
+                                                  Client = new LookupItemDto<Guid>(planPrice.Plan.Product.ClientId, planPrice.Plan.Product.Client.SystemName),
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,

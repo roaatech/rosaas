@@ -1,4 +1,5 @@
-﻿using Roaa.Rosas.Domain.Entities.Management;
+﻿using Roaa.Rosas.Common.Models;
+using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.PlanPrices.Models
 {
@@ -10,6 +11,8 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices.Models
         public string SystemName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public PlanListItemDto Plan { get; set; } = new();
+        public LookupItemDto<Guid> Product { get; set; } = new();
+        public LookupItemDto<Guid> Client { get; set; } = new();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public bool IsPublished { get; set; }

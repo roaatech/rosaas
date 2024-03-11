@@ -129,6 +129,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                                  Id = product.Id,
                                                  SystemName = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
                                                  DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
+                                                 Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
                                                  Description = product.Description,
                                                  CreatedDate = product.CreationDate,
                                                  EditedDate = product.ModificationDate,

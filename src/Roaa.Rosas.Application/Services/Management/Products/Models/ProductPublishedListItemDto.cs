@@ -1,4 +1,5 @@
-﻿using Roaa.Rosas.Domain.Entities.Management;
+﻿using Roaa.Rosas.Common.Models;
+using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Products.Models
 {
@@ -14,5 +15,6 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
         public int TrialPeriodInDays { get; set; }
         public Guid? TrialPlanId { get; set; }
         public Guid? TrialPlanPriceId { get; set; }
+        public LookupItemDto<Guid> Client { get; set; } = new();
     }
 }

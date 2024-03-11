@@ -10,6 +10,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans.Models
         public string DisplayName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public LookupItemDto<Guid> Product { get; set; } = new();
+        public LookupItemDto<Guid> Client { get; set; } = new();
         public int DisplayOrder { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }

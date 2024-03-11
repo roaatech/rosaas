@@ -118,6 +118,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   CreatedDate = plan.CreationDate,
                                                   EditedDate = plan.ModificationDate,
                                                   Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.DisplayName),
+                                                  Client = new LookupItemDto<Guid>(plan.Product.ClientId, plan.Product.Client.SystemName),
                                                   IsPublished = plan.IsPublished,
                                                   IsSubscribed = plan.IsSubscribed,
                                                   IsLockedBySystem = plan.IsLockedBySystem,
