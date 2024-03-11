@@ -1,10 +1,13 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.Constatns;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Payment.Factories;
 using Roaa.Rosas.Application.Payment.Models;
 using Roaa.Rosas.Application.Payment.Platforms;
+using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Application.SystemMessages;
@@ -13,6 +16,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
+using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Payment.Services
 {
@@ -29,6 +33,7 @@ namespace Roaa.Rosas.Application.Payment.Services
         private readonly IPaymentProcessingService _paymentProcessingService;
         private IPaymentPlatformService? _paymentMethod = null;
         private PaymentMethodType? _paymentMethodType = null;
+        private readonly IGenericAttributeService _genericAttributeService;
 
         #endregion 
 
@@ -40,6 +45,7 @@ namespace Roaa.Rosas.Application.Payment.Services
                                    IPublisher publisher,
                                    IOrderService orderService,
                                    IPaymentProcessingService paymentProcessingService,
+                                   IGenericAttributeService genericAttributeService,
                                    ISettingService settingService)
         {
             _logger = logger;
@@ -49,10 +55,10 @@ namespace Roaa.Rosas.Application.Payment.Services
             _publisher = publisher;
             _orderService = orderService;
             _paymentProcessingService = paymentProcessingService;
+            _genericAttributeService = genericAttributeService;
             _settingService = settingService;
         }
         #endregion
-
 
 
         public async Task<Result<CheckoutResultModel>> CheckoutAsync(CheckoutModel model, CancellationToken cancellationToken = default)
@@ -85,6 +91,21 @@ namespace Roaa.Rosas.Application.Payment.Services
             Guid tenantId = await _dbContext.Tenants.Where(x => x.LastOrderId == order.Id)
                                                  .Select(x => x.Id)
                                                  .FirstOrDefaultAsync(cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(result.Data.PaymentLink) &&
+                _identityContextService.IsAuthenticated)
+            {
+                await _genericAttributeService.SaveAttributeAsync<Order, CheckoutCreatorModel>(
+                                                      order.Id,
+                                                      Consts.GenericAttributeKey.CheckoutCreator,
+                                                      new CheckoutCreatorModel
+                                                      {
+                                                          CreationDate = DateTime.UtcNow,
+                                                          CheckoutCreatedByUserId = _identityContextService.GetActorId(),
+                                                          CheckoutCreatedByUserType = _identityContextService.GetUserType(),
+                                                      },
+                                                      cancellationToken);
+            }
 
             return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
             {

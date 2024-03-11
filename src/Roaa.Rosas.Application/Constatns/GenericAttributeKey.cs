@@ -6,6 +6,7 @@
         {
             public const string UserProfile = "user-profile";
             public const string StripeCustomerId = "stripe-customer-id";
+            public const string CheckoutCreator = "checkout-creator";
         }
     }
 }
