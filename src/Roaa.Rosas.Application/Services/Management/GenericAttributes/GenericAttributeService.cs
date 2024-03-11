@@ -51,6 +51,25 @@ namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task DeleteAttributeAsync(IBaseEntity entity, string key, CancellationToken cancellationToken = default)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            var keyGroup = entity.GetType().Name;
+            key = key.ToUpper();
+            var prop = await _dbContext.GenericAttributes
+                                       .Where(x => x.EntityId == entity.Id &&
+                                       x.KeyGroup.Equals(keyGroup) &&
+                                       EF.Functions.Like(x.Key, key))
+                                       .FirstOrDefaultAsync(cancellationToken);
+
+            if (prop == null || string.IsNullOrEmpty(prop.Value))
+                return;
+
+            await DeleteAttributeAsync(prop, cancellationToken);
+        }
+
         public virtual async Task DeleteAttributesAsync(List<Guid> attributesIds, CancellationToken cancellationToken = default)
         {
 

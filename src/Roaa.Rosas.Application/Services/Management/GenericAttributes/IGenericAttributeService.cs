@@ -9,6 +9,8 @@ namespace Roaa.Rosas.Application.Services.Management.GenericAttributes
 
         Task DeleteAttributesAsync(List<Guid> attributesIds, CancellationToken cancellationToken = default);
 
+        Task DeleteAttributeAsync(IBaseEntity entity, string key, CancellationToken cancellationToken = default);
+
         Task SaveAttributeAsync<TPropType>(IBaseEntity entity, string key, TPropType value, CancellationToken cancellationToken = default);
 
         Task SaveAttributeAsync<TEntity, TPropType>(Guid entityId, string key, TPropType value, CancellationToken cancellationToken = default) where TEntity : IBaseEntity;
