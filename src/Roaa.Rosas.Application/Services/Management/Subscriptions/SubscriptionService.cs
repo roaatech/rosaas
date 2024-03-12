@@ -76,6 +76,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                              PlanChangingIsEnabled = subscription.SubscriptionPlanChanging == null ? false : true,
                                                              PlanChangingType = subscription.SubscriptionPlanChanging == null ? null : subscription.SubscriptionPlanChanging.Type,
                                                          })
+                                                         .OrderByDescending(x => x.CreatedDate)
                                                          .ToListAsync(cancellationToken);
 
             return Result<List<MySubscriptionListItemDto>>.Successful(tenants);
