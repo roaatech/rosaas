@@ -4,9 +4,10 @@ namespace Roaa.Rosas.Domain.Entities.Management
 {
     public class TenantCreationRequest : BaseAuditableEntity
     {
+        public Guid OrderId { get; set; }
+        public List<Guid> ProductIds { get; set; } = new();
         public string NormalizedSystemName { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
-        public Guid OrderId { get; set; }
         public UserType CreatedByUserType { get; set; }
         public bool AutoRenewalIsEnabled { get; set; }
         public virtual ICollection<TenantCreationRequestSpecification> Specifications { get; set; } = new List<TenantCreationRequestSpecification>();

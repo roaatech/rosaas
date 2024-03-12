@@ -190,12 +190,13 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
             }
 
         }
-        public TenantCreationRequest BuildTenantCreationRequestEntity(Guid orderId, string systemName, string displayName, List<TenantCreationRequestSpecification> specifications)
+        public TenantCreationRequest BuildTenantCreationRequestEntity(Guid orderId, List<Guid> productIds, string systemName, string displayName, List<TenantCreationRequestSpecification> specifications)
         {
             return new TenantCreationRequest
             {
                 Id = Guid.NewGuid(),
                 OrderId = orderId,
+                ProductIds = productIds,
                 NormalizedSystemName = systemName.ToUpper(),
                 DisplayName = displayName,
                 CreatedByUserId = _identityContextService.GetActorId(),
@@ -276,19 +277,14 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
 
             return planDataList;
         }
-        private async Task<bool> EnsureSystemNameIsUniqueAsync(List<Guid> productsIds, string systemName, Guid tenantCreationRequestId = new Guid(), CancellationToken cancellationToken = default)
+        private async Task<bool> EnsureSystemNameIsUniqueAsync(List<Guid> productsIds, string systemName, Guid tenantRequestId = new Guid(), CancellationToken cancellationToken = default)
         {
-            var any = await _dbContext.TenantSystemNames
-                                      .Where(x => x.TenantCreationRequestId != tenantCreationRequestId &&
-                                                  productsIds.Contains(x.ProductId) &&
-                                                  systemName.ToUpper().Equals(x.TenantNormalizedSystemName))
-                                      .AnyAsync(cancellationToken);
+            var ids = (await _dbContext.TenantCreationRequests
+                                      .Where(x => x.Id != tenantRequestId &&
+                                                  systemName.ToUpper().Equals(x.NormalizedSystemName))
+                                      .Select(x => x.ProductIds).ToListAsync(cancellationToken)).SelectMany(x => x).ToList();
 
-            return !any && !await _dbContext.Subscriptions
-                                    .Where(x =>
-                                                productsIds.Contains(x.ProductId) &&
-                                                systemName.ToLower().Equals(x.Tenant.SystemName))
-                                    .AnyAsync(cancellationToken);
+            return !productsIds.Any(pId => ids.Contains(pId));
         }
 
 

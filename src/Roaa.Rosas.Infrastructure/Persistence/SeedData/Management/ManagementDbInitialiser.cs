@@ -67,10 +67,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
             {
                 try
                 {
-                    await FixOrderPaymentStatusAsync();
-                    await FixPlanPriceNameAsync();
-                    await FixFeaturesResetAsync();
-                    await FixPlanTenancyTypeAsync();
+                    //await FixOrderPaymentStatusAsync();
+                    //await FixPlanPriceNameAsync();
+                    //await FixFeaturesResetAsync();
+                    //await FixPlanTenancyTypeAsync();
+                    await FixTenanatRequestAsync();
                     await TrySeedClientsAsync();
                     await TrySeedProductsAsync();
 
@@ -183,7 +184,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 await _dbContext.SaveChangesAsync();
             }
         }
-
         private async Task FixPlanPriceNameAsync()
         {
             var planPrices = await _dbContext.PlanPrices
@@ -241,7 +241,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 await _dbContext.SaveChangesAsync();
             }
         }
-
         private async Task FixPlanTenancyTypeAsync()
         {
 
@@ -273,7 +272,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                 await _dbContext.SaveChangesAsync();
             }
         }
-
         private async Task FixOrderPaymentStatusAsync()
         {
 
@@ -392,5 +390,34 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     },
             };
         }
+
+
+        private async Task FixTenanatRequestAsync()
+        {
+
+            const string key = "SeedData.Management.ManagementDbInitialiser.TenantCreationRequestFixed";
+            if (!await _dbContext.Settings
+                               .Where(x => x.Key.Equals(key))
+                               .AnyAsync())
+            {
+                var requests = await _dbContext.TenantCreationRequests.ToListAsync();
+                var orders = await _dbContext.OrderItems.Select(x => new { x.OrderId, x.ProductId }).ToListAsync();
+                foreach (var request in requests)
+                {
+                    if (orders.Where(x => x.OrderId == request.OrderId).Any())
+                        request.ProductIds = orders.Where(x => x.OrderId == request.OrderId).Select(x => x.ProductId).ToList();
+                }
+            }
+
+            _dbContext.Settings.Add(new Setting
+            {
+                Key = key,
+                Value = DateTime.UtcNow.ToString(),
+                Id = Guid.NewGuid()
+            });
+
+            await _dbContext.SaveChangesAsync();
+        }
+
     }
 }

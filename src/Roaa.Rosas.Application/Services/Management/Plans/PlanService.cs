@@ -340,7 +340,7 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                 alternativePlanId = alternativePlanPrice.PlanId;
             }
 
-            Plan planBeforeUpdate = plan.DeepCopy();
+            //Plan planBeforeUpdate = plan.DeepCopy();
 
             plan.SystemName = model.SystemName;
             plan.DisplayName = model.DisplayName;

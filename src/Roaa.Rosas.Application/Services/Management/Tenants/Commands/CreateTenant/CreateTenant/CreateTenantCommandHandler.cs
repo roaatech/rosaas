@@ -78,8 +78,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     #endregion
 
 
-    #region Utilities   
-
+    #region Utilities    
     private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand model, Workflow Workflow, CancellationToken cancellationToken = default)
     {
         var planIds = model.Subscriptions.Select(x => x.PlanId)
@@ -155,7 +154,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             });
         });
 
-        var id = Guid.NewGuid();
+        var id = model.TenantRequestId;
         var name = model.SystemName.ToLower();
         var displayName = model.DisplayName;
 

@@ -48,7 +48,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
         public async Task Handle(OrderCompletionAchievedForTenantCreationEvent @event, CancellationToken cancellationToken)
         {
-            var tenantCreationRequest = await _dbContext.TenantCreationRequests
+            var tenantRequest = await _dbContext.TenantCreationRequests
                                                         .Include(x => x.Specifications)
                                                         .Where(x => x.OrderId == @event.OrderId)
                                                         .SingleOrDefaultAsync(cancellationToken);
@@ -59,8 +59,8 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
             var model = new TenantCreationRequestModel
             {
-                DisplayName = tenantCreationRequest.DisplayName,
-                SystemName = tenantCreationRequest.NormalizedSystemName,
+                DisplayName = tenantRequest.DisplayName,
+                SystemName = tenantRequest.NormalizedSystemName,
                 Subscriptions = order.OrderItems.Select(orderItem =>
                                                         new CreateSubscriptionModel
                                                         {
@@ -68,7 +68,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                                             PlanId = orderItem.PlanId,
                                                             PlanPriceId = orderItem.PlanPriceId,
                                                             ProductId = orderItem.ProductId,
-                                                            Specifications = tenantCreationRequest
+                                                            Specifications = tenantRequest
                                                                                         .Specifications
                                                                                         .Where(x => x.ProductId == orderItem.ProductId)
                                                                                         .Select(spec =>
@@ -82,7 +82,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                                         .ToList(),
             };
 
-            var preparationsResult = await _tenantCreationRequestService.PrepareTenantCreationAsync(model, tenantCreationRequest.Id, cancellationToken);
+            var preparationsResult = await _tenantCreationRequestService.PrepareTenantCreationAsync(model, tenantRequest.Id, cancellationToken);
 
             if (!preparationsResult.Success)
             {
@@ -97,6 +97,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                                                           SystemName = model.SystemName,
                                                           Subscriptions = model.Subscriptions,
                                                           OrderId = order.Id,
+                                                          TenantRequestId = tenantRequest.Id,
                                                           UserId = order.CreatedByUserId,
                                                           UserType = order.CreatedByUserType,
                                                       },
@@ -106,21 +107,11 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                 throw new Exception(String.Join(", ", tenantCreatedResult.Messages.Select(x => x.Message)));
             }
 
-
             var productsIds = tenantCreatedResult.Data.Products.Select(x => x.ProductId).ToList();
-
-            var tenantSystemNames = await _dbContext.TenantSystemNames.Where(x => productsIds.Contains(x.ProductId) &&
-                                                               model.SystemName.ToUpper().Equals(x.TenantNormalizedSystemName))
-                                                   .ToListAsync(cancellationToken);
-            foreach (var tenantSystemName in tenantSystemNames)
-            {
-                tenantSystemName.TenantId = tenantCreatedResult.Data.TenantId;
-            }
 
             order.TenantId = tenantCreatedResult.Data.TenantId;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
-
 
             // Enable Auto-Renewal
             var subscriptions = await _dbContext.Subscriptions
@@ -130,7 +121,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
             foreach (var subscription in subscriptions)
             {
-                if (subscription.SubscriptionMode == SubscriptionMode.Normal && tenantCreationRequest.AutoRenewalIsEnabled)
+                if (subscription.SubscriptionMode == SubscriptionMode.Normal && tenantRequest.AutoRenewalIsEnabled)
                 {
                     await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(subscription.Id, @event.CardReferenceId, @event.PaymentPlatform, subscription.PlanPriceId, null, cancellationToken);
                 }

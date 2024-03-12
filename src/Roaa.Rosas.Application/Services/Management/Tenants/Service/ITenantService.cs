@@ -21,10 +21,5 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                                                   CancellationToken cancellationToken = default);
 
         Task<Result<List<SetTenantNextStatusResult>>> SetTenantNextStatusAsync(SetTenantNextStatusModel model, CancellationToken cancellationToken = default);
-
-        List<TenantSystemName> BuildTenantSystemNameEntities(string systemName, List<Guid> productIdS, Guid tenantCreationRequestId, Guid? tenantId = null);
-
-
-
     }
 }

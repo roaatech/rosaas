@@ -51,7 +51,6 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<GenericAttribute> GenericAttributes { get; }
         public DbSet<TenantCreationRequest> TenantCreationRequests { get; }
         public DbSet<TenantCreationRequestSpecification> TenantCreationRequestSpecifications { get; }
-        public DbSet<TenantSystemName> TenantSystemNames { get; }
         public DbSet<LinkedCard> LinkedCards { get; }
 
         #endregion

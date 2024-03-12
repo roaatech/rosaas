@@ -11,6 +11,6 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
 
         Task<Result<List<TenantCreationPreparationModel>>> PrepareTenantCreationAsync(TenantCreationRequestModel request, Guid? tenantCreationRequestId, CancellationToken cancellationToken = default);
 
-        TenantCreationRequest BuildTenantCreationRequestEntity(Guid orderId, string systemName, string displayName, List<TenantCreationRequestSpecification> specifications);
+        TenantCreationRequest BuildTenantCreationRequestEntity(Guid orderId, List<Guid> productIds, string systemName, string displayName, List<TenantCreationRequestSpecification> specifications);
     }
 }

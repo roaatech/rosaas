@@ -18,5 +18,6 @@ public record CreateTenantCommand : IRequest<Result<TenantCreatedResultDto>>
     public Guid UserId { get; set; }
     public UserType UserType { get; set; }
     public Guid OrderId { get; set; }
+    public Guid TenantRequestId { get; set; }
 }
 

@@ -2,10 +2,11 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Infrastructure.Common;
+using Roaa.Rosas.Infrastructure.Persistence.Configurations.Shared;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
 {
-    public class TenantCreationRequestConfiguration : IEntityTypeConfiguration<TenantCreationRequest>
+    public class TenantCreationRequestConfiguration : BaseEntityConfiguration<Order>, IEntityTypeConfiguration<TenantCreationRequest>
     {
         #region Configure 
         public void Configure(EntityTypeBuilder<TenantCreationRequest> builder)
@@ -18,6 +19,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.ModifiedByUserId).IsRequired();
             builder.Property(r => r.CreationDate).IsRequired();
             builder.Property(r => r.ModificationDate).IsRequired();
+            builder.Property(r => r.ProductIds)
+                 .IsRequired(false)
+                 .HasMaxLength(500)
+                 .HasConversion(
+                         ConvertLocalizedStringToJson<List<Guid>>(),
+                         ConvertJsonToLocalizedString<List<Guid>>());
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

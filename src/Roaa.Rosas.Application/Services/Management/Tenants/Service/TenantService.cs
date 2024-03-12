@@ -195,26 +195,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
             return Result<List<SetTenantNextStatusResult>>.Successful(results);
         }
-
-
-        public List<TenantSystemName> BuildTenantSystemNameEntities(string systemName, List<Guid> productIdS, Guid tenantCreationRequestId, Guid? tenantId = null)
-        {
-            return productIdS.Select(productId =>
-                                    new TenantSystemName()
-                                    {
-                                        Id = Guid.NewGuid(),
-                                        ProductId = productId,
-                                        TenantId = tenantId,
-                                        TenantCreationRequestId = tenantCreationRequestId,
-                                        TenantNormalizedSystemName = systemName.ToUpper(),
-                                        // DisplayName = displayName,
-                                    }).ToList();
-        }
-
-
-
-
-
         #endregion
 
 
