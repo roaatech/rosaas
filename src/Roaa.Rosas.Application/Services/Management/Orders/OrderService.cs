@@ -170,6 +170,15 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 CreatedDate = order.CreationDate,
                 EditedDate = order.ModificationDate,
                 IsMustChangePlan = order.IsMustChangePlan,
+                PaymentMethodCard = order.PaymentMethod == null ? null : new PaymentMethodCardDto
+                {
+                    ReferenceId = order.PaymentMethod.Card.ReferenceId,
+                    Brand = order.PaymentMethod.Card.Brand,
+                    ExpirationMonth = order.PaymentMethod.Card.ExpirationMonth,
+                    ExpirationYear = order.PaymentMethod.Card.ExpirationYear,
+                    CardholderName = order.PaymentMethod.Card.CardholderName,
+                    Last4Digits = order.PaymentMethod.Card.Last4Digits,
+                },
                 HasToPay = (order.TenantId == null || order.Tenant.LastOrderId == order.Id) &&
                                                                                   (order.OrderStatus == OrderStatus.Initial || order.OrderStatus == OrderStatus.PendingToPay) &&
                                                                                   (order.PaymentStatus == PaymentStatus.None) &&

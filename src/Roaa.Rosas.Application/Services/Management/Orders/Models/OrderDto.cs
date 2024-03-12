@@ -1,4 +1,5 @@
 ﻿using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Models.Payment;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders.Models
 {
@@ -23,6 +24,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.Models
         public bool HasToPay { get; set; }
         public bool IsMustChangePlan { get; set; }
         public List<OrderItemDto> OrderItems { get; set; } = new();
+        public PaymentMethodCardDto? PaymentMethodCard { get; set; }
     }
 
     public class OrderItemDto
