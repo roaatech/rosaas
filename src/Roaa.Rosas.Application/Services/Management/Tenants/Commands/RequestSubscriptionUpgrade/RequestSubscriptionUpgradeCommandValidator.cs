@@ -14,5 +14,9 @@ public partial class RequestSubscriptionUpgradeCommandValidator : AbstractValida
         RuleFor(x => x.PlanId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 
         RuleFor(x => x.PlanPriceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+
+        RuleFor(x => x.CardReferenceId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
+
+        RuleFor(x => x.PaymentPlatform).IsInEnum().WithError(CommonErrorKeys.InvalidParameters, identityContextService.Locale);
     }
 }
