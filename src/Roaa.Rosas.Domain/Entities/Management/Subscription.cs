@@ -44,8 +44,10 @@ namespace Roaa.Rosas.Domain.Entities.Management
     public class SubscriptionTrialPeriod : BaseEntity
     {
         public Guid SubscriptionId { get; set; }
-        public Guid PlanId { get; set; }
-        public Guid PlanPriceId { get; set; }
+        public Guid TrialPlanId { get; set; }
+        public Guid TrialPlanPriceId { get; set; }
+        public Guid SelectedPlanId { get; set; }
+        public Guid SelectedPlanPriceId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int TrialPeriodInDays { get; set; }

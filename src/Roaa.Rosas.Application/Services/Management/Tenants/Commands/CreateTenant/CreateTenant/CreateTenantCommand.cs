@@ -11,8 +11,7 @@ public record CreateTenantCommand : IRequest<Result<TenantCreatedResultDto>>
     {
     }
 
-    public List<TenantCreationPreparationModel> PlanDataList { get; set; } = new();
-    public List<CreateSubscriptionModel> Subscriptions { get; set; } = new();
+    public List<SubscriptionPreparationModel> Subscriptions { get; set; } = new();
     public string SystemName { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
     public Guid UserId { get; set; }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 
@@ -10,9 +11,11 @@ using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 {
     [DbContext(typeof(RosasDbContext))]
-    partial class RosasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240315220839_AlterSubscriptionTrialPeriodDbMigration")]
+    partial class AlterSubscriptionTrialPeriodDbMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1730,12 +1733,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime");
-
-                    b.Property<Guid>("SelectedPlanId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("SelectedPlanPriceId")
-                        .HasColumnType("char(36)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime");

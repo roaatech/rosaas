@@ -184,7 +184,7 @@ namespace Roaa.Rosas.Application.SystemMessages
 
         [Localization(
             En = "You must select the paid paln",
-            Ar = "لا يسمح لكم بتغيير حالة المستأجر")]
+            Ar = "يجب أن تختار خطة مدفوعة")]
         YouMustSelectPaidPlan = 3026,
     }
 }

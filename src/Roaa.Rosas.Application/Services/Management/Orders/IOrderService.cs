@@ -20,12 +20,11 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
         Task<Result<List<OrderDto>>> GetOrdersListAsync(CancellationToken cancellationToken = default);
 
-        Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList);
+        Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<SubscriptionPreparationModel> plansDataList);
 
         Task MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(Order order, CancellationToken cancellationToken = default);
 
         Task<Result> ChangeOrderPlanAsync(Guid orderId, ChangeOrderPlanModel model, CancellationToken cancellationToken = default);
 
-        Task SetSubscriptionIdToOrderItemsAsync(Guid orderId, Guid tenantId, List<Subscription> subscriptions, CancellationToken cancellationToken);
     }
 }

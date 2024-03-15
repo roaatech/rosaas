@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Authorization.Utilities;
-using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
@@ -23,8 +22,8 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
         public async Task Handle(TenantCreatedInStoreEvent @event, CancellationToken cancellationToken)
         {
-            List<Subscription> subscriptions = @event.Tenant.Subscriptions?.ToList() ?? new List<Subscription>();
-            await _orderService.SetSubscriptionIdToOrderItemsAsync(@event.Tenant.LastOrderId, @event.Tenant.Id, subscriptions, cancellationToken);
+            //List<Subscription> subscriptions = @event.Tenant.Subscriptions?.ToList() ?? new List<Subscription>();
+            //await _orderService.SetSubscriptionIdToOrderItemsAsync(@event.Tenant.LastOrderId, @event.Tenant.Id, subscriptions, cancellationToken);
         }
 
 

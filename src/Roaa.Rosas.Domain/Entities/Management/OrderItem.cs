@@ -24,6 +24,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         //public decimal DiscountAmountExclTax { get; set; }
 
         public int TrialPeriodInDays { get; set; }
+        public int SequenceNum { get; set; }
         public virtual Order? Order { get; set; }
         public virtual Subscription? Subscription { get; set; }
         public List<OrderItemSpecification> Specifications { get; set; } = new();

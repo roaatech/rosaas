@@ -62,23 +62,29 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                 DisplayName = tenantRequest.DisplayName,
                 SystemName = tenantRequest.NormalizedSystemName,
                 Subscriptions = order.OrderItems.Select(orderItem =>
-                                                        new CreateSubscriptionModel
-                                                        {
-                                                            CustomPeriodInDays = orderItem.CustomPeriodInDays,
-                                                            PlanId = orderItem.PlanId,
-                                                            PlanPriceId = orderItem.PlanPriceId,
-                                                            ProductId = orderItem.ProductId,
-                                                            Specifications = tenantRequest
-                                                                                        .Specifications
-                                                                                        .Where(x => x.ProductId == orderItem.ProductId)
-                                                                                        .Select(spec =>
-                                                                                                    new CreateSpecificationValueModel
-                                                                                                    {
-                                                                                                        SpecificationId = spec.SpecificationId,
-                                                                                                        Value = spec.Value,
-                                                                                                    })
-                                                                                        .ToList(),
-                                                        })
+                {
+
+                    var createSubscriptionModel = new CreateSubscriptionModel
+                    {
+                        CustomPeriodInDays = orderItem.CustomPeriodInDays,
+                        PlanId = orderItem.PlanId,
+                        PlanPriceId = orderItem.PlanPriceId,
+                        ProductId = orderItem.ProductId,
+                        Specifications = tenantRequest
+                                                      .Specifications
+                                                      .Where(x => x.ProductId == orderItem.ProductId)
+                                                      .Select(spec =>
+                                                                  new CreateSpecificationValueModel
+                                                                  {
+                                                                      SpecificationId = spec.SpecificationId,
+                                                                      Value = spec.Value,
+                                                                  })
+                                                      .ToList(),
+                        UserEnabledTheTrial = orderItem.TrialPeriodInDays != 0,
+                    };
+                    createSubscriptionModel.SetSequenceNum(orderItem.SequenceNum);
+                    return createSubscriptionModel;
+                })
                                                         .ToList(),
             };
 
@@ -92,10 +98,9 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
             var tenantCreatedResult = await _mediator.Send(
                                                       new CreateTenantCommand
                                                       {
-                                                          PlanDataList = preparationsResult.Data,
+                                                          Subscriptions = preparationsResult.Data,
                                                           DisplayName = model.DisplayName,
                                                           SystemName = model.SystemName,
-                                                          Subscriptions = model.Subscriptions,
                                                           OrderId = order.Id,
                                                           TenantRequestId = tenantRequest.Id,
                                                           UserId = order.CreatedByUserId,

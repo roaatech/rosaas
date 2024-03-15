@@ -21,6 +21,7 @@ using Roaa.Rosas.Application.Services.Management.Specifications;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.PlansChanging;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Trials;
 using Roaa.Rosas.Application.Services.Management.TenantCreationRequests;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings;
@@ -89,6 +90,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<IEntityAdminPrivilegeService, EntityAdminPrivilegeService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IGenericAttributeService, GenericAttributeService>();
+            services.AddScoped<ITrialProcessingService, TrialProcessingService>();
 
 
             services.AddMediatRAServices();

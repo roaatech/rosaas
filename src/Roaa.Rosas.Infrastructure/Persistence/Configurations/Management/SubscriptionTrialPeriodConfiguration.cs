@@ -12,8 +12,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
         {
             builder.ToTableName("RosasSubscriptionTrialPeriods");
             builder.HasKey(x => x.Id);
-            builder.Property(r => r.PlanId).IsRequired();
-            builder.Property(r => r.PlanPriceId).IsRequired();
+            builder.Property(r => r.TrialPlanId).IsRequired();
+            builder.Property(r => r.TrialPlanPriceId).IsRequired();
             builder.Property(r => r.SubscriptionId).IsRequired();
             builder.Property(r => r.StartDate).IsRequired(true);
             builder.Property(r => r.EndDate).IsRequired(false);

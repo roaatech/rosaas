@@ -81,19 +81,20 @@ public partial class TenantCreationRequestCommandHandler : IRequestHandler<Tenan
         var order = _orderService.BuildOrderEntity(request.SystemName, request.DisplayName, preparationsResult.Data);
 
         var tenantCreationRequestEntity = _tenantCreationRequestService
-                                            .BuildTenantCreationRequestEntity(order.Id,
-                                                                            request.Subscriptions.Select(x => x.ProductId).ToList(),
-                                                                            request.SystemName,
-                                                                            request.DisplayName,
-                                                                            request.Subscriptions
-                                                                            .SelectMany(x => x.Specifications
-                                                                            .Select(spec => new TenantCreationRequestSpecification
-                                                                            {
-                                                                                ProductId = x.ProductId,
-                                                                                SpecificationId = spec.SpecificationId,
-                                                                                Value = spec.Value
-                                                                            }))
-                                                                            .ToList());
+                                            .BuildTenantCreationRequestEntity(
+                                                order.Id,
+                                                request.Subscriptions.Select(x => x.ProductId).ToList(),
+                                                request.SystemName,
+                                                request.DisplayName,
+                                                request.Subscriptions
+                                                .SelectMany(x => x.Specifications
+                                                .Select(spec => new TenantCreationRequestSpecification
+                                                {
+                                                    ProductId = x.ProductId,
+                                                    SpecificationId = spec.SpecificationId,
+                                                    Value = spec.Value
+                                                }))
+                                                .ToList());
         _dbContext.Orders.Add(order);
 
         _dbContext.TenantCreationRequests.AddRange(tenantCreationRequestEntity);

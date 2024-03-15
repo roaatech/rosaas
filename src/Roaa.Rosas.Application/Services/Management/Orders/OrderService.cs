@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Orders.Models;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Trials;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
 using Roaa.Rosas.Application.SystemMessages;
@@ -24,6 +25,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
         #region Props 
         private readonly ILogger<OrderService> _logger;
         private readonly IRosasDbContext _dbContext;
+        private readonly ITrialProcessingService _trialProcessingService;
         private readonly IIdentityContextService _identityContextService;
         private readonly int _quantity = 1;
         #endregion
@@ -33,10 +35,12 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
         public OrderService(
             ILogger<OrderService> logger,
             IRosasDbContext dbContext,
+             ITrialProcessingService trialProcessingService,
             IIdentityContextService identityContextService)
         {
             _logger = logger;
             _dbContext = dbContext;
+            _trialProcessingService = trialProcessingService;
             _identityContextService = identityContextService;
         }
 
@@ -207,59 +211,50 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             };
         }
 
-        public Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<TenantCreationPreparationModel> plansDataList)
+        public Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<SubscriptionPreparationModel> plansDataList)
         {
             var date = DateTime.UtcNow;
 
-            var isMustChangePlan = plansDataList.Any(x => x.HasTrial) && plansDataList.Any(x => x.Product.TrialType == ProductTrialType.ProductHasTrialPlan);
+            //  var isMustChangePlan = plansDataList.Any(x => x.HasTrial) && plansDataList.Any(x => x.Product.TrialType == ProductTrialType.ProductHasTrialPlan);
 
-            int FeatchTrialPeriodInDays(TenantCreationPreparationModel model)
+
+
+            var orderItems = plansDataList.Select(item =>
             {
-                if (!model.HasTrial) return 0;
-
-                if (model.Product.TrialType == ProductTrialType.ProductHasTrialPlan)
+                var orderItem = new OrderItem()
                 {
-                    return model.Product.TrialPeriodInDays;
-                }
-                else
-                {
-                    return model.Plan.TrialPeriodInDays;
-                }
-
-
-            }
-
-            var orderItems = plansDataList.Select(planData => new OrderItem()
-            {
-                Id = Guid.NewGuid(),
-                StartDate = date,
-                EndDate = PlanCycleManager.FromKey(planData.PlanPrice.PlanCycle).CalculateExpiryDate(date, planData.PlanPrice.CustomPeriodInDays, null, planData.Plan.TenancyType),
-                ClientId = planData.Product.ClientId,
-                ProductId = planData.Product.Id,
-                // SubscriptionId = planData.GeneratedSubscriptionId,
-                PlanId = planData.Plan.Id,
-                PlanPriceId = planData.PlanPrice.Id,
-                CustomPeriodInDays = planData.PlanPrice.CustomPeriodInDays,
-                PriceExclTax = planData.PlanPrice.Price * _quantity,
-                PriceInclTax = planData.PlanPrice.Price * _quantity,
-                UnitPriceExclTax = planData.PlanPrice.Price,
-                UnitPriceInclTax = planData.PlanPrice.Price,
-                Quantity = _quantity,
-                SystemName = $"{tenantName}",
-                DisplayName = $"[Product: {planData.Product.DisplayName}], [Plan: {planData.Plan.DisplayName}], [Tenant: {tenantDisplayName}]",
-                TrialPeriodInDays = FeatchTrialPeriodInDays(planData),
-                Specifications = planData.Features.Select(x => new OrderItemSpecification
-                {
-                    PurchasedEntityId = x.FeatureId,
-                    PurchasedEntityType = Common.Enums.EntityType.Feature,
-                    SystemName = $"{x.FeatureName}-" +
-                                    $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
-                                    $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
-                                    $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"
-                                    .Replace("---", "-")
-                                    .Replace("--", "-")
-                                    .TrimEnd('-'),
-                }).ToList()
+                    Id = Guid.NewGuid(),
+                    StartDate = date,
+                    EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle).CalculateExpiryDate(date, item.PlanPrice.CustomPeriodInDays, null, item.Plan.TenancyType),
+                    ClientId = item.Product.ClientId,
+                    ProductId = item.Product.Id,
+                    SequenceNum = item.SequenceNum,
+                    // SubscriptionId = planData.GeneratedSubscriptionId,
+                    PlanId = item.Plan.Id,
+                    PlanPriceId = item.PlanPrice.Id,
+                    CustomPeriodInDays = item.PlanPrice.CustomPeriodInDays,
+                    PriceExclTax = item.PlanPrice.Price * _quantity,
+                    PriceInclTax = item.PlanPrice.Price * _quantity,
+                    UnitPriceExclTax = item.PlanPrice.Price,
+                    UnitPriceInclTax = item.PlanPrice.Price,
+                    Quantity = _quantity,
+                    SystemName = $"{tenantName}",
+                    DisplayName = $"[Product: {item.Product.DisplayName}], [Plan: {item.Plan.DisplayName}], [Tenant: {tenantDisplayName}]",
+                    TrialPeriodInDays = _trialProcessingService.FeatchTrialPeriodInDays(item) ?? 0,
+                    Specifications = item.Features.Select(x => new OrderItemSpecification
+                    {
+                        PurchasedEntityId = x.FeatureId,
+                        PurchasedEntityType = Common.Enums.EntityType.Feature,
+                        SystemName = $"{x.FeatureName}-" +
+                                        $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
+                                        $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
+                                        $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"
+                                        .Replace("---", "-")
+                                        .Replace("--", "-")
+                                        .TrimEnd('-'),
+                    }).ToList()
+                };
+                return orderItem;
             }).ToList();
 
 
@@ -283,7 +278,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 OrderTotal = orderItems.Select(x => x.PriceInclTax).Sum(),
                 OrderItems = orderItems,
                 OrderIntent = OrderIntent.TenantCreation,
-                IsMustChangePlan = isMustChangePlan,
+                // IsMustChangePlan = isMustChangePlan,
             };
         }
 
@@ -367,7 +362,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 item.UnitPriceExclTax = planPrice.Price;
                 item.UnitPriceInclTax = planPrice.Price;
                 item.Quantity = _quantity;
-                item.SystemName = $"{planPrice.Plan.Product.SystemName}--{planPrice.Plan.SystemName}--{tenant.SystemName}";
+                item.SystemName = $"{tenant.SystemName}";
                 item.DisplayName = $"[Product: {planPrice.Plan.Product.DisplayName}], [Plan: {planPrice.Plan.DisplayName}], [Tenant: {tenant.DisplayName}]";
             }
 
@@ -385,39 +380,6 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             return Result.Successful();
         }
 
-        public async Task SetSubscriptionIdToOrderItemsAsync(Guid orderId, Guid tenantId, List<Subscription> subscriptions, CancellationToken cancellationToken)
-        {
-
-            var orderItems = await _dbContext.OrderItems
-                                        .Where(x => x.OrderId == orderId)
-                                        .ToListAsync(cancellationToken);
-
-            subscriptions = subscriptions ?? new List<Subscription>();
-
-            if (subscriptions.Any())
-            {
-                subscriptions = await _dbContext.Subscriptions
-                                  .Where(x => x.TenantId == tenantId)
-                                  .ToListAsync(cancellationToken);
-            }
-            foreach (var item in orderItems)
-            {
-                var subscription = subscriptions.Where(x => x.ProductId == item.ProductId &&
-                                                            x.PlanId == item.PlanId &&
-                                                            x.PlanPriceId == item.PlanPriceId &&
-                                                            x.CustomPeriodInDays == item.CustomPeriodInDays)
-                                                .FirstOrDefault();
-
-                if (subscription is null)
-                {
-                    throw new NullReferenceException($"The subscription can't be null.");
-                }
-
-                item.SubscriptionId = subscription.Id;
-            }
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
-        }
 
         #endregion
     }

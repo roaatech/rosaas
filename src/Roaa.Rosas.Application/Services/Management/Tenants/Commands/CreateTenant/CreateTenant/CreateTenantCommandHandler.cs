@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Trials;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;
@@ -20,6 +21,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     #region Props  
     private readonly IRosasDbContext _dbContext;
     private readonly ITenantWorkflow _workflow;
+    private readonly ITrialProcessingService _trialProcessingService;
     private readonly ILogger<CreateTenantCommandHandler> _logger;
     private readonly DateTime _date = DateTime.UtcNow;
     private Guid _orderId;
@@ -29,10 +31,12 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     public CreateTenantCommandHandler(
         IRosasDbContext dbContext,
         ITenantWorkflow workflow,
+        ITrialProcessingService trialProcessingService,
         ILogger<CreateTenantCommandHandler> logger)
     {
         _dbContext = dbContext;
         _workflow = workflow;
+        _trialProcessingService = trialProcessingService;
         _logger = logger;
     }
 
@@ -81,8 +85,15 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
     #region Utilities    
     private async Task<Tenant> CreateTenantInDBAsync(CreateTenantCommand model, Workflow Workflow, CancellationToken cancellationToken = default)
     {
-        var planIds = model.Subscriptions.Select(x => x.PlanId)
+        var planIds = model.Subscriptions.Select(x => x.Plan.Id)
                                            .ToList();
+
+        var orderItems = await _dbContext.OrderItems
+                               .Where(x => x.OrderId == model.OrderId
+                                        && x.SubscriptionId == null)
+                               .ToListAsync(cancellationToken);
+
+        GenerateIds(model, orderItems);
 
         var tenant = BuildTenantEntity(model, Workflow);
 
@@ -102,7 +113,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                                                             tenant.Subscriptions.First().ExpectedResourceStatus,
                                                             tenant.Subscriptions.First().Status,
                                                             tenant.Subscriptions.First().Step,
-                                                            model.PlanDataList.First().Plan.TenancyType));
+                                                            model.Subscriptions.First().Plan.TenancyType));
 
 
         _dbContext.Tenants.Add(tenant);
@@ -140,9 +151,9 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         return tenant;
     }
-    private Tenant BuildTenantEntity(CreateTenantCommand model, Workflow workflow)
+    public void SetSubscriptionIdToOrderItemsAsync(CreateTenantCommand model, List<OrderItem> orderItems, CancellationToken cancellationToken)
     {
-        model.PlanDataList?.ForEach(x =>
+        model.Subscriptions?.ForEach(x =>
         {
             x.GeneratedSubscriptionCycleId = Guid.NewGuid();
             x.GeneratedSubscriptionId = Guid.NewGuid();
@@ -153,6 +164,33 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                 f.GeneratedSubscriptionFeatureCycleId = Guid.NewGuid();
             });
         });
+    }
+    private void GenerateIds(CreateTenantCommand model, List<OrderItem> orderItems)
+    {
+        model.Subscriptions?.ForEach(x =>
+        {
+            var orderItem = orderItems.FirstOrDefault(item => x.SequenceNum == item.SequenceNum);
+            if (orderItem is null)
+            {
+                throw new NullReferenceException($"The orderItem of [{x.SequenceNum}] SequenceNum can't be null.");
+            }
+
+            x.GeneratedSubscriptionCycleId = Guid.NewGuid();
+            x.GeneratedSubscriptionId = Guid.NewGuid();
+
+            x.Features?.ForEach(f =>
+            {
+                f.GeneratedSubscriptionFeatureId = Guid.NewGuid();
+                f.GeneratedSubscriptionFeatureCycleId = Guid.NewGuid();
+            });
+
+            orderItem.SubscriptionId = x.GeneratedSubscriptionId;
+        });
+    }
+    private Tenant BuildTenantEntity(CreateTenantCommand model, Workflow workflow)
+    {
+
+
 
         var id = model.TenantRequestId;
         var name = model.SystemName.ToLower();
@@ -169,46 +207,50 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             ModifiedByUserId = model.UserId,
             CreationDate = _date,
             ModificationDate = _date,
-            Subscriptions = model.PlanDataList.Select(item => new Subscription
+            Subscriptions = model.Subscriptions.Select(item =>
             {
-                Id = item.GeneratedSubscriptionId,
-                StartDate = _date,
-                EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle)
-                                          .CalculateExpiryDate(_date,
-                                                                item.PlanPrice.CustomPeriodInDays,
-                                                                GetTrialPeriodInDays(item),
-                                                                item.Plan.TenancyType),
-                SubscriptionMode = GetSubscriptionMode(item),
-                TenantId = id,
-                PlanId = item.Plan.Id,
-                PlanPriceId = item.PlanPrice.Id,
-                ProductId = item.Product.Id,
-                Status = workflow.NextStatus,
-                Step = workflow.NextStep,
-                IsActive = true,
-                CreatedByUserId = model.UserId,
-                ModifiedByUserId = model.UserId,
-                CreationDate = _date,
-                ModificationDate = _date,
-                HealthCheckUrl = item.Product.Url,
-                HealthCheckUrlIsOverridden = false,
-                TrialPeriod = BuildSubscriptionTrialPeriodEntity(item),
-                SubscriptionCycleId = item.GeneratedSubscriptionCycleId,
-                SubscriptionCycles = new List<SubscriptionCycle>()
+
+                var trialPeriod = _trialProcessingService.BuildSubscriptionTrialPeriodEntity(item);
+                var subscription = new Subscription
+                {
+                    Id = item.GeneratedSubscriptionId,
+                    StartDate = _date,
+                    EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle)
+                                               .CalculateExpiryDate(_date,
+                                                                     item.PlanPrice.CustomPeriodInDays,
+                                                                     _trialProcessingService.FeatchTrialPeriodInDays(item),
+                                                                     item.Plan.TenancyType),
+                    SubscriptionMode = GetSubscriptionMode(item),
+                    TenantId = id,
+                    PlanId = item.HasTrial ? trialPeriod.TrialPlanId : item.Plan.Id,
+                    PlanPriceId = item.HasTrial ? trialPeriod.TrialPlanPriceId : item.PlanPrice.Id,
+                    ProductId = item.Product.Id,
+                    Status = workflow.NextStatus,
+                    Step = workflow.NextStep,
+                    IsActive = true,
+                    CreatedByUserId = model.UserId,
+                    ModifiedByUserId = model.UserId,
+                    CreationDate = _date,
+                    ModificationDate = _date,
+                    HealthCheckUrl = item.Product.Url,
+                    HealthCheckUrlIsOverridden = false,
+                    TrialPeriod = trialPeriod,
+                    SubscriptionCycleId = item.GeneratedSubscriptionCycleId,
+                    SubscriptionCycles = new List<SubscriptionCycle>()
                 {
                     new SubscriptionCycle()
                      {
                         Id = item.GeneratedSubscriptionCycleId,
                         StartDate = _date,
                         EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle)
-                                          .CalculateExpiryDate(_date,
+                                          .CalculateCycleExpiryDate(_date,
                                                                 item.PlanPrice.CustomPeriodInDays,
-                                                                GetTrialPeriodInDays(item),
+                                                                _trialProcessingService.FeatchTrialPeriodInDays(item),
                                                                 item.Plan.TenancyType),
                         Type = GetSubscriptionCycleType( item),
                         TenantId = id,
-                        PlanId = item.Plan.Id,
-                        PlanPriceId = item.PlanPrice.Id,
+                        PlanId = item.HasTrial ? trialPeriod.TrialPlanId : item.Plan.Id,
+                        PlanPriceId = item.HasTrial ? trialPeriod.TrialPlanPriceId : item.PlanPrice.Id,
                         ProductId = item.Product.Id,
                         Cycle = item.PlanPrice.PlanCycle,
                         PlanDisplayName = item.Plan.DisplayName,
@@ -219,51 +261,48 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                         Price = item.PlanPrice.Price,
                      }
                 },
-                SubscriptionFeatures = item.Features.Select(f =>
-                {
-                    var subscriptionFeature = new SubscriptionFeature
+                    SubscriptionFeatures = item.Features.Select(f =>
+                    {
+                        var subscriptionFeature = new SubscriptionFeature
+                        {
+                            Id = Guid.NewGuid(),
+                            SubscriptionFeatureCycleId = f.GeneratedSubscriptionFeatureCycleId,
+                            StartDate = FeatureResetManager.FromKey(f.FeatureReset).GetStartDate(_date),
+                            EndDate = FeatureResetManager.FromKey(f.FeatureReset).GetExpiryDate(_date),
+                            FeatureId = f.FeatureId,
+                            PlanFeatureId = f.PlanFeatureId,
+                            RemainingUsage = f.Limit,
+                            CreatedByUserId = model.UserId,
+                            ModifiedByUserId = model.UserId,
+                            CreationDate = _date,
+                            ModificationDate = _date,
+                        };
+
+                        _dbContext.SubscriptionFeatureCycles.AddRange(BuildSubscriptionFeatureCycleEntity(model, f, item));
+
+                        return subscriptionFeature;
+                    }).ToList(),
+                    SpecificationsValues = item.Specifications.Select(x => new SpecificationValue
                     {
                         Id = Guid.NewGuid(),
-                        SubscriptionFeatureCycleId = f.GeneratedSubscriptionFeatureCycleId,
-                        StartDate = FeatureResetManager.FromKey(f.FeatureReset).GetStartDate(_date),
-                        EndDate = FeatureResetManager.FromKey(f.FeatureReset).GetExpiryDate(_date),
-                        FeatureId = f.FeatureId,
-                        PlanFeatureId = f.PlanFeatureId,
-                        RemainingUsage = f.Limit,
+                        TenantId = id,
+                        SpecificationId = x.SpecificationId,
+                        Value = x.Value,
                         CreatedByUserId = model.UserId,
                         ModifiedByUserId = model.UserId,
                         CreationDate = _date,
                         ModificationDate = _date,
-                    };
+                    }).ToList(),
 
-                    _dbContext.SubscriptionFeatureCycles.AddRange(BuildSubscriptionFeatureCycleEntity(model, f, item));
-
-                    return subscriptionFeature;
-                }).ToList(),
-                SpecificationsValues = item.Specifications.Select(x => new SpecificationValue
-                {
-                    Id = Guid.NewGuid(),
-                    TenantId = id,
-                    SpecificationId = x.SpecificationId,
-                    Value = model.Subscriptions.Where(s => s.ProductId == item.Product.Id)
-                                              .Select(s => s.Specifications)
-                                              .SingleOrDefault()?
-                                              .Where(s => s.SpecificationId == x.SpecificationId)
-                                              .SingleOrDefault()?
-                                              .Value,
-                    CreatedByUserId = model.UserId,
-                    ModifiedByUserId = model.UserId,
-                    CreationDate = _date,
-                    ModificationDate = _date,
-                }).ToList(),
+                };
+                return subscription;
 
             }).ToList(),
-            //  Orders = new List<Order> { BuildOrderEntity(id, name, displayName, model.PlanDataList) },
         };
 
         return res;
     }
-    private SubscriptionFeatureCycle BuildSubscriptionFeatureCycleEntity(CreateTenantCommand model, PlanFeatureInfoModel planFeature, TenantCreationPreparationModel planInfo)
+    private SubscriptionFeatureCycle BuildSubscriptionFeatureCycleEntity(CreateTenantCommand model, PlanFeatureInfoModel planFeature, SubscriptionPreparationModel planInfo)
     {
         return new SubscriptionFeatureCycle()
         {
@@ -289,58 +328,8 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             SubscriptionId = planInfo.GeneratedSubscriptionId,
         };
     }
-    private SubscriptionTrialPeriod? BuildSubscriptionTrialPeriodEntity(TenantCreationPreparationModel model)
-    {
-        if (model.HasTrial)
-        {
-            int TrialPeriodInDays;
-            Guid TrialPlanId;
-            Guid TrialPlanPriceId;
 
-            if (model.Product.TrialType == ProductTrialType.ProductHasTrialPlan)
-            {
-                TrialPeriodInDays = model.Product.TrialPeriodInDays;
-                TrialPlanId = model.Product.TrialPlanId.Value;
-                TrialPlanPriceId = model.Product.TrialPlanPriceId.Value;
-            }
-            else
-            {
-                TrialPeriodInDays = model.Plan.TrialPeriodInDays;
-                TrialPlanId = model.Plan.Id;
-                TrialPlanPriceId = model.PlanPrice.Id;
-            }
-
-
-            return new SubscriptionTrialPeriod()
-            {
-                Id = Guid.NewGuid(),
-                StartDate = _date,
-                EndDate = _date.AddDays(TrialPeriodInDays),
-                TrialPeriodInDays = TrialPeriodInDays,
-                PlanId = TrialPlanId,
-                PlanPriceId = TrialPlanPriceId,
-            };
-        }
-        return null;
-    }
-    private int? GetTrialPeriodInDays(TenantCreationPreparationModel model)
-    {
-        int? trialPeriodInDays = null;
-
-        if (model.HasTrial)
-        {
-            if (model.Product.TrialType == ProductTrialType.ProductHasTrialPlan)
-            {
-                trialPeriodInDays = model.Product.TrialPeriodInDays;
-            }
-            else
-            {
-                trialPeriodInDays = model.Plan.TrialPeriodInDays;
-            }
-        }
-        return trialPeriodInDays;
-    }
-    private SubscriptionMode GetSubscriptionMode(TenantCreationPreparationModel model)
+    private SubscriptionMode GetSubscriptionMode(SubscriptionPreparationModel model)
     {
         if (model.HasTrial)
         {
@@ -349,7 +338,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
 
         return SubscriptionMode.Normal;
     }
-    private SubscriptionCycleType GetSubscriptionCycleType(TenantCreationPreparationModel model)
+    private SubscriptionCycleType GetSubscriptionCycleType(SubscriptionPreparationModel model)
     {
         if (model.HasTrial)
         {

@@ -24,6 +24,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
 
         #region abst   
         public abstract DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType);
+        public abstract DateTime? CalculateCycleExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType);
         public abstract DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays);
         #endregion
 
@@ -39,6 +40,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
 
             #region overrides  
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
+            public override DateTime? CalculateCycleExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
             {
                 return Calculate(startDate, customPeriodInDays);
             }
@@ -65,6 +70,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             {
                 return Calculate(startDate, customPeriodInDays);
             }
+            public override DateTime? CalculateCycleExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays)
             {
                 return Calculate(startDate, customPeriodInDays);
@@ -88,6 +97,10 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             {
                 return Calculate(startDate, customPeriodInDays);
             }
+            public override DateTime? CalculateCycleExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                return Calculate(startDate, customPeriodInDays);
+            }
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays)
             {
                 return Calculate(startDate, customPeriodInDays);
@@ -108,6 +121,16 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
 
             #region overrides  
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                trialPeriodInDays = trialPeriodInDays ?? 0;
+                if (tenancyType == TenancyType.Planed)
+                {
+                    startDate = startDate.AddDays(trialPeriodInDays.Value);
+                }
+
+                return Calculate(startDate, customPeriodInDays);
+            }
+            public override DateTime? CalculateCycleExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
             {
                 if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && trialPeriodInDays > 0)
                 {
@@ -136,6 +159,16 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
             #region overrides  
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
             {
+                trialPeriodInDays = trialPeriodInDays ?? 0;
+                if (tenancyType == TenancyType.Planed)
+                {
+                    startDate = startDate.AddDays(trialPeriodInDays.Value);
+                }
+
+                return Calculate(startDate, customPeriodInDays);
+            }
+            public override DateTime? CalculateCycleExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
                 if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && trialPeriodInDays > 0)
                 {
                     return startDate.AddDays(trialPeriodInDays.Value);
@@ -163,6 +196,16 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
 
             #region overrides  
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                trialPeriodInDays = trialPeriodInDays ?? 0;
+                if (tenancyType == TenancyType.Planed)
+                {
+                    startDate = startDate.AddDays(trialPeriodInDays.Value);
+                }
+
+                return Calculate(startDate, customPeriodInDays);
+            }
+            public override DateTime? CalculateCycleExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
             {
                 if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && trialPeriodInDays > 0)
                 {
@@ -195,6 +238,16 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Utilities
 
             #region overrides  
             public override DateTime? CalculateExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
+            {
+                trialPeriodInDays = trialPeriodInDays ?? 0;
+                if (tenancyType == TenancyType.Planed)
+                {
+                    startDate = startDate.AddDays(trialPeriodInDays.Value);
+                }
+
+                return Calculate(startDate, customPeriodInDays);
+            }
+            public override DateTime? CalculateCycleExpiryDate(DateTime startDate, int? customPeriodInDays, int? trialPeriodInDays, TenancyType tenancyType)
             {
                 if (tenancyType == TenancyType.Planed && trialPeriodInDays is not null && trialPeriodInDays > 0)
                 {
