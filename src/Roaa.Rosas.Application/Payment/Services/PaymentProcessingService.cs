@@ -61,14 +61,14 @@ namespace Roaa.Rosas.Application.Payment.Services
             return order;
         }
 
-        public async Task<Order> MarkOrderAsAuthorizedAsync(Order order, CancellationToken cancellationToken = default)
+        public async Task<Order> MarkOrderAsAuthorizedAsync(Order order, string cardReferenceId, CancellationToken cancellationToken = default)
         {
             order.OrderStatus = OrderStatus.Complete;
             order.PaymentStatus = PaymentStatus.Authorized;
 
             await SetOrderPayerAsync(order, cancellationToken);
 
-            order.AddDomainEvent(new OrderPaidEvent(order.Id, order.OrderIntent, order.PaymentMethod?.Card?.ReferenceId, order.PaymentPlatform.Value));
+            order.AddDomainEvent(new OrderPaidEvent(order.Id, order.OrderIntent, cardReferenceId, order.PaymentPlatform.Value));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -155,13 +155,13 @@ namespace Roaa.Rosas.Application.Payment.Services
 
             return await MarkOrderAsFailedAsync(order, cancellationToken);
         }
-        public async Task<Order> MarkOrderAsAuthorizedAsync(Guid orderId, CancellationToken cancellationToken = default)
+        public async Task<Order> MarkOrderAsAuthorizedAsync(Guid orderId, string cardReferenceId, CancellationToken cancellationToken = default)
         {
             var order = await _dbContext.Orders
                                        .Where(x => x.Id == orderId)
                                        .SingleOrDefaultAsync(cancellationToken);
 
-            return await MarkOrderAsAuthorizedAsync(order, cancellationToken);
+            return await MarkOrderAsAuthorizedAsync(order, cardReferenceId, cancellationToken);
         }
         public async Task<Order> MarkOrderAsPaidAsync(Guid orderId, string cardReferenceId, PaymentPlatform paymentPlatform, CancellationToken cancellationToken = default)
         {

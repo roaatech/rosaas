@@ -74,7 +74,13 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
         }
 
 
-        public async Task<Result> EnableAutoRenewalAsync(Guid subscriptionId, string cardReferenceId, PaymentPlatform paymentPlatform, Guid? planPriceId, string? comment, CancellationToken cancellationToken = default)
+        public async Task<Result> EnableAutoRenewalAsync(Guid subscriptionId,
+                                                         string cardReferenceId,
+                                                         PaymentPlatform paymentPlatform,
+                                                         Guid? planPriceId,
+                                                         string? comment,
+                                                         Guid userId,
+                                                         CancellationToken cancellationToken = default)
         {
 
             var customeSubscription = await _dbContext.Subscriptions
@@ -88,18 +94,32 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                                         )
                                                         )
                                                  .Where(x => x.Id == subscriptionId)
-                                                 .Select(x => new { x.PlanPriceId })
+                                                 .Select(x => new { x.PlanPriceId, x.SubscriptionMode })
                                                  .SingleOrDefaultAsync(cancellationToken);
             if (customeSubscription is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale, nameof(subscriptionId));
             }
 
-            planPriceId = planPriceId ?? customeSubscription.PlanPriceId;
+            Guid subscriptionPlanPriceId = customeSubscription.PlanPriceId;
+
+            if (customeSubscription.SubscriptionMode == SubscriptionMode.Trial)
+            {
+                var trialSubscription = await _dbContext.SubscriptionTrialPeriods
+                                                 .Where(x => x.SubscriptionId == subscriptionId)
+                                                 .Select(x => new { x.SelectedPlanPriceId })
+                                                 .SingleOrDefaultAsync(cancellationToken);
+
+                subscriptionPlanPriceId = trialSubscription.SelectedPlanPriceId;
+            }
+
+
+
+            subscriptionPlanPriceId = planPriceId ?? subscriptionPlanPriceId;
 
             var planPrice = await _dbContext.PlanPrices
                                             .Include(p => p.Plan)
-                                            .Where(x => x.Id == planPriceId)
+                                            .Where(x => x.Id == subscriptionPlanPriceId)
                                             .SingleOrDefaultAsync();
             if (planPrice is null)
             {
@@ -117,7 +137,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                 {
                     Id = subscriptionId,
                     SubscriptionId = subscriptionId,
-                    PlanPriceId = planPriceId.Value,
+                    PlanPriceId = subscriptionPlanPriceId,
                     PlanId = planPrice.PlanId,
                     PlanCycle = planPrice.PlanCycle,
                     Price = planPrice.Price,
@@ -125,8 +145,8 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                     UpcomingAutoRenewalsCount = 1,
                     IsPaid = true,
                     Comment = comment,
-                    CreatedByUserId = _identityContextService.UserId,
-                    ModifiedByUserId = _identityContextService.UserId,
+                    CreatedByUserId = userId,
+                    ModifiedByUserId = userId,
                     CreationDate = date,
                     ModificationDate = date,
                 };
@@ -135,13 +155,13 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
             }
             else
             {
-                autoRenewal.PlanPriceId = planPriceId.Value;
+                autoRenewal.PlanPriceId = subscriptionPlanPriceId;
                 autoRenewal.PlanId = planPrice.PlanId;
                 autoRenewal.PlanCycle = planPrice.PlanCycle;
                 autoRenewal.Price = planPrice.Price;
                 autoRenewal.PlanDisplayName = planPrice.Plan.DisplayName;
                 autoRenewal.Comment = comment;
-                autoRenewal.ModifiedByUserId = _identityContextService.UserId;
+                autoRenewal.ModifiedByUserId = userId;
                 autoRenewal.ModificationDate = date;
             }
 

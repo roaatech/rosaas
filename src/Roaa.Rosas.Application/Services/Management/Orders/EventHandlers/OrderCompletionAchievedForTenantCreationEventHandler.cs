@@ -11,7 +11,6 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.C
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
-using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
@@ -126,9 +125,15 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
             foreach (var subscription in subscriptions)
             {
-                if (subscription.SubscriptionMode == SubscriptionMode.Normal && tenantRequest.AutoRenewalIsEnabled)
+                if (tenantRequest.AutoRenewalIsEnabled)
                 {
-                    await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(subscription.Id, @event.CardReferenceId, @event.PaymentPlatform, subscription.PlanPriceId, null, cancellationToken);
+                    await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(subscription.Id,
+                                                                                 @event.CardReferenceId,
+                                                                                 @event.PaymentPlatform,
+                                                                                 null,
+                                                                                 null,
+                                                                                 order.PayerUserId.Value,
+                                                                                 cancellationToken);
                 }
             }
 

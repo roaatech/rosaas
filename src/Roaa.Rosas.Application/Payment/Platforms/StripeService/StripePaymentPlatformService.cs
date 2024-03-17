@@ -478,7 +478,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
                     break;
                 // Authorized Payment
                 case Consts.StripeDefaults.PaymentIntentAuthorizedStatus:
-                    order = await _paymentProcessingService.MarkOrderAsAuthorizedAsync(orderId, cancellationToken);
+                    order = await _paymentProcessingService.MarkOrderAsAuthorizedAsync(orderId, paymentIntent.PaymentMethodId, cancellationToken);
                     order.AuthorizedPaymentResult = paymentIntent.Status;
                     break;
                 default:

@@ -37,6 +37,7 @@ public class SetSubscriptionAutoRenewalCommandHandler : IRequestHandler<SetSubsc
                                                                             command.PaymentPlatform,
                                                                             command.PlanPriceId,
                                                                             command.Comment,
+                                                                            _identityContextService.UserId,
                                                                             cancellationToken);
     }
     #endregion

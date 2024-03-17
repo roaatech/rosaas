@@ -53,18 +53,8 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
                 throw new NullReferenceException($"The tenantCreationRequest of order [OrderId:{@event.OrderId}] can't be null.");
 
             }
-            var tenantId = await _dbContext.Tenants
-                                .Where(x => tenantCreationRequest.NormalizedSystemName
-                                                                 .ToLower()
-                                                                 .Equals(x.SystemName))
-                                .Select(x => x.Id)
-                                .SingleOrDefaultAsync(cancellationToken);
+            var tenantId = tenantCreationRequest.Id;
 
-            if (tenantId == Guid.Empty)
-            {
-                throw new NullReferenceException($"The tenantId can't be null.");
-
-            }
             var subscriptions = await _dbContext.Subscriptions
                                                     .Include(x => x.Plan)
                                                     .Include(x => x.PlanPrice)
@@ -88,10 +78,10 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
                     await _subscriptionService.ResetSubscriptionPlanAsync(subscription, orderItem.PlanId, orderItem.PlanPriceId, true, SubscriptionMode.Normal);
 
-                    if (tenantCreationRequest.AutoRenewalIsEnabled)
-                    {
-                        await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(subscription.Id, @event.CardReferenceId, @event.PaymentPlatform, subscription.PlanPriceId, null, cancellationToken);
-                    }
+                    //if (tenantCreationRequest.AutoRenewalIsEnabled)
+                    //{
+                    //    await _subscriptionAutoRenewalService.EnableAutoRenewalAsync(subscription.Id, @event.CardReferenceId, @event.PaymentPlatform, subscription.PlanPriceId, null, cancellationToken);
+                    //}
                 }
             }
         }
