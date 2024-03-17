@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
@@ -36,6 +37,37 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
         #region Services 
 
+        public async Task<Result<List<SubscriptionAutoRenewalDto>>> GetSubscriptionAutoRenewalsListByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            var subscriptionAutoRenewals = await _dbContext.SubscriptionAutoRenewals.AsNoTracking()
+                                                        .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                                    _dbContext.EntityAdminPrivileges
+                                                                            .Any(a => a.UserId == userId &&
+                                                                                      a.EntityId == x.Subscription.TenantId &&
+                                                                                      a.EntityType == EntityType.Tenant
+                                                                                ))
+                                                         .Select(autoRenewal => new SubscriptionAutoRenewalDto
+                                                         {
+                                                             Id = autoRenewal.Id,
+                                                             Product = new Common.Models.CustomLookupItemDto<Guid>(autoRenewal.Subscription.ProductId, autoRenewal.Subscription.Product.SystemName, autoRenewal.Subscription.Product.DisplayName),
+                                                             Subscription = new Common.Models.CustomLookupItemDto<Guid>(autoRenewal.SubscriptionId, autoRenewal.Subscription.Tenant.SystemName, autoRenewal.Subscription.Tenant.DisplayName),
+                                                             Plan = new SubscriptionAutoRenewalDto.AutoRenewalPlanDto
+                                                             {
+                                                                 Id = autoRenewal.PlanId,
+                                                                 DisplayName = autoRenewal.PlanDisplayName,
+                                                                 PlanPriceId = autoRenewal.PlanPriceId,
+                                                                 Cycle = autoRenewal.PlanCycle,
+                                                                 Price = autoRenewal.Price,
+                                                             },
+                                                             Comment = autoRenewal.Comment,
+                                                             CreatedDate = autoRenewal.CreationDate,
+                                                             EditedDate = autoRenewal.ModificationDate,
+                                                         })
+                                                         .OrderByDescending(x => x.CreatedDate)
+                                                         .ToListAsync(cancellationToken);
+
+            return Result<List<SubscriptionAutoRenewalDto>>.Successful(subscriptionAutoRenewals);
+        }
         public async Task<Result> CancelAutoRenewalAsync(Guid subscriptionId, string? comment, CancellationToken cancellationToken)
         {
             var autoRenewal = await _dbContext.SubscriptionAutoRenewals

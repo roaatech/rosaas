@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CancelSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionReset;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionDowngrade;
@@ -27,6 +28,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         private readonly ISubscriptionService _subscriptionService;
         private readonly IIdentityContextService _identityContextService;
         private readonly IWebHostEnvironment _environment;
+        private readonly ISubscriptionAutoRenewalService _subscriptionAutoRenewalService;
         private readonly ISender _mediator;
         #endregion
 
@@ -36,6 +38,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
                                 IIdentityContextService identityContextService,
                                 ITenantService tenantService,
                                 ISubscriptionService subscriptionService,
+                                ISubscriptionAutoRenewalService subscriptionAutoRenewalService,
                                 ISender mediator)
         {
             _logger = logger;
@@ -43,6 +46,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
             _identityContextService = identityContextService;
             _tenantService = tenantService;
             _subscriptionService = subscriptionService;
+            _subscriptionAutoRenewalService = subscriptionAutoRenewalService;
             _mediator = mediator;
         }
         #endregion
@@ -75,6 +79,11 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
             return EmptyResult(await _mediator.Send(command, cancellationToken));
         }
 
+        [HttpGet("AutoRenewal")]
+        public async Task<IActionResult> GetSubscriptionAutoRenewalsListByUserIdAsync(CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _subscriptionAutoRenewalService.GetSubscriptionAutoRenewalsListByUserIdAsync(_identityContextService.UserId, cancellationToken));
+        }
 
         [HttpDelete("AutoRenewal")]
         public async Task<IActionResult> CancelSubscriptionAutoRenewalAsync([FromBody] CancelSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken = default)
