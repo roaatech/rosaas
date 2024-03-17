@@ -68,6 +68,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                              IsActive = subscription.IsActive,
                                                              EndDate = subscription.EndDate,
                                                              StartDate = subscription.StartDate,
+                                                             PlanPrice = new PlanPriceDto
+                                                             {
+                                                                 Id = subscription.PlanPriceId,
+                                                                 Cycle = subscription.PlanPrice.PlanCycle,
+                                                                 Price = subscription.PlanPrice.Price,
+                                                             },
                                                              Plan = new Common.Models.CustomLookupItemDto<Guid>(subscription.PlanId, subscription.Plan.SystemName, subscription.Plan.DisplayName),
                                                              Product = new Common.Models.CustomLookupItemDto<Guid>(subscription.ProductId, subscription.Product.SystemName, subscription.Product.DisplayName),
                                                              CreatedDate = subscription.Tenant.CreationDate,

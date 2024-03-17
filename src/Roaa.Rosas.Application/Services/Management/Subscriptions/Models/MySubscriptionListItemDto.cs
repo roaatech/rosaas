@@ -13,6 +13,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Models
         public bool IsActive { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public PlanPriceDto PlanPrice { get; set; } = new();
         public CustomLookupItemDto<Guid> Plan { get; set; } = new();
         public CustomLookupItemDto<Guid> Product { get; set; } = new();
         public DateTime CreatedDate { get; set; }
@@ -21,5 +22,12 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Models
         public bool PlanChangingIsEnabled { get; set; }
         public PlanChangingType? PlanChangingType { get; set; }
         public PaymentMethodCardDto? PaymentMethodCard { get; set; }
+    }
+
+    public record PlanPriceDto
+    {
+        public Guid Id { get; set; }
+        public PlanCycle Cycle { get; set; }
+        public decimal Price { get; set; }
     }
 }
