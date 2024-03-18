@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Subscriptions.Trials;
+using Roaa.Rosas.Application.Services.Management.SubscriptionTrials;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Application.Services.Management.Tenants.Utilities;

@@ -2,17 +2,16 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
-using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Queries.GetSubscriptionCycles;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CancelSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionReset;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionDowngrade;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionUpgrade;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAutoRenewal;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionCycles;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionFeatures;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsList;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -125,7 +124,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpGet("{id}/Features")]
         public async Task<IActionResult> GetSubscriptionFeaturesAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ListResult(await _mediator.Send(new GetSubscriptionFeaturesQuery(id), cancellationToken));
+            return ListResult(await _subscriptionService.GetSubscriptionFeaturesAsync(id, cancellationToken));
         }
 
 

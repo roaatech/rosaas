@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Products.Models;
 using Roaa.Rosas.Application.Services.Management.Products.Queries.GetProductWarnings;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionDetails;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsListByProduct;
+using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -20,18 +19,20 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         #region Props 
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductService _productService;
+        private readonly ISubscriptionService _subscriptionService;
         private readonly ISender _mediator;
         #endregion
 
         #region Corts
         public ProductsController(ILogger<ProductsController> logger,
-                                IWebHostEnvironment environment,
-                                IIdentityContextService identityContextService,
-                               IProductService productService,
-                                ISender mediator)
+                                    IIdentityContextService identityContextService,
+                                    IProductService productService,
+                                    ISubscriptionService subscriptionService,
+                                    ISender mediator)
         {
             _logger = logger;
             _productService = productService;
+            _subscriptionService = subscriptionService;
             _mediator = mediator;
         }
         #endregion
@@ -83,14 +84,14 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpGet("{id}/Tenants/{tenantId}")]
         public async Task<IActionResult> GetSubscriptionDetailsAsync([FromRoute] Guid tenantId, [FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetSubscriptionDetailsQuery(tenantId, id), cancellationToken));
+            return ItemResult(await _subscriptionService.GetSubscriptionDetailsAsync(tenantId, id, cancellationToken));
         }
 
 
         [HttpGet("{id}/subscriptions")]
         public async Task<IActionResult> GetSubscriptionsListAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetSubscriptionsListByProductQuery(id), cancellationToken));
+            return ItemResult(await _subscriptionService.GetSubscriptionsListByProductIdAsync(id, cancellationToken));
         }
 
         [HttpGet("{id}/Warnings")]

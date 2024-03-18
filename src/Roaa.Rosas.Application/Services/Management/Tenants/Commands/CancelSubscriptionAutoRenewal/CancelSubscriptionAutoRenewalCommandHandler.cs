@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using Roaa.Rosas.Application.Services.Management.Subscriptions.AutoRenewals;
+using Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 

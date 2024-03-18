@@ -23,11 +23,4 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Models
         public PlanChangingType? PlanChangingType { get; set; }
         public PaymentMethodCardDto? PaymentMethodCard { get; set; }
     }
-
-    public record PlanPriceDto
-    {
-        public Guid Id { get; set; }
-        public PlanCycle Cycle { get; set; }
-        public decimal Price { get; set; }
-    }
 }

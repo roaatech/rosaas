@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Roaa.Rosas.Application.IdentityContextUtilities;
+using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ChangeTenantStatus;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequestByExternalSystem;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsDowngradeApplied;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAsUpgradeApplied;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.UpdateTenantMetadata;
-using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetSubscriptionsListByProduct;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantMetadataByName;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenantStatusByName;
 using Roaa.Rosas.Application.Services.Management.Tenants.Queries.GetTenentByNameAndProductId;
@@ -27,15 +27,17 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         #region Props  
         private readonly ISender _mediator;
         private readonly IIdentityContextService _identityContextService;
+        private readonly ISubscriptionService _subscriptionService;
 
         #endregion
 
         #region Corts
         public ExternalSystemTenantsController(ISender mediator,
-                                 IIdentityContextService identityContextService
-                                 )
+                                 IIdentityContextService identityContextService,
+                                 ISubscriptionService subscriptionService)
         {
             _identityContextService = identityContextService;
+            _subscriptionService = subscriptionService;
             _mediator = mediator;
         }
         #endregion
@@ -53,7 +55,7 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         [HttpGet()]
         public async Task<IActionResult> GetTenantsSubscriptionsListAsync(CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _mediator.Send(new GetSubscriptionsListByProductQuery(_identityContextService.GetProductId()), cancellationToken));
+            return ItemResult(await _subscriptionService.GetSubscriptionsListByProductIdAsync(_identityContextService.GetProductId(), cancellationToken));
         }
 
         [HttpGet("{name}")]

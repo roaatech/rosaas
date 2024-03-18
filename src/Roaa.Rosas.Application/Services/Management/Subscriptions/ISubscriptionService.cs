@@ -6,6 +6,10 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 {
     public interface ISubscriptionService
     {
+        Task<Result<List<SubscriptionFeatureDto>>> GetSubscriptionFeaturesAsync(Guid subscriptionId, CancellationToken cancellationToken);
+
+        Task<Result<SubscriptionDetailsDto>> GetSubscriptionDetailsAsync(Guid tenantId, Guid productId, CancellationToken cancellationToken);
+
         Task<Result<List<MySubscriptionListItemDto>>> GetSubscriptionsListByUserIdAsync(Guid userId, CancellationToken cancellationToken);
 
         Task<Result<List<SubscriptionListItemDto>>> GetSubscriptionsListByProductIdAsync(Guid productId, CancellationToken cancellationToken);

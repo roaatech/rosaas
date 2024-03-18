@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Subscriptions.Trials;
+using Roaa.Rosas.Application.Services.Management.SubscriptionTrials;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantCreationRequest;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
