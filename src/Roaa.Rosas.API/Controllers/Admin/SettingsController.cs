@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.BackgroundServices;
 using Roaa.Rosas.Application.Services.Management.Settings;
-using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Settings;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Settings;
 using Roaa.Rosas.Framework.Controllers.Common;

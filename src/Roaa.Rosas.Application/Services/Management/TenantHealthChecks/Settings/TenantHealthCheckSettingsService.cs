@@ -5,7 +5,7 @@ using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Backg
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings
+namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Settings
 {
     public partial class TenantHealthCheckSettingsService : ITenantHealthCheckSettingsService
     {

@@ -2,7 +2,8 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Services.Management.Products;
-using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Services;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models;
 using System.Collections.Concurrent;

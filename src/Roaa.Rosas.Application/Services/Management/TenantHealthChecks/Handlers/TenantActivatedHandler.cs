@@ -2,12 +2,12 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Services;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
-using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Handlers
+namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Handlers
 {
     public class TenantActivatedHandler : IInternalDomainEventHandler<TenantActivatedEvent>
     {

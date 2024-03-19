@@ -2,12 +2,12 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Settings;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Settings;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
-using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
+namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks
 {
 
     public class BackgroundServiceManager

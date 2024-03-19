@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings
+namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Settings
 {
     public interface ITenantHealthCheckSettingsService
     {

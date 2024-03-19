@@ -1,8 +1,8 @@
-﻿using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings;
+﻿using Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Settings;
 using Roaa.Rosas.Domain.Entities.Management;
 using System.Collections.Concurrent;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus
+namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks
 {
     public class BackgroundServicesStore
     {

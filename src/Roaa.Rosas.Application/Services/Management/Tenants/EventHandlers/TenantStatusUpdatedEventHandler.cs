@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Entities.Management;

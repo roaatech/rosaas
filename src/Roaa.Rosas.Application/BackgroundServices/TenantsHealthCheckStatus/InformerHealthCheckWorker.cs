@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Services.Management.Products;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Services;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices.abstruct;
-using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services;
 
 namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices
 {

@@ -4,7 +4,7 @@ using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services
+namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Services
 {
     public interface ITenantHealthCheckService
     {

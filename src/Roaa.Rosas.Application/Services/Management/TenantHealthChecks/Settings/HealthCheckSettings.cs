@@ -1,6 +1,6 @@
 ﻿using Roaa.Rosas.Domain.Settings;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Settings
+namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Settings
 {
     public class HealthCheckSettings : ISettings
     {

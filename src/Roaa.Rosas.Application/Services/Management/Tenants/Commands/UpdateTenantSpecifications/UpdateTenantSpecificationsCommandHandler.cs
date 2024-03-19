@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Extensions;

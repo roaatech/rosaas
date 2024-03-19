@@ -5,6 +5,7 @@ using MySqlConnector;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
+using Roaa.Rosas.Application.Services.Management.TenantHealthChecks;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -13,7 +14,7 @@ using Roaa.Rosas.Domain.Models;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
 using System.Linq.Expressions;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Services
+namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Services
 {
     public class TenantHealthCheckService : ITenantHealthCheckService
     {

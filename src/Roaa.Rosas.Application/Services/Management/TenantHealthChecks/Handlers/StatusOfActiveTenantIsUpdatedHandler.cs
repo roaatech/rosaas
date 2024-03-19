@@ -5,7 +5,7 @@ using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.Handlers
+namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Handlers
 {
     public class StatusOfActiveTenantIsUpdatedHandler : IInternalDomainEventHandler<StatusOfActiveTenantIsUpdated>
     {
