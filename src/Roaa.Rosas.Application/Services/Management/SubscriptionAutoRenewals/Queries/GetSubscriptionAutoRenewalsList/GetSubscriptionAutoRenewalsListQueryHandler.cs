@@ -1,11 +1,10 @@
 ﻿using MediatR;
 using Roaa.Rosas.Application.Services.Management.Orders;
-using Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals;
 using Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Queries.GetSubscriptionsList
+namespace Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals.Queries.GetSubscriptionAutoRenewalsList
 {
     public class GetSubscriptionAutoRenewalsListQueryHandler : IRequestHandler<GetSubscriptionAutoRenewalsListQuery, Result<List<SubscriptionAutoRenewalDto>>>
     {

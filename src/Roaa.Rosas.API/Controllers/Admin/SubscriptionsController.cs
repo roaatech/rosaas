@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals;
+using Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals.Queries.GetSubscriptionAutoRenewalsList;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.Queries.GetSubscriptionCycles;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.Queries.GetSubscriptionsList;
