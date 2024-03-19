@@ -81,7 +81,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpGet("AutoRenewal")]
         public async Task<IActionResult> GetSubscriptionAutoRenewalsListByUserIdAsync(CancellationToken cancellationToken = default)
         {
-            return ListResult(await _subscriptionAutoRenewalService.GetSubscriptionAutoRenewalsListByUserIdAsync(_identityContextService.UserId, cancellationToken));
+            return ListResult(await _mediator.Send(new GetSubscriptionAutoRenewalsListQuery(), cancellationToken));
         }
 
         [HttpDelete("AutoRenewal")]

@@ -135,7 +135,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                          Cycle = subscription.PlanPrice.PlanCycle,
                                                          Price = subscription.PlanPrice.Price,
                                                      },
-                                                     AutoRenewal = subscription.AutoRenewal == null ? null : new SubscriptionAutoRenewalDto
+                                                     AutoRenewal = subscription.AutoRenewal == null ? null : new SubscriptionDetailsDto.SubscriptionAutoRenewalDto
                                                      {
                                                          Cycle = subscription.AutoRenewal.PlanCycle,
                                                          Price = subscription.AutoRenewal.Price,
@@ -143,7 +143,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                          CreatedDate = subscription.AutoRenewal.CreationDate,
                                                          Comment = subscription.AutoRenewal.Comment,
                                                      },
-                                                     SubscriptionPlanChange = subscription.SubscriptionPlanChanging == null ? null : new SubscriptionPlanChangingDto
+                                                     SubscriptionPlanChange = subscription.SubscriptionPlanChanging == null ? null : new SubscriptionDetailsDto.SubscriptionPlanChangingDto
                                                      {
                                                          PlanDisplayName = subscription.SubscriptionPlanChanging.PlanDisplayName,
                                                          Type = subscription.SubscriptionPlanChanging.Type,

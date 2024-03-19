@@ -26,25 +26,25 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Models
         public SubscriptionAutoRenewalDto? AutoRenewal { get; set; }
         public SubscriptionPlanChangingDto? SubscriptionPlanChange { get; set; }
         public IEnumerable<SubscriptionCycleDto> SubscriptionCycles { get; set; } = new List<SubscriptionCycleDto>();
-    }
 
-    public class SubscriptionAutoRenewalDto
-    {
-        public PlanCycle Cycle { get; set; }
-        public decimal Price { get; set; }
-        public string? Comment { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime EditedDate { get; set; }
-    }
-    public class SubscriptionPlanChangingDto
-    {
-        public string PlanDisplayName { get; set; } = string.Empty;
-        public PlanChangingType Type { get; set; }
-        public PlanCycle Cycle { get; set; }
-        public decimal Price { get; set; }
-        public string? Comment { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime EditedDate { get; set; }
+        public class SubscriptionAutoRenewalDto
+        {
+            public PlanCycle Cycle { get; set; }
+            public decimal Price { get; set; }
+            public string? Comment { get; set; }
+            public DateTime CreatedDate { get; set; }
+            public DateTime EditedDate { get; set; }
+        }
+        public class SubscriptionPlanChangingDto
+        {
+            public string PlanDisplayName { get; set; } = string.Empty;
+            public PlanChangingType Type { get; set; }
+            public PlanCycle Cycle { get; set; }
+            public decimal Price { get; set; }
+            public string? Comment { get; set; }
+            public DateTime CreatedDate { get; set; }
+            public DateTime EditedDate { get; set; }
+        }
     }
 
     public class SubscriptionCycleDto

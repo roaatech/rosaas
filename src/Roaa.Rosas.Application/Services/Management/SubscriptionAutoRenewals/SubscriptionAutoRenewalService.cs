@@ -59,10 +59,10 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals
                                                                  Price = autoRenewal.Price,
                                                              },
                                                              Comment = autoRenewal.Comment,
-                                                             CreatedDate = autoRenewal.CreationDate,
-                                                             EditedDate = autoRenewal.ModificationDate,
+                                                             EnabledDate = autoRenewal.ModificationDate,
+                                                             SubscriptionRenewalDate = autoRenewal.Subscription.EndDate,
                                                          })
-                                                         .OrderByDescending(x => x.CreatedDate)
+                                                         .OrderByDescending(x => x.EnabledDate)
                                                          .ToListAsync(cancellationToken);
 
             return Result<List<SubscriptionAutoRenewalDto>>.Successful(subscriptionAutoRenewals);
