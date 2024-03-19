@@ -66,6 +66,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
     public enum SubscriptionPlanChangeStatus
     {
+        None = 0,
         Pending = 1,
         InProgress = 2,
         Done = 3,

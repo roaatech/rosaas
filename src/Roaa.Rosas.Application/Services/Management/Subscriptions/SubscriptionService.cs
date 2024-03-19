@@ -85,6 +85,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result<List<SubscriptionFeatureDto>>.Successful(subscriptionFeatures);
         }
+
         public async Task<Result<SubscriptionDetailsDto>> GetSubscriptionDetailsAsync(Guid tenantId, Guid productId, CancellationToken cancellationToken)
         {
 
@@ -182,6 +183,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result<SubscriptionDetailsDto>.Successful(subscription);
         }
+
         public async Task<Result<List<MySubscriptionListItemDto>>> GetSubscriptionsListByUserIdAsync(Guid userId, CancellationToken cancellationToken)
         {
             var tenants = await _dbContext.Subscriptions.AsNoTracking()
@@ -213,6 +215,11 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                              AutoRenewalIsEnabled = subscription.AutoRenewal == null ? false : true,
                                                              PlanChangingIsEnabled = subscription.SubscriptionPlanChanging == null ? false : true,
                                                              PlanChangingType = subscription.SubscriptionPlanChanging == null ? null : subscription.SubscriptionPlanChanging.Type,
+                                                             IsPlanChangeAllowed = subscription.SubscriptionPlanChanging == null &&
+                                                                                    (subscription.SubscriptionPlanChangeStatus == SubscriptionPlanChangeStatus.None ||
+                                                                                     subscription.SubscriptionPlanChangeStatus == SubscriptionPlanChangeStatus.Done) &&
+                                                                                    !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionUpgradeUrl) &&
+                                                                                     !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionDowngradeUrl)
                                                          })
                                                          .OrderByDescending(x => x.CreatedDate)
                                                          .ToListAsync(cancellationToken);
@@ -229,7 +236,6 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
             return Result<List<SubscriptionListItemDto>>.Successful(tenants);
         }
-
 
         public Expression<Func<Subscription, SubscriptionListItemDto>> GetSubscriptionDtoSelector()
         {

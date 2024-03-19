@@ -418,6 +418,31 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
 
             await _dbContext.SaveChangesAsync();
         }
+        private async Task FixSubscriptionPlanChangeStatusAsync()
+        {
+
+            const string key = "SeedData.Management.ManagementDbInitialiser.SubscriptionPlanChangeStatusFixed";
+            if (!await _dbContext.Settings
+                               .Where(x => x.Key.Equals(key))
+                               .AnyAsync())
+            {
+                // SubscriptionPlanChangeStatus
+                var subscriptions = await _dbContext.Subscriptions.Where(x => x.SubscriptionPlanChangeStatus == null).ToListAsync();
+                foreach (var subscription in subscriptions)
+                {
+                    subscription.SubscriptionPlanChangeStatus = SubscriptionPlanChangeStatus.None;
+                }
+            }
+
+            _dbContext.Settings.Add(new Setting
+            {
+                Key = key,
+                Value = DateTime.UtcNow.ToString(),
+                Id = Guid.NewGuid()
+            });
+
+            await _dbContext.SaveChangesAsync();
+        }
 
     }
 }

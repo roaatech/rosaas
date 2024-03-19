@@ -20,6 +20,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Models
         public DateTime EditedDate { get; set; }
         public bool AutoRenewalIsEnabled { get; set; }
         public bool PlanChangingIsEnabled { get; set; }
+        public bool IsPlanChangeAllowed { get; set; }
         public PlanChangingType? PlanChangingType { get; set; }
         public PaymentMethodCardDto? PaymentMethodCard { get; set; }
     }
