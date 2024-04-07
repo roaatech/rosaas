@@ -3,7 +3,7 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.SystemMessages;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionReset;
+namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.PrepareSubscriptionReset;
 
 public partial class PrepareSubscriptionResetCommandValidator : AbstractValidator<PrepareSubscriptionResetCommand>
 {

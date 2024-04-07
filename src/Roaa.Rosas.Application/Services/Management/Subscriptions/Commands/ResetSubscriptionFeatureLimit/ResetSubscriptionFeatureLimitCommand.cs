@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
+namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.ResetSubscriptionFeatureLimit;
 public record ResetSubscriptionFeatureLimitCommand : IRequest<Result>
 {
     public Guid TenantId { get; set; }

@@ -2,8 +2,8 @@
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionDowngrade;
-public record RequestSubscriptionDowngradeCommand : IRequest<Result>
+namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.EnableSubscriptionDowngrading;
+public record EnableSubscriptionDowngradingCommand : IRequest<Result>
 {
     public Guid SubscriptionId { get; set; }
     public Guid PlanId { get; set; }
@@ -13,9 +13,9 @@ public record RequestSubscriptionDowngradeCommand : IRequest<Result>
     public PaymentPlatform PaymentPlatform { get; set; }
 
 
-    public RequestSubscriptionDowngradeCommand() { }
+    public EnableSubscriptionDowngradingCommand() { }
 
-    public RequestSubscriptionDowngradeCommand(Guid subscriptionId, Guid planId, Guid planPriceId, string cardReferenceId, PaymentPlatform paymentPlatform, string comment)
+    public EnableSubscriptionDowngradingCommand(Guid subscriptionId, Guid planId, Guid planPriceId, string cardReferenceId, PaymentPlatform paymentPlatform, string comment)
     {
         SubscriptionId = subscriptionId;
         PlanId = planId;

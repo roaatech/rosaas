@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionReset;
+namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.PrepareSubscriptionReset;
 public record PrepareSubscriptionResetCommand : IRequest<Result>
 {
     public Guid TenantId { get; set; }

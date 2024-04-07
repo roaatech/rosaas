@@ -3,11 +3,11 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.SystemMessages;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionUpgrade;
+namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.EnableSubscriptionUpgrading;
 
-public partial class RequestSubscriptionUpgradeCommandValidator : AbstractValidator<RequestSubscriptionUpgradeCommand>
+public partial class EnableSubscriptionUpgradingCommandValidator : AbstractValidator<EnableSubscriptionUpgradingCommand>
 {
-    public RequestSubscriptionUpgradeCommandValidator(IIdentityContextService identityContextService)
+    public EnableSubscriptionUpgradingCommandValidator(IIdentityContextService identityContextService)
     {
         RuleFor(x => x.SubscriptionId).NotEmpty().WithError(CommonErrorKeys.ParameterIsRequired, identityContextService.Locale);
 

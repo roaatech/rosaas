@@ -3,7 +3,7 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.SystemMessages;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
+namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.ResetSubscriptionFeatureLimit;
 
 public partial class ResetSubscriptionFeatureLimitCommandValidator : AbstractValidator<ResetSubscriptionFeatureLimitCommand>
 {

@@ -1,15 +1,14 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionUpgrade;
+namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.EnableSubscriptionUpgrading;
 
-public class RequestSubscriptionUpgradeCommandHandler : IRequestHandler<RequestSubscriptionUpgradeCommand, Result>
+public class EnableSubscriptionUpgradingCommandHandler : IRequestHandler<EnableSubscriptionUpgradingCommand, Result>
 {
     #region Props 
-    private readonly ILogger<RequestSubscriptionUpgradeCommandHandler> _logger;
+    private readonly ILogger<EnableSubscriptionUpgradingCommandHandler> _logger;
     private readonly IIdentityContextService _identityContextService;
     private readonly ISubscriptionRenewalService _subscriptionRenewalService;
     #endregion
@@ -17,9 +16,9 @@ public class RequestSubscriptionUpgradeCommandHandler : IRequestHandler<RequestS
 
 
     #region Corts
-    public RequestSubscriptionUpgradeCommandHandler(IIdentityContextService identityContextService,
+    public EnableSubscriptionUpgradingCommandHandler(IIdentityContextService identityContextService,
                                                     ISubscriptionRenewalService subscriptionPlanChangingService,
-                                                    ILogger<RequestSubscriptionUpgradeCommandHandler> logger)
+                                                    ILogger<EnableSubscriptionUpgradingCommandHandler> logger)
     {
         _identityContextService = identityContextService;
         _subscriptionRenewalService = subscriptionPlanChangingService;
@@ -30,7 +29,7 @@ public class RequestSubscriptionUpgradeCommandHandler : IRequestHandler<RequestS
 
 
     #region Handler   
-    public async Task<Result> Handle(RequestSubscriptionUpgradeCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(EnableSubscriptionUpgradingCommand command, CancellationToken cancellationToken)
     {
         return await _subscriptionRenewalService.EnableSubscriptionUpgradingAsync(command.SubscriptionId,
                                                                                      command.PlanId,

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
@@ -11,8 +10,9 @@ using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using System.Linq.Expressions;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
+namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.ResetSubscriptionFeatureLimit;
 
+// TODO - Refactor
 public class ResetSubscriptionFeatureLimitCommandHandler : IRequestHandler<ResetSubscriptionFeatureLimitCommand, Result>
 {
     #region Props 

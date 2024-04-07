@@ -3,7 +3,7 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.SystemMessages;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
+namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.ResetSubscription;
 
 public partial class ResetSubscriptionCommandValidator : AbstractValidator<ResetSubscriptionCommand>
 {

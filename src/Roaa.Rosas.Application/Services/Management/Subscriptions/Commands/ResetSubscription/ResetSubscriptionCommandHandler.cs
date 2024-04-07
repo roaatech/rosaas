@@ -8,8 +8,9 @@ using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Events.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
+namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.ResetSubscription;
 
+// TODO - Refactor
 public class ResetSubscriptionCommandHandler : IRequestHandler<ResetSubscriptionCommand, Result>
 {
     #region Props 

@@ -2,8 +2,8 @@
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionUpgrade;
-public record RequestSubscriptionUpgradeCommand : IRequest<Result>
+namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.EnableSubscriptionUpgrading;
+public record EnableSubscriptionUpgradingCommand : IRequest<Result>
 {
     public Guid SubscriptionId { get; set; }
     public Guid PlanId { get; set; }
@@ -13,9 +13,9 @@ public record RequestSubscriptionUpgradeCommand : IRequest<Result>
     public PaymentPlatform PaymentPlatform { get; set; }
 
 
-    public RequestSubscriptionUpgradeCommand() { }
+    public EnableSubscriptionUpgradingCommand() { }
 
-    public RequestSubscriptionUpgradeCommand(Guid subscriptionId, Guid planId, Guid planPriceId, string cardReferenceId, PaymentPlatform paymentPlatform, string comment)
+    public EnableSubscriptionUpgradingCommand(Guid subscriptionId, Guid planId, Guid planPriceId, string cardReferenceId, PaymentPlatform paymentPlatform, string comment)
     {
         SubscriptionId = subscriptionId;
         PlanId = planId;

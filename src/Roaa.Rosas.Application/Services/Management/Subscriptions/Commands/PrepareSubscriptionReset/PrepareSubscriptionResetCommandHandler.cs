@@ -18,8 +18,10 @@ using Roaa.Rosas.Domain.Models.ExternalSystems;
 using Roaa.Rosas.Domain.Models.TenantProcessHistoryData;
 using System.Linq.Expressions;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionReset;
+namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.PrepareSubscriptionReset;
 
+
+// TODO - Refactor
 public class PrepareSubscriptionResetCommandHandler : IRequestHandler<PrepareSubscriptionResetCommand, Result>
 {
     #region Props 
@@ -79,7 +81,7 @@ public class PrepareSubscriptionResetCommandHandler : IRequestHandler<PrepareSub
 
         var urlItemResult = await _productService.GetProductEndpointByIdAsync(command.ProductId, selector, cancellationToken);
 
-        if (!urlItemResult.Success || (urlItemResult.Success && string.IsNullOrWhiteSpace(urlItemResult.Data.Url)))
+        if (!urlItemResult.Success || urlItemResult.Success && string.IsNullOrWhiteSpace(urlItemResult.Data.Url))
         {
             return Result.Fail(ErrorMessage.RestUrlNotExist, _identityContextService.Locale);
         }

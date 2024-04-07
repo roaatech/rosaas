@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscription;
+namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.ResetSubscription;
 public record ResetSubscriptionCommand : IRequest<Result>
 {
     public string TenantName { get; set; } = string.Empty;

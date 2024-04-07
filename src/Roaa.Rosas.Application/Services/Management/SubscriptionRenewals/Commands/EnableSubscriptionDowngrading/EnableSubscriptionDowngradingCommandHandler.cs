@@ -1,15 +1,14 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 
-namespace Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionDowngrade;
+namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.EnableSubscriptionDowngrading;
 
-public class RequestSubscriptionDowngradeCommandHandler : IRequestHandler<RequestSubscriptionDowngradeCommand, Result>
+public class EnableSubscriptionDowngradingCommandHandler : IRequestHandler<EnableSubscriptionDowngradingCommand, Result>
 {
     #region Props 
-    private readonly ILogger<RequestSubscriptionDowngradeCommandHandler> _logger;
+    private readonly ILogger<EnableSubscriptionDowngradingCommandHandler> _logger;
     private readonly IIdentityContextService _identityContextService;
     private readonly ISubscriptionRenewalService _subscriptionRenewalService;
     #endregion
@@ -17,9 +16,9 @@ public class RequestSubscriptionDowngradeCommandHandler : IRequestHandler<Reques
 
 
     #region Corts
-    public RequestSubscriptionDowngradeCommandHandler(IIdentityContextService identityContextService,
+    public EnableSubscriptionDowngradingCommandHandler(IIdentityContextService identityContextService,
                                                     ISubscriptionRenewalService subscriptionPlanChangingService,
-                                                    ILogger<RequestSubscriptionDowngradeCommandHandler> logger)
+                                                    ILogger<EnableSubscriptionDowngradingCommandHandler> logger)
     {
         _identityContextService = identityContextService;
         _subscriptionRenewalService = subscriptionPlanChangingService;
@@ -29,7 +28,7 @@ public class RequestSubscriptionDowngradeCommandHandler : IRequestHandler<Reques
 
 
     #region Handler   
-    public async Task<Result> Handle(RequestSubscriptionDowngradeCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(EnableSubscriptionDowngradingCommand command, CancellationToken cancellationToken)
     {
         return await _subscriptionRenewalService.EnableSubscriptionDowngradingAsync(command.SubscriptionId,
                                                                                         command.PlanId,

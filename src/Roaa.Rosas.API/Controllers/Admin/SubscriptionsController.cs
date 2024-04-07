@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.CancelSubscriptionRenewal;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.EnableSubscriptionAutoRenewal;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.EnableSubscriptionDowngrading;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.EnableSubscriptionUpgrading;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Queries.GetSubscriptionAutoRenewalsList;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.PrepareSubscriptionReset;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.ResetSubscriptionFeatureLimit;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.Queries.GetSubscriptionCycles;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.Queries.GetSubscriptionsList;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionReset;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionDowngrade;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionUpgrade;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -108,14 +108,14 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpPost("Upgrade")]
-        public async Task<IActionResult> RequestSubscriptionUpgradeAsync([FromBody] RequestSubscriptionUpgradeCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> RequestSubscriptionUpgradeAsync([FromBody] EnableSubscriptionUpgradingCommand command, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(command, cancellationToken));
         }
 
 
         [HttpPost("Downgrade")]
-        public async Task<IActionResult> RequestSubscriptionDowngradeAsync([FromBody] RequestSubscriptionDowngradeCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> RequestSubscriptionDowngradeAsync([FromBody] EnableSubscriptionDowngradingCommand command, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(command, cancellationToken));
         }
