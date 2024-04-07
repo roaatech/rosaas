@@ -234,7 +234,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
                     ModificationDate = _date,
                     HealthCheckUrl = item.Product.Url,
                     HealthCheckUrlIsOverridden = false,
-                    TrialPeriod = trialPeriod,
+                    Trial = trialPeriod,
                     SubscriptionCycleId = item.GeneratedSubscriptionCycleId,
                     SubscriptionCycles = new List<SubscriptionCycle>()
                 {
@@ -336,7 +336,7 @@ public partial class CreateTenantCommandHandler : IRequestHandler<CreateTenantCo
             return SubscriptionMode.Trial;
         }
 
-        return SubscriptionMode.Normal;
+        return SubscriptionMode.Standard;
     }
     private SubscriptionCycleType GetSubscriptionCycleType(SubscriptionPreparationModel model)
     {

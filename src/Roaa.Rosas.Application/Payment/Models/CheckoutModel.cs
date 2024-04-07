@@ -7,6 +7,8 @@ namespace Roaa.Rosas.Application.Payment.Models
         public Guid OrderId { get; set; }
         public bool AllowStoringCardInfo { get; set; }
         public bool EnableAutoRenewal { get; set; }
+
+        [Obsolete("This property is obsolete. Use PaymentPlatform instead.", false)]
         public PaymentPlatform? PaymentMethod { get; set; }
         public PaymentPlatform? PaymentPlatform { get; set; }
     }

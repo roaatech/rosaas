@@ -6,7 +6,7 @@ namespace Roaa.Rosas.Domain.Events.Management
     public class SubscriptionRenewedEvent : BaseInternalEvent
     {
         public Subscription Subscription { get; set; } = new();
-        public SubscriptionAutoRenewal SubscriptionAutoRenewal { get; set; } = new();
+        public SubscriptionRenewal SubscriptionAutoRenewal { get; set; } = new();
         public string SystemComment { get; set; } = string.Empty;
 
         public SubscriptionRenewedEvent()
@@ -14,7 +14,7 @@ namespace Roaa.Rosas.Domain.Events.Management
         }
 
         public SubscriptionRenewedEvent(Subscription subscription,
-                                        SubscriptionAutoRenewal subscriptionAutoRenewal,
+                                        SubscriptionRenewal subscriptionAutoRenewal,
                                         string systemComment)
         {
             Subscription = subscription;

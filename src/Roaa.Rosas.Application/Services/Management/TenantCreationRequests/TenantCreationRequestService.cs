@@ -50,57 +50,46 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
 
 
 
-        public async Task<Result<List<SubscriptionPreparationModel>>> PrepareTenantCreationAsync(TenantCreationRequestModel request, Guid? tenantCreationRequestId, CancellationToken cancellationToken = default)
+        public async Task<List<SubscriptionPreparationModel>> FeatchSubscriptionPreparationModelsAsync(List<Guid?> planPriceIds, CancellationToken cancellationToken = default)
         {
-            #region Validation  
-
-            if (request.Subscriptions.Any(x => x.PlanId is null) || request.Subscriptions.Any(x => x.PlanPriceId is null))
-            {
-                // لا يمكن ان يكون معرف الخطة او معرف سعر الخطة نل في حال عدم وجود تريال للمنتج
-                return Result<List<SubscriptionPreparationModel>>.Fail(
-                            CommonErrorKeys.ParameterIsRequired,
-                            _identityContextService.Locale,
-                             request.Subscriptions.Any(x => x.PlanId is null) ? "PlanId" : "PlanPriceId");
-            }
-
-            var tenantCreationPreparationModels = await _dbContext.PlanPrices
-                                .AsNoTracking()
-                                .Where(x => request.Subscriptions.Select(x => x.PlanPriceId).ToList().Contains(x.Id))
-                                .Select(x => new SubscriptionPreparationModel
-                                {
-                                    Plan = new()
-                                    {
-                                        Id = x.PlanId,
-                                        DisplayName = x.Plan.DisplayName,
-                                        SystemName = x.Plan.SystemName,
-                                        TenancyType = x.Plan.TenancyType,
-                                        IsPublished = x.Plan.IsPublished,
-                                        TrialPeriodInDays = x.Plan.TrialPeriodInDays,
-                                    },
-                                    PlanPrice = new()
-                                    {
-                                        Id = x.Id,
-                                        Price = x.Price,
-                                        PlanCycle = x.PlanCycle,
-                                    },
-                                    Product = new ProductDataModel
-                                    {
-                                        Id = x.Plan.ProductId,
-                                        ClientId = x.Plan.Product.ClientId,
-                                        SystemName = x.Plan.Product.SystemName,
-                                        DisplayName = x.Plan.Product.DisplayName,
-                                        Url = x.Plan.Product.DefaultHealthCheckUrl,
-                                        TrialType = x.Plan.Product.TrialType,
-                                        TrialPlanId = x.Plan.Product.TrialPlanId,
-                                        TrialPlanPriceId = x.Plan.Product.TrialPlanPriceId,
-                                        TrialPeriodInDays = x.Plan.Product.TrialPeriodInDays,
-                                    },
-                                })
-                                .ToListAsync(cancellationToken);
+            var subscriptionPreparationModels = await _dbContext.PlanPrices
+                           .AsNoTracking()
+                           .Where(x => planPriceIds.Contains(x.Id))
+                           .Select(x => new SubscriptionPreparationModel
+                           {
+                               Plan = new()
+                               {
+                                   Id = x.PlanId,
+                                   DisplayName = x.Plan.DisplayName,
+                                   SystemName = x.Plan.SystemName,
+                                   TenancyType = x.Plan.TenancyType,
+                                   IsPublished = x.Plan.IsPublished,
+                                   TrialPeriodInDays = x.Plan.TrialPeriodInDays,
+                               },
+                               PlanPrice = new()
+                               {
+                                   Id = x.Id,
+                                   Price = x.Price,
+                                   PlanCycle = x.PlanCycle,
+                               },
+                               Product = new ProductDataModel
+                               {
+                                   Id = x.Plan.ProductId,
+                                   ClientId = x.Plan.Product.ClientId,
+                                   SystemName = x.Plan.Product.SystemName,
+                                   DisplayName = x.Plan.Product.DisplayName,
+                                   Url = x.Plan.Product.DefaultHealthCheckUrl,
+                                   TrialType = x.Plan.Product.TrialType,
+                                   TrialPlanId = x.Plan.Product.TrialPlanId,
+                                   TrialPlanPriceId = x.Plan.Product.TrialPlanPriceId,
+                                   TrialPeriodInDays = x.Plan.Product.TrialPeriodInDays,
+                               },
+                           })
+                           .ToListAsync(cancellationToken);
 
             var features = await _dbContext.PlanFeatures
                                              .AsNoTracking()
-                                             .Where(x => request.Subscriptions.Select(x => x.PlanId).Contains(x.PlanId))
+                                             .Where(x => subscriptionPreparationModels.Select(x => x.Plan.Id).Distinct().Contains(x.PlanId))
                                              .Select(x => new PlanFeatureInfoModel
                                              {
                                                  PlanFeatureId = x.Id,
@@ -114,6 +103,36 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
                                                  FeatureReset = x.FeatureReset,
                                              })
                                              .ToListAsync(cancellationToken);
+
+            subscriptionPreparationModels.ForEach(model =>
+            {
+                model.Features = features.Where(f => f.PlanId == model.Plan.Id).ToList();
+            });
+
+            return subscriptionPreparationModels;
+        }
+
+        public async Task<Result<List<SubscriptionPreparationModel>>> PrepareTenantCreationAsync(TenantCreationRequestModel request, Guid? tenantCreationRequestId, CancellationToken cancellationToken = default)
+        {
+            #region Validation  
+
+            if (request.Subscriptions.Any(x => x.PlanId is null) || request.Subscriptions.Any(x => x.PlanPriceId is null))
+            {
+
+                return Result<List<SubscriptionPreparationModel>>.Fail(
+                            CommonErrorKeys.ParameterIsRequired,
+                            _identityContextService.Locale,
+                             request.Subscriptions.Any(x => x.PlanId is null) ? "PlanId" : "PlanPriceId");
+            }
+
+
+            var subscriptionPreparationModels = await FeatchSubscriptionPreparationModelsAsync(request.Subscriptions.Select(x => x.PlanPriceId).ToList(), cancellationToken);
+
+            if (subscriptionPreparationModels is null || !subscriptionPreparationModels.Any())
+            {
+                return Result<List<SubscriptionPreparationModel>>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(request.Subscriptions));
+            }
+
             var specifications = await _dbContext.Specifications
                                              .Where(x => request.Subscriptions.Select(x => x.ProductId).Contains(x.ProductId) &&
                                                          x.IsPublished)
@@ -124,15 +143,10 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
                                              })
                                              .ToListAsync();
 
-            if (tenantCreationPreparationModels is null || !tenantCreationPreparationModels.Any())
-            {
-                return Result<List<SubscriptionPreparationModel>>.Fail(CommonErrorKeys.ParameterIsRequired, _identityContextService.Locale, nameof(request.Subscriptions));
-            }
-
 
 
             int sequenceNum = 1;
-            foreach (var creationModel in tenantCreationPreparationModels)
+            foreach (var creationModel in subscriptionPreparationModels)
             {
                 var subscriptionModel = request.Subscriptions.Where(x => x.ProductId == creationModel.Product.Id).FirstOrDefault();
 
@@ -162,7 +176,6 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
 
                 creationModel.SequenceNum = subscriptionModel.GetSequenceNum() ?? sequenceNum++;
                 creationModel.PlanPrice.CustomPeriodInDays = subscriptionModel.CustomPeriodInDays;
-                creationModel.Features = features.Where(x => x.PlanId == creationModel.Plan.Id).ToList();
                 creationModel.HasTrial = subscriptionModel.UserEnabledTheTrial ? _trialProcessingService.HasTrial(creationModel) : false;
                 creationModel.Specifications = specifications.Where(x => x.ProductId == creationModel.Product.Id).Select(x => new SpecificationInfoModel
                 {
@@ -188,7 +201,7 @@ namespace Roaa.Rosas.Application.Services.Management.TenantCreationRequests
                 return Result<List<SubscriptionPreparationModel>>.Fail(CommonErrorKeys.UnAuthorizedAction, _identityContextService.Locale, nameof(request.SystemName));
             }
             #endregion
-            return Result<List<SubscriptionPreparationModel>>.Successful(tenantCreationPreparationModels);
+            return Result<List<SubscriptionPreparationModel>>.Successful(subscriptionPreparationModels);
         }
 
         public async Task EnableAutoRenewalAsync(Guid orderId, bool autoRenewalIsEnabled, CancellationToken cancellationToken = default)

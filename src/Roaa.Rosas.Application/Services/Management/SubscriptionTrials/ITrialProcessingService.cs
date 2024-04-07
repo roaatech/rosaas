@@ -9,6 +9,6 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionTrials
 
         int? FeatchTrialPeriodInDays(SubscriptionPreparationModel model);
 
-        SubscriptionTrialPeriod? BuildSubscriptionTrialPeriodEntity(SubscriptionPreparationModel model);
+        TrialSubscription? BuildSubscriptionTrialPeriodEntity(SubscriptionPreparationModel model);
     }
 }

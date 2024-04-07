@@ -18,8 +18,10 @@ using Roaa.Rosas.Application.Services.Management.Plans;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Application.Services.Management.Specifications;
-using Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals;
-using Roaa.Rosas.Application.Services.Management.SubscriptionPlansChanging;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventHandlers;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Factories;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Factories.Concretes;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Application.Services.Management.SubscriptionTrials;
 using Roaa.Rosas.Application.Services.Management.TenantCreationRequests;
@@ -84,13 +86,25 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<ITenantHealthCheckService, TenantHealthCheckService>();
             services.AddScoped<ITenantHealthCheckSettingsService, TenantHealthCheckSettingsService>();
             services.AddScoped<ISubscriptionService, SubscriptionService>();
-            services.AddScoped<ISubscriptionAutoRenewalService, SubscriptionAutoRenewalService>();
-            services.AddScoped<ISubscriptionPlanChangingService, SubscriptionPlanChangingService>();
+            services.AddScoped<ISubscriptionRenewalService, SubscriptionRenewalService>();
             services.AddScoped<ISpecificationService, SpecificationService>();
             services.AddScoped<IEntityAdminPrivilegeService, EntityAdminPrivilegeService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IGenericAttributeService, GenericAttributeService>();
             services.AddScoped<ITrialProcessingService, TrialProcessingService>();
+
+
+
+
+            services.AddScoped<ISubscriptionRenewalFactory, SubscriptionRenewalFactory>();
+            services.AddScoped<SubscriptionAutoRenewalProcessor>();
+            services.AddScoped<SubscriptionDowngradeProcessor>();
+            services.AddScoped<SubscriptionUpgradingProcessor>();
+
+            services.AddScoped<SubscriptionRenewalUtilities>();
+            services.AddScoped<TrialSubscriptionUtilities>();
+
+
 
 
             services.AddMediatRAServices();

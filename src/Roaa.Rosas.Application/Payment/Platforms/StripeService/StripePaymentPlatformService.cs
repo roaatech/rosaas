@@ -13,9 +13,11 @@ using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.ApiConfiguration;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Models.Options;
 using Roaa.Rosas.Domain.Models.Payment;
 using Stripe;
@@ -73,7 +75,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 
 
         #region   Utilities 
-        private async Task<string> FeatchStripeCustomerIdFromStoreAsync(Guid userId, CancellationToken cancellationToken = default)
+        private async Task<string> GetStripeCustomerIdFromStoreAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return await _genericAttributeService.GetAttributeAsync<User, string>(
                                                        userId,
@@ -208,15 +210,14 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 
             return nCustomer;
         }
-        private async Task<string> FeatchCustomerIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        private async Task<string> GetCustomerIdAsync(Guid userId, UserType userType, CancellationToken cancellationToken = default)
         {
-            if (!_identityContextService.IsTenantAdmin())
+            if (!userType.IsTenantAdmin())
             {
                 return null;
             }
 
-
-            var stripeCustomerId = await FeatchStripeCustomerIdFromStoreAsync(userId, cancellationToken);
+            var stripeCustomerId = await GetStripeCustomerIdFromStoreAsync(userId, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(stripeCustomerId))
             {
@@ -289,7 +290,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 
             if (_identityContextService.IsTenantAdmin())
             {
-                options.Customer = await FeatchCustomerIdAsync(_identityContextService.UserId, cancellationToken);
+                options.Customer = await GetCustomerIdAsync(_identityContextService.UserId, _identityContextService.GetUserType(), cancellationToken);
 
                 if (storeCardInfo)
                 {
@@ -324,7 +325,90 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
             return service.Capture(paymentIntentId, options);
         }
 
+        private async Task<PaymentIntent> CreatePaymentIntentAsync(string customerId, string stripeCardId, decimal amount, string currency, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var service = new PaymentIntentService();
+                var options = new PaymentIntentCreateOptions
+                {
+                    Amount = (long)(amount * 100),
+                    Currency = currency,
+                    // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true,
+                    },
+                    Customer = customerId,
+                    PaymentMethod = stripeCardId,
+                    Confirm = true,
+                    //  ReturnUrl = $"{_identityContextService.HostUrl}/api/payment/v1/stripe/success?paymentId=" + "{CHECKOUT_SESSION_ID}&orderId=" ; 
+                };
+                var res = await service.CreateAsync(options, null, cancellationToken);
+                return res;
+            }
+            catch (StripeException e)
+            {
+                switch (e.StripeError.Type)
+                {
+                    case "card_error":
+                        // Error code will be authentication_required if authentication is needed
+                        Console.WriteLine("Error code: " + e.StripeError.Code);
+                        var paymentIntent = await GetPaymentIntentAsync(e.StripeError.PaymentIntent.Id, cancellationToken);
+                        return paymentIntent;
+                    default:
+                        break;
+                }
+                return null;
+            }
+        }
 
+        public async Task<Result> HandleOrderPaymentAsync(Order order, PaymentIntent paymentIntent, CancellationToken cancellationToken = default)
+        {
+            switch (paymentIntent.Status)
+            {
+                // Paid Payment
+                case Consts.StripeDefaults.PaymentIntentPaidStatus:
+                    order = await _paymentProcessingService.MarkOrderAsPaidAsync(order, paymentIntent.PaymentMethodId, PaymentPurpose.TenantCreation, PaymentPlatform, cancellationToken);
+                    order.ProcessedPaymentResult = paymentIntent.Status;
+                    break;
+                // Authorized Payment
+                case Consts.StripeDefaults.PaymentIntentAuthorizedStatus:
+                    order = await _paymentProcessingService.MarkOrderAsAuthorizedAsync(order, paymentIntent.PaymentMethodId, cancellationToken);
+                    order.AuthorizedPaymentResult = paymentIntent.Status;
+                    break;
+                default:
+                    order = await _paymentProcessingService.MarkOrderAsFailedAsync(order, cancellationToken);
+                    order.ProcessedPaymentResult = paymentIntent.Status;
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    return Result.Fail(paymentIntent.Status, _identityContextService.Locale);
+            }
+
+            order.ProcessedPaymentId = paymentIntent.Id;
+            order.ProcessedPaymentReferenceType = paymentIntent.GetType().Name;
+            order.ProcessedPaymentReference = JsonConvert.SerializeObject(paymentIntent);
+
+            var paymentMethod = await GetPaymentMethodAsync(paymentIntent.PaymentMethodId, cancellationToken);
+
+            if (paymentMethod != null)
+            {
+                order.PaymentMethod = new Domain.Entities.Management.PaymentMethod
+                {
+                    Card = new Domain.Entities.Management.PaymentMethodCard
+                    {
+                        ReferenceId = paymentMethod.Id,
+                        Brand = paymentMethod.Card.Brand,
+                        ExpirationMonth = (int)paymentMethod.Card.ExpMonth,
+                        ExpirationYear = (int)paymentMethod.Card.ExpYear,
+                        Last4Digits = paymentMethod.Card.Last4,
+                        CardholderName = paymentMethod.BillingDetails.Name,
+                    }
+                };
+            }
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Successful();
+        }
 
         #endregion
 
@@ -334,7 +418,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
         #region Services
         public async Task<Result> MarkPaymentMethodAsDefaultAsync(Guid userId, string stripeCardId, CancellationToken cancellationToken = default)
         {
-            var stripeCustomerId = await FeatchStripeCustomerIdFromStoreAsync(userId, cancellationToken);
+            var stripeCustomerId = await GetStripeCustomerIdFromStoreAsync(userId, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(stripeCustomerId))
             {
@@ -347,7 +431,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
         }
         public async Task UpdateCustomerAsync(string name, string phone, Guid userId, CancellationToken cancellationToken = default)
         {
-            var stripeCustomerId = await FeatchStripeCustomerIdFromStoreAsync(userId, cancellationToken);
+            var stripeCustomerId = await GetStripeCustomerIdFromStoreAsync(userId, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(stripeCustomerId))
             {
@@ -358,15 +442,9 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 
             return;
         }
-        public async Task<Result> AttachPaymentMethodCardAsync(Guid userId, string stripeCardId, CancellationToken cancellationToken = default)
+        public async Task<Result> AttachPaymentMethodCardAsync(Guid userId, UserType userType, string stripeCardId, CancellationToken cancellationToken = default)
         {
-            var stripeCustomerId = await FeatchStripeCustomerIdFromStoreAsync(userId, cancellationToken);
-
-
-            if (string.IsNullOrWhiteSpace(stripeCustomerId))
-            {
-                stripeCustomerId = await FeatchCustomerIdAsync(_identityContextService.UserId, cancellationToken);
-            }
+            var stripeCustomerId = await GetCustomerIdAsync(userId, userType, cancellationToken);
 
             await AttachPaymentMethodAsync(stripeCustomerId, stripeCardId);
 
@@ -382,7 +460,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
         }
         public async Task<Result<List<PaymentMethodCardListItem>>> GetPaymentMethodsCardsListByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            var stripeCustomerId = await FeatchStripeCustomerIdFromStoreAsync(userId, cancellationToken);
+            var stripeCustomerId = await GetStripeCustomerIdFromStoreAsync(userId, cancellationToken);
 
             if (string.IsNullOrWhiteSpace(stripeCustomerId))
             {
@@ -429,7 +507,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
             });
         }
 
-        public async Task<Result> CapturePaymentAsync(Order order, CancellationToken cancellationToken = default)
+        public async Task<Result> CapturePaymentAsync(Order order, PaymentPurpose paymentPurpose, CancellationToken cancellationToken = default)
         {
             var paymentIntentId = order.ProcessedPaymentId;
             var service = new PaymentIntentService();
@@ -437,7 +515,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 
             paymentIntent = await CaptureFundsAsync(paymentIntentId, paymentIntent.Amount, cancellationToken);
 
-            order = await _paymentProcessingService.MarkOrderAsPaidAsync(order, paymentIntent.PaymentMethodId, PaymentPlatform, cancellationToken);
+            order = await _paymentProcessingService.MarkOrderAsPaidAsync(order, paymentIntent.PaymentMethodId, paymentPurpose, PaymentPlatform, cancellationToken);
 
             order.ProcessedPaymentId = paymentIntent.Id;
             order.ProcessedPaymentResult = paymentIntent.Status;
@@ -445,6 +523,15 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
             order.ProcessedPaymentReference = JsonConvert.SerializeObject(paymentIntent);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return Result.Successful();
+        }
+        public async Task<Result> PayAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
+        {
+            var stripeCustomerId = await GetCustomerIdAsync(userId, userType, cancellationToken);
+            ArgumentNullException.ThrowIfNull(stripeCustomerId);
+
+            var paymentIntent = await CreatePaymentIntentAsync(stripeCustomerId, referenceCardId, order.OrderTotal, order.UserCurrencyCode, cancellationToken);
+
+            return await HandleOrderPaymentAsync(order, paymentIntent, cancellationToken);
         }
 
         public async Task<Result<Order>> CompleteSuccessfulPaymentProcessAsync(Guid orderId, CancellationToken cancellationToken = default)
@@ -464,59 +551,23 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
         public async Task<Result<CheckoutResultModel>> CompleteSuccessfulSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
         {
             var session = await GetSessionAsync(sessionId, cancellationToken);
+            ArgumentNullException.ThrowIfNull(session);
 
             var paymentIntent = await GetPaymentIntentAsync(session.PaymentIntentId, cancellationToken);
+            ArgumentNullException.ThrowIfNull(paymentIntent);
 
-            Order order = null;
+            var order = await _dbContext.Orders
+                                       .Where(x => x.Id == orderId)
+                                       .SingleOrDefaultAsync(cancellationToken);
+            ArgumentNullException.ThrowIfNull(order);
 
-            switch (paymentIntent.Status)
-            {
-                // Paid Payment
-                case Consts.StripeDefaults.PaymentIntentPaidStatus:
-                    order = await _paymentProcessingService.MarkOrderAsPaidAsync(orderId, paymentIntent.PaymentMethodId, PaymentPlatform, cancellationToken);
-                    order.ProcessedPaymentResult = paymentIntent.Status;
-                    break;
-                // Authorized Payment
-                case Consts.StripeDefaults.PaymentIntentAuthorizedStatus:
-                    order = await _paymentProcessingService.MarkOrderAsAuthorizedAsync(orderId, paymentIntent.PaymentMethodId, cancellationToken);
-                    order.AuthorizedPaymentResult = paymentIntent.Status;
-                    break;
-                default:
-                    order = await _paymentProcessingService.MarkOrderAsFailedAsync(orderId, cancellationToken);
-                    order.ProcessedPaymentResult = paymentIntent.Status;
-                    await _dbContext.SaveChangesAsync(cancellationToken);
-                    return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
-                    {
-                        NavigationUrl = _appSettings.CancelPageUrl,
-                    });
-            }
+            await HandleOrderPaymentAsync(order, paymentIntent, cancellationToken);
 
-            order.ProcessedPaymentId = paymentIntent.Id;
-            order.ProcessedPaymentReferenceType = paymentIntent.GetType().Name;
-            order.ProcessedPaymentReference = JsonConvert.SerializeObject(paymentIntent);
-
-            var paymentMethod = await GetPaymentMethodAsync(paymentIntent.PaymentMethodId, cancellationToken);
-
-            if (paymentMethod != null)
-            {
-                order.PaymentMethod = new Domain.Entities.Management.PaymentMethod
-                {
-                    Card = new Domain.Entities.Management.PaymentMethodCard
-                    {
-                        ReferenceId = paymentMethod.Id,
-                        Brand = paymentMethod.Card.Brand,
-                        ExpirationMonth = (int)paymentMethod.Card.ExpMonth,
-                        ExpirationYear = (int)paymentMethod.Card.ExpYear,
-                        Last4Digits = paymentMethod.Card.Last4,
-                        CardholderName = paymentMethod.BillingDetails.Name,
-                    }
-                };
-            }
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            var navigationUrl = order.PaymentStatus == PaymentStatus.Failed ? _appSettings.CancelPageUrl : _appSettings.SuccessPageUrl;
 
             return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
             {
-                NavigationUrl = _appSettings.SuccessPageUrl,
+                NavigationUrl = navigationUrl,
             });
         }
 

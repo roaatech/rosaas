@@ -12,9 +12,11 @@ using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
 
@@ -114,7 +116,7 @@ namespace Roaa.Rosas.Application.Payment.Services
             });
         }
 
-        public async Task<Result> CapturePaymentAsync(Guid orderId, CancellationToken cancellationToken = default)
+        public async Task<Result> CapturePaymentAsync(Guid orderId, PaymentPurpose paymentPurpose, CancellationToken cancellationToken = default)
         {
             var order = await _dbContext.Orders.Where(x => x.Id == orderId)
                                                .Include(x => x.OrderItems)
@@ -127,12 +129,45 @@ namespace Roaa.Rosas.Application.Payment.Services
 
             var paymentPlatform = _paymentMethodFactory.GetPaymentMethod(order.PaymentPlatform);
 
-            return await paymentPlatform.CapturePaymentAsync(order, cancellationToken);
+            return await paymentPlatform.CapturePaymentAsync(order, paymentPurpose, cancellationToken);
+        }
+
+        public async Task<Result> PayAsync(Guid orderId, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
+        {
+            var order = await _dbContext.Orders.Where(x => x.Id == orderId)
+                                               .Include(x => x.OrderItems)
+                                               .SingleOrDefaultAsync(cancellationToken);
+            ArgumentNullException.ThrowIfNull(order);
+
+            return await PayAsync(order.Id, referenceCardId, paymentPurpose, userId, userType, cancellationToken);
+        }
+
+        public async Task<Result> PayAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
+        {
+            if (!CanDoPayment(order, true))
+            {
+                return Result<CheckoutResultModel>.Fail(FetchNonPaymentTransactionReasons(order, order.PaymentPlatform), _identityContextService.Locale);
+            }
+
+            await _genericAttributeService.SaveAttributeAsync<Order, CheckoutCreatorModel>(
+                                                    order.Id,
+                                                    Consts.GenericAttributeKey.CheckoutCreator,
+                                                    new CheckoutCreatorModel
+                                                    {
+                                                        CreationDate = DateTime.UtcNow,
+                                                        CheckoutCreatedByUserId = userId,
+                                                        CheckoutCreatedByUserType = userType,
+                                                    },
+                                                    cancellationToken);
+
+            var paymentPlatform = _paymentMethodFactory.GetPaymentMethod(order.PaymentPlatform);
+
+            return await paymentPlatform.PayAsync(order, referenceCardId, paymentPurpose, userId, userType, cancellationToken);
         }
 
 
 
-        public bool CanDoPayment(Order order, bool ignoreOrderTotal)
+        private bool CanDoPayment(Order order, bool ignoreOrderTotal)
         {
 
             if (order is null)
@@ -163,7 +198,7 @@ namespace Roaa.Rosas.Application.Payment.Services
             return true;
         }
 
-        public Enum FetchNonPaymentTransactionReasons(Order order, PaymentPlatform? paymentPlatform)
+        private Enum FetchNonPaymentTransactionReasons(Order order, PaymentPlatform? paymentPlatform)
         {
 
             if (order is null)

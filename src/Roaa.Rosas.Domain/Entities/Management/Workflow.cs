@@ -27,7 +27,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
     public class OrderWorkflowEvent
     {
         public string Type { get; set; } = string.Empty;
-        public OrderIntent OrderIntent { get; set; }
+        public PaymentPurpose PaymentPurpose { get; set; }
     }
 
 

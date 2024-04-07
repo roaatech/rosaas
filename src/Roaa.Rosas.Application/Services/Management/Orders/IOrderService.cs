@@ -1,7 +1,10 @@
 ﻿using Roaa.Rosas.Application.Services.Management.Orders.Models;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.Models;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Models;
 using Roaa.Rosas.Domain.Models.Payment;
 
 namespace Roaa.Rosas.Application.Services.Management.Orders
@@ -22,9 +25,32 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
         Order BuildOrderEntity(string tenantName, string tenantDisplayName, List<SubscriptionPreparationModel> plansDataList);
 
-        Task MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(Order order, CancellationToken cancellationToken = default);
-
         Task<Result> ChangeOrderPlanAsync(Guid orderId, ChangeOrderPlanModel model, CancellationToken cancellationToken = default);
+
+        Order BuildOrderEntity(List<OrderItem> orderItems,
+                                   DateTime date,
+                                   OrderType orderType,
+                                   PaymentMethodType? paymentMethodType,
+                                   PaymentPlatform? paymentPlatform,
+                                   Guid userId,
+                                   UserType userType);
+
+        OrderItem BuildOrderItemEntity(string tenantName,
+                                      string tenantDisplayName,
+                                      Guid clientId,
+                                      int sequenceNum,
+                                      Guid productId,
+                                      string productDisplayName,
+                                      Guid planId,
+                                      string planDisplayName,
+                                      PlanCycle cycle,
+                                      TenancyType tenancyType,
+                                      Guid planPriceId,
+                                      decimal price,
+                                      int trialPeriodInDays,
+                                      int? customPeriodInDays,
+                                      DateTime date,
+                                      List<PlanFeatureInfoModel> planFeatures);
 
     }
 }

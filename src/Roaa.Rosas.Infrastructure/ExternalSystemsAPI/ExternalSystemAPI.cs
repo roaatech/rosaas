@@ -191,9 +191,10 @@ namespace Roaa.Rosas.Application.ExternalSystemsAPI
 
             var result = Result<ExternalSystemResultModel<T>>.Fail(errors);
             result.WithData(data);
+            _logger.LogError("The ExternalSystemAPI Failed to make API request to external system. Status Code: {0}, Url: {1}, with errors: {2} ",
+                                requestResult.StatusCode, url, String.Join(", ", errors.Select(x => $"key:{x.SysCode}- message:{x.Message}").ToArray()));
             return result;
         }
-
     }
 
 }

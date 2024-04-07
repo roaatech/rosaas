@@ -9,7 +9,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
     public interface ITenantWorkflow
     {
-        Task<OrderWorkflowEvent> GetOrderWorkflowEventByOrderIntentAsync(OrderIntent orderIntent, CancellationToken cancellationToken = default);
+        Task<OrderWorkflowEvent> GetOrderWorkflowEventByOrderIntentAsync(PaymentPurpose paymentPurpose, CancellationToken cancellationToken = default);
 
         Task<StepStatus> GetStepStatusAsync(TenantStatus status, CancellationToken cancellationToken = default);
 
@@ -78,13 +78,8 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             {
                 new OrderWorkflowEvent()
                 {
-                    OrderIntent = OrderIntent.TenantCreation,
-                    Type =  JsonConvert.SerializeObject(typeof(OrderCompletionAchievedForTenantCreationEvent),jsonSettings),
-                },
-                new OrderWorkflowEvent()
-                {
-                    OrderIntent = OrderIntent.UpgradingFromTrialToRegularSubscription,
-                    Type =  JsonConvert.SerializeObject(typeof(OrderCompletionAchievedForUpgradingFromTrialToRegularSubscriptionEvent),jsonSettings),
+                    PaymentPurpose = PaymentPurpose.TenantCreation,
+                    Type =  JsonConvert.SerializeObject(typeof(OrderToCreateTenantEvent),jsonSettings),
                 },
             };
 
@@ -1121,9 +1116,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
 
 
-        public async Task<OrderWorkflowEvent> GetOrderWorkflowEventByOrderIntentAsync(OrderIntent orderIntent, CancellationToken cancellationToken = default)
+        public async Task<OrderWorkflowEvent> GetOrderWorkflowEventByOrderIntentAsync(PaymentPurpose paymentPurpose, CancellationToken cancellationToken = default)
         {
-            return _orderWorkflowEvent.Where(x => x.OrderIntent == orderIntent).SingleOrDefault();
+            return _orderWorkflowEvent.Where(x => x.PaymentPurpose == paymentPurpose).SingleOrDefault();
         }
 
     }

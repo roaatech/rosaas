@@ -59,7 +59,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionTrials
                     model.Plan.TrialPeriodInDays > 0;
         }
 
-        public SubscriptionTrialPeriod? BuildSubscriptionTrialPeriodEntity(SubscriptionPreparationModel model)
+        public TrialSubscription? BuildSubscriptionTrialPeriodEntity(SubscriptionPreparationModel model)
         {
             if (model.HasTrial)
             {
@@ -81,7 +81,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionTrials
                 }
 
 
-                return new SubscriptionTrialPeriod()
+                return new TrialSubscription()
                 {
                     Id = Guid.NewGuid(),
                     StartDate = _date,

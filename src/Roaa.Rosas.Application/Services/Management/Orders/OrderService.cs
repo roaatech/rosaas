@@ -15,6 +15,7 @@ using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Models;
 using Roaa.Rosas.Domain.Models.Payment;
 using System.Linq.Expressions;
 
@@ -221,42 +222,44 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
 
             var orderItems = plansDataList.Select(item =>
             {
-                var orderItem = new OrderItem()
-                {
-                    Id = Guid.NewGuid(),
-                    StartDate = date,
-                    EndDate = PlanCycleManager.FromKey(item.PlanPrice.PlanCycle).CalculateExpiryDate(date, item.PlanPrice.CustomPeriodInDays, null, item.Plan.TenancyType),
-                    ClientId = item.Product.ClientId,
-                    ProductId = item.Product.Id,
-                    SequenceNum = item.SequenceNum,
-                    // SubscriptionId = planData.GeneratedSubscriptionId,
-                    PlanId = item.Plan.Id,
-                    PlanPriceId = item.PlanPrice.Id,
-                    CustomPeriodInDays = item.PlanPrice.CustomPeriodInDays,
-                    PriceExclTax = item.PlanPrice.Price * _quantity,
-                    PriceInclTax = item.PlanPrice.Price * _quantity,
-                    UnitPriceExclTax = item.PlanPrice.Price,
-                    UnitPriceInclTax = item.PlanPrice.Price,
-                    Quantity = _quantity,
-                    SystemName = $"{tenantName}",
-                    DisplayName = $"[Product: {item.Product.DisplayName}], [Plan: {item.Plan.DisplayName}], [Tenant: {tenantDisplayName}]",
-                    TrialPeriodInDays = _trialProcessingService.FeatchTrialPeriodInDays(item) ?? 0,
-                    Specifications = item.Features.Select(x => new OrderItemSpecification
-                    {
-                        PurchasedEntityId = x.FeatureId,
-                        PurchasedEntityType = Common.Enums.EntityType.Feature,
-                        SystemName = $"{x.FeatureName}-" +
-                                        $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
-                                        $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
-                                        $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"
-                                        .Replace("---", "-")
-                                        .Replace("--", "-")
-                                        .TrimEnd('-'),
-                    }).ToList()
-                };
+                var orderItem = BuildOrderItemEntity(tenantName,
+                                                   tenantDisplayName: tenantDisplayName,
+                                                   clientId: item.Product.ClientId,
+                                                   sequenceNum: item.SequenceNum,
+                                                   productId: item.Product.Id,
+                                                   productDisplayName: item.Product.DisplayName,
+                                                   planId: item.Plan.Id,
+                                                   planDisplayName: item.Plan.DisplayName,
+                                                   cycle: item.PlanPrice.PlanCycle,
+                                                   tenancyType: item.Plan.TenancyType,
+                                                   planPriceId: item.PlanPrice.Id,
+                                                   price: item.PlanPrice.Price,
+                                                   trialPeriodInDays: _trialProcessingService.FeatchTrialPeriodInDays(item) ?? 0,
+                                                   customPeriodInDays: item.PlanPrice.CustomPeriodInDays,
+                                                   date: date,
+                                                   planFeatures: item.Features);
+
                 return orderItem;
             }).ToList();
 
+            return BuildOrderEntity(
+                                      orderItems: orderItems,
+                                      date: date,
+                                      orderType: OrderType.TenantCreation,
+                                      paymentMethodType: null,
+                                      paymentPlatform: null,
+                                      userId: _identityContextService.GetActorId(),
+                                      userType: _identityContextService.GetUserType());
+
+        }
+        public Order BuildOrderEntity(List<OrderItem> orderItems,
+                                      DateTime date,
+                                      OrderType orderType,
+                                      PaymentMethodType? paymentMethodType,
+                                      PaymentPlatform? paymentPlatform,
+                                      Guid userId,
+                                      UserType userType)
+        {
 
             return new Order()
             {
@@ -267,27 +270,83 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
                 CurrencyRate = 1,
                 UserCurrencyType = CurrencyCode.USD,
                 UserCurrencyCode = CurrencyCode.USD.ToString(),
-                PaymentMethodType = null,
-                CreatedByUserType = _identityContextService.GetUserType(),
-                CreatedByUserId = _identityContextService.GetActorId(),
-                ModifiedByUserId = _identityContextService.GetActorId(),
+                PaymentMethodType = paymentMethodType,
+                PaymentPlatform = paymentPlatform,
+                CreatedByUserType = userType,
+                CreatedByUserId = userId,
+                ModifiedByUserId = userId,
                 CreationDate = date,
                 ModificationDate = date,
                 OrderSubtotalExclTax = orderItems.Select(x => x.PriceExclTax).Sum(),
                 OrderSubtotalInclTax = orderItems.Select(x => x.PriceInclTax).Sum(),
                 OrderTotal = orderItems.Select(x => x.PriceInclTax).Sum(),
                 OrderItems = orderItems,
-                OrderIntent = OrderIntent.TenantCreation,
+                OrderType = orderType,
                 // IsMustChangePlan = isMustChangePlan,
             };
         }
 
-        public async Task MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(Order order, CancellationToken cancellationToken = default)
-        {
-            order.OrderIntent = OrderIntent.UpgradingFromTrialToRegularSubscription;
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+        public OrderItem BuildOrderItemEntity(string tenantName,
+                                          string tenantDisplayName,
+                                          Guid clientId,
+                                          int sequenceNum,
+                                          Guid productId,
+                                          string productDisplayName,
+                                          Guid planId,
+                                          string planDisplayName,
+                                          PlanCycle cycle,
+                                          TenancyType tenancyType,
+                                          Guid planPriceId,
+                                          decimal price,
+                                          int trialPeriodInDays,
+                                          int? customPeriodInDays,
+                                          DateTime date,
+                                          List<PlanFeatureInfoModel> planFeatures)
+        {
+
+
+            return new OrderItem()
+            {
+                Id = Guid.NewGuid(),
+                StartDate = date,
+                EndDate = PlanCycleManager.FromKey(cycle).CalculateExpiryDate(date, customPeriodInDays, null, tenancyType),
+                ClientId = clientId,
+                ProductId = productId,
+                SequenceNum = sequenceNum,
+                // SubscriptionId = planData.GeneratedSubscriptionId,
+                PlanId = planId,
+                PlanPriceId = planPriceId,
+                CustomPeriodInDays = customPeriodInDays,
+                PriceExclTax = price * _quantity,
+                PriceInclTax = price * _quantity,
+                UnitPriceExclTax = price,
+                UnitPriceInclTax = price,
+                Quantity = _quantity,
+                SystemName = $"{tenantName}",
+                DisplayName = $"[Product: {productDisplayName}], [Plan: {planDisplayName}], [Tenant: {tenantDisplayName}]",
+                TrialPeriodInDays = trialPeriodInDays,
+                Specifications = planFeatures.Select(x => new OrderItemSpecification
+                {
+                    PurchasedEntityId = x.FeatureId,
+                    PurchasedEntityType = Common.Enums.EntityType.Feature,
+                    SystemName = $"{x.FeatureName}-" +
+                                    $"{(x.Limit.HasValue ? x.Limit : string.Empty)}-" +
+                                    $"{(x.FeatureUnit.HasValue ? x.FeatureUnit.ToString() : string.Empty)}-" +
+                                    $"{(x.FeatureReset != FeatureReset.NonResettable ? x.FeatureReset.ToString() : string.Empty)}"
+                                    .Replace("---", "-")
+                                    .Replace("--", "-")
+                                    .TrimEnd('-'),
+                }).ToList()
+            };
         }
+
+        //public async Task MarkOrderAsUpgradingFromTrialToRegularSubscriptionAsync(Order order, CancellationToken cancellationToken = default)
+        //{
+        //    order.OrderIntent = OrderIntent.UpgradingFromTrialToRegularSubscription;
+
+        //    await _dbContext.SaveChangesAsync(cancellationToken);
+        //}
 
         public async Task<Result> ChangeOrderPlanAsync(Guid orderId, ChangeOrderPlanModel model, CancellationToken cancellationToken = default)
         {
@@ -369,7 +428,7 @@ namespace Roaa.Rosas.Application.Services.Management.Orders
             order.OrderSubtotalExclTax = order.OrderItems.Select(x => x.PriceExclTax).Sum();
             order.OrderSubtotalInclTax = order.OrderItems.Select(x => x.PriceInclTax).Sum();
             order.OrderTotal = order.OrderItems.Select(x => x.PriceInclTax).Sum();
-            order.OrderIntent = OrderIntent.UpgradingFromTrialToRegularSubscription;
+            order.OrderType = OrderType.UpgradeTrialSubscriptionToStandard;
             order.ModifiedByUserId = _identityContextService.GetActorId();
             order.ModificationDate = date;
             order.IsMustChangePlan = false;

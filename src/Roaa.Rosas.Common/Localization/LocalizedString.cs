@@ -2,7 +2,7 @@
 
 namespace Roaa.Rosas.Common.Localization
 {
-    public class LocalizedString : ILocalizedString
+    public class LocalizedString
     {
         [JsonProperty("en")]
         public string En { get; set; } = string.Empty;

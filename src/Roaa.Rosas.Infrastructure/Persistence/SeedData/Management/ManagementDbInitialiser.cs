@@ -71,6 +71,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
                     //await FixPlanPriceNameAsync();
                     //await FixFeaturesResetAsync();
                     //await FixPlanTenancyTypeAsync();
+                    await FixSubscriptionRenewalDateAsync();
+                    //   await FixSubscriptionPlanChangeStatusAsync();
                     await FixTenanatRequestAsync();
                     await TrySeedClientsAsync();
                     await TrySeedProductsAsync();
@@ -418,19 +420,48 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
 
             await _dbContext.SaveChangesAsync();
         }
-        private async Task FixSubscriptionPlanChangeStatusAsync()
+        //private async Task FixSubscriptionPlanChangeStatusAsync()
+        //{
+
+        //    const string key = "SeedData.Management.ManagementDbInitialiser.SubscriptionPlanChangeStatusFixed";
+        //    if (!await _dbContext.Settings
+        //                       .Where(x => x.Key.Equals(key))
+        //                       .AnyAsync())
+        //    {
+        //        // SubscriptionPlanChangeStatus
+        //        var subscriptions = await _dbContext.Subscriptions.Where(x => x.SubscriptionPlanChangeStatus == null).ToListAsync();
+        //        foreach (var subscription in subscriptions)
+        //        {
+        //            subscription.SubscriptionPlanChangeStatus = SubscriptionPlanChangeStatus.None;
+        //        }
+        //    }
+
+        //    _dbContext.Settings.Add(new Setting
+        //    {
+        //        Key = key,
+        //        Value = DateTime.UtcNow.ToString(),
+        //        Id = Guid.NewGuid()
+        //    });
+
+        //    await _dbContext.SaveChangesAsync();
+        //}
+
+        private async Task FixSubscriptionRenewalDateAsync()
         {
 
-            const string key = "SeedData.Management.ManagementDbInitialiser.SubscriptionPlanChangeStatusFixed";
+            const string key = "SeedData.Management.ManagementDbInitialiser.SubscriptionRenewalDateFixed";
             if (!await _dbContext.Settings
                                .Where(x => x.Key.Equals(key))
                                .AnyAsync())
             {
                 // SubscriptionPlanChangeStatus
-                var subscriptions = await _dbContext.Subscriptions.Where(x => x.SubscriptionPlanChangeStatus == null).ToListAsync();
-                foreach (var subscription in subscriptions)
+                var SubscriptionAutoRenewals = await _dbContext.SubscriptionRenewals
+                                            .Where(x => x.SubscriptionRenewalDate < DateTime.UtcNow.AddYears(-1))
+                                            .Include(x => x.Subscription)
+                                            .ToListAsync();
+                foreach (var autoRenewal in SubscriptionAutoRenewals)
                 {
-                    subscription.SubscriptionPlanChangeStatus = SubscriptionPlanChangeStatus.None;
+                    autoRenewal.SubscriptionRenewalDate = autoRenewal.Subscription.EndDate.Value;
                 }
             }
 

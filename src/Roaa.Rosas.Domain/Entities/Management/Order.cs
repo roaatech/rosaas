@@ -51,7 +51,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
         public UserType CreatedByUserType { get; set; }
 
-        public OrderIntent OrderIntent { get; set; }
+        public OrderType OrderType { get; set; }
 
         public bool IsMustChangePlan { get; set; }
 

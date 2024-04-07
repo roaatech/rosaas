@@ -11,5 +11,6 @@
         Subscription = 7,
         SubscriptionAutoRenewal = 8,
         SubscriptionPlanChanging = 9,
+        SubscriptionRenewal = 10,
     }
 }

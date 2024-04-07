@@ -6,8 +6,10 @@ using Roaa.Rosas.Application.Payment.Models;
 using Roaa.Rosas.Application.Payment.Services;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Authorization.Utilities;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Payment.Platforms.ManwalService
 {
@@ -46,7 +48,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.ManwalService
                                         .Where(x => x.Id == orderId)
                                         .SingleOrDefaultAsync(cancellationToken);
 
-            await _paymentProcessingService.MarkOrderAsPaidAsync(order, null, PaymentPlatform, cancellationToken);
+            await _paymentProcessingService.MarkOrderAsPaidAsync(order, null, PaymentPurpose.TenantCreation, PaymentPlatform, cancellationToken);
 
             return Result<Order>.Successful(order);
         }
@@ -67,7 +69,12 @@ namespace Roaa.Rosas.Application.Payment.Platforms.ManwalService
             return Result<PaymentMethodCheckoutResultModel>.Successful(resultModel);
         }
 
-        public Task<Result> CapturePaymentAsync(Order order, CancellationToken cancellationToken = default)
+        public Task<Result> CapturePaymentAsync(Order order, PaymentPurpose paymentPurpose, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Result> PayAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

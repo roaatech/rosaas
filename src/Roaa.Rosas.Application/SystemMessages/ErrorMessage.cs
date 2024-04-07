@@ -186,5 +186,15 @@ namespace Roaa.Rosas.Application.SystemMessages
             En = "You must select the paid paln",
             Ar = "يجب أن تختار خطة مدفوعة")]
         YouMustSelectPaidPlan = 3026,
+
+        [Localization(
+         En = "You have already enabled auto-renewal",
+         Ar = "لقد قمت بتفعيل التجديد الآلي مسبقاً")]
+        SubscriptionAlreadyEnabledAutoRenewal = 3027,
+
+        [Localization(
+            En = "The payment failed",
+            Ar = "فشلت عملية الدفع")]
+        OperationFaild = 3028,
     }
 }

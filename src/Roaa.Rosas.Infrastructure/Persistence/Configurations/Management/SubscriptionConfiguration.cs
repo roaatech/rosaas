@@ -17,9 +17,8 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.HasOne(b => b.Tenant).WithMany(p => p.Subscriptions).HasForeignKey(f => f.TenantId).OnDelete(DeleteBehavior.Restrict);
             builder.HasOne(b => b.Product).WithMany(p => p.Subscriptions).HasForeignKey(f => f.ProductId).OnDelete(DeleteBehavior.Restrict);
             builder.HasOne(b => b.HealthCheckStatus).WithOne(p => p.Subscription).HasForeignKey<TenantHealthStatus>(e => e.Id).OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(b => b.AutoRenewal).WithOne(p => p.Subscription).HasForeignKey<SubscriptionAutoRenewal>(e => e.Id).OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(b => b.SubscriptionPlanChanging).WithOne(p => p.Subscription).HasForeignKey<SubscriptionPlanChanging>(e => e.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(b => b.TrialPeriod).WithOne(p => p.Subscription).HasForeignKey<SubscriptionTrialPeriod>(e => e.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(b => b.SubscriptionRenewal).WithOne(p => p.Subscription).HasForeignKey<SubscriptionRenewal>(e => e.Id).OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(b => b.Trial).WithOne(p => p.Subscription).HasForeignKey<TrialSubscription>(e => e.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
             builder.Property(r => r.HealthCheckUrl).IsRequired(true).HasMaxLength(250);
             builder.Property(r => r.HealthCheckUrlIsOverridden).IsRequired(true);
             builder.Property(r => r.IsActive).IsRequired(true);

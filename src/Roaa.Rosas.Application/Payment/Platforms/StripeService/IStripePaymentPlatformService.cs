@@ -1,4 +1,5 @@
 ﻿using Roaa.Rosas.Application.Payment.Models;
+using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Models.Payment;
 
@@ -14,7 +15,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 
         Task<Result<List<PaymentMethodCardListItem>>> GetPaymentMethodsCardsListByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
-        Task<Result> AttachPaymentMethodCardAsync(Guid userId, string stripeCardId, CancellationToken cancellationToken = default);
+        Task<Result> AttachPaymentMethodCardAsync(Guid userId, UserType userType, string stripeCardId, CancellationToken cancellationToken = default);
 
         Task<Result> DetachPaymentMethodCardAsync(string stripeCardId, CancellationToken cancellationToken = default);
 

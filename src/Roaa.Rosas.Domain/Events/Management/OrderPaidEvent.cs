@@ -7,14 +7,14 @@ namespace Roaa.Rosas.Domain.Events.Management
     public class OrderPaidEvent : BaseInternalEvent
     {
         public Guid OrderId { get; set; }
-        public OrderIntent OrderIntent { get; set; }
+        public PaymentPurpose PaymentPurpose { get; set; }
         public string CardReferenceId { get; set; }
         public PaymentPlatform PaymentPlatform { get; set; }
 
-        public OrderPaidEvent(Guid orderId, OrderIntent orderIntent, string cardReferenceId, PaymentPlatform paymentPlatform)
+        public OrderPaidEvent(Guid orderId, PaymentPurpose paymentPurpose, string cardReferenceId, PaymentPlatform paymentPlatform)
         {
             OrderId = orderId;
-            OrderIntent = orderIntent;
+            PaymentPurpose = paymentPurpose;
             CardReferenceId = cardReferenceId;
             PaymentPlatform = paymentPlatform;
         }

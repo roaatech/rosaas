@@ -24,13 +24,13 @@ namespace Roaa.Rosas.Application.Services.Management.Orders.EventHandlers
 
         public async Task Handle(OrderPaidEvent @event, CancellationToken cancellationToken)
         {
-            var workflowEvent = await _workflow.GetOrderWorkflowEventByOrderIntentAsync(@event.OrderIntent, cancellationToken);
+            var workflowEvent = await _workflow.GetOrderWorkflowEventByOrderIntentAsync(@event.PaymentPurpose, cancellationToken);
 
             var eventType = JsonConvert.DeserializeObject<Type>(workflowEvent.Type, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
             var workflowEventInstance = Activator.CreateInstance(eventType, @event.OrderId, @event.CardReferenceId, @event.PaymentPlatform);
 
-            var wfEvent = workflowEventInstance as OrderCompletionAchievedBaseEvent;
+            var wfEvent = workflowEventInstance as OrderCompletedBaseEvent;
 
             await _publisher.Publish(wfEvent);
         }

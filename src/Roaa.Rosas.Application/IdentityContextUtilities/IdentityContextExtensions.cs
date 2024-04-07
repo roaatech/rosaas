@@ -48,6 +48,10 @@ namespace Roaa.Rosas.Application.IdentityContextUtilities
         {
             return identityContext.IsAuthenticated && identityContext.GetUserType() == UserType.TenantAdmin;
         }
+        public static bool IsTenantAdmin(this UserType userType)
+        {
+            return userType == UserType.TenantAdmin;
+        }
 
     }
 }

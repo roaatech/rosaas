@@ -1,6 +1,7 @@
 ﻿using Roaa.Rosas.Application.Services.Management.Subscriptions.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 {
@@ -14,26 +15,23 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
 
         Task<Result<List<SubscriptionListItemDto>>> GetSubscriptionsListByProductIdAsync(Guid productId, CancellationToken cancellationToken);
 
-        Task<Result> TryToExtendOrSuspendSubscriptionsAsync(CancellationToken cancellationToken = default);
-
-        Task<Result> DeactivateSubscriptionDueToNonPaymentAsync(int periodTimeAfterEndDateInHours, CancellationToken cancellationToken = default);
-
         Task<Result> ResetSubscriptionPlanAsync(Subscription subscription,
                                                 Guid planId,
                                                 Guid planPriceId,
-                                                bool? isActive = null,
-                                                SubscriptionMode? subscriptionMode = null,
                                                 CancellationToken cancellationToken = default);
 
         Task<Result> ResetSubscriptionsFeaturesAsync(CancellationToken cancellationToken = default);
 
         Task<Result> ResetSubscriptionsFeaturesAsync(List<SubscriptionFeature> subscriptionFeatures, string? comment, string? systemComment, CancellationToken cancellationToken = default);
 
-        Task<Result> ChangeSubscriptionPlanAsync(Subscription subscription, CancellationToken cancellationToken = default);
+        Task RenewSubscriptionAsync(Subscription subscription, SubscriptionRenewal subscriptionRenewal, bool keepCurrentSubscriptionFeatures, CancellationToken cancellationToken = default);
 
-        Task<Result> Temp__RenewSubscriptionsAsync(Guid subscriptionId, CancellationToken cancellationToken = default);
+        Task<List<PlanFeatureInfoModel>> FetchSubscriptionPlanFeaturesAsync(Subscription subscription,
+                                                                                                SubscriptionRenewal subscriptionRenewal,
+                                                                                                CancellationToken cancellationToken = default);
 
-        Task<Result> Temp__EndSubscriptionAsync(Guid subscriptionId, CancellationToken cancellationToken = default);
+        Task<Result> ActivateSubscriptionAsync(Subscription subscription, CancellationToken cancellationToken = default);
 
+        Task<Result> SuspendSubscriptionAsync(Subscription subscription, CancellationToken cancellationToken = default);
     }
 }

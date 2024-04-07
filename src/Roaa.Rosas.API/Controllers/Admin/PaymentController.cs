@@ -1,6 +1,7 @@
 ﻿using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Payment.Models;
 using Roaa.Rosas.Application.Payment.Platforms.StripeService;
 using Roaa.Rosas.Application.Payment.Services;
@@ -65,7 +66,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         [HttpPost("Cards/{stripeCardId}")]
         public async Task<IActionResult> AttachPaymentMethodCardAsync(string stripeCardId, CancellationToken cancellationToken = default)
         {
-            var result = await _stripePaymentMethod.AttachPaymentMethodCardAsync(_identityContextService.UserId, stripeCardId, cancellationToken);
+            var result = await _stripePaymentMethod.AttachPaymentMethodCardAsync(_identityContextService.UserId, _identityContextService.GetUserType(), stripeCardId, cancellationToken);
 
             return EmptyResult(result);
         }

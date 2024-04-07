@@ -2,17 +2,17 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals;
-using Roaa.Rosas.Application.Services.Management.SubscriptionAutoRenewals.Queries.GetSubscriptionAutoRenewalsList;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.CancelSubscriptionRenewal;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.EnableSubscriptionAutoRenewal;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Queries.GetSubscriptionAutoRenewalsList;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.Queries.GetSubscriptionCycles;
 using Roaa.Rosas.Application.Services.Management.Subscriptions.Queries.GetSubscriptionsList;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CancelSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.PrepareSubscriptionReset;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionDowngrade;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.RequestSubscriptionUpgrade;
 using Roaa.Rosas.Application.Services.Management.Tenants.Commands.ResetSubscriptionFeatureLimit;
-using Roaa.Rosas.Application.Services.Management.Tenants.Commands.SetSubscriptionAutoRenewal;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
@@ -28,7 +28,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         private readonly ISubscriptionService _subscriptionService;
         private readonly IIdentityContextService _identityContextService;
         private readonly IWebHostEnvironment _environment;
-        private readonly ISubscriptionAutoRenewalService _subscriptionAutoRenewalService;
+        private readonly ISubscriptionRenewalService _subscriptionRenewalService;
         private readonly ISender _mediator;
         #endregion
 
@@ -38,7 +38,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
                                 IIdentityContextService identityContextService,
                                 ITenantService tenantService,
                                 ISubscriptionService subscriptionService,
-                                ISubscriptionAutoRenewalService subscriptionAutoRenewalService,
+                                ISubscriptionRenewalService subscriptionRenewalService,
                                 ISender mediator)
         {
             _logger = logger;
@@ -46,7 +46,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
             _identityContextService = identityContextService;
             _tenantService = tenantService;
             _subscriptionService = subscriptionService;
-            _subscriptionAutoRenewalService = subscriptionAutoRenewalService;
+            _subscriptionRenewalService = subscriptionRenewalService;
             _mediator = mediator;
         }
         #endregion
@@ -74,19 +74,34 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 
 
         [HttpPost("AutoRenewal")]
-        public async Task<IActionResult> SetSubscriptionAutoRenewalAsync([FromBody] SetSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> EnableSubscriptionAutoRenewalAsync([FromBody] EnableSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(command, cancellationToken));
         }
 
+        [Obsolete("This Action is obsolete. Use Renewals instead.", false)]
         [HttpGet("AutoRenewal")]
         public async Task<IActionResult> GetSubscriptionAutoRenewalsListByUserIdAsync(CancellationToken cancellationToken = default)
         {
-            return ListResult(await _mediator.Send(new GetSubscriptionAutoRenewalsListQuery(), cancellationToken));
+            return ListResult(await _mediator.Send(new GetSubscriptionRenewalsListQuery(), cancellationToken));
         }
 
+        [HttpGet("Renewals")]
+        public async Task<IActionResult> GetSubscriptionRenewalsListByUserIdAsync(CancellationToken cancellationToken = default)
+        {
+            return ListResult(await _mediator.Send(new GetSubscriptionRenewalsListQuery(), cancellationToken));
+        }
+
+
+        [Obsolete("This Action is obsolete. Use Renewals instead.", false)]
         [HttpDelete("AutoRenewal")]
-        public async Task<IActionResult> CancelSubscriptionAutoRenewalAsync([FromBody] CancelSubscriptionAutoRenewalCommand command, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CancelSubscriptionAutoRenewalAsync([FromBody] CancelSubscriptionRenewalCommand command, CancellationToken cancellationToken = default)
+        {
+            return EmptyResult(await _mediator.Send(command, cancellationToken));
+        }
+
+        [HttpDelete("Renewals")]
+        public async Task<IActionResult> CancelSubscriptionRenewalAsync([FromBody] CancelSubscriptionRenewalCommand command, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _mediator.Send(command, cancellationToken));
         }
@@ -128,13 +143,6 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
             return ListResult(await _subscriptionService.GetSubscriptionFeaturesAsync(id, cancellationToken));
         }
 
-
-        [HttpPost("End/{subscriptionId}")]
-        public async Task<IActionResult> Temp__EndSubscriptionAsync([FromRoute] Guid subscriptionId, CancellationToken cancellationToken = default)
-        {
-            return EmptyResult(await _subscriptionService.Temp__EndSubscriptionAsync(subscriptionId, cancellationToken));
-        }
-
-        #endregion 
+        #endregion
     }
 }

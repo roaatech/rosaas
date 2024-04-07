@@ -56,13 +56,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.DbContexts
         public DbSet<TenantHealthCheckHistory> TenantHealthCheckHistory { get; set; }
         public DbSet<TenantProcessHistory> TenantProcessHistory { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
-        public DbSet<SubscriptionTrialPeriod> SubscriptionTrialPeriods { get; set; }
+        public DbSet<TrialSubscription> TrialSubscriptions { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
-        public DbSet<SubscriptionAutoRenewal> SubscriptionAutoRenewals { get; set; }
-        public DbSet<SubscriptionAutoRenewalHistory> SubscriptionAutoRenewalHistories { get; set; }
-        public DbSet<SubscriptionPlanChanging> SubscriptionPlanChanges { get; set; }
-        public DbSet<SubscriptionPlanChangeHistory> SubscriptionPlanChangeHistories { get; set; }
+        public DbSet<SubscriptionRenewal> SubscriptionRenewals { get; set; }
+        public DbSet<SubscriptionRenewalHistory> SubscriptionRenewalHistories { get; set; }
         public DbSet<SubscriptionCycle> SubscriptionCycles { get; set; }
         public DbSet<SubscriptionFeature> SubscriptionFeatures { get; set; }
         public DbSet<SubscriptionFeatureCycle> SubscriptionFeatureCycles { get; set; }

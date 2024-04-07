@@ -15,6 +15,8 @@
         public string? SubscriptionResetUrl { get; set; }
         public string? SubscriptionUpgradeUrl { get; set; }
         public string? SubscriptionDowngradeUrl { get; set; }
+        public bool ApplySubscriptionUpgradeByExternalSystemAction { get; set; }
+        public bool ApplySubscriptionDowngradeByExternalSystemAction { get; set; }
         public string? ApiKey { get; set; } = string.Empty;
         public ProductTrialType TrialType { get; set; }
         public int TrialPeriodInDays { get; set; }

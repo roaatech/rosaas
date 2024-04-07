@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using Roaa.Rosas.Application.Services.Management.SubscriptionPlansChanging;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 
@@ -11,18 +11,18 @@ public class RequestSubscriptionDowngradeCommandHandler : IRequestHandler<Reques
     #region Props 
     private readonly ILogger<RequestSubscriptionDowngradeCommandHandler> _logger;
     private readonly IIdentityContextService _identityContextService;
-    private readonly ISubscriptionPlanChangingService _subscriptionPlanChangingService;
+    private readonly ISubscriptionRenewalService _subscriptionRenewalService;
     #endregion
 
 
 
     #region Corts
     public RequestSubscriptionDowngradeCommandHandler(IIdentityContextService identityContextService,
-                                                    ISubscriptionPlanChangingService subscriptionPlanChangingService,
+                                                    ISubscriptionRenewalService subscriptionPlanChangingService,
                                                     ILogger<RequestSubscriptionDowngradeCommandHandler> logger)
     {
         _identityContextService = identityContextService;
-        _subscriptionPlanChangingService = subscriptionPlanChangingService;
+        _subscriptionRenewalService = subscriptionPlanChangingService;
         _logger = logger;
     }
     #endregion
@@ -31,7 +31,7 @@ public class RequestSubscriptionDowngradeCommandHandler : IRequestHandler<Reques
     #region Handler   
     public async Task<Result> Handle(RequestSubscriptionDowngradeCommand command, CancellationToken cancellationToken)
     {
-        return await _subscriptionPlanChangingService.CreateSubscriptionDowngradeAsync(command.SubscriptionId,
+        return await _subscriptionRenewalService.EnableSubscriptionDowngradingAsync(command.SubscriptionId,
                                                                                         command.PlanId,
                                                                                         command.PlanPriceId,
                                                                                         command.CardReferenceId,

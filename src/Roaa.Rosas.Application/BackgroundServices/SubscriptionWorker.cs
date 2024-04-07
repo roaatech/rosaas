@@ -1,8 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Services.Management.Settings;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Commands.RenwalSubscription;
 using Roaa.Rosas.Application.Services.Management.Subscriptions;
+using Roaa.Rosas.Application.Services.Management.Subscriptions.Commands.HandleExpiredSubscription;
+using Roaa.Rosas.Application.Services.Management.SubscriptionTrials.Commands.UpgradeTrialSubscriptionToStandard;
 using Roaa.Rosas.Domain.Settings;
 
 namespace Roaa.Rosas.Application.BackgroundServices
@@ -15,15 +19,18 @@ namespace Roaa.Rosas.Application.BackgroundServices
     {
         protected readonly ILogger<SubscriptionWorker> _logger;
         protected readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IMediator _mediator;
         protected TimeSpan _period { get; set; }
 
 
 
         public SubscriptionWorker(ILogger<SubscriptionWorker> logger,
-                                  IServiceScopeFactory serviceScopeFactory)
+                                  IServiceScopeFactory serviceScopeFactory,
+                                  IMediator mediator)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
+            _mediator = mediator;
         }
 
 
@@ -36,7 +43,8 @@ namespace Roaa.Rosas.Application.BackgroundServices
 
             var settings = (await settingService.LoadSettingAsync<SubscriptionSettings>(cancellationToken)).Data;
 
-            _period = TimeSpan.FromHours(settings.SubscriptionWorkerTimePeriod);
+            //  _period = TimeSpan.FromHours(settings.SubscriptionWorkerTimePeriod);
+            _period = TimeSpan.FromHours(1);
 
             using PeriodicTimer timer = new PeriodicTimer(_period);
 
@@ -60,34 +68,37 @@ namespace Roaa.Rosas.Application.BackgroundServices
         {
             try
             {
-                Task task1 = Task.Run(async () =>
+                using var scope = _serviceScopeFactory.CreateScope();
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var rangeInHoursBetweenDates = 24;
+                Task upgradeTrialSubscriptionToStandardTask = Task.Run(async () =>
+                {
+                    await mediator.Send(new UpgradeTrialSubscriptionToStandardCommand(rangeInHoursBetweenDates), cancellationToken);
+                });
+
+                Task renwalSubscriptionTask = Task.Run(async () =>
+                {
+                    await mediator.Send(new RenwalSubscriptionCommand(rangeInHoursBetweenDates), cancellationToken);
+                });
+
+                Task handleExpiredSubscriptionTask = Task.Run(async () =>
+                {
+                    await mediator.Send(new HandleExpiredSubscriptionCommand(rangeInHoursBetweenDates), cancellationToken);
+                });
+
+                Task resetSubscriptionsFeaturesTask = Task.Run(async () =>
                 {
                     using var scope = _serviceScopeFactory.CreateScope();
                     var subscriptionService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
-
+                    // TODO : review implementation
                     // Reset Subscriptions Features
                     await subscriptionService.ResetSubscriptionsFeaturesAsync();
                 });
 
-                Task task2 = Task.Run(async () =>
-                {
-                    using var scope = _serviceScopeFactory.CreateScope();
-                    var subscriptionService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
-
-                    // Try To Extend Or Suspend Subscriptions
-                    await subscriptionService.TryToExtendOrSuspendSubscriptionsAsync();
-                });
-
-                Task task3 = Task.Run(async () =>
-                {
-                    using var scope = _serviceScopeFactory.CreateScope();
-                    var subscriptionService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
-                    var settingService = scope.ServiceProvider.GetRequiredService<ISettingService>();
-                    var settings = (await settingService.LoadSettingAsync<SubscriptionSettings>(cancellationToken)).Data;
-
-                    // Deactivate Subscription Due To Non-Payment
-                    await subscriptionService.DeactivateSubscriptionDueToNonPaymentAsync(settings.AllowedPeriodTimeBeforeDeactivatingSubscriptionforNonPayment);
-                });
+                await Task.WhenAll(new[] { upgradeTrialSubscriptionToStandardTask,
+                                           renwalSubscriptionTask,
+                                           handleExpiredSubscriptionTask,
+                                           resetSubscriptionsFeaturesTask });
             }
             catch (Exception ex)
             {
@@ -100,6 +111,7 @@ namespace Roaa.Rosas.Application.BackgroundServices
 
         public async Task RestartAsync(CancellationToken cancellationToken = default)
         {
+            return;
             using var scope = _serviceScopeFactory.CreateScope();
             var settingService = scope.ServiceProvider.GetRequiredService<ISettingService>();
 

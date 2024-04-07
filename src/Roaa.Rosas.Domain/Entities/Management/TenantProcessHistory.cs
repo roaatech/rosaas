@@ -81,6 +81,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         SubscriptionDowngradeBeingApplied,
         SubscriptionDowngradeApplicationFailed,
         SubscriptionDowngradeAppliedDone,
+        SubscriptionAutoRenewalProcessing,
     }
 
 

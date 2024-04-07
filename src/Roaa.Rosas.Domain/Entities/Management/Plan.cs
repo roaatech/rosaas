@@ -20,7 +20,6 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public virtual ICollection<PlanFeature>? Features { get; set; }
         public virtual ICollection<PlanPrice>? Prices { get; set; }
         public virtual ICollection<Subscription>? Subscriptions { get; set; }
-        public virtual ICollection<SubscriptionAutoRenewal>? SubscriptionAutoRenewals { get; set; }
-        public virtual ICollection<SubscriptionPlanChanging>? SubscriptionPlanChanges { get; set; }
+        public virtual ICollection<SubscriptionRenewal>? SubscriptionRenewals { get; set; }
     }
 }

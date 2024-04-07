@@ -23,17 +23,15 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public DateTime? ResetOperationDate { get; set; }
         public DateTime? LastLimitsResetDate { get; set; }
         public SubscriptionResetStatus? SubscriptionResetStatus { get; set; }
-        public SubscriptionPlanChangeStatus? SubscriptionPlanChangeStatus { get; set; }
         public int? CustomPeriodInDays { get; set; } = null;
         public SubscriptionMode SubscriptionMode { get; set; }
-        public virtual SubscriptionTrialPeriod? TrialPeriod { get; set; }
+        public virtual TrialSubscription? Trial { get; set; }
         public virtual Plan? Plan { get; set; }
         public virtual PlanPrice? PlanPrice { get; set; }
         public virtual Tenant? Tenant { get; set; }
         public virtual Product? Product { get; set; }
         public virtual TenantHealthStatus? HealthCheckStatus { get; set; }
-        public virtual SubscriptionAutoRenewal? AutoRenewal { get; set; }
-        public virtual SubscriptionPlanChanging? SubscriptionPlanChanging { get; set; }
+        public virtual SubscriptionRenewal? SubscriptionRenewal { get; set; }
         public virtual ICollection<OrderItem>? OrderItems { get; set; }
         public virtual ICollection<SubscriptionFeature>? SubscriptionFeatures { get; set; }
         public virtual ICollection<SubscriptionCycle>? SubscriptionCycles { get; set; }
@@ -41,7 +39,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
 
     }
 
-    public class SubscriptionTrialPeriod : BaseEntity
+    public class TrialSubscription : BaseEntity
     {
         public Guid SubscriptionId { get; set; }
         public Guid TrialPlanId { get; set; }
@@ -49,9 +47,20 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public Guid SelectedPlanId { get; set; }
         public Guid SelectedPlanPriceId { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DateTime EndDate { get; set; }
         public int TrialPeriodInDays { get; set; }
+        public SubscriptionTrialStatus Status { get; set; }
         public virtual Subscription? Subscription { get; set; }
+    }
+
+    public enum SubscriptionTrialStatus
+    {
+        None = 0,
+        PendingPayment = 1,
+        Processing = 2,
+        FailedPayment = 3,
+        Failure = 4,
+        Done = 5,
     }
 
 
@@ -64,18 +73,11 @@ namespace Roaa.Rosas.Domain.Entities.Management
     }
 
 
-    public enum SubscriptionPlanChangeStatus
-    {
-        None = 0,
-        Pending = 1,
-        InProgress = 2,
-        Done = 3,
-        Failure = 4,
-    }
     public enum SubscriptionMode
     {
-        Normal = 1,
+        Standard = 1,
         Trial = 2,
+        [Obsolete("This Option is obsolete.", false)]
         PendingToNormal = 3,
     }
 }

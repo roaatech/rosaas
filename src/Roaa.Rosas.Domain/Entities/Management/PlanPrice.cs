@@ -12,18 +12,22 @@
         public virtual Plan? Plan { get; set; }
         public bool IsLockedBySystem { get; set; }
         public virtual ICollection<Subscription>? Subscriptions { get; set; }
-        public virtual ICollection<SubscriptionAutoRenewal>? SubscriptionAutoRenewals { get; set; }
-        public virtual ICollection<SubscriptionPlanChanging>? SubscriptionPlanChanges { get; set; }
+        public virtual ICollection<SubscriptionRenewal>? SubscriptionRenewals { get; set; }
     }
 
 
     public enum PlanCycle
     {
+        [Obsolete("This property is obsolete. Use other instead.", false)]
         Week = 2,
+        [Obsolete("This property is obsolete. Use other instead.", false)]
+        OneDay = 5,
+        [Obsolete("This property is obsolete. Use other instead.", false)]
+        ThreeDays = 6,
+
+
         Month = 3,
         Year = 4,
-        OneDay = 5,
-        ThreeDays = 6,
         Custom = 10,
         Unlimited = 11,
     }

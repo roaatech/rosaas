@@ -608,9 +608,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("ModifiedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("OrderIntent")
-                        .HasColumnType("int");
-
                     b.Property<int>("OrderNumber")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
@@ -629,6 +626,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<decimal>("OrderTotal")
                         .HasPrecision(8, 2)
                         .HasColumnType("decimal(8,2)");
+
+                    b.Property<int>("OrderType")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("PaidDate")
                         .HasColumnType("datetime");
@@ -971,6 +971,12 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasMaxLength(250)
                         .HasColumnType("varchar(250)");
 
+                    b.Property<bool>("ApplySubscriptionDowngradeByExternalSystemAction")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("ApplySubscriptionUpgradeByExternalSystemAction")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<Guid>("ClientId")
                         .HasColumnType("char(36)");
 
@@ -1281,9 +1287,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<int>("SubscriptionMode")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SubscriptionPlanChangeStatus")
-                        .HasColumnType("int");
-
                     b.Property<int?>("SubscriptionResetStatus")
                         .HasColumnType("int");
 
@@ -1301,102 +1304,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.HasIndex("TenantId");
 
                     b.ToTable("rosas_subscriptions", (string)null);
-                });
-
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionAutoRenewal", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("Comment")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime>("ModificationDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<Guid>("ModifiedByUserId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<int>("PlanCycle")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PlanDisplayName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<Guid>("PlanId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("PlanPriceId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(8, 2)
-                        .HasColumnType("decimal(8,2)");
-
-                    b.Property<Guid>("SubscriptionId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<int?>("UpcomingAutoRenewalsCount")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlanId");
-
-                    b.HasIndex("PlanPriceId");
-
-                    b.ToTable("rosas_subscription_auto_renewals", (string)null);
-                });
-
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionAutoRenewalHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("AutoRenewalEnabledByUserId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("AutoRenewalEnabledDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("Comment")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<int>("PlanCycle")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("PlanId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("PlanPriceId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(8, 2)
-                        .HasColumnType("decimal(8,2)");
-
-                    b.Property<DateTime>("RenewalDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<Guid>("SubscriptionId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("rosas_subscription_auto_renewal_histories", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionCycle", b =>
@@ -1619,53 +1526,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.ToTable("rosas_subscription_feature_usages", (string)null);
                 });
 
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionPlanChangeHistory", b =>
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionRenewal", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("ChangeDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("Comment")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<Guid>("PlanChangeEnabledByUserId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("PlanChangeEnabledDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<int>("PlanCycle")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("PlanId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("PlanPriceId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(8, 2)
-                        .HasColumnType("decimal(8,2)");
-
-                    b.Property<Guid>("SubscriptionId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("rosas_subscription_plan_change_histories", (string)null);
-                });
-
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionPlanChanging", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Comment")
@@ -1675,10 +1538,16 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("char(36)");
 
+                    b.Property<int>("CreatedByUserType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime");
 
-                    b.Property<bool>("IsPaid")
+                    b.Property<bool>("IsContinuousRenewal")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsForced")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("ModificationDate")
@@ -1704,8 +1573,19 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                         .HasPrecision(8, 2)
                         .HasColumnType("decimal(8,2)");
 
+                    b.Property<int>("RenewalsCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("SubscriptionId")
                         .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("SubscriptionRenewalDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValue(new DateTime(2034, 4, 7, 0, 27, 37, 731, DateTimeKind.Utc).AddTicks(3064));
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -1716,48 +1596,50 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.HasIndex("PlanPriceId");
 
-                    b.HasIndex("SubscriptionId")
-                        .IsUnique();
-
-                    b.ToTable("rosas_subscription_plan_changes", (string)null);
+                    b.ToTable("rosas_subscription_renewals", (string)null);
                 });
 
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionTrialPeriod", b =>
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionRenewalHistory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<DateTime?>("EndDate")
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("PlanCycle")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("PlanPriceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<DateTime>("RenewalDate")
                         .HasColumnType("datetime");
 
-                    b.Property<Guid>("SelectedPlanId")
+                    b.Property<Guid>("RenewalEnabledByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("SelectedPlanPriceId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime>("RenewalEnabledDate")
                         .HasColumnType("datetime");
 
                     b.Property<Guid>("SubscriptionId")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("TrialPeriodInDays")
+                    b.Property<int>("Type")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("TrialPlanId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("TrialPlanPriceId")
-                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubscriptionId")
-                        .IsUnique();
-
-                    b.ToTable("rosas_subscription_trial_periods", (string)null);
+                    b.ToTable("rosas_subscription_renewal_histories", (string)null);
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Tenant", b =>
@@ -2066,6 +1948,47 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.ToTable("rosas_tenant_status_history", (string)null);
                 });
 
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TrialSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("SelectedPlanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SelectedPlanPriceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("TrialPeriodInDays")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TrialPlanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("TrialPlanPriceId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionId")
+                        .IsUnique();
+
+                    b.ToTable("rosas_trial_subscriptions", (string)null);
+                });
+
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Identity.RoleClaim", b =>
                 {
                     b.HasOne("Roaa.Rosas.Domain.Entities.Identity.Role", null)
@@ -2281,33 +2204,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionAutoRenewal", b =>
-                {
-                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
-                        .WithOne("AutoRenewal")
-                        .HasForeignKey("Roaa.Rosas.Domain.Entities.Management.SubscriptionAutoRenewal", "Id")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Plan", "Plan")
-                        .WithMany("SubscriptionAutoRenewals")
-                        .HasForeignKey("PlanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.PlanPrice", "PlanPrice")
-                        .WithMany("SubscriptionAutoRenewals")
-                        .HasForeignKey("PlanPriceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Plan");
-
-                    b.Navigation("PlanPrice");
-
-                    b.Navigation("Subscription");
-                });
-
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionCycle", b =>
                 {
                     b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
@@ -2357,40 +2253,29 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.Navigation("SubscriptionCycle");
                 });
 
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionPlanChanging", b =>
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionRenewal", b =>
                 {
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
+                        .WithOne("SubscriptionRenewal")
+                        .HasForeignKey("Roaa.Rosas.Domain.Entities.Management.SubscriptionRenewal", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Roaa.Rosas.Domain.Entities.Management.Plan", "Plan")
-                        .WithMany("SubscriptionPlanChanges")
+                        .WithMany("SubscriptionRenewals")
                         .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Roaa.Rosas.Domain.Entities.Management.PlanPrice", "PlanPrice")
-                        .WithMany("SubscriptionPlanChanges")
+                        .WithMany("SubscriptionRenewals")
                         .HasForeignKey("PlanPriceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
-                        .WithOne("SubscriptionPlanChanging")
-                        .HasForeignKey("Roaa.Rosas.Domain.Entities.Management.SubscriptionPlanChanging", "SubscriptionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Plan");
 
                     b.Navigation("PlanPrice");
-
-                    b.Navigation("Subscription");
-                });
-
-            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionTrialPeriod", b =>
-                {
-                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
-                        .WithOne("TrialPeriod")
-                        .HasForeignKey("Roaa.Rosas.Domain.Entities.Management.SubscriptionTrialPeriod", "SubscriptionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
 
                     b.Navigation("Subscription");
                 });
@@ -2411,6 +2296,17 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
                     b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
                         .WithOne("HealthCheckStatus")
                         .HasForeignKey("Roaa.Rosas.Domain.Entities.Management.TenantHealthStatus", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Subscription");
+                });
+
+            modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.TrialSubscription", b =>
+                {
+                    b.HasOne("Roaa.Rosas.Domain.Entities.Management.Subscription", "Subscription")
+                        .WithOne("Trial")
+                        .HasForeignKey("Roaa.Rosas.Domain.Entities.Management.TrialSubscription", "SubscriptionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -2440,9 +2336,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Navigation("Prices");
 
-                    b.Navigation("SubscriptionAutoRenewals");
-
-                    b.Navigation("SubscriptionPlanChanges");
+                    b.Navigation("SubscriptionRenewals");
 
                     b.Navigation("Subscriptions");
                 });
@@ -2454,9 +2348,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.PlanPrice", b =>
                 {
-                    b.Navigation("SubscriptionAutoRenewals");
-
-                    b.Navigation("SubscriptionPlanChanges");
+                    b.Navigation("SubscriptionRenewals");
 
                     b.Navigation("Subscriptions");
                 });
@@ -2479,8 +2371,6 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.Subscription", b =>
                 {
-                    b.Navigation("AutoRenewal");
-
                     b.Navigation("HealthCheckStatus");
 
                     b.Navigation("OrderItems");
@@ -2491,9 +2381,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Migrations.Identity
 
                     b.Navigation("SubscriptionFeatures");
 
-                    b.Navigation("SubscriptionPlanChanging");
+                    b.Navigation("SubscriptionRenewal");
 
-                    b.Navigation("TrialPeriod");
+                    b.Navigation("Trial");
                 });
 
             modelBuilder.Entity("Roaa.Rosas.Domain.Entities.Management.SubscriptionCycle", b =>
