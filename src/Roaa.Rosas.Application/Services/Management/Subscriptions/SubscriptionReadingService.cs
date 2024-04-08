@@ -75,9 +75,9 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                      LastLimitsResetDate = subscription.LastLimitsResetDate,
                                                      SubscriptionResetStatus = subscription.SubscriptionResetStatus,
                                                      IsActive = subscription.IsActive,
-                                                     AutoRenewalIsEnabled = AutoRenewalIsEnabled(subscription),
-                                                     UpgradingIsEnabled = UpgradingIsEnabled(subscription),
-                                                     DowngradingIsEnabled = DowngradingIsEnabled(subscription),
+                                                     AutoRenewalIsEnabled = subscription.SubscriptionRenewal.AutoRenewalIsEnabled(),
+                                                     UpgradingIsEnabled = subscription.SubscriptionRenewal.UpgradingIsEnabled(),
+                                                     DowngradingIsEnabled = subscription.SubscriptionRenewal.DowngradingIsEnabled(),
                                                      IsSubscriptionResetUrlExists = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionResetUrl),
                                                      IsSubscriptionUpgradeUrlExists = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionUpgradeUrl),
                                                      IsSubscriptionDowngradeUrlExists = !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionDowngradeUrl),
@@ -115,7 +115,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                          Status = subscription.SubscriptionRenewal.Status,
                                                          SubscriptionRenewalDate = subscription.SubscriptionRenewal.SubscriptionRenewalDate,
                                                      },
-                                                     SubscriptionRenewalAction = GetSubscriptionRenewalAction(subscription),
+                                                     SubscriptionRenewalAction = subscription.ToSubscriptionRenewalAction(subscription.SubscriptionRenewal, subscription.Product),
                                                  })
                                                  .SingleOrDefaultAsync(cancellationToken);
 
@@ -204,17 +204,17 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                              CreatedDate = subscription.Tenant.CreationDate,
                                                              EditedDate = subscription.Tenant.ModificationDate,
 
-                                                             AutoRenewalIsEnabled = AutoRenewalIsEnabled(subscription),
-                                                             UpgradingIsEnabled = UpgradingIsEnabled(subscription),
-                                                             DowngradingIsEnabled = DowngradingIsEnabled(subscription),
+                                                             AutoRenewalIsEnabled = subscription.SubscriptionRenewal.AutoRenewalIsEnabled(),
+                                                             UpgradingIsEnabled = subscription.SubscriptionRenewal.UpgradingIsEnabled(),
+                                                             DowngradingIsEnabled = subscription.SubscriptionRenewal.DowngradingIsEnabled(),
                                                              PlanChangingType = subscription.SubscriptionRenewal == null ||
                                                                                 subscription.SubscriptionRenewal.Type == SubscriptionRenewalTypeEnum.AutoRenewal ? null :
                                                                                 subscription.SubscriptionRenewal.Type,
 
                                                              PlanChangingIsEnabled = subscription.SubscriptionRenewal == null ||
                                                                                      subscription.SubscriptionRenewal.Type == SubscriptionRenewalTypeEnum.AutoRenewal ? false : true,
-                                                             IsPlanChangeAllowed = GetSubscriptionRenewalAction(subscription).EnabelUpgrading &&
-                                                                                    GetSubscriptionRenewalAction(subscription).EnabelDowngrading,
+                                                             IsPlanChangeAllowed = subscription.ToSubscriptionRenewalAction(subscription.SubscriptionRenewal, subscription.Product).EnabelUpgrading &&
+                                                                                    subscription.ToSubscriptionRenewalAction(subscription.SubscriptionRenewal, subscription.Product).EnabelDowngrading,
                                                              Trial = subscription.Trial == null ? null : new MySubscriptionListItemDto.TrialSubscriptionDto
                                                              {
                                                                  EndDate = subscription.Trial.EndDate,
@@ -224,7 +224,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                                  TrialPlanId = subscription.Trial.TrialPlanId,
                                                                  TrialPlanPriceId = subscription.Trial.TrialPlanPriceId,
                                                              },
-                                                             SubscriptionRenewalAction = GetSubscriptionRenewalAction(subscription),
+                                                             SubscriptionRenewalAction = subscription.ToSubscriptionRenewalAction(subscription.SubscriptionRenewal, subscription.Product),
 
 
                                                          })
@@ -263,36 +263,41 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
         #endregion
 
 
-        private SubscriptionRenewalAction GetSubscriptionRenewalAction(Subscription subscription)
+
+    }
+
+    public static class SubscriptionHelper
+    {
+        public static SubscriptionRenewalAction ToSubscriptionRenewalAction(this Subscription subscription, SubscriptionRenewal subscriptionRenewal, Product product)
         {
             return new SubscriptionRenewalAction
             {
-                EnableAutoRenual = subscription.SubscriptionRenewal == null || subscription.SubscriptionRenewal.Type != SubscriptionRenewalTypeEnum.AutoRenewal,
+                EnableAutoRenual = subscriptionRenewal == null || subscriptionRenewal.Type != SubscriptionRenewalTypeEnum.AutoRenewal,
                 EnabelUpgrading = subscription.SubscriptionMode == SubscriptionMode.Standard &&
-                                  subscription.SubscriptionRenewal == null &&
-                                  !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionUpgradeUrl),
+                                  subscriptionRenewal == null &&
+                                  !string.IsNullOrWhiteSpace(product.SubscriptionUpgradeUrl),
                 EnabelDowngrading = subscription.SubscriptionMode == SubscriptionMode.Standard &&
-                                    subscription.SubscriptionRenewal == null &&
-                                    !string.IsNullOrWhiteSpace(subscription.Product.SubscriptionDowngradeUrl),
-                CancelUpgrading = UpgradingIsEnabled(subscription),
-                CancelDowngrading = DowngradingIsEnabled(subscription),
-                CancelAutoRenual = AutoRenewalIsEnabled(subscription),
+                                    subscriptionRenewal == null &&
+                                    !string.IsNullOrWhiteSpace(product.SubscriptionDowngradeUrl),
+                CancelUpgrading = subscriptionRenewal.UpgradingIsEnabled(),
+                CancelDowngrading = subscriptionRenewal.DowngradingIsEnabled(),
+                CancelAutoRenual = subscriptionRenewal.AutoRenewalIsEnabled(),
             };
         }
-        private bool AutoRenewalIsEnabled(Subscription subscription)
+        public static bool AutoRenewalIsEnabled(this SubscriptionRenewal subscriptionRenewal)
         {
-            return subscription.SubscriptionRenewal != null &&
-                    (subscription.SubscriptionRenewal.Type == SubscriptionRenewalTypeEnum.AutoRenewal ||
-                     subscription.SubscriptionRenewal.IsContinuousRenewal ||
-                     subscription.SubscriptionRenewal.RenewalsCount > 0);
+            return subscriptionRenewal != null &&
+                    (subscriptionRenewal.Type == SubscriptionRenewalTypeEnum.AutoRenewal ||
+                     subscriptionRenewal.IsContinuousRenewal ||
+                     subscriptionRenewal.RenewalsCount > 0);
         }
-        private bool UpgradingIsEnabled(Subscription subscription)
+        public static bool UpgradingIsEnabled(this SubscriptionRenewal subscriptionRenewal)
         {
-            return subscription.SubscriptionRenewal != null && subscription.SubscriptionRenewal.Type == SubscriptionRenewalTypeEnum.Upgrade;
+            return subscriptionRenewal != null && subscriptionRenewal.Type == SubscriptionRenewalTypeEnum.Upgrade;
         }
-        private bool DowngradingIsEnabled(Subscription subscription)
+        public static bool DowngradingIsEnabled(this SubscriptionRenewal subscriptionRenewal)
         {
-            return subscription.SubscriptionRenewal != null && subscription.SubscriptionRenewal.Type == SubscriptionRenewalTypeEnum.Downgrade;
+            return subscriptionRenewal != null && subscriptionRenewal.Type == SubscriptionRenewalTypeEnum.Downgrade;
         }
     }
 }

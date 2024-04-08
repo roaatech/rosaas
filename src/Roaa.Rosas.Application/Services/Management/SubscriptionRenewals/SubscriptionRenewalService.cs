@@ -208,7 +208,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
             {
                 subscriptionRenewal = new SubscriptionRenewal
                 {
-                    Id = Guid.NewGuid(),
+                    Id = subscriptionId,
                     SubscriptionId = subscriptionId,
                     PlanPriceId = planPrice.Id,
                     PlanId = planPrice.PlanId,
@@ -373,7 +373,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
 
             var subscriptionRenewal = new SubscriptionRenewal
             {
-                Id = subscriptionId,
+                Id = isForced ? Guid.NewGuid() : subscriptionId,
                 SubscriptionId = subscriptionId,
                 PlanPriceId = planPrice.Id,
                 PlanId = planPrice.PlanId,
