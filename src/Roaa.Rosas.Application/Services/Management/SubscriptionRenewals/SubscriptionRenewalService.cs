@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Roaa.Rosas.Application.Constatns;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Models;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
@@ -19,6 +21,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
         private readonly SubscriptionRenewalUtilities _utilities;
         private readonly ILogger<SubscriptionRenewalService> _logger;
         private readonly IIdentityContextService _identityContextService;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly IRosasDbContext _dbContext;
         #endregion
 
@@ -27,10 +30,12 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
         public SubscriptionRenewalService(SubscriptionRenewalUtilities utilities,
                                            ILogger<SubscriptionRenewalService> logger,
                                            IIdentityContextService identityContextService,
+                                           IGenericAttributeService genericAttributeService,
                                            IRosasDbContext dbContext)
         {
             _logger = logger;
             _identityContextService = identityContextService;
+            _genericAttributeService = genericAttributeService;
             _dbContext = dbContext;
             _utilities = utilities;
         }
@@ -288,24 +293,45 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                                                         subscription: null,
                                                         cancellationToken);
         }
-        public async Task<Result> EnableSubscriptionDowngradingAsync(
-                                                        Subscription subscription,
-                                                        Guid planId,
-                                                        Guid planPriceId,
-                                                        string? comment,
-                                                        CancellationToken cancellationToken = default)
+        public async Task<Result> TryToEnableForcedDowngradeAsync(Subscription subscription,
+                                                             Guid planId,
+                                                             Guid planPriceId,
+                                                             string? comment,
+                                                             CancellationToken cancellationToken = default)
         {
+            var subscriptionRenewal = await _dbContext.SubscriptionRenewals
+                                                                .AsNoTracking()
+                                                                .Where(x => x.SubscriptionId == subscription.Id)
+                                                                .SingleOrDefaultAsync(cancellationToken);
+            if (subscriptionRenewal is not null)
+            {
+                //In case att is not null that mean, The forced downgrade fails to apply, so the system should suspend the subscription.
+                var att = await _genericAttributeService.GetAttributeAsync<Subscription, SubscriptionRenewal>(
+                                                  subscription.Id,
+                                                  Consts.GenericAttributeKey.ForcedDowngrade,
+                                                  null,
+                                                  cancellationToken);
+
+                // Ensure the subscription does not have a forced downgrade.
+                if (_utilities.EnsureIsForcedDowngrade(subscriptionRenewal) || att is not null)
+                {
+                    return Result.Fail(ErrorMessage.SubscriptionAlreadyHasForcedDowngrade, _identityContextService.Locale, nameof(subscription.Id));
+                }
+            }
+
+
+
             return await EnableSubscriptionRenewalAsync(subscriptionId: subscription.Id,
-                                                        planId: planId,
-                                                        planPriceId: planPriceId,
-                                                        isForced: true,
-                                                        cardReferenceId: null,
-                                                        paymentPlatform: null,
-                                                        comment: comment,
-                                                        urlSelector: x => x.SubscriptionDowngradeUrl,
-                                                        renewalType: SubscriptionRenewalTypeEnum.Downgrade,
-                                                        subscription: subscription,
-                                                        cancellationToken: cancellationToken);
+                                                    planId: planId,
+                                                    planPriceId: planPriceId,
+                                                    isForced: true,
+                                                    cardReferenceId: null,
+                                                    paymentPlatform: null,
+                                                    comment: comment,
+                                                    urlSelector: x => x.SubscriptionDowngradeUrl,
+                                                    renewalType: SubscriptionRenewalTypeEnum.ForcedDowngrade,
+                                                    subscription: subscription,
+                                                    cancellationToken: cancellationToken);
         }
 
 
@@ -321,9 +347,10 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                                                                     Subscription? subscription = null,
                                                                     CancellationToken cancellationToken = default)
         {
-            if (await _dbContext.SubscriptionRenewals
+            var subscriptionRenewalIsExisted = await _dbContext.SubscriptionRenewals
                                   .Where(x => x.SubscriptionId == subscriptionId)
-                                  .AnyAsync(cancellationToken))
+                                  .AnyAsync(cancellationToken);
+            if (SubscriptionRenewalTypeEnum.ForcedDowngrade != renewalType && subscriptionRenewalIsExisted)
             {
                 return Result.Fail(ErrorMessage.SubscriptionAlreadyUpgradedDowngraded, _identityContextService.Locale, nameof(subscriptionId));
             }
@@ -373,7 +400,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
 
             var subscriptionRenewal = new SubscriptionRenewal
             {
-                Id = isForced ? Guid.NewGuid() : subscriptionId,
+                Id = subscriptionId,
                 SubscriptionId = subscriptionId,
                 PlanPriceId = planPrice.Id,
                 PlanId = planPrice.PlanId,
@@ -381,7 +408,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                 Price = planPrice.Price,
                 PlanDisplayName = planPrice.Plan.DisplayName ?? "",
                 Status = SubscriptionRenewalStatus.None,
-                SubscriptionRenewalDate = subscription.EndDate.Value, // TODO : currently renewal for plans of planned tenancy type,
+                SubscriptionRenewalDate = subscription.EndDate!.Value, // TODO : currently renewal for plans of planned tenancy type,
                 Comment = comment,
                 CreatedByUserId = _identityContextService.GetActorId(),
                 ModifiedByUserId = _identityContextService.GetActorId(),
@@ -391,6 +418,15 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                 Type = renewalType,
                 IsForced = isForced,
             };
+            if (renewalType == SubscriptionRenewalTypeEnum.ForcedDowngrade && subscriptionRenewalIsExisted)
+            {
+                await _genericAttributeService.SaveAttributeAsync<Subscription, SubscriptionRenewal>(
+                                                                             subscription.Id,
+                                                                             Consts.GenericAttributeKey.ForcedDowngrade,
+                                                                             subscriptionRenewal,
+                                                                             cancellationToken);
+                return Result.Successful();
+            }
 
             _dbContext.SubscriptionRenewals.Add(subscriptionRenewal);
 
@@ -412,7 +448,6 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
             }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
-
             return Result.Successful();
         }
         #endregion

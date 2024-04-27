@@ -142,7 +142,7 @@ namespace Roaa.Rosas.Application.Payment.Services
             return await PayAsync(order.Id, referenceCardId, paymentPurpose, userId, userType, cancellationToken);
         }
 
-        public async Task<Result> PayAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
+        public async Task<Result> DoRecurringPaymentAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
         {
             if (!CanDoPayment(order, true))
             {
@@ -162,7 +162,7 @@ namespace Roaa.Rosas.Application.Payment.Services
 
             var paymentPlatform = _paymentMethodFactory.GetPaymentMethod(order.PaymentPlatform);
 
-            return await paymentPlatform.PayAsync(order, referenceCardId, paymentPurpose, userId, userType, cancellationToken);
+            return await paymentPlatform.DoRecurringPaymentAsync(order, referenceCardId, paymentPurpose, userId, userType, cancellationToken);
         }
 
 

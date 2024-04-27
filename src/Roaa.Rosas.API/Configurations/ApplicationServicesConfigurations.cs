@@ -99,6 +99,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<ISubscriptionRenewalFactory, SubscriptionRenewalFactory>();
             services.AddScoped<SubscriptionAutoRenewalProcessor>();
             services.AddScoped<SubscriptionDowngradeProcessor>();
+            services.AddScoped<SubscriptionForcedDowngradeProcessor>();
             services.AddScoped<SubscriptionUpgradingProcessor>();
 
             services.AddScoped<SubscriptionRenewalUtilities>();

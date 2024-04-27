@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Attributes;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Models;
@@ -25,24 +26,24 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
 
         public override OrderType OrderType { get; set; } = OrderType.DowngradeSubscription;
         public override PaymentPurpose PaymentPurpose { get; set; } = PaymentPurpose.DowngradeSubscription;
-        #endregion 
+        #endregion
 
 
         #region Corts 
         public SubscriptionDowngradeProcessor(IIdentityContextService identityContextService,
-                                                          IExternalSystemAPI externalSystemAPI,
-                                                          IProductService productService,
-                                                          ITenantService tenantService,
-                                                          ISubscriptionService subscriptionService,
-                                                          IRosasDbContext dbContext,
-                                                          IPublisher publisher,
-                                                          ILogger<SubscriptionDowngradeProcessor> logger)
-         : base(identityContextService, externalSystemAPI, productService, tenantService, subscriptionService, dbContext, publisher)
+                                                         IExternalSystemAPI externalSystemAPI,
+                                                         IProductService productService,
+                                                         ITenantService tenantService,
+                                                         ISubscriptionService subscriptionService,
+                                                         IGenericAttributeService genericAttributeService,
+                                                         IRosasDbContext dbContext,
+                                                         IPublisher publisher,
+                                                         ILogger<SubscriptionDowngradeProcessor> logger)
+        : base(identityContextService, externalSystemAPI, productService, tenantService, subscriptionService, genericAttributeService, dbContext, publisher)
         {
             _logger = logger;
         }
         #endregion
-
 
 
         public override async Task Handle(SubscriptionRenewalPreparationModel model, CancellationToken cancellationToken)
@@ -77,6 +78,14 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
 
             await _subscriptionService.RenewSubscriptionAsync(subscription, subscriptionRenewal, false, cancellationToken);
 
+            await HandlesubscriptionRenewalAsync(subscription, subscriptionRenewal, cancellationToken);
+        }
+
+
+        public virtual async Task HandlesubscriptionRenewalAsync(Subscription subscription, SubscriptionRenewal subscriptionRenewal, CancellationToken cancellationToken)
+        {
+            await TryRemovingForcedDowngradeAttributesAsync(subscription.Id);
+
             if (!subscriptionRenewal.IsContinuousRenewal && subscriptionRenewal.RenewalsCount <= 0)
             {
                 _dbContext.SubscriptionRenewals.Remove(subscriptionRenewal);
@@ -86,6 +95,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
                 ArgumentNullException.ThrowIfNull(subscription.EndDate);
                 subscriptionRenewal.SubscriptionRenewalDate = subscription.EndDate.Value;
                 subscriptionRenewal.Status = SubscriptionRenewalStatus.None;
+                subscriptionRenewal.Type = SubscriptionRenewalTypeEnum.AutoRenewal;
                 subscriptionRenewal.ModificationDate = DateTime.UtcNow;
             }
 

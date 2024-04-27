@@ -28,7 +28,7 @@ namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
             builder.Property(r => r.ModifiedByUserId).IsRequired(true);
             builder.Property(r => r.CreationDate).IsRequired(true);
             builder.Property(r => r.ModificationDate).IsRequired(true);
-            builder.Property(r => r.SubscriptionRenewalDate).IsRequired(true).HasDefaultValue(DateTime.UtcNow.AddYears(10));
+            builder.Property(r => r.SubscriptionRenewalDate).IsRequired(true);
             builder.Ignore(r => r.DomainEvents);
         }
         #endregion

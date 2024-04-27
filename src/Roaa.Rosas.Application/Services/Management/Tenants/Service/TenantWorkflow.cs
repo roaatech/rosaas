@@ -9,7 +9,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
 
     public interface ITenantWorkflow
     {
-        Task<OrderWorkflowEvent> GetOrderWorkflowEventByOrderIntentAsync(PaymentPurpose paymentPurpose, CancellationToken cancellationToken = default);
 
         Task<StepStatus> GetStepStatusAsync(TenantStatus status, CancellationToken cancellationToken = default);
 
@@ -53,7 +52,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
     {
         private readonly List<Workflow> _workflow;
         private readonly List<WorkflowEvent> _workflowEvents;
-        private readonly List<OrderWorkflowEvent> _orderWorkflowEvent;
         private readonly List<StepStatus> _stepStatuses;
 
         private readonly List<UserType> _admins = new List<UserType> { UserType.SuperAdmin, UserType.ClientAdmin, UserType.ProductAdmin, UserType.TenantAdmin, };
@@ -74,14 +72,6 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
             var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
 
 
-            _orderWorkflowEvent = new List<OrderWorkflowEvent>
-            {
-                new OrderWorkflowEvent()
-                {
-                    PaymentPurpose = PaymentPurpose.TenantCreation,
-                    Type =  JsonConvert.SerializeObject(typeof(OrderToCreateTenantEvent),jsonSettings),
-                },
-            };
 
 
             _workflowEvents = new List<WorkflowEvent>
@@ -1113,13 +1103,5 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
         {
             return _workflow;
         }
-
-
-
-        public async Task<OrderWorkflowEvent> GetOrderWorkflowEventByOrderIntentAsync(PaymentPurpose paymentPurpose, CancellationToken cancellationToken = default)
-        {
-            return _orderWorkflowEvent.Where(x => x.PaymentPurpose == paymentPurpose).SingleOrDefault();
-        }
-
     }
 }

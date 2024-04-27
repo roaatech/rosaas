@@ -14,7 +14,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms
 
         Task<Result> CapturePaymentAsync(Order order, PaymentPurpose paymentPurpose, CancellationToken cancellationToken = default);
 
-        Task<Result> PayAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default);
+        Task<Result> DoRecurringPaymentAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default);
 
         PaymentPlatform PaymentPlatform { get; }
     }

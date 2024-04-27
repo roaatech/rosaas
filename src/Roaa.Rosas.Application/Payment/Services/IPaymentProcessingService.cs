@@ -1,5 +1,4 @@
 ﻿using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Enums;
 
 namespace Roaa.Rosas.Application.Payment.Services
 {
@@ -7,13 +6,13 @@ namespace Roaa.Rosas.Application.Payment.Services
     {
         Task<Order> MarkOrderAsProcessingAsync(Order order, PaymentPlatform paymentPlatform, PaymentMethodType paymentMethodType, CancellationToken cancellationToken = default);
 
-        Task<Order> MarkOrderAsAuthorizedAsync(Order order, string cardReferenceId, CancellationToken cancellationToken = default);
+        Task<Order> MarkOrderAsAuthorizedAsync(Order order, CancellationToken cancellationToken = default);
 
-        Task<Order> MarkOrderAsAuthorizedAsync(Guid orderId, string cardReferenceId, CancellationToken cancellationToken = default);
+        Task<Order> MarkOrderAsAuthorizedAsync(Guid orderId, CancellationToken cancellationToken = default);
 
-        Task<Order> MarkOrderAsPaidAsync(Order order, string cardReferenceId, PaymentPurpose paymentPurpose, PaymentPlatform paymentPlatform, CancellationToken cancellationToken = default);
+        Task<Order> MarkOrderAsPaidAsync(Order order, CancellationToken cancellationToken = default);
 
-        Task<Order> MarkOrderAsPaidAsync(Guid orderId, string cardReferenceId, PaymentPurpose paymentPurpose, PaymentPlatform paymentPlatform, CancellationToken cancellationToken = default);
+        Task<Order> MarkOrderAsPaidAsync(Guid orderId, CancellationToken cancellationToken = default);
 
         Task<Order> MarkOrderAsFailedAsync(Order order, CancellationToken cancellationToken = default);
 

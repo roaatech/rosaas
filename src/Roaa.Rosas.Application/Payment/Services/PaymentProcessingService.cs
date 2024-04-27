@@ -9,8 +9,6 @@ using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Enums;
-using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
 
 namespace Roaa.Rosas.Application.Payment.Services
@@ -62,14 +60,12 @@ namespace Roaa.Rosas.Application.Payment.Services
             return order;
         }
 
-        public async Task<Order> MarkOrderAsAuthorizedAsync(Order order, string cardReferenceId, CancellationToken cancellationToken = default)
+        public async Task<Order> MarkOrderAsAuthorizedAsync(Order order, CancellationToken cancellationToken = default)
         {
             order.OrderStatus = OrderStatus.Complete;
             order.PaymentStatus = PaymentStatus.Authorized;
 
             await SetOrderPayerAsync(order, cancellationToken);
-
-            order.AddDomainEvent(new OrderAuthorizedToCreateTenantEvent(order.Id, cardReferenceId, order.PaymentPlatform.Value));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -78,7 +74,7 @@ namespace Roaa.Rosas.Application.Payment.Services
             return order;
         }
 
-        public async Task<Order> MarkOrderAsPaidAsync(Order order, string cardReferenceId, PaymentPurpose paymentPurpose, PaymentPlatform paymentPlatform, CancellationToken cancellationToken = default)
+        public async Task<Order> MarkOrderAsPaidAsync(Order order, CancellationToken cancellationToken = default)
         {
             //When the order is marked as authorized, there is no need to set the payer ID.
             if (order.PaymentStatus != PaymentStatus.Authorized)
@@ -89,9 +85,6 @@ namespace Roaa.Rosas.Application.Payment.Services
             order.OrderStatus = OrderStatus.Complete;
             order.PaymentStatus = PaymentStatus.Paid;
             order.PaidDate = DateTime.UtcNow;
-
-
-            order.AddDomainEvent(new OrderPaidEvent(order.Id, paymentPurpose, cardReferenceId, paymentPlatform));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -159,23 +152,23 @@ namespace Roaa.Rosas.Application.Payment.Services
 
             return await MarkOrderAsFailedAsync(order, cancellationToken);
         }
-        public async Task<Order> MarkOrderAsAuthorizedAsync(Guid orderId, string cardReferenceId, CancellationToken cancellationToken = default)
+        public async Task<Order> MarkOrderAsAuthorizedAsync(Guid orderId, CancellationToken cancellationToken = default)
         {
             var order = await _dbContext.Orders
                                        .Where(x => x.Id == orderId)
                                        .SingleOrDefaultAsync(cancellationToken);
             ArgumentNullException.ThrowIfNull(order);
 
-            return await MarkOrderAsAuthorizedAsync(order, cardReferenceId, cancellationToken);
+            return await MarkOrderAsAuthorizedAsync(order, cancellationToken);
         }
-        public async Task<Order> MarkOrderAsPaidAsync(Guid orderId, string cardReferenceId, PaymentPurpose paymentPurpose, PaymentPlatform paymentPlatform, CancellationToken cancellationToken = default)
+        public async Task<Order> MarkOrderAsPaidAsync(Guid orderId, CancellationToken cancellationToken = default)
         {
             var order = await _dbContext.Orders
                                        .Where(x => x.Id == orderId)
                                        .SingleOrDefaultAsync(cancellationToken);
             ArgumentNullException.ThrowIfNull(order);
 
-            return await MarkOrderAsPaidAsync(order, cardReferenceId, paymentPurpose, paymentPlatform, cancellationToken);
+            return await MarkOrderAsPaidAsync(order, cancellationToken);
         }
     }
 }

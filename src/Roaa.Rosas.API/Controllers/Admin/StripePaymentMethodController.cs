@@ -1,7 +1,9 @@
 ﻿using IdentityServer4.AccessTokenValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Payment.Platforms.StripeService;
+using Roaa.Rosas.Application.Services.Management.Tenants.Commands.CreateTenant.CreateTenantByOrder;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Framework.Controllers.Common;
 
@@ -13,16 +15,19 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
     {
         #region Props 
         private readonly ILogger<AuthController> _logger;
+        private readonly ISender _mediator;
         private readonly IStripePaymentPlatformService _stripePaymentMethod;
         #endregion
 
         #region Corts
 
         public StripePaymentMethodController(ILogger<AuthController> logger,
-                                  IStripePaymentPlatformService stripePaymentMethod)
+                                             ISender mediator,
+                                             IStripePaymentPlatformService stripePaymentMethod)
         {
             _logger = logger;
             _stripePaymentMethod = stripePaymentMethod;
+            _mediator = mediator;
         }
         #endregion
 
@@ -35,6 +40,13 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
         public async Task<IActionResult> CompleteSuccessfulSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
         {
             var result = await _stripePaymentMethod.CompleteSuccessfulSessionPaymentAsync(sessionId, orderId, cancellationToken);
+
+            await _mediator.Send(new CreateTenantByOrderCommand
+            {
+                OrderId = result.Data.Order.Id,
+                CardReferenceId = result.Data.Order.PaymentMethod!.Card!.ReferenceId,
+                PaymentPlatform = Domain.Entities.Management.PaymentPlatform.Stripe,
+            }, cancellationToken);
 
             Response.Headers.Add("Location", result.Data.NavigationUrl);
 

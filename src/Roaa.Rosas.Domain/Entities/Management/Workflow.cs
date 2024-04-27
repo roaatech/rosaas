@@ -24,11 +24,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         public WorkflowEventEnum FriendlyId { get; set; }
     }
 
-    public class OrderWorkflowEvent
-    {
-        public string Type { get; set; } = string.Empty;
-        public PaymentPurpose PaymentPurpose { get; set; }
-    }
+
 
 
     public class StepStatus

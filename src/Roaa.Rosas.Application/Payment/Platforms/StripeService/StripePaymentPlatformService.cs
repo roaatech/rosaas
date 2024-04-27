@@ -322,7 +322,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
             {
                 AmountToCapture = amount,
             };
-            return service.Capture(paymentIntentId, options);
+            return await service.CaptureAsync(paymentIntentId, options, cancellationToken: cancellationToken);
         }
 
         private async Task<PaymentIntent> CreatePaymentIntentAsync(string customerId, string stripeCardId, decimal amount, string currency, CancellationToken cancellationToken = default)
@@ -369,12 +369,12 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
             {
                 // Paid Payment
                 case Consts.StripeDefaults.PaymentIntentPaidStatus:
-                    order = await _paymentProcessingService.MarkOrderAsPaidAsync(order, paymentIntent.PaymentMethodId, PaymentPurpose.TenantCreation, PaymentPlatform, cancellationToken);
+                    order = await _paymentProcessingService.MarkOrderAsPaidAsync(order, cancellationToken);
                     order.ProcessedPaymentResult = paymentIntent.Status;
                     break;
                 // Authorized Payment
                 case Consts.StripeDefaults.PaymentIntentAuthorizedStatus:
-                    order = await _paymentProcessingService.MarkOrderAsAuthorizedAsync(order, paymentIntent.PaymentMethodId, cancellationToken);
+                    order = await _paymentProcessingService.MarkOrderAsAuthorizedAsync(order, cancellationToken);
                     order.AuthorizedPaymentResult = paymentIntent.Status;
                     break;
                 default:
@@ -405,7 +405,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
                     }
                 };
             }
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            var ss = await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Successful();
         }
@@ -513,9 +513,9 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
             var service = new PaymentIntentService();
             var paymentIntent = await service.GetAsync(paymentIntentId, null, null, cancellationToken);
 
-            paymentIntent = await CaptureFundsAsync(paymentIntentId, paymentIntent.Amount, cancellationToken);
+            paymentIntent = await CaptureFundsAsync(paymentIntentId!, paymentIntent.Amount, cancellationToken);
 
-            order = await _paymentProcessingService.MarkOrderAsPaidAsync(order, paymentIntent.PaymentMethodId, paymentPurpose, PaymentPlatform, cancellationToken);
+            order = await _paymentProcessingService.MarkOrderAsPaidAsync(order, cancellationToken);
 
             order.ProcessedPaymentId = paymentIntent.Id;
             order.ProcessedPaymentResult = paymentIntent.Status;
@@ -524,7 +524,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
             await _dbContext.SaveChangesAsync(cancellationToken);
             return Result.Successful();
         }
-        public async Task<Result> PayAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
+        public async Task<Result> DoRecurringPaymentAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
         {
             var stripeCustomerId = await GetCustomerIdAsync(userId, userType, cancellationToken);
             ArgumentNullException.ThrowIfNull(stripeCustomerId);
@@ -548,7 +548,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
             return Result<Order>.Successful(order);
         }
 
-        public async Task<Result<CheckoutResultModel>> CompleteSuccessfulSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
+        public async Task<Result<CompleteSessionResultModel>> CompleteSuccessfulSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
         {
             var session = await GetSessionAsync(sessionId, cancellationToken);
             ArgumentNullException.ThrowIfNull(session);
@@ -563,15 +563,14 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 
             await HandleOrderPaymentAsync(order, paymentIntent, cancellationToken);
 
-            var navigationUrl = order.PaymentStatus == PaymentStatus.Failed ? _appSettings.CancelPageUrl : _appSettings.SuccessPageUrl;
-
-            return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
+            return Result<CompleteSessionResultModel>.Successful(new()
             {
-                NavigationUrl = navigationUrl,
+                NavigationUrl = _appSettings.SuccessPageUrl,
+                Order = order,
             });
         }
 
-        public async Task<Result<CheckoutResultModel>> CompleteFailedSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
+        public async Task<Result<CompleteSessionResultModel>> CompleteFailedSessionPaymentAsync(string sessionId, Guid orderId, CancellationToken cancellationToken = default)
         {
             var session = await GetSessionAsync(sessionId, cancellationToken);
 
@@ -592,9 +591,10 @@ namespace Roaa.Rosas.Application.Payment.Platforms.StripeService
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result<CheckoutResultModel>.Successful(new CheckoutResultModel
+            return Result<CompleteSessionResultModel>.Successful(new()
             {
                 NavigationUrl = _appSettings.CancelPageUrl,
+                Order = order,
             });
         }
         #endregion

@@ -36,12 +36,11 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                                                         string? comment,
                                                         CancellationToken cancellationToken = default);
 
-        Task<Result> EnableSubscriptionDowngradingAsync(Subscription subscription,
-                                                        Guid planId,
-                                                        Guid planPriceId,
-                                                        string? comment,
-                                                        CancellationToken cancellationToken = default);
-
+        Task<Result> TryToEnableForcedDowngradeAsync(Subscription subscription,
+                                                Guid planId,
+                                                Guid planPriceId,
+                                                string? comment,
+                                                CancellationToken cancellationToken = default);
 
         Task<Result> CancelRenewalAsync(Guid renewalId, Guid subscriptionId, string? comment, CancellationToken cancellationToken);
 
