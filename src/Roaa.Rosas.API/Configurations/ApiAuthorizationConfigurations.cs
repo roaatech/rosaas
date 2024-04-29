@@ -134,7 +134,14 @@ namespace Roaa.Rosas.Framework.Configurations
                                                                                 UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
                                                                                 UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
-
+                configure.AddPolicy(AuthPolicy.Management.WebhookEndpoints, builder =>
+                {
+                    builder.RequireScope(SystemConsts.Scopes.Api);
+                    builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                                UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
+                });
                 configure.AddPolicy(AuthPolicy.Management.Specifications, builder =>
                 {
                     builder.RequireScope(SystemConsts.Scopes.Api);
