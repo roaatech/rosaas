@@ -51,6 +51,8 @@ namespace Roaa.Rosas.Application.Interfaces.DbContexts
         public DbSet<TenantCreationRequest> TenantCreationRequests { get; }
         public DbSet<TenantCreationRequestSpecification> TenantCreationRequestSpecifications { get; }
         public DbSet<LinkedCard> LinkedCards { get; }
+        public DbSet<WebhookEndpoint> WebhookEndpoints { get; set; }
+        public DbSet<WebhookEndpointEvent> WebhookEndpointEvents { get; set; }
 
         #endregion
 

@@ -19,6 +19,7 @@
             public const string Tenants = "Tenants";
             public const string Workflow = "Workflow";
             public const string Orders = "Orders";
+            public const string WebhookEndpoints = "WebhookEndpoints";
         }
 
         public class Identity

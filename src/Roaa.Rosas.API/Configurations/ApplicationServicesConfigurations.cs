@@ -28,6 +28,7 @@ using Roaa.Rosas.Application.Services.Management.TenantCreationRequests;
 using Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Services;
 using Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Settings;
 using Roaa.Rosas.Application.Services.Management.Tenants.Service;
+using Roaa.Rosas.Application.Services.Management.WebhookEndpoints;
 using Roaa.Rosas.Domain.Models.Options;
 using Roaa.Rosas.Infrastructure.Persistence.DbContexts;
 using Roaa.Rosas.Infrastructure.Persistence.Interceptors;
@@ -92,7 +93,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IGenericAttributeService, GenericAttributeService>();
             services.AddScoped<ITrialProcessingService, TrialProcessingService>();
-
+            services.AddScoped<IWebhookEndpointService, WebhookEndpointService>();
 
 
 
