@@ -45,7 +45,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
             return EmptyResult(await _webhookEndpointService.UpdateWebhookEndpointAsync(webhookEndpointId, model, cancellationToken));
         }
 
-        [HttpPut("{webhookEndpointId}/change-status")]
+        [HttpPost("{webhookEndpointId}/activation-status")]
         public async Task<IActionResult> ChangeWebhookEndpointStatusAsync([FromRoute] Guid productId, [FromRoute] Guid webhookEndpointId, [FromBody] WebhookEndpointStatusModel statusModel, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _webhookEndpointService.ChangeWebhookEndpointStatusAsync(webhookEndpointId, statusModel.IsActive, cancellationToken));
