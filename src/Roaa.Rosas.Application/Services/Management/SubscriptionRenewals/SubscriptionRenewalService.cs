@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
@@ -9,6 +10,7 @@ using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
@@ -20,6 +22,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
         private readonly ILogger<SubscriptionRenewalService> _logger;
         private readonly IIdentityContextService _identityContextService;
         private readonly IRosasDbContext _dbContext;
+        private readonly IPublisher _publisher;
         #endregion
 
 
@@ -122,7 +125,9 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
 
             _dbContext.SubscriptionRenewals.Remove(subscriptionRenewal);
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            var result = await _dbContext.SaveChangesAsync(cancellationToken);
+            if (result > 0) { await _publisher.Publish(new SubscriptionAutorenewalDisabledEvent(subscriptionRenewal), cancellationToken); }
+
 
             return Result.Successful();
         }
@@ -242,8 +247,8 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                 _dbContext.LinkedCards.Add(linkedCard);
             }
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
+            var result = await _dbContext.SaveChangesAsync(cancellationToken);
+            if (result > 0) { await _publisher.Publish(new SubscriptionAutorenewalEnabledEvent(subscriptionRenewal), cancellationToken); }
             return Result.Successful();
         }
 

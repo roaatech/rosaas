@@ -2,10 +2,10 @@
 
 namespace Roaa.Rosas.Domain.Models.Webhook
 {
-    public record WebhookCaller<T>
+    public record WebhookCallingModel<T> where T : class, new()
     {
-        public T Payload { get; set; }
-        public List<WebhookEndpoint> WebhookEndpoints { get; set; }
+        public T Payload { get; set; } = new T();
+        public List<WebhookEndpointModel> WebhookEndpoints { get; set; } = new List<WebhookEndpointModel>();
 
     }
 
@@ -15,7 +15,7 @@ namespace Roaa.Rosas.Domain.Models.Webhook
         public WebhookEvents EventType { get; set; }
         public TPayload? MetaData { get; set; }
     }
-    public record WebhookEndpoint
+    public record WebhookEndpointModel
     {
         public string Url { get; set; } = string.Empty;
         public string? Secret { get; set; } = string.Empty;

@@ -25,7 +25,7 @@ namespace Roaa.Rosas.Infrastructure.ExternalSystemsAPI
             _dbContext = dbContext;
             _logger = logger;
         }
-        public async Task CallWebhookEndpointsAsync<TPayload>(WebhookCaller<GlobalPayload<TPayload>> model, CancellationToken cancellationToken = default)
+        public async Task CallWebhookEndpointsAsync<TPayload>(WebhookCallingModel<GlobalPayload<TPayload>> model, CancellationToken cancellationToken = default)
         {
             foreach (var WebhookEndpoint in model.WebhookEndpoints)
             {

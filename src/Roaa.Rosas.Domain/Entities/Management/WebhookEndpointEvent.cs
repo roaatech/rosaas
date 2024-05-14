@@ -7,7 +7,6 @@
         public string Description { get; set; } = string.Empty;
         public virtual WebhookEndpoint? WebhookEndpoint { get; set; }
 
-
     }
     public enum WebhookEvents
     {
