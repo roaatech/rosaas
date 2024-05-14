@@ -30,12 +30,14 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
         public SubscriptionRenewalService(SubscriptionRenewalUtilities utilities,
                                            ILogger<SubscriptionRenewalService> logger,
                                            IIdentityContextService identityContextService,
+                                           IPublisher publisher,
                                            IRosasDbContext dbContext)
         {
             _logger = logger;
             _identityContextService = identityContextService;
             _dbContext = dbContext;
             _utilities = utilities;
+            _publisher = publisher;
         }
 
         #endregion
@@ -126,7 +128,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
             _dbContext.SubscriptionRenewals.Remove(subscriptionRenewal);
 
             var result = await _dbContext.SaveChangesAsync(cancellationToken);
-            if (result > 0) { await _publisher.Publish(new SubscriptionAutorenewalDisabledEvent(subscriptionRenewal), cancellationToken); }
+            //  if (result > 0) { await _publisher.Publish(new SubscriptionAutorenewalDisabledEvent(subscriptionRenewal), cancellationToken); }
 
 
             return Result.Successful();
@@ -248,7 +250,10 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
             }
 
             var result = await _dbContext.SaveChangesAsync(cancellationToken);
-            if (result > 0) { await _publisher.Publish(new SubscriptionAutorenewalEnabledEvent(subscriptionRenewal), cancellationToken); }
+            if (result > 0)
+            {
+                await _publisher.Publish(new SubscriptionAutorenewalEnabledEvent(subscriptionRenewal), cancellationToken);
+            }
             return Result.Successful();
         }
 
