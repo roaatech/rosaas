@@ -26,6 +26,7 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
 
         public async Task Handle(SubscriptionAutorenewalEnabledEvent @event, CancellationToken cancellationToken = default)
         {
+            await Task.Delay(10000);
             var sub = await _dbContext.Subscriptions.Where(x => x.Id == @event.SubscriptionRenewal.SubscriptionId)
                  .Select(x => new { x.ProductId, x.Tenant.SystemName })
                   .SingleOrDefaultAsync(cancellationToken);

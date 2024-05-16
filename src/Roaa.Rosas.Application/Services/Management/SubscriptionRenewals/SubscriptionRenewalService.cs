@@ -128,7 +128,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
             _dbContext.SubscriptionRenewals.Remove(subscriptionRenewal);
 
             var result = await _dbContext.SaveChangesAsync(cancellationToken);
-            //  if (result > 0) { await _publisher.Publish(new SubscriptionAutorenewalDisabledEvent(subscriptionRenewal), cancellationToken); }
+            if (result > 0) { await _publisher.Publish(new SubscriptionAutorenewalDisabledEvent(subscriptionRenewal), cancellationToken); }
 
 
             return Result.Successful();
@@ -252,7 +252,17 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
             var result = await _dbContext.SaveChangesAsync(cancellationToken);
             if (result > 0)
             {
-                await _publisher.Publish(new SubscriptionAutorenewalEnabledEvent(subscriptionRenewal), cancellationToken);
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _publisher.Publish(new SubscriptionAutorenewalEnabledEvent(subscriptionRenewal), cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error occurred during publishing: {ex.Message}");
+                    }
+                });
             }
             return Result.Successful();
         }
