@@ -250,20 +250,12 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
             }
 
             var result = await _dbContext.SaveChangesAsync(cancellationToken);
+
             if (result > 0)
             {
-                await Task.Run(async () =>
-                {
-                    try
-                    {
-                        await _publisher.Publish(new SubscriptionAutorenewalEnabledEvent(subscriptionRenewal), cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error occurred during publishing: {ex.Message}");
-                    }
-                });
+                await _publisher.Publish(new SubscriptionAutorenewalEnabledEvent(subscriptionRenewal), cancellationToken);
             }
+
             return Result.Successful();
         }
 
