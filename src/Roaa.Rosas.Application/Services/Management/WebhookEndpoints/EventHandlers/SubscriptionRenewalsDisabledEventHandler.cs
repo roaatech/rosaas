@@ -5,13 +5,13 @@ using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandlers
 {
-    public class SubscriptionAutoRenewalDisabledEventHandler : BaseWebhookEventHandler<SubscriptionAutorenewalDisabledEvent, dynamic>
+    public class SubscriptionRenewalsDisabledEventHandler : BaseWebhookEventHandler<SubscriptionAutorenewalDisabledEvent, dynamic>
     {
-        protected override WebhookEvents EventType => WebhookEvents.AutoRenewalCanceled;
+        protected override WebhookEvents EventType => WebhookEvents.RenewalCanceled;
 
 
 
-        public SubscriptionAutoRenewalDisabledEventHandler(IServiceScopeFactory serviceScopeFactory)
+        public SubscriptionRenewalsDisabledEventHandler(IServiceScopeFactory serviceScopeFactory)
                 : base(serviceScopeFactory) { }
 
 
@@ -23,7 +23,13 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
                                                             .Select(x => new { x.ProductId, x.Tenant!.SystemName })
                                                             .SingleOrDefaultAsync(cancellationToken);
 
-            return (null, subscription!.ProductId, subscription.SystemName);
+
+            var metadata = new
+            {
+                renewalType = Event!.SubscriptionRenewal.Type,
+                Renewal = false,
+            };
+            return (metadata, subscription!.ProductId, subscription.SystemName);
         }
     }
 }

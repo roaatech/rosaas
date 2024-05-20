@@ -5,33 +5,34 @@ using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandlers
 {
-    public class SubscriptionAutoRenewalEnabledEventHandler : BaseWebhookEventHandler<SubscriptionAutorenewalEnabledEvent, dynamic>
+    public class SubscriptionForcedDowngradeEnabledEventHandler : BaseWebhookEventHandler<SubscriptionForcedDowngradeEnabledEvent, dynamic>
     {
-        protected override WebhookEvents EventType => WebhookEvents.RenewalCanceled;
+        protected override WebhookEvents EventType => WebhookEvents.ForcedDowngradeEnabled;
 
 
 
-        public SubscriptionAutoRenewalEnabledEventHandler(IServiceScopeFactory serviceScopeFactory)
-                 : base(serviceScopeFactory) { }
+        public SubscriptionForcedDowngradeEnabledEventHandler(IServiceScopeFactory serviceScopeFactory)
+                : base(serviceScopeFactory) { }
 
 
 
 
         protected async override Task<(dynamic metadata, Guid productId, string tenantSystemName)> PreparePayloadAsync(CancellationToken cancellationToken = default)
         {
-            var subscription = await DbContext!.Subscriptions.Where(x => x.Id == Event!.SubscriptionRenewal.SubscriptionId)
+            var subscription = await DbContext!.Subscriptions.Where(x => x.Id == Event!.SubscriptionId)
                                                             .Select(x => new { x.ProductId, x.Tenant!.SystemName })
                                                             .SingleOrDefaultAsync(cancellationToken);
-
-
             var metadata = new
             {
-                autoRenewal = false,
-                renewalsCount = Event!.SubscriptionRenewal.RenewalsCount,
-                isContinuousRenewal = Event.SubscriptionRenewal.IsContinuousRenewal
+                downgradeEnabled = true,
+                downgradedPlanId = Event!.NewPlanId,
+                downgradedPlanPriceId = Event!.NewPlanPriceId,
+                downgradeForced = true
             };
 
             return (metadata, subscription!.ProductId, subscription.SystemName);
         }
     }
+
+
 }
