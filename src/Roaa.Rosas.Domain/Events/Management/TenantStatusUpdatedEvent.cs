@@ -35,11 +35,5 @@ namespace Roaa.Rosas.Domain.Events.Management
             DispatchedRequest = dispatchedRequest;
             ReceivedRequest = receivedRequest;
         }
-        public TenantStatusUpdatedEvent(Subscription subscription, Workflow workflow)
-        {
-            Subscription = subscription;
-            Workflow = workflow;
-
-        }
     }
 }

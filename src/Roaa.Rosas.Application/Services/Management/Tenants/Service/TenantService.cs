@@ -187,16 +187,11 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.Service
                                                                              systemComment: workflow.Message,
                                                                              dispatchedRequest: model.DispatchedRequest,
                                                                              receivedRequest: model.ReceivedRequest));
-
-                    var downgradeEvent = new TenantStatusUpdatedEvent(subscription: subscription,
-                                                                                 workflow: workflow);
-                    await _publisher.Publish(downgradeEvent, cancellationToken);
                 }
 
             }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
-
 
             return Result<List<SetTenantNextStatusResult>>.Successful(results);
         }
