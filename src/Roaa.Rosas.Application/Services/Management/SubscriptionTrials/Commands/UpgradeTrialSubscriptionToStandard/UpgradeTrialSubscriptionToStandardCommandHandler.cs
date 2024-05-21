@@ -8,6 +8,7 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.SubscriptionTrials.Commands.UpgradeTrialSubscriptionToStandard;
 
@@ -96,6 +97,7 @@ public class UpgradeTrialSubscriptionToStandardCommandHandler : IRequestHandler<
 
                     trial.Subscription.SubscriptionMode = SubscriptionMode.Standard;
                     trial.Subscription.ModificationDate = DateTime.UtcNow;
+                    trial.Subscription.AddDomainEvent(new TrialSubscriptionUpgradedToStandardEvent(trial, trial.Subscription.ProductId));
 
                     _dbContext.TrialSubscriptions.Remove(trial);
                     await _dbContext.SaveChangesAsync(cancellationToken);
