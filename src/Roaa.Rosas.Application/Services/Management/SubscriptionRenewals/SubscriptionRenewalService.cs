@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Constatns;
 using Roaa.Rosas.Application.IdentityContextUtilities;
@@ -12,7 +11,6 @@ using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
-using Roaa.Rosas.Domain.Events.Management;
 using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
@@ -25,7 +23,6 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
         private readonly IIdentityContextService _identityContextService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IRosasDbContext _dbContext;
-        private readonly IPublisher _publisher;
         #endregion
 
 
@@ -41,7 +38,6 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
             _genericAttributeService = genericAttributeService;
             _dbContext = dbContext;
             _utilities = utilities;
-            _publisher = publisher;
         }
 
         #endregion
@@ -131,9 +127,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
 
             _dbContext.SubscriptionRenewals.Remove(subscriptionRenewal);
 
-            var result = await _dbContext.SaveChangesAsync(cancellationToken);
-            if (result > 0) { await _publisher.Publish(new SubscriptionAutorenewalDisabledEvent(subscriptionRenewal), cancellationToken); }
-
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Successful();
         }
@@ -253,12 +247,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                 _dbContext.LinkedCards.Add(linkedCard);
             }
 
-            var result = await _dbContext.SaveChangesAsync(cancellationToken);
-
-            if (result > 0)
-            {
-                await _publisher.Publish(new SubscriptionAutorenewalEnabledEvent(subscriptionRenewal), cancellationToken);
-            }
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Successful();
         }
@@ -271,24 +260,17 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                                                         string? comment,
                                                         CancellationToken cancellationToken = default)
         {
-            var result = await EnableSubscriptionRenewalAsync(subscriptionId,
-                                                                    planId,
-                                                                    planPriceId,
-                                                                    isForced: false,
-                                                                    cardReferenceId,
-                                                                    paymentPlatform,
-                                                                    comment,
-                                                                    x => x.SubscriptionUpgradeUrl,
-                                                                    SubscriptionRenewalTypeEnum.Upgrade,
-                                                                    subscription: null,
-                                                                    cancellationToken);
-            if (result.Success)
-            {
-                var upgradeEvent = new SubscriptionUpgradeEnabledEvent(subscriptionId, planId, planPriceId);
-                await _publisher.Publish(upgradeEvent, cancellationToken);
-            }
-            return result;
-
+            return await EnableSubscriptionRenewalAsync(subscriptionId,
+                                                        planId,
+                                                        planPriceId,
+                                                        isForced: false,
+                                                        cardReferenceId,
+                                                        paymentPlatform,
+                                                        comment,
+                                                        x => x.SubscriptionUpgradeUrl,
+                                                        SubscriptionRenewalTypeEnum.Upgrade,
+                                                        subscription: null,
+                                                        cancellationToken);
         }
 
         public async Task<Result> EnableSubscriptionDowngradingAsync(Guid subscriptionId,
@@ -299,7 +281,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                                                         string? comment,
                                                         CancellationToken cancellationToken = default)
         {
-            var result = await EnableSubscriptionRenewalAsync(subscriptionId,
+            return await EnableSubscriptionRenewalAsync(subscriptionId,
                                                         planId,
                                                         planPriceId,
                                                         isForced: false,
@@ -311,24 +293,45 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                                                         subscription: null,
                                                         cancellationToken);
         }
-        public async Task<Result> EnableSubscriptionDowngradingAsync(
-                                                        Subscription subscription,
-                                                        Guid planId,
-                                                        Guid planPriceId,
-                                                        string? comment,
-                                                        CancellationToken cancellationToken = default)
+        public async Task<Result> TryToEnableForcedDowngradeAsync(Subscription subscription,
+                                                             Guid planId,
+                                                             Guid planPriceId,
+                                                             string? comment,
+                                                             CancellationToken cancellationToken = default)
         {
+            var subscriptionRenewal = await _dbContext.SubscriptionRenewals
+                                                                .AsNoTracking()
+                                                                .Where(x => x.SubscriptionId == subscription.Id)
+                                                                .SingleOrDefaultAsync(cancellationToken);
+            if (subscriptionRenewal is not null)
+            {
+                //In case att is not null that mean, The forced downgrade fails to apply, so the system should suspend the subscription.
+                var att = await _genericAttributeService.GetAttributeAsync<Subscription, SubscriptionRenewal>(
+                                                  subscription.Id,
+                                                  Consts.GenericAttributeKey.ForcedDowngrade,
+                                                  null,
+                                                  cancellationToken);
+
+                // Ensure the subscription does not have a forced downgrade.
+                if (_utilities.EnsureIsForcedDowngrade(subscriptionRenewal) || att is not null)
+                {
+                    return Result.Fail(ErrorMessage.SubscriptionAlreadyHasForcedDowngrade, _identityContextService.Locale, nameof(subscription.Id));
+                }
+            }
+
+
+
             return await EnableSubscriptionRenewalAsync(subscriptionId: subscription.Id,
-                                                        planId: planId,
-                                                        planPriceId: planPriceId,
-                                                        isForced: true,
-                                                        cardReferenceId: null,
-                                                        paymentPlatform: null,
-                                                        comment: comment,
-                                                        urlSelector: x => x.SubscriptionDowngradeUrl,
-                                                        renewalType: SubscriptionRenewalTypeEnum.Downgrade,
-                                                        subscription: subscription,
-                                                        cancellationToken: cancellationToken);
+                                                    planId: planId,
+                                                    planPriceId: planPriceId,
+                                                    isForced: true,
+                                                    cardReferenceId: null,
+                                                    paymentPlatform: null,
+                                                    comment: comment,
+                                                    urlSelector: x => x.SubscriptionDowngradeUrl,
+                                                    renewalType: SubscriptionRenewalTypeEnum.ForcedDowngrade,
+                                                    subscription: subscription,
+                                                    cancellationToken: cancellationToken);
         }
 
 
