@@ -16,6 +16,7 @@ using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.ResponseMessages;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Education.API.Models.Common.Responses;
 using Roaa.Rosas.Framework.Controllers.Common;
 
@@ -26,6 +27,7 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
     {
         #region Props  
         private readonly ISender _mediator;
+        private readonly IPublisher _publisher;
         private readonly IIdentityContextService _identityContextService;
         private readonly ISubscriptionService _subscriptionService;
 
@@ -33,12 +35,14 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
 
         #region Corts
         public ExternalSystemTenantsController(ISender mediator,
+                                 IPublisher publisher,
                                  IIdentityContextService identityContextService,
                                  ISubscriptionService subscriptionService)
         {
             _identityContextService = identityContextService;
             _subscriptionService = subscriptionService;
             _mediator = mediator;
+            _publisher = publisher;
         }
         #endregion
 
@@ -113,7 +117,13 @@ namespace Roaa.Rosas.Framework.Controllers.ExternalSystem
         [HttpPost("{name}/created")]
         public async Task<IActionResult> SetTenantAsCreatedAsync([FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.CreatedAsActive, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Active, null), cancellationToken));
+
+            var result = await _mediator.Send(new ChangeTenantStatusCommand(name, TenantStatus.CreatedAsActive, _identityContextService.GetProductId(), ExpectedTenantResourceStatus.Active, null), cancellationToken);
+
+            if (result.Success)
+                await _publisher.Publish(new ExternalSystemCreatedTenantResourcesEvent(name), cancellationToken);
+
+            return EmptyResult(result);
         }
 
         [HttpPost("{name}/active")]

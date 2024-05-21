@@ -1,4 +1,5 @@
-﻿using Roaa.Rosas.Application.ExternalSystemsAPI;
+﻿using Roaa.Rosas.Application;
+using Roaa.Rosas.Application.ExternalSystemsAPI;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.JWT;
@@ -109,10 +110,9 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<TrialSubscriptionUtilities>();
 
 
-
+            services.AddSingleton(typeof(IInstanceFactory<,>), typeof(InstanceFactory<,>));
 
             services.AddMediatRAServices();
-
 
 
             services.AddPaymentServicesConfigurations(rootOptions);

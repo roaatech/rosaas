@@ -45,6 +45,9 @@ namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Services
 
         Task<string> GetHealthCheckStatusUrlOfExternalSystemAsync(JobTask jobTask, IProductService productService, CancellationToken cancellationToken);
 
+        Task PublishTenantAvailabilityChangedToHealthyEventAsync(JobTask jobTask, CancellationToken cancellationToken);
+
+        Task PublishTenantAvailabilityChangedToUnhealthyEventAsync(JobTask jobTask, CancellationToken cancellationToken);
 
     }
 }

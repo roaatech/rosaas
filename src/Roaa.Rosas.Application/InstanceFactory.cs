@@ -5,7 +5,14 @@ using System.Reflection;
 
 namespace Roaa.Rosas.Application
 {
-    public class InstanceFactory<TAbstractParent, TAttribute> where TAbstractParent : class where TAttribute : BaseCustomAttribute
+    public interface IInstanceFactory<TAbstractParent, TAttribute> where TAbstractParent : class where TAttribute : BaseCustomAttribute
+    {
+        TAbstractParent CreateInstanceFromScoped(string flagType);
+        TAbstractParent CreateInstance(string type, params object?[]? args);
+    }
+
+
+    public class InstanceFactory<TAbstractParent, TAttribute> : IInstanceFactory<TAbstractParent, TAttribute> where TAbstractParent : class where TAttribute : BaseCustomAttribute
     {
 
         private readonly Dictionary<string, Type> _processorsDictionary;
@@ -14,11 +21,16 @@ namespace Roaa.Rosas.Application
 
         public InstanceFactory(IServiceProvider serviceProvider)
         {
-            _processorsDictionary = Assembly
-                .GetExecutingAssembly()
-                .GetTypes()
-                .Where(type => typeof(TAbstractParent).IsAssignableFrom(type) &&
-                               type.GetCustomAttributes<TAttribute>(false).Any())
+            var assembliesOfRoSaasProjects = AppDomain.CurrentDomain
+                                                      .GetAssemblies()
+                                                      .Where(x => x.FullName!.Contains("Roaa.Rosas") ||
+                                                                  x.FullName.Contains("Roaa.Rosaas") ||
+                                                                  x.FullName.Contains("Roaa.RoSaas") ||
+                                                                  x.FullName.Contains("Roaa.RoSaaS"));
+
+            _processorsDictionary = assembliesOfRoSaasProjects.SelectMany(x => x.ExportedTypes)
+                                       .Where(type => typeof(TAbstractParent).IsAssignableFrom(type) &&
+                                          type.GetCustomAttributes<TAttribute>(false).Any())
                 .ToDictionary(type => type.GetCustomAttributes<TAttribute>(false).First().TypeAsString, type => type);
             _serviceProvider = serviceProvider;
         }
@@ -26,13 +38,13 @@ namespace Roaa.Rosas.Application
 
 
 
-        public TAbstractParent InstantiateProcessor(string type)
+        public TAbstractParent CreateInstanceFromScoped(string type)
         {
             if (_processorsDictionary.TryGetValue(type, out Type? processorType))
             {
-                var subscriptionRenewalProcessor = (TAbstractParent)_serviceProvider.GetRequiredService(processorType);
-                ArgumentNullException.ThrowIfNull(subscriptionRenewalProcessor);
-                return subscriptionRenewalProcessor;
+                var processor = (TAbstractParent)_serviceProvider.GetRequiredService(processorType);
+                ArgumentNullException.ThrowIfNull(processor);
+                return processor;
             }
             else
             {
@@ -40,6 +52,29 @@ namespace Roaa.Rosas.Application
                                                       can not create a new instance of the {typeof(TAttribute)},
                                                        So you must implement a service specific to ({type}) type.");
             }
+        }
+
+
+
+        public TAbstractParent CreateInstance(string type, params object?[]? args)
+        {
+            if (_processorsDictionary.TryGetValue(type, out Type? processorType))
+            {
+                var instance = Activator.CreateInstance(processorType, args);
+
+                var processor = instance as TAbstractParent;
+
+                return processor!;
+            }
+            else
+            {
+                throw new NotImplementedException(@$"The  {GetType()} failed in instantiating {typeof(TAbstractParent)}. 
+                                                      can not create a new instance of the {typeof(TAttribute)},
+                                                       So you must implement a service specific to ({type}) type.");
+            }
+
+
+
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.IdentityContextUtilities;
 using Roaa.Rosas.Application.Interfaces;
@@ -25,6 +26,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
         private readonly IProductService _productService;
         private readonly ITenantService _tenantService;
         private readonly IRosasDbContext _dbContext;
+        private readonly IPublisher _publisher;
 
         public SendingTenantCreationRequestEventHandler(
                                             ITenantWorkflow workflow,
@@ -33,6 +35,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                                             IProductService productService,
                                             ITenantService tenantService,
                                             IRosasDbContext dbContext,
+                                            IPublisher publisher,
                                             ILogger<SendingTenantCreationRequestEventHandler> logger)
         {
             _workflow = workflow;
@@ -41,6 +44,7 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
             _productService = productService;
             _tenantService = tenantService;
             _dbContext = dbContext;
+            _publisher = publisher;
             _logger = logger;
         }
 
@@ -105,6 +109,12 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.EventHandlers
                 DispatchedRequest = new DispatchedRequestModel(callingResult.Data.DurationInMillisecond, callingResult.Data.Url, callingResult.Data.SerializedResponseContent),
                 ExpectedResourceStatus = null,
             });
+
+            if (callingResult.Success)
+            {
+                await _publisher.Publish(new ExternalSystemIsBeingProvisionedTenantResourcesEvent(@event.TenantId, @event.ProductId));
+            }
+
         }
     }
 }

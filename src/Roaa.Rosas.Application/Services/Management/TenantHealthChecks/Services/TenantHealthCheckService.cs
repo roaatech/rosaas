@@ -5,7 +5,6 @@ using MySqlConnector;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Management.Products;
-using Roaa.Rosas.Application.Services.Management.TenantHealthChecks;
 using Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.BackgroundServices;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -116,7 +115,25 @@ namespace Roaa.Rosas.Application.Services.Management.TenantHealthChecks.Services
         }
 
 
+        public async Task PublishTenantAvailabilityChangedToHealthyEventAsync(JobTask jobTask, CancellationToken cancellationToken)
+        {
+            // We implemented a try/catch statement to ensure that any issues in publishing the event do not affect the main business process.
+            try
+            {
+                await _publisher.Publish(new TenantAvailabilityChangedToHealthyEvent(jobTask.TenantId, jobTask.ProductId), cancellationToken);
+            }
+            catch (Exception ex) { }
+        }
 
+        public async Task PublishTenantAvailabilityChangedToUnhealthyEventAsync(JobTask jobTask, CancellationToken cancellationToken)
+        {
+            // We implemented a try/catch statement to ensure that any issues in publishing the event do not affect the main business process.
+            try
+            {
+                await _publisher.Publish(new TenantAvailabilityChangedToUnhealthyEvent(jobTask.TenantId, jobTask.ProductId), cancellationToken);
+            }
+            catch (Exception ex) { }
+        }
         public async Task<Guid> PublishTenantProcessingCompletedEventAsync(JobTask jobTask, TenantProcessType processType, CancellationToken cancellationToken)
         {
             var subscription = await _dbContext.Subscriptions

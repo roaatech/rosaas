@@ -10,12 +10,12 @@
     }
     public enum WebhookEvents
     {
-        MetadataUpdated = 1,
+        TenantRegisteredInRoSaasDb = 1,
         TenantStatusChanged = 2,
         TenantAvailabilityChangedToHealthy = 3,
         TenantAvailabilityChangedToUnhealthy = 4,
         TrialSubscriptionUpgradedToStandard = 5,
-        RenewalCanceled = 6,
+        SubscriptionRenewalDisabled = 6,
         SubscriptionHasBeenRenewedAutomatically = 7,
         SubscriptionHasBeenUpgraded = 8,
         UpgradeEnabled = 9,
@@ -23,7 +23,13 @@
         ForcedDowngradeEnabled = 11,
         SubscriptionHasBeenDowngraded = 12,
         SubscriptionSuspendedDueToUnpaid = 13,
-        AutoRenewalEnabled = 14
+        AutoRenewalEnabled = 14,
+        SubscriptionAutoRenewalDisabled = 15,
+        SubscriptionUpgradingDisabled = 16,
+        SubscriptionDowngradingDisabled = 17,
+        ExternalSystemIsBeingProvisionedTenantResources = 18,
+        ExternalSystemCreatedTenantResources = 19,
+
 
     }
 

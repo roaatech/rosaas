@@ -1,20 +1,18 @@
-﻿using Roaa.Rosas.Domain.Common;
+﻿using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Attributes;
 using Roaa.Rosas.Domain.Entities.Management;
 
 namespace Roaa.Rosas.Domain.Events.Management
 {
-    public class SubscriptionAutorenewalDisabledEvent : BaseInternalEvent
+    [SubscriptionRenewalType(SubscriptionRenewalTypeEnum.AutoRenewal)]
+    public class SubscriptionAutoRenewalDisabledEvent : SubscriptionRenewalHasBeenDisabledBaseEvent
     {
-        public SubscriptionRenewal SubscriptionRenewal { get; set; } = new();
-
-        public SubscriptionAutorenewalDisabledEvent()
+        public SubscriptionAutoRenewalDisabledEvent(SubscriptionRenewal subscriptionRenewal)
+            : base(subscriptionRenewal)
         {
         }
 
-        public SubscriptionAutorenewalDisabledEvent(SubscriptionRenewal subscriptionRenewal)
+        public SubscriptionAutoRenewalDisabledEvent()
         {
-            SubscriptionRenewal = subscriptionRenewal;
-
         }
     }
 }

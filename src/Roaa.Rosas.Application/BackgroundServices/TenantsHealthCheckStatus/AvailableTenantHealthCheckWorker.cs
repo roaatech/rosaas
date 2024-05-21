@@ -73,6 +73,9 @@ namespace Roaa.Rosas.Application.Services.Management.Tenants.HealthCheckStatus.B
                             await _tenantHealthCheckService.RemoveAvailableJobTaskAsync(jobTask, cancellationToken);
 
                             await _tenantHealthCheckService.PublishTenantProcessingCompletedEventAsync(jobTask, TenantProcessType.UnhealthyStatus, cancellationToken);
+
+                            await _tenantHealthCheckService.PublishTenantAvailabilityChangedToUnhealthyEventAsync(jobTask, cancellationToken);
+
                         }
                     }
                     else

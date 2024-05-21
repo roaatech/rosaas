@@ -1,19 +1,14 @@
-﻿using Roaa.Rosas.Domain.Attributes;
-using Roaa.Rosas.Domain.Common;
-
-namespace Roaa.Rosas.Domain.Events.Management
+﻿namespace Roaa.Rosas.Domain.Events.Management
 {
-
-    [TenantAvailabilityAttribute(isHealthy: true)]
-    public class TenantAvailabilityChangedToHealthyEvent : BaseInternalEvent
+    public class TenantAvailabilityChangedToHealthyEvent : TenantAvailabilityChangedEvent
     {
         public TenantAvailabilityChangedToHealthyEvent(Guid tenantId, Guid productId)
+            : base(tenantId, productId, true)
         {
-            TenantId = tenantId;
-            ProductId = productId;
         }
 
-        public Guid TenantId { get; set; }
-        public Guid ProductId { get; set; }
+        public TenantAvailabilityChangedToHealthyEvent()
+        {
+        }
     }
 }

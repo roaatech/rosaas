@@ -1,8 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Roaa.Rosas.Application;
+using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Attributes;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Controllers;
 using Roaa.Rosas.Domain.Entities.Management;
+using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
 {
@@ -12,15 +17,24 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         #region Props  
         private readonly ISender _mediator;
         private readonly IIdentityContextService _identityContextService;
+        private readonly IRosasDbContext _dbContext;
+        private readonly IPublisher _publisher;
+        private readonly IInstanceFactory<SubscriptionRenewalHasBeenDisabledBaseEvent, SubscriptionRenewalTypeAttribute> _instanceFactory;
 
         #endregion
 
         #region Corts
         public WebhookSimulationController(ISender mediator,
-                                           IIdentityContextService identityContextService)
+                                           IIdentityContextService identityContextService,
+                                           IRosasDbContext dbContext,
+                                           IInstanceFactory<SubscriptionRenewalHasBeenDisabledBaseEvent, SubscriptionRenewalTypeAttribute> instanceFactory,
+                                           IPublisher publisher)
         {
             _identityContextService = identityContextService;
             _mediator = mediator;
+            _publisher = publisher;
+            _dbContext = dbContext;
+            _instanceFactory = instanceFactory;
         }
         #endregion
 
@@ -31,6 +45,23 @@ namespace Roaa.Rosas.Framework.Controllers.ApiSimulator
         {
             var info = Request;
             return Ok(model);
+        }
+
+
+        [HttpPost("test")]
+        public async Task<IActionResult> TestAsync(CancellationToken cancellationToken = default)
+        {
+
+            var sub = await _dbContext.SubscriptionRenewals.FirstOrDefaultAsync(cancellationToken);
+
+
+
+            var subscriptionRenewalDisabledEvent = _instanceFactory.CreateInstance(sub.Type.ToString());
+
+            subscriptionRenewalDisabledEvent.SubscriptionRenewal = sub;
+
+            await _publisher.Publish(subscriptionRenewalDisabledEvent);
+            return Ok();
         }
 
         #endregion

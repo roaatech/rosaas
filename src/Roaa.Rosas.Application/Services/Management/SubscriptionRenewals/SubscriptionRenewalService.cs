@@ -132,12 +132,9 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
 
             _dbContext.SubscriptionRenewals.Remove(subscriptionRenewal);
 
-            var result = await _dbContext.SaveChangesAsync(cancellationToken);
+            subscriptionRenewal.AddDomainEvent(new SubscriptionRenewalHasBeenDisabledEvent(subscriptionRenewal));
 
-            if (result > 0)
-            {
-                await _publisher.Publish(new SubscriptionAutorenewalDisabledEvent(subscriptionRenewal), cancellationToken);
-            }
+            var result = await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Successful();
         }

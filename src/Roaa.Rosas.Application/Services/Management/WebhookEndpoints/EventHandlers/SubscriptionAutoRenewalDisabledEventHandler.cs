@@ -5,13 +5,13 @@ using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandlers
 {
-    public class SubscriptionRenewalHasBeenDisabledEventHandler : BaseWebhookEventHandler<SubscriptionRenewalHasBeenDisabledBaseEvent, dynamic>
+    public class SubscriptionAutoRenewalDisabledEventHandler : BaseWebhookEventHandler<SubscriptionAutoRenewalDisabledEvent, dynamic>
     {
-        protected override WebhookEvents EventType => WebhookEvents.SubscriptionRenewalDisabled;
+        protected override WebhookEvents EventType => WebhookEvents.SubscriptionAutoRenewalDisabled;
 
 
 
-        public SubscriptionRenewalHasBeenDisabledEventHandler(IServiceScopeFactory serviceScopeFactory)
+        public SubscriptionAutoRenewalDisabledEventHandler(IServiceScopeFactory serviceScopeFactory)
                 : base(serviceScopeFactory) { }
 
 
@@ -25,7 +25,6 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
 
             var metadata = new
             {
-                SubscriptionRenewalType = Event!.SubscriptionRenewal.Type,
                 Date = DateTime.UtcNow,
             };
             return (metadata, subscription!.ProductId, subscription.SystemName);
