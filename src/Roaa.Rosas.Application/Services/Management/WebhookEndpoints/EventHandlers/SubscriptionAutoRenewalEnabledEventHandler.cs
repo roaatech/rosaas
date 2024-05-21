@@ -7,7 +7,7 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
 {
     public class SubscriptionAutoRenewalEnabledEventHandler : BaseWebhookEventHandler<SubscriptionAutorenewalEnabledEvent, dynamic>
     {
-        protected override WebhookEvents EventType => WebhookEvents.RenewalCanceled;
+        protected override WebhookEvents EventType => WebhookEvents.AutoRenewalEnabled;
 
 
 

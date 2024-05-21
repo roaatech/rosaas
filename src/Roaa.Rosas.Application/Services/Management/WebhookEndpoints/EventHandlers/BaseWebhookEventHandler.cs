@@ -45,34 +45,38 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
         #region utilities
         public virtual async Task Handle(TEvent @event, CancellationToken cancellationToken = default)
         {
-            _ = Task.Run(async () => await HandleWebhookAsync(@event, cancellationToken));
+            _ = Task.Run(async () =>
+         {
+             try
+             {
+                 await Task.Delay(10000);
+                 using var scope = ServiceScopeFactory.CreateScope();
+                 DbContext = scope.ServiceProvider.GetRequiredService<IRosasDbContext>();
+                 WebhookAPI = scope.ServiceProvider.GetRequiredService<IWebhookAPI>();
+
+
+
+                 Event = @event;
+
+                 (_metadata, _productId, _tenantSystemName) = await PreparePayloadAsync(cancellationToken);
+
+                 var callerModel = await BuildWebhookCallingModel(cancellationToken);
+
+                 await WebhookAPI.CallWebhookEndpointsAsync(callerModel, cancellationToken);
+
+             }
+             catch (Exception ex)
+             {
+                 // Log the exception
+                 Console.WriteLine($"Error calling webhook: {ex.Message}");
+             }
+         });
 
         }
 
         public virtual async Task HandleWebhookAsync(TEvent @event, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                using var scope = ServiceScopeFactory.CreateScope();
-                DbContext = scope.ServiceProvider.GetRequiredService<IRosasDbContext>();
-                WebhookAPI = scope.ServiceProvider.GetRequiredService<IWebhookAPI>();
 
-
-
-                Event = @event;
-
-                (_metadata, _productId, _tenantSystemName) = await PreparePayloadAsync(cancellationToken);
-
-                var callerModel = await BuildWebhookCallingModel(cancellationToken);
-
-                await WebhookAPI.CallWebhookEndpointsAsync(callerModel, cancellationToken);
-
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                Console.WriteLine($"Error calling webhook: {ex.Message}");
-            }
         }
 
         protected virtual async Task<WebhookCallingModel<GlobalPayload<TPayloadMetadata>>> BuildWebhookCallingModel(CancellationToken cancellationToken = default)

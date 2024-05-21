@@ -11,6 +11,7 @@ using Roaa.Rosas.Application.Services.Management.Tenants.Service;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Enums;
+using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
 using Roaa.Rosas.Domain.Models.ExternalSystems;
 using System.Linq.Expressions;
@@ -86,6 +87,8 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
                 subscriptionRenewal.Status = SubscriptionRenewalStatus.None;
                 subscriptionRenewal.ModificationDate = DateTime.UtcNow;
             }
+
+            subscriptionRenewal.AddDomainEvent(new SubscriptionHasBeenUpgradedEvent(subscription, subscriptionRenewal));
 
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
