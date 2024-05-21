@@ -23,6 +23,7 @@
         ForcedDowngradeEnabled = 11,
         SubscriptionHasBeenDowngraded = 12,
         SubscriptionSuspendedDueToUnpaid = 13,
+        AutoRenewalEnabled = 14
 
     }
 

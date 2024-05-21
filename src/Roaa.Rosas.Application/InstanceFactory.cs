@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Roaa.Rosas.Application.Attributes;
+using Roaa.Rosas.Domain.Attributes;
 using System.Reflection;
 
 
