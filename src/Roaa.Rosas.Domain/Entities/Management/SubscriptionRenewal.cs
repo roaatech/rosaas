@@ -27,7 +27,7 @@ namespace Roaa.Rosas.Domain.Entities.Management
         Upgrade = 1,
         Downgrade = 2,
         AutoRenewal = 3,
-
+        ForcedDowngrade = 4,
     }
 
     public enum SubscriptionRenewalStatus

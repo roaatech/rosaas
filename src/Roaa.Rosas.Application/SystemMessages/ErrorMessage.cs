@@ -196,5 +196,11 @@ namespace Roaa.Rosas.Application.SystemMessages
             En = "The payment failed",
             Ar = "فشلت عملية الدفع")]
         OperationFaild = 3028,
+
+        [Localization(
+            En = "The subscription already has forced downgrade",
+         Ar = "الاشتراك لديه مسبقاً تخفيض قسري")]
+        SubscriptionAlreadyHasForcedDowngrade = 3029,
+
     }
 }

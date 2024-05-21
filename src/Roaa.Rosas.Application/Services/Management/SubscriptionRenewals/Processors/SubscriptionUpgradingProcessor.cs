@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Attributes;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Models;
@@ -21,7 +22,6 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
     [SubscriptionRenewalType(SubscriptionRenewalTypeEnum.Upgrade)]
     public class SubscriptionUpgradingProcessor : SubscriptionRenewalProcessor
     {
-
         #region Props   
         private readonly ILogger<SubscriptionUpgradingProcessor> _logger;
 
@@ -32,14 +32,15 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
 
         #region Corts 
         public SubscriptionUpgradingProcessor(IIdentityContextService identityContextService,
-                                                          IExternalSystemAPI externalSystemAPI,
-                                                          IProductService productService,
-                                                          ITenantService tenantService,
-                                                          ISubscriptionService subscriptionService,
-                                                          IRosasDbContext dbContext,
-                                                          IPublisher publisher,
-                                                          ILogger<SubscriptionUpgradingProcessor> logger)
-          : base(identityContextService, externalSystemAPI, productService, tenantService, subscriptionService, dbContext, publisher)
+                                                        IExternalSystemAPI externalSystemAPI,
+                                                        IProductService productService,
+                                                        ITenantService tenantService,
+                                                        ISubscriptionService subscriptionService,
+                                                        IGenericAttributeService genericAttributeService,
+                                                        IRosasDbContext dbContext,
+                                                        IPublisher publisher,
+                                                        ILogger<SubscriptionUpgradingProcessor> logger)
+       : base(identityContextService, externalSystemAPI, productService, tenantService, subscriptionService, genericAttributeService, dbContext, publisher)
         {
             _logger = logger;
         }
@@ -76,6 +77,8 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
 
             await _subscriptionService.RenewSubscriptionAsync(subscription, subscriptionRenewal, false, cancellationToken);
 
+            await TryRemovingForcedDowngradeAttributesAsync(subscription.Id);
+
             if (!subscriptionRenewal.IsContinuousRenewal && subscriptionRenewal.RenewalsCount <= 0)
             {
                 _dbContext.SubscriptionRenewals.Remove(subscriptionRenewal);
@@ -85,6 +88,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
                 ArgumentNullException.ThrowIfNull(subscription.EndDate);
                 subscriptionRenewal.SubscriptionRenewalDate = subscription.EndDate.Value;
                 subscriptionRenewal.Status = SubscriptionRenewalStatus.None;
+                subscriptionRenewal.Type = SubscriptionRenewalTypeEnum.AutoRenewal;
                 subscriptionRenewal.ModificationDate = DateTime.UtcNow;
             }
 

@@ -47,8 +47,9 @@ namespace Roaa.Rosas.Application.Payment.Platforms.ManwalService
             var order = await _dbContext.Orders
                                         .Where(x => x.Id == orderId)
                                         .SingleOrDefaultAsync(cancellationToken);
+            ArgumentNullException.ThrowIfNull(order);
 
-            await _paymentProcessingService.MarkOrderAsPaidAsync(order, null, PaymentPurpose.TenantCreation, PaymentPlatform, cancellationToken);
+            await _paymentProcessingService.MarkOrderAsPaidAsync(order, cancellationToken);
 
             return Result<Order>.Successful(order);
         }
@@ -74,7 +75,7 @@ namespace Roaa.Rosas.Application.Payment.Platforms.ManwalService
             throw new NotImplementedException();
         }
 
-        public Task<Result> PayAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
+        public Task<Result> DoRecurringPaymentAsync(Order order, string referenceCardId, PaymentPurpose paymentPurpose, Guid userId, UserType userType, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

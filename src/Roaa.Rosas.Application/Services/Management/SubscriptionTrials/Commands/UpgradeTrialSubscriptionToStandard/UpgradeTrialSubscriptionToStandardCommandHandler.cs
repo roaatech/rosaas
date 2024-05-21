@@ -49,61 +49,69 @@ public class UpgradeTrialSubscriptionToStandardCommandHandler : IRequestHandler<
     {
         try
         {
-            var fromDate = DateTime.UtcNow;
-            var toDate = fromDate.AddHours(command.RangeInHoursBetweenDates);
+            var toDate = DateTime.UtcNow;
+            var fromDate = toDate.AddHours(-command.RangeInHoursBetweenDates);
 
             var trialSubscriptions = await _dbContext.TrialSubscriptions
                                                      .Include(x => x.Subscription)
-                                                     .Where(x => x.EndDate >= fromDate && x.EndDate <= toDate)
+                                                     .Where(x => fromDate <= x.EndDate && x.EndDate <= toDate)
                                                      .ToListAsync(cancellationToken);
+
+
 
             foreach (var trial in trialSubscriptions)
             {
-                ArgumentNullException.ThrowIfNull(trial.Subscription);
-
-                if (!_utilities.EnsurethatTheTrialSubscriptionStatusIsAllowedForUpgrade(trial.Status))
+                try
                 {
-                    throw new NullReferenceException($"Cannot handle({trial.GetType().Name}) in {trial.Status} status.");
+                    ArgumentNullException.ThrowIfNull(trial.Subscription);
+
+                    if (!_utilities.EnsurethatTheTrialSubscriptionStatusIsAllowedForUpgrade(trial.Status))
+                    {
+                        throw new NullReferenceException($"Cannot handle({trial.GetType().Name}) in {trial.Status} status.");
+                    }
+
+                    var orderId = await _dbContext.Tenants
+                                                       .Where(x => x.Id == trial.Subscription.TenantId)
+                                                       .Select(x => x.LastOrderId)
+                                                       .SingleAsync(cancellationToken);
+
+                    await UpdateSubscriptionTrialStatusAsync(trial, SubscriptionTrialStatus.PendingPayment, cancellationToken);
+
+                    var paymentResult = await _paymentService.CapturePaymentAsync(orderId, PaymentPurpose.UpgradeTrialSubscriptionToStandard, cancellationToken);
+                    if (!paymentResult.Success)
+                    {
+                        await UpdateSubscriptionTrialStatusAsync(trial, SubscriptionTrialStatus.FailedPayment, cancellationToken);
+                        continue;
+                    }
+
+                    await UpdateSubscriptionTrialStatusAsync(trial, SubscriptionTrialStatus.Processing, cancellationToken);
+
+                    var resetResult = await _subscriptionService.ResetSubscriptionPlanAsync(trial.Subscription,
+                                                                                            trial.SelectedPlanId,
+                                                                                            trial.SelectedPlanPriceId);
+                    if (!resetResult.Success)
+                    {
+                        await UpdateSubscriptionTrialStatusAsync(trial, SubscriptionTrialStatus.Failure, cancellationToken);
+                        continue;
+                    }
+
+                    trial.Subscription.SubscriptionMode = SubscriptionMode.Standard;
+                    trial.Subscription.ModificationDate = DateTime.UtcNow;
+
+                    _dbContext.TrialSubscriptions.Remove(trial);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+
+                    await _subscriptionService.ActivateSubscriptionAsync(trial.Subscription, cancellationToken);
                 }
-
-                var orderId = await _dbContext.Tenants
-                                                   .Where(x => x.Id == trial.Subscription.TenantId)
-                                                   .Select(x => x.LastOrderId)
-                                                   .SingleAsync(cancellationToken);
-
-                await UpdateSubscriptionTrialStatusAsync(trial, SubscriptionTrialStatus.PendingPayment, cancellationToken);
-
-                var paymentResult = await _paymentService.CapturePaymentAsync(orderId, PaymentPurpose.UpgradeTrialSubscriptionToStandard, cancellationToken);
-                if (!paymentResult.Success)
+                catch (Exception ex)
                 {
-                    await UpdateSubscriptionTrialStatusAsync(trial, SubscriptionTrialStatus.FailedPayment, cancellationToken);
-                    continue;
+                    var errorMsg = $"An error occurred while handling({trial.GetType().Name}) of SubscriptionId:{trial.SubscriptionId}.!";
+                    _logger.LogError(ex, errorMsg);
                 }
-
-                await UpdateSubscriptionTrialStatusAsync(trial, SubscriptionTrialStatus.Processing, cancellationToken);
-
-                var resetResult = await _subscriptionService.ResetSubscriptionPlanAsync(trial.Subscription,
-                                                                                        trial.SelectedPlanId,
-                                                                                        trial.SelectedPlanPriceId);
-                if (!resetResult.Success)
-                {
-                    await UpdateSubscriptionTrialStatusAsync(trial, SubscriptionTrialStatus.Failure, cancellationToken);
-                    continue;
-                }
-
-                trial.Subscription.SubscriptionMode = SubscriptionMode.Standard;
-                trial.Subscription.ModificationDate = DateTime.UtcNow;
-                trial.Subscription.AddDomainEvent(new TrialSubscriptionUpgradedToStandardEvent(trial, trial.Subscription.ProductId));
-
-                _dbContext.TrialSubscriptions.Remove(trial);
-                await _dbContext.SaveChangesAsync(cancellationToken);
-
-                await _subscriptionService.ActivateSubscriptionAsync(trial.Subscription, cancellationToken);
             }
             return Result.Successful();
 
         }
-
         catch (Exception ex)
         {
             var errorMsg = $"An error occurred while executing the Handle() function of {this.GetType().Name}!";

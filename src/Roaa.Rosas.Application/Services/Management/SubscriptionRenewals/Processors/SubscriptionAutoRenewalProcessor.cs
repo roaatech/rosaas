@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Attributes;
 using Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Models;
@@ -32,10 +33,11 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
                                                           IProductService productService,
                                                           ITenantService tenantService,
                                                           ISubscriptionService subscriptionService,
+                                                          IGenericAttributeService genericAttributeService,
                                                           IRosasDbContext dbContext,
                                                           IPublisher publisher,
                                                           ILogger<SubscriptionAutoRenewalProcessor> logger)
-         : base(identityContextService, externalSystemAPI, productService, tenantService, subscriptionService, dbContext, publisher)
+         : base(identityContextService, externalSystemAPI, productService, tenantService, subscriptionService, genericAttributeService, dbContext, publisher)
         {
             _logger = logger;
         }
@@ -57,6 +59,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.EventH
                 _dbContext.SubscriptionRenewals.Remove(model.SubscriptionRenewal);
             }
 
+            await TryRemovingForcedDowngradeAttributesAsync(model.SubscriptionRenewal.SubscriptionId);
 
             await _subscriptionService.RenewSubscriptionAsync(model.Subscription, model.SubscriptionRenewal, true, cancellationToken);
 

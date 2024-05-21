@@ -68,35 +68,54 @@ namespace Roaa.Rosas.Application.BackgroundServices
         {
             try
             {
-                using var scope = _serviceScopeFactory.CreateScope();
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var rangeInHoursBetweenDates = 24;
+                var startingMsg = "The {0} as background service started running the {1} task.";
+                var completingMsg = "The {0} as background service completed the {1} task.";
+                var rangeInHoursBetweenDates = 100000;
+
                 Task upgradeTrialSubscriptionToStandardTask = Task.Run(async () =>
                 {
+                    _logger.LogInformation(startingMsg, nameof(SubscriptionWorker), nameof(upgradeTrialSubscriptionToStandardTask));
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                     await mediator.Send(new UpgradeTrialSubscriptionToStandardCommand(rangeInHoursBetweenDates), cancellationToken);
+                    _logger.LogInformation(completingMsg, nameof(SubscriptionWorker), nameof(upgradeTrialSubscriptionToStandardTask));
                 });
 
-                Task renwalSubscriptionTask = Task.Run(async () =>
+                Task renewalSubscriptionTask = Task.Run(async () =>
                 {
+                    _logger.LogInformation(startingMsg, nameof(SubscriptionWorker), nameof(renewalSubscriptionTask));
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                     await mediator.Send(new RenwalSubscriptionCommand(rangeInHoursBetweenDates), cancellationToken);
+                    _logger.LogInformation(completingMsg, nameof(SubscriptionWorker), nameof(renewalSubscriptionTask));
                 });
+
+                // Wait for both tasks to complete
+                await Task.WhenAll(upgradeTrialSubscriptionToStandardTask, renewalSubscriptionTask);
+
 
                 Task handleExpiredSubscriptionTask = Task.Run(async () =>
                 {
+                    _logger.LogInformation(startingMsg, nameof(SubscriptionWorker), nameof(handleExpiredSubscriptionTask));
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                     await mediator.Send(new HandleExpiredSubscriptionCommand(rangeInHoursBetweenDates), cancellationToken);
+                    _logger.LogInformation(completingMsg, nameof(SubscriptionWorker), nameof(handleExpiredSubscriptionTask));
                 });
 
                 Task resetSubscriptionsFeaturesTask = Task.Run(async () =>
                 {
+                    _logger.LogInformation(startingMsg, nameof(SubscriptionWorker), nameof(resetSubscriptionsFeaturesTask));
                     using var scope = _serviceScopeFactory.CreateScope();
                     var subscriptionService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
                     // TODO : review implementation
                     // Reset Subscriptions Features
                     await subscriptionService.ResetSubscriptionsFeaturesAsync();
+                    _logger.LogInformation(completingMsg, nameof(SubscriptionWorker), nameof(resetSubscriptionsFeaturesTask));
                 });
 
                 await Task.WhenAll(new[] { upgradeTrialSubscriptionToStandardTask,
-                                           renwalSubscriptionTask,
+                                           renewalSubscriptionTask,
                                            handleExpiredSubscriptionTask,
                                            resetSubscriptionsFeaturesTask });
             }

@@ -32,7 +32,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
 
         public bool EnsureIsForcedDowngrade(SubscriptionRenewal subscriptionRenewal)
         {
-            return !(subscriptionRenewal.IsForced && subscriptionRenewal.Type == SubscriptionRenewalTypeEnum.Downgrade);
+            return (subscriptionRenewal.IsForced && subscriptionRenewal.Type == SubscriptionRenewalTypeEnum.ForcedDowngrade);
         }
     }
 }

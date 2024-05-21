@@ -66,82 +66,104 @@ public class RenwalSubscriptionCommandHandler : IRequestHandler<RenwalSubscripti
     {
         try
         {
-            var fromDate = DateTime.UtcNow;
-            var toDate = fromDate.AddHours(command.RangeInHoursBetweenDates);
+            var toDate = DateTime.UtcNow;
+            var fromDate = toDate.AddHours(-command.RangeInHoursBetweenDates);
 
             var subscriptionRenewals = await _dbContext.SubscriptionRenewals
                                                      .Include(x => x.Subscription)
-                                                     .Where(x => x.SubscriptionRenewalDate >= fromDate &&
-                                                                 x.SubscriptionRenewalDate <= toDate)
+                                                     .Where(x => fromDate <= x.SubscriptionRenewalDate && x.SubscriptionRenewalDate <= toDate)
                                                      .ToListAsync(cancellationToken);
 
-            foreach (var subscriptionRenewal in subscriptionRenewals)
+            foreach (var item in subscriptionRenewals)
             {
-                if (!EnsureSubscriptionHasNotForcedDowngrade(subscriptionRenewal, subscriptionRenewals))
-                    continue;
-
-                ArgumentNullException.ThrowIfNull(subscriptionRenewal.Subscription);
-
-                if (!_utilities.EnsureAllowedSubscriptionRenewalStatus(subscriptionRenewal.Status))
+                try
                 {
-                    throw new NullReferenceException($"Cannot renew({subscriptionRenewal.Type}) the subscription in {subscriptionRenewal.Status} status.");
+                    var subscriptionRenewal = item;
+                    var subscription = item.Subscription;
+
+                    var forcedDowngradeAttribute = await _genericAttributeService.GetAttributeAsync<Subscription, SubscriptionRenewal>(
+                                                             subscriptionRenewal.SubscriptionId,
+                                                             Consts.GenericAttributeKey.ForcedDowngrade,
+                                                             null,
+                                                             cancellationToken);
+                    if (forcedDowngradeAttribute != null)
+                    {
+                        // that means it is ForcedDowngrade 
+                        subscriptionRenewal = forcedDowngradeAttribute;
+                        subscription = await _dbContext.Subscriptions
+                                                 .Where(x => x.Id == subscriptionRenewal.SubscriptionId)
+                                                 .SingleOrDefaultAsync(cancellationToken);
+                    }
+
+                    ArgumentNullException.ThrowIfNull(subscription);
+
+                    if (!_utilities.EnsureAllowedSubscriptionRenewalStatus(subscriptionRenewal.Status))
+                    {
+                        throw new NullReferenceException($"Cannot  do {subscriptionRenewal.Type} to the subscription in {subscriptionRenewal.Status} status, with {item.GetType().Name} id:{item.Id}.");
+                    }
+
+                    var subscriptionRenewalProcessor = _subscriptionRenewalFactory.InstantiateProcessor(subscriptionRenewal.Type);
+
+                    if (!_utilities.EnsureIsForcedDowngrade(subscriptionRenewal))
+                    {
+                        await UpdateSubscriptionRenewalStatusAsync(subscriptionRenewal, SubscriptionRenewalStatus.PendingPayment, cancellationToken);
+
+                        var linkedCard = await _dbContext.LinkedCards.Where(x => x.EntityId == subscriptionRenewal.Id &&
+                                                                                 x.EntityType == Common.Enums.EntityType.SubscriptionRenewal)
+                                                                     .SingleOrDefaultAsync(cancellationToken);
+                        ArgumentNullException.ThrowIfNull(linkedCard);
+
+                        var orderId = await _genericAttributeService.GetAttributeAsync<SubscriptionRenewal, Guid?>(
+                                                               subscriptionRenewal.Id,
+                                                               Consts.GenericAttributeKey.OrderOfSubscriptionRenewal,
+                                                               null,
+                                                               cancellationToken);
+                        Order? order;
+
+                        if (orderId is null)
+                        {
+                            order = await GenerateOrderAsync(subscription, subscriptionRenewal, linkedCard, subscriptionRenewalProcessor.OrderType, cancellationToken);
+                            await _genericAttributeService.SaveAttributeAsync<SubscriptionRenewal, Guid?>(subscriptionRenewal.Id,
+                                                                                                    Consts.GenericAttributeKey.OrderOfSubscriptionRenewal,
+                                                                                                     order.Id,
+                                                                                                     cancellationToken);
+                        }
+                        else
+                        {
+                            order = await _dbContext.Orders
+                                                   .Include(x => x.OrderItems)
+                                                   .Where(x => x.Id == orderId)
+                                                   .SingleOrDefaultAsync(cancellationToken);
+                            ArgumentNullException.ThrowIfNull(order);
+                        }
+
+                        var paymentResult = await _paymentService.DoRecurringPaymentAsync(order,
+                                                         linkedCard.ReferenceId,
+                                                         subscriptionRenewalProcessor.PaymentPurpose,
+                                                         subscriptionRenewal.CreatedByUserId,
+                                                         subscriptionRenewal.CreatedByUserType,
+                                                         cancellationToken);
+                        if (!paymentResult.Success)
+                        {
+                            await UpdateSubscriptionRenewalStatusAsync(subscriptionRenewal, SubscriptionRenewalStatus.FailedPayment, cancellationToken);
+                            continue;
+                        }
+                    }
+
+                    await UpdateSubscriptionRenewalStatusAsync(subscriptionRenewal, SubscriptionRenewalStatus.preparing, cancellationToken);
+
+                    var preparationModel = new SubscriptionRenewalPreparationModel(subscription, subscriptionRenewal);
+
+                    await subscriptionRenewalProcessor.Handle(preparationModel, cancellationToken);
+
+                    await _subscriptionService.ActivateSubscriptionAsync(subscription, cancellationToken);
                 }
 
-                var subscriptionRenewalProcessor = _subscriptionRenewalFactory.InstantiateProcessor(subscriptionRenewal.Type);
-
-                if (!_utilities.EnsureIsForcedDowngrade(subscriptionRenewal))
+                catch (Exception ex)
                 {
-                    await UpdateSubscriptionRenewalStatusAsync(subscriptionRenewal, SubscriptionRenewalStatus.PendingPayment, cancellationToken);
-
-                    var linkedCard = await _dbContext.LinkedCards.Where(x => x.EntityId == subscriptionRenewal.Id &&
-                                                                             x.EntityType == Common.Enums.EntityType.SubscriptionRenewal)
-                                                                 .SingleOrDefaultAsync(cancellationToken);
-                    ArgumentNullException.ThrowIfNull(linkedCard);
-
-                    var orderId = await _genericAttributeService.GetAttributeAsync<SubscriptionRenewal, Guid?>(
-                                                           subscriptionRenewal.Id,
-                                                           Consts.GenericAttributeKey.OrderOfSubscriptionRenewal,
-                                                           null,
-                                                           cancellationToken);
-                    Order? order;
-
-                    if (orderId is null)
-                    {
-                        order = await GenerateOrderAsync(subscriptionRenewal.Subscription, subscriptionRenewal, linkedCard, subscriptionRenewalProcessor.OrderType, cancellationToken);
-                        await _genericAttributeService.SaveAttributeAsync<SubscriptionRenewal, Guid?>(subscriptionRenewal.Id,
-                                                                                                Consts.GenericAttributeKey.OrderOfSubscriptionRenewal,
-                                                                                                 order.Id,
-                                                                                                 cancellationToken);
-                    }
-                    else
-                    {
-                        order = await _dbContext.Orders
-                                               .Include(x => x.OrderItems)
-                                               .Where(x => x.Id == orderId)
-                                               .SingleOrDefaultAsync(cancellationToken);
-                        ArgumentNullException.ThrowIfNull(order);
-                    }
-
-                    var paymentResult = await _paymentService.PayAsync(order,
-                                                     linkedCard.ReferenceId,
-                                                     subscriptionRenewalProcessor.PaymentPurpose,
-                                                     subscriptionRenewal.CreatedByUserId,
-                                                     subscriptionRenewal.CreatedByUserType,
-                                                     cancellationToken);
-                    if (!paymentResult.Success)
-                    {
-                        await UpdateSubscriptionRenewalStatusAsync(subscriptionRenewal, SubscriptionRenewalStatus.FailedPayment, cancellationToken);
-                        continue;
-                    }
+                    var errorMsg = $"An error occurred in handler({this.GetType().Name}) while handling the {item.GetType().Name}, with identifier id:{item.Id}!";
+                    _logger.LogError(ex, errorMsg);
                 }
-
-                await UpdateSubscriptionRenewalStatusAsync(subscriptionRenewal, SubscriptionRenewalStatus.preparing, cancellationToken);
-
-                var preparationModel = new SubscriptionRenewalPreparationModel(subscriptionRenewal.Subscription, subscriptionRenewal);
-
-                await subscriptionRenewalProcessor.Handle(preparationModel, cancellationToken);
-
-                await _subscriptionService.ActivateSubscriptionAsync(subscriptionRenewal.Subscription, cancellationToken);
             }
             return Result.Successful();
         }
@@ -227,16 +249,14 @@ public class RenwalSubscriptionCommandHandler : IRequestHandler<RenwalSubscripti
         subscriptionRenewal.ModificationDate = DateTime.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
-    private bool EnsureSubscriptionHasNotForcedDowngrade(SubscriptionRenewal subscriptionRenewal, List<SubscriptionRenewal> subscriptionRenewals)
+    private bool IsSubscriptionHasForcedDowngrade(SubscriptionRenewal subscriptionRenewal, List<SubscriptionRenewal> subscriptionRenewals)
     {
-        if (!subscriptionRenewal.IsForced &&
-                   subscriptionRenewals.Where(x => x.Id != subscriptionRenewal.Id &&
-                                                   x.SubscriptionId == subscriptionRenewal.SubscriptionId &&
-                                                   x.IsForced).Any())
-        {
-            return false;
-        }
-        return true;
+        var currentRenewalIsNotForced = !subscriptionRenewal.IsForced;
+        var isSubscriptionHasForcedOtherThanCurrentRenewal = subscriptionRenewals.Where(x => x.IsForced &&
+                                                                       x.SubscriptionId == subscriptionRenewal.SubscriptionId &&
+                                                                       x.Id != subscriptionRenewal.Id).Any();
+
+        return currentRenewalIsNotForced && isSubscriptionHasForcedOtherThanCurrentRenewal;
     }
 }
 

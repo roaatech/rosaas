@@ -1,4 +1,6 @@
-﻿namespace Roaa.Rosas.Application.Payment.Models
+﻿using Roaa.Rosas.Domain.Entities.Management;
+
+namespace Roaa.Rosas.Application.Payment.Models
 {
     public record CheckoutResultModel
     {
@@ -13,7 +15,11 @@
     }
 
 
-
+    public record CompleteSessionResultModel
+    {
+        public string? NavigationUrl { get; set; }
+        public Order Order { get; set; } = new();
+    }
 
 
 }
