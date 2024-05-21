@@ -1,4 +1,4 @@
-﻿namespace Roaa.Rosas.Application.Attributes
+﻿namespace Roaa.Rosas.Domain.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class TenantAvailabilityAttribute : BaseCustomAttribute
