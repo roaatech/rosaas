@@ -5,7 +5,7 @@ using Roaa.Rosas.Domain.Events.Management;
 
 namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandlers
 {
-    public class SubscriptionUpgradeEnabledEventHandler : BaseWebhookEventHandler<SubscriptionDowngradeEnabledEvent, dynamic>
+    public class SubscriptionUpgradeEnabledEventHandler : BaseWebhookEventHandler<SubscriptionUpgradeEnabledEvent, dynamic>
     {
         protected override WebhookEvents EventType => WebhookEvents.UpgradeEnabled;
 

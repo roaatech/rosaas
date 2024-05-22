@@ -83,8 +83,8 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints
                 Url = model.Url,
                 SigningSecret = model.SigningSecret,
                 Description = model.Description,
-                EntityId = model.EntityId,
-                EntityType = model.EntityType,
+                EntityId = entityId,
+                EntityType = entityType,
                 IsActive = model.IsActive,
                 EventsToListen = model.EventsToListen.Select(x => new WebhookEndpointEvent
                 {
@@ -139,7 +139,6 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints
             webhookEndpoint.Url = model.Url;
             webhookEndpoint.SigningSecret = model.SigningSecret;
             webhookEndpoint.Description = model.Description;
-            webhookEndpoint.IsActive = model.IsActive;
 
 
 
