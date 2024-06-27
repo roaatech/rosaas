@@ -28,6 +28,7 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
             var metadata = new
             {
                 SubscriptionExpirationDate = Event!.Subscription.EndDate,
+                SubscriptionNewPlan = Event!.Subscription.Plan!.DisplayName,
                 Date = DateTime.UtcNow,
             };
 

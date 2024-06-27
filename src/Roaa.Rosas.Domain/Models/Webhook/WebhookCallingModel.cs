@@ -1,6 +1,4 @@
-﻿using Roaa.Rosas.Domain.Entities.Management;
-
-namespace Roaa.Rosas.Domain.Models.Webhook
+﻿namespace Roaa.Rosas.Domain.Models.Webhook
 {
     public record WebhookCallingModel<T> where T : class, new()
     {
@@ -12,8 +10,11 @@ namespace Roaa.Rosas.Domain.Models.Webhook
     public record GlobalPayload<TPayload>
     {
         public string TenantSystemName { get; set; } = string.Empty;
-        public WebhookEvents EventType { get; set; }
+        public int EventCode { get; set; }
+        public string Event { get; set; } = string.Empty;
         public TPayload? MetaData { get; set; }
+        public DateTime Created { get; } = DateTime.UtcNow;
+
     }
     public record WebhookEndpointModel
     {

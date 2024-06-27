@@ -28,7 +28,7 @@ namespace Roaa.Rosas.Application.Services.IdentityServer4.EventHandlers
 
         public async Task Handle(ProductCreatedEvent @event, CancellationToken cancellationToken)
         {
-            var clientName = await _dbContext.Clients
+            var clientName = await _dbContext.ProductOwners
                                          .Where(x => x.Id == @event.Product.ClientId)
                                          .Select(x => x.SystemName)
                                          .SingleOrDefaultAsync(cancellationToken);

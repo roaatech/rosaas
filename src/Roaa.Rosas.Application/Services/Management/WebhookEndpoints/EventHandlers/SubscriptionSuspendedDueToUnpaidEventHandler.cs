@@ -27,6 +27,9 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
             var metadata = new
             {
                 Date = DateTime.UtcNow,
+                Plan = Event!.Subscription.Plan!.SystemName,
+                PlanPrice = Event!.Subscription.PlanPrice!.Price,
+                plancycle = Event!.Subscription.PlanPrice!.PlanCycle,
             };
 
             return (metadata, Event!.Subscription.ProductId, tenantSystemName);

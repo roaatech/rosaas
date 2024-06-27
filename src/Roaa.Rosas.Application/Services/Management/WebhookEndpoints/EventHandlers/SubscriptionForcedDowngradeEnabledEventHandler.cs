@@ -22,11 +22,24 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
             var subscription = await DbContext!.Subscriptions.Where(x => x.Id == Event!.SubscriptionId)
                                                             .Select(x => new { x.ProductId, x.Tenant!.SystemName })
                                                             .SingleOrDefaultAsync(cancellationToken);
+
+
+            var downgradedPlan = await DbContext!.Plans
+                                     .Where(plan => plan.Id == Event!.NewPlanId)
+                                     .Select(plan => new { plan.SystemName })
+                                     .SingleOrDefaultAsync(cancellationToken);
+
+            var downgradedPlanPrice = await DbContext!.PlanPrices
+                                                 .Where(planPrice => planPrice.Id == Event!.NewPlanPriceId)
+                                                 .Select(planPrice => new { price = planPrice.Price, planCycle = planPrice.PlanCycle })
+                                                 .SingleOrDefaultAsync(cancellationToken);
+
             var metadata = new
             {
                 downgradeEnabled = true,
-                downgradedPlanId = Event!.NewPlanId,
-                downgradedPlanPriceId = Event!.NewPlanPriceId,
+                forcedDowngradedPlanPrice = downgradedPlanPrice!.price,
+                forcedDowngradedPlanCycle = downgradedPlanPrice.planCycle,
+                forcedDowngradedPlanSystemName = downgradedPlan!.SystemName,
                 downgradeForced = true
             };
 

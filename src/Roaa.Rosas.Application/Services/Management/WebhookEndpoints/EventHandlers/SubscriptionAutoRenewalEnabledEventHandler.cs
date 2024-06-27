@@ -23,12 +23,12 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
                                                             .Select(x => new { x.ProductId, x.Tenant!.SystemName })
                                                             .SingleOrDefaultAsync(cancellationToken);
 
-
             var metadata = new
             {
-                autoRenewal = false,
+                autoRenewalEnabled = true,
                 renewalsCount = Event!.SubscriptionRenewal.RenewalsCount,
-                isContinuousRenewal = Event.SubscriptionRenewal.IsContinuousRenewal
+                isContinuousRenewal = Event.SubscriptionRenewal.IsContinuousRenewal,
+                renewalCycle = Event!.SubscriptionRenewal.PlanCycle
             };
 
             return (metadata, subscription!.ProductId, subscription.SystemName);

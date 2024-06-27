@@ -20,6 +20,7 @@
             public const string Workflow = "Workflow";
             public const string Orders = "Orders";
             public const string WebhookEndpoints = "WebhookEndpoints";
+            public const string ProductOwners = "ProductOwners";
         }
 
         public class Identity

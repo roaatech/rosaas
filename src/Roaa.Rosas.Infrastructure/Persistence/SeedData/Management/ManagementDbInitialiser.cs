@@ -93,9 +93,9 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
         {
             foreach (var client in GetClients())
             {
-                if (!_dbContext.Clients.Any(x => x.Id == client.Id))
+                if (!_dbContext.ProductOwners.Any(x => x.Id == client.Id))
                 {
-                    _dbContext.Clients.Add(client);
+                    _dbContext.ProductOwners.Add(client);
                 }
             }
 
@@ -303,11 +303,11 @@ namespace Roaa.Rosas.Infrastructure.Persistence.SeedData.Management
 
             await _dbContext.SaveChangesAsync();
         }
-        private List<Client> GetClients()
+        private List<ProductOwner> GetClients()
         {
-            return new List<Client>
+            return new List<ProductOwner>
             {
-                new Client
+                new ProductOwner
                     {
                         Id = new Guid(SystemConsts.Clients.Properties.Vlaue.RosasClientId),
                         SystemName = "roaa",

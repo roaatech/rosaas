@@ -5,10 +5,10 @@ using Roaa.Rosas.Infrastructure.Common;
 
 namespace Roaa.Rosas.Infrastructure.Persistence.Configurations.Identity
 {
-    public class ClientConfiguration : IEntityTypeConfiguration<Client>
+    public class ClientConfiguration : IEntityTypeConfiguration<ProductOwner>
     {
         #region Configure 
-        public void Configure(EntityTypeBuilder<Client> builder)
+        public void Configure(EntityTypeBuilder<ProductOwner> builder)
         {
             builder.ToTableName("RosasClients");
             builder.HasKey(x => x.Id);

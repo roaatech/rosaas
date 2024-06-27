@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Roaa.Rosas.Application.Interfaces;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
+using Roaa.Rosas.Common.Localization;
 using Roaa.Rosas.Domain.Common;
 using Roaa.Rosas.Domain.Entities.Management;
 using Roaa.Rosas.Domain.Models.Webhook;
@@ -85,9 +86,10 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
             {
                 Payload = new GlobalPayload<TPayloadMetadata>
                 {
-                    EventType = EventType,
+                    EventCode = (int)EventType,
                     TenantSystemName = _tenantSystemName,
                     MetaData = _metadata,
+                    Event = EventType.Localize(LanguageEnum.en),
                 },
                 WebhookEndpoints = await GetWebhookEndpointsAsync(cancellationToken)
             };

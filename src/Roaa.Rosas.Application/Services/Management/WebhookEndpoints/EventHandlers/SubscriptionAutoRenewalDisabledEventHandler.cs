@@ -20,12 +20,13 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
         protected async override Task<(dynamic metadata, Guid productId, string tenantSystemName)> PreparePayloadAsync(CancellationToken cancellationToken = default)
         {
             var subscription = await DbContext!.Subscriptions.Where(x => x.Id == Event!.SubscriptionRenewal.SubscriptionId)
-                                                            .Select(x => new { x.ProductId, x.Tenant!.SystemName })
+                                                            .Select(x => new { x.ProductId, x.Tenant!.SystemName, x.Plan })
                                                             .SingleOrDefaultAsync(cancellationToken);
 
             var metadata = new
             {
-                Date = DateTime.UtcNow,
+                CurrentSubscriptionPlan = subscription!.Plan!.SystemName,
+                CancellationTime = DateTime.UtcNow,
             };
             return (metadata, subscription!.ProductId, subscription.SystemName);
         }

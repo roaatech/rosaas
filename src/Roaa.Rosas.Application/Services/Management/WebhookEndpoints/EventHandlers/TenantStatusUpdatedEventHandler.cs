@@ -28,6 +28,8 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
             {
                 NewTenantStatus = Event!.Subscription.Status,
                 Date = DateTime.UtcNow,
+                Plan = Event!.Subscription.Plan!.SystemName,
+                planPrice = Event!.Subscription.PlanPrice!.Price,
             };
 
             return (metadata, Event!.Subscription.ProductId, tenantSystemName);

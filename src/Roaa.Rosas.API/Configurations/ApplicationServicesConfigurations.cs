@@ -16,6 +16,8 @@ using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures;
 using Roaa.Rosas.Application.Services.Management.PlanPrices;
 using Roaa.Rosas.Application.Services.Management.Plans;
+using Roaa.Rosas.Application.Services.Management.ProductOwner;
+using Roaa.Rosas.Application.Services.Management.ProductOwners;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Settings;
 using Roaa.Rosas.Application.Services.Management.Specifications;
@@ -97,6 +99,7 @@ namespace Roaa.Rosas.Framework.Configurations
             services.AddScoped<ITrialProcessingService, TrialProcessingService>();
             services.AddScoped<IWebhookEndpointService, WebhookEndpointService>();
             services.AddScoped<IWebhookAPI, WebhookAPI>();
+            services.AddScoped<IProductOwnerService, ProductOwnerService>();
 
 
 

@@ -95,8 +95,6 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             return pagedUsers;
         }
 
-
-
         public async Task<Result<List<CustomLookupItemDto<Guid>>>> GetProductsLookupListAsync(string clientName, CancellationToken cancellationToken = default)
         {
 
@@ -115,6 +113,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             return Result<List<CustomLookupItemDto<Guid>>>.Successful(products);
         }
+
 
         public async Task<Result<List<ProductPublishedListItemDto>>> GetProductPublishedListAsync(string clientName, CancellationToken cancellationToken = default)
         {

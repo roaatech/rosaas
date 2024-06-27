@@ -26,7 +26,7 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
 
             var metadata = new
             {
-                Date = DateTime.UtcNow,
+                ChangingDate = DateTime.UtcNow,
             };
 
             return (metadata, Event!.ProductId, tenantSystemName);

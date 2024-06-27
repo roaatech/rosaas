@@ -18,11 +18,16 @@ namespace Roaa.Rosas.Application.Services.Management.WebhookEndpoints.EventHandl
 
         protected async override Task<(dynamic metadata, Guid productId, string tenantSystemName)> PreparePayloadAsync(CancellationToken cancellationToken = default)
         {
+            var subscription = Event!.Tenant.Subscriptions!.First();
             var metadata = new
             {
+                creationDate = subscription.CreationDate,
+                endDate = subscription.EndDate,
+                Plan = subscription.Plan!.SystemName,
+                planPrice = subscription.PlanPrice!.Price,
                 Date = DateTime.UtcNow,
             };
-            return (metadata, Event!.Tenant.Subscriptions!.First().ProductId, Event!.Tenant.SystemName);
+            return (metadata, subscription.ProductId, Event!.Tenant.SystemName);
         }
     }
 }

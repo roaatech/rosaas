@@ -37,6 +37,14 @@ namespace Roaa.Rosas.Framework.Configurations
                                                                                 UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
                                                                                 UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
                 });
+                configure.AddPolicy(AuthPolicy.Management.ProductOwners, builder =>
+               {
+                   builder.RequireScope(SystemConsts.Scopes.Api);
+                   builder.RequireClaim(SystemConsts.Clients.Claims.ClaimType, UserType.SuperAdmin.ToSnakeCaseNamingStrategy(),
+                                                                               UserType.ClientAdmin.ToSnakeCaseNamingStrategy(),
+                                                                               UserType.ProductAdmin.ToSnakeCaseNamingStrategy(),
+                                                                               UserType.TenantAdmin.ToSnakeCaseNamingStrategy());
+               });
 
                 configure.AddPolicy(AuthPolicy.Identity.ProductAdminUser, builder =>
                 {
