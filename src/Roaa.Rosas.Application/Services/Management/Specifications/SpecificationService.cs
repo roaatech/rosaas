@@ -46,12 +46,26 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
             return await GetSpecificationsListAsync(x => x.ProductId == productId, cancellationToken);
         }
 
-        public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductNamesync(string productName, CancellationToken cancellationToken = default)
-        {
-            return await GetSpecificationsListAsync(x => string.IsNullOrWhiteSpace(productName) ||
-                                                                     productName.ToLower().Equals(x.Product.SystemName), cancellationToken);
-        }
 
+        public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductNameAsync(string productOwnerName, string productName, CancellationToken cancellationToken = default)
+        {
+            var productId = await _dbContext.Products
+                                          .AsNoTracking()
+                                          .Where(p => p.ProductOwner.SystemName.Equals(productOwnerName.ToLower()) &&
+                                                      p.SystemName.Equals(productName.ToLower()))
+                                          .Select(x => x.Id)
+                                          .SingleOrDefaultAsync(cancellationToken);
+
+            if (productId == null)
+            {
+                return Result<List<SpecificationListItemDto>>.Fail("Product not found");
+            }
+
+            return await GetSpecificationsListAsync(
+                x => x.ProductId == productId,
+                cancellationToken
+            );
+        }
 
         public async Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListAsync(Expression<Func<Specification, bool>> predicate, CancellationToken cancellationToken = default)
         {

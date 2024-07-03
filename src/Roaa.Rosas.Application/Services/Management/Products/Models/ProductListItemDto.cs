@@ -9,7 +9,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products.Models
         public string SystemName { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string DefaultHealthCheckUrl { get; set; } = string.Empty;
-        public LookupItemDto<Guid> Client { get; set; } = new();
+        public LookupItemDto<Guid> ProductOwner { get; set; } = new();
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
         public ProductTrialType TrialType { get; set; }

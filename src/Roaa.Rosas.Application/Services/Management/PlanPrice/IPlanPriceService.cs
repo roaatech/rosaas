@@ -7,9 +7,9 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
     {
         Task<Result<List<PlanPriceListItemDto>>> GetPlanPricesListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 
-        Task<Result<List<PlanPricePublishedListItemDto>>> GetPublishedPlanPricesListByProductNameAsync(string productName, CancellationToken cancellationToken = default);
+        Task<Result<List<PlanPricePublishedListItemDto>>> GetPublishedPlanPricesListByProductNameAsync(string productOwnerName, string productName, CancellationToken cancellationToken = default);
 
-        Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceByPlanPriceNameAsync(string productName, string planPriceName, CancellationToken cancellationToken = default);
+        Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceByPlanPriceNameAsync(string productOwnerName, string productName, string planPriceName, CancellationToken cancellationToken = default);
 
         Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceByIdAsync(Guid planPriceId, CancellationToken cancellationToken = default);
 

@@ -39,22 +39,30 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
 
         #region Services  
 
-        public async Task<Result<List<PlanFeatureListItemDto>>> GetPublishedPlanFeaturesListByProductNameAsync(string productName, CancellationToken cancellationToken = default)
+        public async Task<Result<List<PlanFeatureListItemDto>>> GetPublishedPlanFeaturesListByProductNameAsync(string productOwnerName, string productName, CancellationToken cancellationToken = default)
         {
+            var productId = await _dbContext.Products
+                                          .AsNoTracking()
+                                          .Where(p => p.ProductOwner.SystemName.Equals(productOwnerName.ToLower()) &&
+                                                      p.SystemName.Equals(productName.ToLower()))
+                                          .Select(x => x.Id)
+                                          .SingleOrDefaultAsync(cancellationToken);
+
+            if (productId == Guid.Empty)
+            {
+                return Result<List<PlanFeatureListItemDto>>.Fail("Product not found");
+            }
+
             var planFeatures = await _dbContext.PlanFeatures
                                               .AsNoTracking()
-                                              .Where(pf => productName.ToLower().Equals(pf.Plan.Product.SystemName) && pf.Plan.IsPublished)
+                                              .Where(pf => pf.Plan.ProductId == productId && pf.Plan.IsPublished)
                                               .Select(GetPlanFeatureListItemDtoSelector())
                                               .OrderBy(x => x.Plan.DisplayOrder)
                                               .ToListAsync(cancellationToken);
 
-
-
-
-
-
             return Result<List<PlanFeatureListItemDto>>.Successful(planFeatures);
         }
+
 
         public async Task<Result<List<PlanFeatureListItemDto>>> GetPlanFeaturesListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
         {
@@ -93,15 +101,26 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
             return Result<List<PlanFeatureListItemDto>>.Successful(planFeatures);
         }
 
-        public async Task<Result<List<PlanFeatureListItemDto>>> GetPublishedPlanFeaturesListByPlanNameAsync(string productName, string planName, CancellationToken cancellationToken = default)
+        public async Task<Result<List<PlanFeatureListItemDto>>> GetPublishedPlanFeaturesListByPlanNameAsync(string productOwnerName, string productName, string planName, CancellationToken cancellationToken = default)
         {
+            var product = await _dbContext.Products
+                                          .AsNoTracking()
+                                          .Where(p => p.ProductOwner.SystemName.ToLower().Equals(productOwnerName.ToLower()) &&
+                                                      p.SystemName.ToLower().Equals(productName.ToLower()))
+                                          .FirstOrDefaultAsync(cancellationToken);
+            if (product == null)
+            {
+                return Result<List<PlanFeatureListItemDto>>.Fail("Product not found");
+            }
+
             var planFeatures = await _dbContext.PlanFeatures
-                                              .AsNoTracking()
-                                              .Where(pf => productName.ToLower().Equals(pf.Plan.Product.SystemName) &&
-                                                            planName.ToLower().Equals(pf.Plan.SystemName) && pf.Plan.IsPublished)
-                                              .Select(GetPlanFeatureListItemDtoSelector())
-                                              .OrderBy(x => x.Plan.DisplayOrder)
-                                              .ToListAsync(cancellationToken);
+                                  .AsNoTracking()
+                                  .Where(pf => pf.Plan.ProductId == product.Id &&
+                                               planName.ToLower().Equals(pf.Plan.SystemName.ToLower()) &&
+                                               pf.Plan.IsPublished)
+                                  .Select(GetPlanFeatureListItemDtoSelector())
+                                  .OrderBy(x => x.Plan.DisplayOrder)
+                                  .ToListAsync(cancellationToken);
 
             return Result<List<PlanFeatureListItemDto>>.Successful(planFeatures);
         }

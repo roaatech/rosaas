@@ -60,7 +60,7 @@ namespace Roaa.Rosas.API.Controllers.Admin
             return EmptyResult(await _productOwnerService.UpdateProductOwnerAsync(id, model, cancellationToken));
         }
 
-        [HttpPut("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductOwnerAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return EmptyResult(await _productOwnerService.DeleteProductOwnerAsync(id, cancellationToken));

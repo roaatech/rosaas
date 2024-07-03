@@ -5,11 +5,11 @@ namespace Roaa.Rosas.Application.Services.Management.PlanFeatures
 {
     public interface IPlanFeatureService
     {
-        Task<Result<List<PlanFeatureListItemDto>>> GetPublishedPlanFeaturesListByProductNameAsync(string productName, CancellationToken cancellationToken = default);
+        Task<Result<List<PlanFeatureListItemDto>>> GetPublishedPlanFeaturesListByProductNameAsync(string productOwnerName, string productName, CancellationToken cancellationToken = default);
 
         Task<Result<List<PlanFeatureListItemDto>>> GetPlanFeaturesListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 
-        Task<Result<List<PlanFeatureListItemDto>>> GetPublishedPlanFeaturesListByPlanNameAsync(string productName, string planName, CancellationToken cancellationToken = default);
+        Task<Result<List<PlanFeatureListItemDto>>> GetPublishedPlanFeaturesListByPlanNameAsync(string productOwnerName, string productName, string planName, CancellationToken cancellationToken = default);
 
         Task<Result<CreatedResult<Guid>>> CreatePlanFeatureAsync(CreatePlanFeatureModel model, Guid productId, CancellationToken cancellationToken = default);
 

@@ -10,6 +10,7 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Models
         public AutoRenewalPlanDto Plan { get; set; } = new();
         public CustomLookupItemDto<Guid> Subscription { get; set; } = new();
         public CustomLookupItemDto<Guid> Product { get; set; } = new();
+        public CustomLookupItemDto<Guid> ProductOwner { get; set; } = new();
         public string? Comment { get; set; }
         public DateTime EnabledDate { get; set; }
         public DateTime? SubscriptionRenewalDate { get; set; }
@@ -26,7 +27,6 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals.Models
             public PlanCycle Cycle { get; set; }
             public decimal Price { get; set; }
         }
-
 
 
 

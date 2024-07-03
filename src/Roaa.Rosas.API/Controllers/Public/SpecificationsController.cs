@@ -25,10 +25,10 @@ namespace Roaa.Rosas.Framework.Controllers.Public
         #endregion
 
         #region Actions    
-        [HttpGet("Product/{name}/[controller]")]
-        public async Task<IActionResult> GetSpecificationPublishedListAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        [HttpGet("ProductOwner/{productOwnerName}/Product/{productName}/[controller]")]
+        public async Task<IActionResult> GetSpecificationPublishedListAsync([FromRoute] string productOwnerName, string productName, CancellationToken cancellationToken = default)
         {
-            return ListResult(await _specificationService.GetSpecificationsListByProductNamesync(name, cancellationToken));
+            return ListResult(await _specificationService.GetSpecificationsListByProductNameAsync(productOwnerName, productName, cancellationToken));
         }
         #endregion
 

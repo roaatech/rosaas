@@ -75,6 +75,12 @@ namespace Roaa.Rosas.Application.Services.Management.SubscriptionRenewals
                                                                  SystemName = autoRenewal.Subscription.Product.SystemName,
                                                                  DisplayName = autoRenewal.Subscription.Product.DisplayName,
                                                              },
+                                                             ProductOwner = new Common.Models.CustomLookupItemDto<Guid>
+                                                             {
+                                                                 Id = autoRenewal.Subscription.ProductId,
+                                                                 SystemName = autoRenewal.Subscription.Product.SystemName,
+                                                                 DisplayName = autoRenewal.Subscription.Product.DisplayName,
+                                                             },
                                                              Subscription = new Common.Models.CustomLookupItemDto<Guid>
                                                              {
                                                                  Id = autoRenewal.SubscriptionId,

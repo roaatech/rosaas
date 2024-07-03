@@ -24,7 +24,7 @@
         public Guid? TrialPlanPriceId { get; set; }
         public bool IsPublished { get; set; }
         public bool IsDeleted { get; set; }
-        public virtual ProductOwner? Client { get; set; }
+        public virtual ProductOwner? ProductOwner { get; set; }
         public virtual ICollection<Subscription>? Subscriptions { get; set; }
         public virtual ICollection<Feature>? Features { get; set; }
         public virtual ICollection<Plan>? Plans { get; set; }

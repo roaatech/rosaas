@@ -68,14 +68,14 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         public async Task<PaginatedResult<ProductListItemDto>> GetProductsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default)
         {
             var query = _dbContext.Products.AsNoTracking()
-                                          .Include(x => x.Client)
+                                          .Include(x => x.ProductOwner)
                                           .Select(product => new ProductListItemDto
                                           {
                                               Id = product.Id,
                                               DefaultHealthCheckUrl = product.DefaultHealthCheckUrl,
                                               SystemName = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
                                               DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
-                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
+                                              ProductOwner = new LookupItemDto<Guid>(product.ClientId, product.ProductOwner.SystemName),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
                                               TrialType = product.TrialType,
@@ -101,7 +101,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             var products = await _dbContext.Products
                                            .Where(x => string.IsNullOrWhiteSpace(clientName) ||
-                                                        clientName.ToLower().Equals(x.Client.SystemName))
+                                                        clientName.ToLower().Equals(x.ProductOwner.SystemName))
                                             .AsNoTracking()
                                             .Select(x => new CustomLookupItemDto<Guid>
                                             {
@@ -121,14 +121,14 @@ namespace Roaa.Rosas.Application.Services.Management.Products
 
             var products = await _dbContext.Products
                                            .Where(x => string.IsNullOrWhiteSpace(clientName) ||
-                                                        clientName.ToLower().Equals(x.Client.SystemName))
+                                                        clientName.ToLower().Equals(x.ProductOwner.SystemName))
                                             .AsNoTracking()
                                              .Select(product => new ProductPublishedListItemDto
                                              {
                                                  Id = product.Id,
                                                  SystemName = !string.IsNullOrWhiteSpace(product.SystemName) ? product.SystemName : product.DisplayName,
                                                  DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
-                                                 Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
+                                                 Client = new LookupItemDto<Guid>(product.ClientId, product.ProductOwner.SystemName),
                                                  Description = product.Description,
                                                  CreatedDate = product.CreationDate,
                                                  EditedDate = product.ModificationDate,
@@ -178,7 +178,7 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                                               DisplayName = !string.IsNullOrWhiteSpace(product.DisplayName) ? product.DisplayName : product.SystemName,
                                               Description = product.Description,
                                               IsPublished = product.IsPublished,
-                                              Client = new LookupItemDto<Guid>(product.ClientId, product.Client.SystemName),
+                                              Client = new LookupItemDto<Guid>(product.ClientId, product.ProductOwner.SystemName),
                                               CreatedDate = product.CreationDate,
                                               EditedDate = product.ModificationDate,
                                               ActivationEndpoint = product.ActivationUrl,

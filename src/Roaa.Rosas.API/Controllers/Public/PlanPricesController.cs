@@ -24,16 +24,16 @@ namespace Roaa.Rosas.Framework.Controllers.Public
 
         #region Actions    
 
-        [HttpGet("Product/{name}/[controller]")]
-        public async Task<IActionResult> GetPublishedPlanPricesListByProductNameAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        [HttpGet("productOwner/{productOwnerName}/Product/{productName}/[controller]")]
+        public async Task<IActionResult> GetPublishedPlanPricesListByProductNameAsync([FromRoute] string productOwnerName, string productName, CancellationToken cancellationToken = default)
         {
-            return ListResult(await _planPriceService.GetPublishedPlanPricesListByProductNameAsync(name, cancellationToken));
+            return ListResult(await _planPriceService.GetPublishedPlanPricesListByProductNameAsync(productOwnerName, productName, cancellationToken));
         }
 
-        [HttpGet("Product/{productName}/[controller]/{name}")]
-        public async Task<IActionResult> GetPublishedPlanPricesListByProductNameAsync([FromRoute] string productName, [FromRoute] string name, CancellationToken cancellationToken = default)
+        [HttpGet("productOwner/{productOwnerName}/Product/{productName}/[controller]/{name}")]
+        public async Task<IActionResult> GetPublishedPlanPricesListByProductNameAsync([FromRoute] string productOwnerName, string productName, [FromRoute] string name, CancellationToken cancellationToken = default)
         {
-            return ItemResult(await _planPriceService.GetPublishedPlanPriceByPlanPriceNameAsync(productName, name, cancellationToken));
+            return ItemResult(await _planPriceService.GetPublishedPlanPriceByPlanPriceNameAsync(productOwnerName, productName, name, cancellationToken));
         }
 
         [HttpGet("[controller]/{id}")]

@@ -24,10 +24,10 @@ namespace Roaa.Rosas.Framework.Controllers.Public
 
         #region Actions    
 
-        [HttpGet("Product/{name}/[controller]")]
-        public async Task<IActionResult> GetPublishedPlansListByProductNameAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        [HttpGet("productOwner/{productOwnerName}/Product/{productName}/[controller]")]
+        public async Task<IActionResult> GetPublishedPlansListByProductNameAsync([FromRoute] string productOwnerName, string productName, CancellationToken cancellationToken = default)
         {
-            return ListResult(await _planService.GetPublishedPlansListByProductNameAsync(name, cancellationToken));
+            return ListResult(await _planService.GetPublishedPlansListByProductNameAsync(productOwnerName, productName, cancellationToken));
         }
 
         #endregion

@@ -7,7 +7,6 @@ using Roaa.Rosas.Application.Services.Management.PlanPrices.Validators;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
-using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
 using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Management;
@@ -64,17 +63,31 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
             return Result<List<PlanPriceListItemDto>>.Successful(planPrice);
         }
 
-        public async Task<Result<List<PlanPricePublishedListItemDto>>> GetPublishedPlanPricesListByProductNameAsync(string productName, CancellationToken cancellationToken = default)
+        public async Task<Result<List<PlanPricePublishedListItemDto>>> GetPublishedPlanPricesListByProductNameAsync(string productOwnerName, string productName, CancellationToken cancellationToken = default)
         {
-            var planPrice = await _dbContext.PlanPrices
+            var productId = await _dbContext.Products
+                                           .AsNoTracking()
+                                           .Include(p => p.ProductOwner)
+                                           .Where(p => p.ProductOwner.SystemName == productOwnerName.ToLower() &&
+                                                       p.SystemName == productName.ToLower())
+                                          .Select(x => x.Id)
+                                          .SingleOrDefaultAsync(cancellationToken);
+
+            if (productId == Guid.Empty)
+            {
+                return Result<List<PlanPricePublishedListItemDto>>.Fail("Product not found");
+            }
+
+            var planPrices = await _dbContext.PlanPrices
                                               .AsNoTracking()
-                                              .Where(pp => productName.ToLower().Equals(pp.Plan.Product.SystemName) && pp.IsPublished)
+                                              .Include(pp => pp.Plan)
+                                              .Where(pp => pp.Plan.ProductId == productId && pp.IsPublished && pp.Plan.IsPublished)
                                               .Select(planPrice => new PlanPricePublishedListItemDto
                                               {
                                                   Id = planPrice.Id,
-                                                  Plan = new PlanListItemDto(planPrice.Plan.Id, planPrice.Plan.SystemName, planPrice.Plan.DisplayName, planPrice.Plan.TenancyType, planPrice.Plan.IsLockedBySystem),
-                                                  Product = new LookupItemDto<Guid>(planPrice.Plan.ProductId, planPrice.Plan.Product.DisplayName),
-                                                  Client = new LookupItemDto<Guid>(planPrice.Plan.Product.ClientId, planPrice.Plan.Product.Client.SystemName),
+                                                  Plan = new PlanListItemDto { Id = planPrice.PlanId },
+                                                  //Product = new LookupItemDto<Guid>(planPrice.Plan.ProductId, product.DisplayName),@Ahmad
+                                                  //Client = new LookupItemDto<Guid>(product.ClientId, product.ProductOwner.SystemName),@Ahmad
                                                   Cycle = planPrice.PlanCycle,
                                                   Price = planPrice.Price,
                                                   IsSubscribed = planPrice.IsSubscribed,
@@ -87,17 +100,32 @@ namespace Roaa.Rosas.Application.Services.Management.PlanPrices
                                               })
                                               .ToListAsync(cancellationToken);
 
-            return Result<List<PlanPricePublishedListItemDto>>.Successful(planPrice);
+            return Result<List<PlanPricePublishedListItemDto>>.Successful(planPrices);
         }
 
-        public async Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceByPlanPriceNameAsync(string productName, string planPriceName, CancellationToken cancellationToken = default)
+
+
+
+        public async Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceByPlanPriceNameAsync(string productOwnerName, string productName, string planPriceName, CancellationToken cancellationToken = default)
         {
-            return await GetPublishedPlanPriceAsync((pp => planPriceName.ToLower().Equals(pp.SystemName) &&
-                                                           productName.ToLower().Equals(pp.Plan.Product.SystemName) &&
-                                                           pp.IsPublished),
-                                                           cancellationToken);
-        }
+            var product = await _dbContext.Products
+                                          .AsNoTracking()
+                                          .Where(p => p.ProductOwner!.SystemName.ToLower().Equals(productOwnerName.ToLower()) &&
+                                                      p.SystemName.ToLower().Equals(productName.ToLower()))
+                                          .FirstOrDefaultAsync(cancellationToken);
 
+            if (product == null)
+            {
+                return Result<PlanPricePublishedDto>.Fail("Product not found");
+            }
+
+            return await GetPublishedPlanPriceAsync(
+                pp => pp.Plan.ProductId == product.Id &&
+                      pp.SystemName.ToLower().Equals(planPriceName.ToLower()) &&
+                      pp.IsPublished,
+                cancellationToken
+            );
+        }
         public async Task<Result<PlanPricePublishedDto>> GetPublishedPlanPriceByIdAsync(Guid planPriceId, CancellationToken cancellationToken = default)
         {
             return await GetPublishedPlanPriceAsync((pp => pp.Id == planPriceId &&

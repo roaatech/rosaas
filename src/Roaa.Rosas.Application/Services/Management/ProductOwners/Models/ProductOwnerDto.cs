@@ -1,4 +1,4 @@
-﻿using Roaa.Rosas.Application.Services.Management.Products.Models;
+﻿using Roaa.Rosas.Common.Models;
 
 namespace Roaa.Rosas.Application.Services.Management.ProductOwners.Models
 {
@@ -10,7 +10,7 @@ namespace Roaa.Rosas.Application.Services.Management.ProductOwners.Models
         public bool IsDeleted { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime EditedDate { get; set; }
-        public List<ProductListItemDto> Products { get; set; } = new List<ProductListItemDto>();
+        public List<CustomLookupItemDto<Guid>> Products { get; set; } = new List<CustomLookupItemDto<Guid>>();
 
     }
 }

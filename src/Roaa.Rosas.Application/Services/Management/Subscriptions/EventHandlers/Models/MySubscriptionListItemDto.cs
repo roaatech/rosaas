@@ -34,7 +34,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions.Models
         public PaymentMethodCardDto? PaymentMethodCard { get; set; }
         public TrialSubscriptionDto? Trial { get; set; }
         public SubscriptionRenewalAction? SubscriptionRenewalAction { get; set; }
-
+        public CustomLookupItemDto<Guid>? ProductOwner { get; set; }
 
         public class TrialSubscriptionDto
         {

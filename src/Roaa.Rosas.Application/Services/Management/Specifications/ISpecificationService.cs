@@ -6,7 +6,7 @@ namespace Roaa.Rosas.Application.Services.Management.Specifications
     public interface ISpecificationService
     {
 
-        Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductNamesync(string productName, CancellationToken cancellationToken = default);
+        Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductNameAsync(string productOwnerName, string productName, CancellationToken cancellationToken = default);
 
         Task<Result<List<SpecificationListItemDto>>> GetSpecificationsListByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
 

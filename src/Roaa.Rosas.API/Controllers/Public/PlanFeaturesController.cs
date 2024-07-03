@@ -24,16 +24,17 @@ namespace Roaa.Rosas.Framework.Controllers.Public
 
         #region Actions    
 
-        [HttpGet("Product/{name}/[controller]")]
-        public async Task<IActionResult> GetPlanFeaturesListByProductNameAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+        [HttpGet("productOwner/{productOwnerName}/Product/{productName}/[controller]")]
+        public async Task<IActionResult> GetPlanFeaturesListByProductNameAsync([FromRoute] string productOwnerName, string productName, CancellationToken cancellationToken = default)
         {
-            return ListResult(await _planFeatureService.GetPublishedPlanFeaturesListByProductNameAsync(name, cancellationToken));
+            return ListResult(await _planFeatureService.GetPublishedPlanFeaturesListByProductNameAsync(productOwnerName, productName, cancellationToken));
         }
 
-        [HttpGet("Product/{productName}/Plan/{name}/[controller]")]
-        public async Task<IActionResult> GetPublishedPlanFeaturesListByPlanNameAsync([FromRoute] string productName, [FromRoute] string name, CancellationToken cancellationToken = default)
+
+        [HttpGet("productOwner/{productOwnerName}/Product/{productName}/Plan/{planName}/[controller]")]
+        public async Task<IActionResult> GetPublishedPlanFeaturesListByPlanNameAsync([FromRoute] string productOwnerName, string productName, [FromRoute] string planName, CancellationToken cancellationToken = default)
         {
-            return ListResult(await _planFeatureService.GetPublishedPlanFeaturesListByPlanNameAsync(productName, name, cancellationToken));
+            return ListResult(await _planFeatureService.GetPublishedPlanFeaturesListByPlanNameAsync(productOwnerName, productName, planName, cancellationToken));
         }
 
         #endregion

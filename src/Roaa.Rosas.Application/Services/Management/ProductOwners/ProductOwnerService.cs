@@ -44,6 +44,15 @@ namespace Roaa.Rosas.Application.Services.Management.ProductOwners
 
         public async Task<Result<ProductOwnerDto>> GetProductOwnerByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
+            var products = _dbContext.Products
+                                                                        .Where(p => p.ClientId == id)
+                                                                        .Select(p => new CustomLookupItemDto<Guid>
+                                                                        {
+                                                                            Id = p.Id,
+                                                                            SystemName = p.SystemName,
+                                                                            DisplayName = p.DisplayName
+                                                                        })
+                                                                        .ToList();
             var productOwner = await _dbContext.ProductOwners
                                                 .AsNoTracking()
                                                 .Where(po => po.Id == id)
@@ -53,14 +62,19 @@ namespace Roaa.Rosas.Application.Services.Management.ProductOwners
                                                     SystemName = po.SystemName,
                                                     DisplayName = po.DisplayName,
                                                     IsDeleted = po.IsDeleted,
+                                                    CreatedDate = po.CreationDate,
+                                                    EditedDate = po.ModificationDate,
+                                                    Products = products
+
                                                 })
+
+
                                                 .SingleOrDefaultAsync(cancellationToken);
 
             if (productOwner == null)
             {
                 return Result<ProductOwnerDto>.Fail($"ProductOwner with ID {id} not found.");
             }
-
             return Result<ProductOwnerDto>.Successful(productOwner);
         }
 
@@ -68,7 +82,6 @@ namespace Roaa.Rosas.Application.Services.Management.ProductOwners
         {
             var id = Guid.NewGuid();
             var date = DateTime.UtcNow;
-
 
             var productOwner = new Domain.Entities.Management.ProductOwner
             {

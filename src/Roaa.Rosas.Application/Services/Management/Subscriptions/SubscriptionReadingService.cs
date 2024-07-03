@@ -225,7 +225,7 @@ namespace Roaa.Rosas.Application.Services.Management.Subscriptions
                                                                  TrialPlanPriceId = subscription.Trial.TrialPlanPriceId,
                                                              },
                                                              SubscriptionRenewalAction = subscription.ToSubscriptionRenewalAction(subscription.SubscriptionRenewal, subscription.Product),
-
+                                                             ProductOwner = new Common.Models.CustomLookupItemDto<Guid>(subscription.Product.ProductOwner!.Id, subscription.Product.ProductOwner.SystemName, subscription.Product.ProductOwner.DisplayName),
 
                                                          })
                                                          .OrderByDescending(x => x.CreatedDate)

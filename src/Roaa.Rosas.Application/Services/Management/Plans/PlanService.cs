@@ -103,11 +103,28 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
             return Result<List<PlanListItemDto>>.Successful(plans);
         }
 
-        public async Task<Result<List<PlanPublishedListItemDto>>> GetPublishedPlansListByProductNameAsync(string productName, CancellationToken cancellationToken = default)
+        public async Task<Result<List<PlanPublishedListItemDto>>> GetPublishedPlansListByProductNameAsync(string productOwnerName, string productName, CancellationToken cancellationToken = default)
         {
+            var productId = await _dbContext.Products
+                               .AsNoTracking()
+                               .Where(p => p.ProductOwner.SystemName.Equals(productOwnerName.ToLower()) &&
+                                           p.SystemName.Equals(productName.ToLower()))
+
+                               .Select(x => x.Id)
+                               .SingleOrDefaultAsync(cancellationToken);
+
+
+            if (productId == Guid.Empty)
+            {
+
+                return Result<List<PlanPublishedListItemDto>>.Fail("Product not found");
+
+            }
+
+
             var plans = await _dbContext.Plans
                                               .AsNoTracking()
-                                              .Where(pp => productName.ToLower().Equals(pp.Product.SystemName))
+                                              .Where(pp => pp.ProductId == productId && pp.IsPublished)
                                               .Select(plan => new PlanPublishedListItemDto
                                               {
                                                   Id = plan.Id,
@@ -117,8 +134,8 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                   DisplayOrder = plan.DisplayOrder,
                                                   CreatedDate = plan.CreationDate,
                                                   EditedDate = plan.ModificationDate,
-                                                  Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.DisplayName),
-                                                  Client = new LookupItemDto<Guid>(plan.Product.ClientId, plan.Product.Client.SystemName),
+                                                  //Product = new LookupItemDto<Guid>(plan.ProductId, plan.Product.SystemName),@Ahmad
+                                                  //ProductOwner = new LookupItemDto<Guid>(product.ProductOwner.Id, plan.Product.ProductOwner.SystemName),@Ahmad
                                                   IsPublished = plan.IsPublished,
                                                   IsSubscribed = plan.IsSubscribed,
                                                   IsLockedBySystem = plan.IsLockedBySystem,
@@ -159,7 +176,6 @@ namespace Roaa.Rosas.Application.Services.Management.Plans
                                                       IsSubscribed = planPrice.IsSubscribed,
                                                       IsPublished = planPrice.IsPublished,
                                                       IsLockedBySystem = planPrice.IsLockedBySystem,
-
                                                   }).ToList(),
                                               })
                                               .OrderByDescending(x => x.DisplayOrder)
