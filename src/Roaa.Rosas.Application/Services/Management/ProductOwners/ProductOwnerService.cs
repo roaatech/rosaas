@@ -26,6 +26,7 @@ namespace Roaa.Rosas.Application.Services.Management.ProductOwners
         }
         #endregion
 
+        #region Services 
         public async Task<Result<List<ProductOwnerListItemDto>>> GetAllProductOwnersAsync(CancellationToken cancellationToken = default)
         {
             var productOwners = await _dbContext.ProductOwners
@@ -168,6 +169,21 @@ namespace Roaa.Rosas.Application.Services.Management.ProductOwners
 
             return Result.Successful();
         }
+        public async Task<Result<ProductOwnerRegistrationStatusDto>> IsProductOwnerRegisteredAsync(CancellationToken cancellationToken = default)
+        {
+            var userId = _identityContextService.UserId;
 
+            var isRegistered = await _dbContext.ProductOwners
+                                               .AsNoTracking()
+                                               .AnyAsync(po => po.CreatedByUserId == userId, cancellationToken);
+
+            var result = new ProductOwnerRegistrationStatusDto
+            {
+                IsProductOwnerRegistered = isRegistered
+            };
+
+            return Result<ProductOwnerRegistrationStatusDto>.Successful(result);
+        }
+        #endregion
     }
 }

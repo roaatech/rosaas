@@ -74,6 +74,14 @@ namespace Roaa.Rosas.API.Controllers.Admin
             return PaginatedResult(result);
         }
 
+        [HttpGet("is-registered")]
+        public async Task<IActionResult> IsProductOwnerRegisteredAsync(CancellationToken cancellationToken = default)
+        {
+            var result = await _productOwnerService.IsProductOwnerRegisteredAsync(cancellationToken);
+            return ItemResult(result);
+        }
+
+
         #endregion 
     }
 }

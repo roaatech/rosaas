@@ -18,5 +18,7 @@ namespace Roaa.Rosas.Application.Services.Management.ProductOwner
 
         Task<PaginatedResult<ProductOwnerListItemDto>> GetProductOwnersPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default);
 
+        Task<Result<ProductOwnerRegistrationStatusDto>> IsProductOwnerRegisteredAsync(CancellationToken cancellationToken = default);
+
     }
 }
