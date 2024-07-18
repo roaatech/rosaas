@@ -68,6 +68,19 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         public async Task<PaginatedResult<ProductListItemDto>> GetProductsPaginatedListAsync(PaginationMetaData paginationInfo, List<FilterItem> filters, SortItem sort, CancellationToken cancellationToken = default)
         {
             var query = _dbContext.Products.AsNoTracking()
+                                          .Where(x => _identityContextService.IsSuperAdmin()
+                                          ||
+                                          _identityContextService.UserId == x.ProductOwner.CreatedByUserId
+                                          ||
+                                          _dbContext.EntityAdminPrivileges
+                                                           .Any(a =>
+                                                               a.UserId == _identityContextService.UserId &&
+                                                              ((a.EntityId == x.ClientId &&
+                                                               a.EntityType == Common.Enums.EntityType.ProductOwner) ||
+                                                               (a.EntityId == x.Id &&
+                                                               a.EntityType == Common.Enums.EntityType.Product)
+                                                               ))
+                                          )
                                           .Include(x => x.ProductOwner)
                                           .Select(product => new ProductListItemDto
                                           {
@@ -150,6 +163,17 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         {
             var products = await _dbContext.Products
                                               .AsNoTracking()
+                                               .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                 _identityContextService.UserId == x.ProductOwner.CreatedByUserId ||
+                                                 _dbContext.EntityAdminPrivileges
+                                                                  .Any(a =>
+                                                                      a.UserId == _identityContextService.UserId &&
+                                                                     ((a.EntityId == x.ClientId &&
+                                                                      a.EntityType == Common.Enums.EntityType.ProductOwner) ||
+                                                                      (a.EntityId == x.Id &&
+                                                                      a.EntityType == Common.Enums.EntityType.Product)
+                                                                      ))
+                                                 )
                                               .Select(x => new CustomLookupItemDto<Guid>
                                               {
                                                   Id = x.Id,
@@ -169,6 +193,17 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             var product = await _dbContext.Products
                                           .AsNoTracking()
                                           .Where(x => x.Id == id)
+                                          .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                 _identityContextService.UserId == x.ProductOwner.CreatedByUserId ||
+                                                 _dbContext.EntityAdminPrivileges
+                                                                  .Any(a =>
+                                                                      a.UserId == _identityContextService.UserId &&
+                                                                     ((a.EntityId == x.ClientId &&
+                                                                      a.EntityType == Common.Enums.EntityType.ProductOwner) ||
+                                                                      (a.EntityId == x.Id &&
+                                                                      a.EntityType == Common.Enums.EntityType.Product)
+                                                                      ))
+                                                 )
                                           .Select(product => new ProductDto
                                           {
                                               Id = product.Id,
@@ -232,6 +267,21 @@ namespace Roaa.Rosas.Application.Services.Management.Products
             {
                 return Result<CreatedResult<Guid>>.New().WithErrors(fValidation.Errors);
             }
+            var isProductOwnerAdmin = await _dbContext.ProductOwners
+                                         .Where(x => x.Id == model.ClientId && x.CreatedByUserId == _identityContextService.UserId)
+                                         .AnyAsync(cancellationToken);
+            var isCurrentUserHasPrivilege = await _dbContext.EntityAdminPrivileges
+                                                .Where(x => x.UserId == _identityContextService.UserId &&
+                                                                         x.EntityId == model.ClientId &&
+                                                                         x.EntityType == Common.Enums.EntityType.ProductOwner)
+                                                .AnyAsync(cancellationToken);
+
+            if (!_identityContextService.IsSuperAdmin() && !isProductOwnerAdmin && !isCurrentUserHasPrivilege)
+            {
+
+                return Result<CreatedResult<Guid>>.Fail(ErrorMessage.NameAlreadyUsed, _identityContextService.Locale, nameof(model.SystemName));
+            }
+
 
             if (!await EnsureUniqueNameAsync(model.ClientId, model.SystemName))
             {
@@ -290,11 +340,24 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync(cancellationToken);
+            var product = await _dbContext.Products.Where(x => x.Id == id)
+                                                   .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                     _identityContextService.UserId == x.ProductOwner.CreatedByUserId ||
+                                                      _dbContext.EntityAdminPrivileges
+                                                   .Any(a =>
+                                                                          a.UserId == _identityContextService.UserId &&
+                                                                         ((a.EntityId == x.ClientId &&
+                                                                          a.EntityType == Common.Enums.EntityType.ProductOwner) ||
+                                                                          (a.EntityId == x.Id &&
+                                                                          a.EntityType == Common.Enums.EntityType.Product)
+                                                                          ))
+                                                         )
+                                                   .SingleOrDefaultAsync(cancellationToken);
             if (product is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
             }
+
 
             //if (!await EnsureUniqueUrlAsync(model.Url, id, cancellationToken))
             //{
@@ -341,7 +404,11 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         public async Task<Result> DeleteProductAsync(Guid id, CancellationToken cancellationToken = default)
         {
             #region Validation 
-            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
+            var product = await _dbContext.Products.Where(x => x.Id == id)
+                                                   .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                     _identityContextService.UserId == x.ProductOwner.CreatedByUserId
+                                                     )
+                                                   .SingleOrDefaultAsync();
             if (product is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
@@ -367,7 +434,18 @@ namespace Roaa.Rosas.Application.Services.Management.Products
         {
             #region Validation 
 
-            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
+            var product = await _dbContext.Products.Where(x => x.Id == id)
+                                                   .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                     _identityContextService.UserId == x.ProductOwner.CreatedByUserId ||
+                                                      _dbContext.EntityAdminPrivileges
+                                                   .Any(a =>
+                                                                          a.UserId == _identityContextService.UserId &&
+                                                                         ((a.EntityId == x.ClientId &&
+                                                                          a.EntityType == Common.Enums.EntityType.ProductOwner) ||
+                                                                          (a.EntityId == x.Id &&
+                                                                          a.EntityType == Common.Enums.EntityType.Product)
+                                                                          ))
+                                                         ).SingleOrDefaultAsync();
             if (product is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);
@@ -392,7 +470,19 @@ namespace Roaa.Rosas.Application.Services.Management.Products
                 return Result.New().WithErrors(fValidation.Errors);
             }
 
-            var product = await _dbContext.Products.Where(x => x.Id == id).SingleOrDefaultAsync();
+            var product = await _dbContext.Products.Where(x => x.Id == id)
+                                                   .Where(x => _identityContextService.IsSuperAdmin() ||
+                                                     _identityContextService.UserId == x.ProductOwner.CreatedByUserId ||
+                                                      _dbContext.EntityAdminPrivileges
+                                                   .Any(a =>
+                                                                          a.UserId == _identityContextService.UserId &&
+                                                                         ((a.EntityId == x.ClientId &&
+                                                                          a.EntityType == Common.Enums.EntityType.ProductOwner) ||
+                                                                          (a.EntityId == x.Id &&
+                                                                          a.EntityType == Common.Enums.EntityType.Product)
+                                                                          ))
+                                                         ).SingleOrDefaultAsync();
+
             if (product is null)
             {
                 return Result.Fail(CommonErrorKeys.ResourcesNotFoundOrAccessDenied, _identityContextService.Locale);

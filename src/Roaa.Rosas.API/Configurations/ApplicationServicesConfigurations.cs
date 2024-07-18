@@ -16,7 +16,6 @@ using Roaa.Rosas.Application.Services.Management.Orders;
 using Roaa.Rosas.Application.Services.Management.PlanFeatures;
 using Roaa.Rosas.Application.Services.Management.PlanPrices;
 using Roaa.Rosas.Application.Services.Management.Plans;
-using Roaa.Rosas.Application.Services.Management.ProductOwner;
 using Roaa.Rosas.Application.Services.Management.ProductOwners;
 using Roaa.Rosas.Application.Services.Management.Products;
 using Roaa.Rosas.Application.Services.Management.Settings;

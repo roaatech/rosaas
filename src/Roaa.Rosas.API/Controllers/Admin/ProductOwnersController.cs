@@ -1,7 +1,7 @@
 ﻿using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Roaa.Rosas.Application.Services.Management.ProductOwner;
+using Roaa.Rosas.Application.Services.Management.ProductOwners;
 using Roaa.Rosas.Application.Services.Management.ProductOwners.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models;
@@ -80,6 +80,15 @@ namespace Roaa.Rosas.API.Controllers.Admin
             var result = await _productOwnerService.IsProductOwnerRegisteredAsync(cancellationToken);
             return ItemResult(result);
         }
+
+        [HttpGet("current")]
+        public async Task<IActionResult> GetProductOwnerDetailsByCreatorUserIdAsync(CancellationToken cancellationToken = default)
+        {
+            var userId = _identityContextService.UserId;
+            var result = await _productOwnerService.GetProductOwnerDetailsByCreatorUserIdAsync(userId, cancellationToken);
+            return ItemResult(result);
+        }
+
 
 
         #endregion 

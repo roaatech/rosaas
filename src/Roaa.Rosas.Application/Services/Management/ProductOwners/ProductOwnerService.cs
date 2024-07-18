@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
-using Roaa.Rosas.Application.Services.Management.ProductOwner;
 using Roaa.Rosas.Application.Services.Management.ProductOwners.Models;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.Models;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Domain.Entities.Management;
+using System.Linq.Expressions;
 
 namespace Roaa.Rosas.Application.Services.Management.ProductOwners
 {
@@ -45,38 +46,8 @@ namespace Roaa.Rosas.Application.Services.Management.ProductOwners
 
         public async Task<Result<ProductOwnerDto>> GetProductOwnerByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var products = _dbContext.Products
-                                                                        .Where(p => p.ClientId == id)
-                                                                        .Select(p => new CustomLookupItemDto<Guid>
-                                                                        {
-                                                                            Id = p.Id,
-                                                                            SystemName = p.SystemName,
-                                                                            DisplayName = p.DisplayName
-                                                                        })
-                                                                        .ToList();
-            var productOwner = await _dbContext.ProductOwners
-                                                .AsNoTracking()
-                                                .Where(po => po.Id == id)
-                                                .Select(po => new ProductOwnerDto
-                                                {
-                                                    Id = po.Id,
-                                                    SystemName = po.SystemName,
-                                                    DisplayName = po.DisplayName,
-                                                    IsDeleted = po.IsDeleted,
-                                                    CreatedDate = po.CreationDate,
-                                                    EditedDate = po.ModificationDate,
-                                                    Products = products
-
-                                                })
-
-
-                                                .SingleOrDefaultAsync(cancellationToken);
-
-            if (productOwner == null)
-            {
-                return Result<ProductOwnerDto>.Fail($"ProductOwner with ID {id} not found.");
-            }
-            return Result<ProductOwnerDto>.Successful(productOwner);
+            Expression<Func<ProductOwner, bool>> predicate = po => po.Id == id;
+            return await GetProductOwnerAsync(predicate, cancellationToken);
         }
 
         public async Task<Result<CreatedResult<Guid>>> CreateProductOwnerAsync(CreateProductOwnerModel productOwnerModel, CancellationToken cancellationToken = default)
@@ -169,21 +140,84 @@ namespace Roaa.Rosas.Application.Services.Management.ProductOwners
 
             return Result.Successful();
         }
-        public async Task<Result<ProductOwnerRegistrationStatusDto>> IsProductOwnerRegisteredAsync(CancellationToken cancellationToken = default)
+        public async Task<Result<CustomLookupItemDto<Guid>>> IsProductOwnerRegisteredAsync(CancellationToken cancellationToken = default)
         {
             var userId = _identityContextService.UserId;
 
-            var isRegistered = await _dbContext.ProductOwners
+            var productOwner = await _dbContext.ProductOwners
                                                .AsNoTracking()
-                                               .AnyAsync(po => po.CreatedByUserId == userId, cancellationToken);
+                                               .SingleOrDefaultAsync(po => po.CreatedByUserId == userId, cancellationToken);
 
-            var result = new ProductOwnerRegistrationStatusDto
+            if (productOwner == null)
             {
-                IsProductOwnerRegistered = isRegistered
+                return Result<CustomLookupItemDto<Guid>>.Fail("Product owner not registered.");
+            }
+
+            var result = new CustomLookupItemDto<Guid>
+            {
+                Id = productOwner.Id,
+                DisplayName = productOwner.DisplayName,
+                SystemName = productOwner.SystemName
             };
 
-            return Result<ProductOwnerRegistrationStatusDto>.Successful(result);
+            return Result<CustomLookupItemDto<Guid>>.Successful(result);
         }
+
+        public async Task<Result<ProductOwnerDto>> GetProductOwnerDetailsByCreatorUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+
+            if (userId == Guid.Empty)
+            {
+                return Result<ProductOwnerDto>.Fail("User ID is not valid.");
+            }
+            //po => po.CreatedByUserId == userId
+            Expression<Func<ProductOwner, bool>> predicate = po => po.CreatedByUserId == userId;
+            return await GetProductOwnerAsync(predicate, cancellationToken);
+        }
+        public async Task<Result<ProductOwnerDto>> GetProductOwnerAsync(Expression<Func<ProductOwner, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+
+            var productOwner = await _dbContext.ProductOwners
+                                                .AsNoTracking()
+                                                .Where(predicate)
+                                                .Select(po => new ProductOwnerDto
+                                                {
+                                                    Id = po.Id,
+                                                    SystemName = po.SystemName,
+                                                    DisplayName = po.DisplayName,
+                                                    IsDeleted = po.IsDeleted,
+                                                    CreatedDate = po.CreationDate,
+                                                    EditedDate = po.ModificationDate,
+
+                                                })
+
+
+                                                .SingleOrDefaultAsync(cancellationToken);
+
+
+            if (productOwner == null)
+            {
+                return Result<ProductOwnerDto>.Fail($"ProductOwner not found.");
+            }
+
+            productOwner.Products = _dbContext.Products
+                                                                        .Where(p => p.ClientId == productOwner.Id)
+                                                                        .Select(p => new CustomLookupItemDto<Guid>
+                                                                        {
+                                                                            Id = p.Id,
+                                                                            SystemName = p.SystemName,
+                                                                            DisplayName = p.DisplayName
+                                                                        })
+                                                                        .ToList();
+
+
+            return Result<ProductOwnerDto>.Successful(productOwner);
+        }
+
+
+
+
+
         #endregion
     }
 }
