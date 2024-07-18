@@ -34,7 +34,7 @@ namespace Roaa.Rosas.API.Controllers.ProductOwnerAdmin
 
         [AllowAnonymous]
         [HttpPost("Signup")]
-        public async Task<IActionResult> SignUpAsync(SignUpUserByEmailModel model, CancellationToken cancellationToken)
+        public async Task<IActionResult> SignUpProductOwnerAsync(SignUpUserByEmailModel model, CancellationToken cancellationToken)
         {
             if (!CheckClientId(AdminPanelClientId))
             {
@@ -42,6 +42,20 @@ namespace Roaa.Rosas.API.Controllers.ProductOwnerAdmin
             }
 
             var result = await _authService.SignUpUserByEmailAsync(model, UserType.ClientAdmin, cancellationToken);
+
+            return ItemResult(result);
+        }
+
+
+        [HttpPost("Signin")]
+        public async Task<IActionResult> SignInProductOwnerAsync(SignInUserByEmailModel model, CancellationToken cancellationToken)
+        {
+            if (!CheckClientId(AdminPanelClientId))
+            {
+                return InvalidRequest();
+            }
+
+            var result = await _authService.SignInAdminByEmailAsync(model, cancellationToken, UserType.ClientAdmin);
 
             return ItemResult(result);
         }

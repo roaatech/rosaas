@@ -69,14 +69,13 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
 
         #region SignIn (Admin - Web) si
 
-        public async Task<Result<AuthResultModel<AdminDto>>> SignInAdminByEmailAsync(SignInUserByEmailModel model, CancellationToken cancellationToken = default)
+        public async Task<Result<AuthResultModel<AdminDto>>> SignInAdminByEmailAsync(SignInUserByEmailModel model, CancellationToken cancellationToken = default, params UserType[] allowedUsersTypes)
         {
             #region Validation  
-            var allowedTypes = new UserType[] { UserType.SuperAdmin, UserType.ClientAdmin, UserType.ProductAdmin, UserType.TenantAdmin };
             User user = null;
             _validationBuilder.AddCommand(() => new SignInAdminByEmailValidator(_identityContextService).Validate(model));
             _validationBuilder.AddCommand(async () => user = await _userManager.FindByEmailAsync(model.Email), ErrorMessage.InvalidLogin);
-            _validationBuilder.AddCommand(() => allowedTypes.Contains(user.UserType), ErrorMessage.InvalidLogin);
+            _validationBuilder.AddCommand(() => allowedUsersTypes.Contains(user.UserType), ErrorMessage.InvalidLogin);
             _validationBuilder.AddCommand(() => user.IsActive, ErrorMessage.AccountDeactivated);
             _validationBuilder.AddCommand(async () => await _userManager.CheckPasswordAsync(user, model.Password), ErrorMessage.InvalidLogin);
             var validationResult = await _validationBuilder.ValidateAsync();

@@ -21,7 +21,7 @@ namespace Roaa.Rosas.Application.Services.Identity.Auth
 
         Task<Result<AuthResultModel<AdminDto>>> SignUpUserByEmailAsync(SignUpUserByEmailModel model, UserType userType, CancellationToken cancellationToken = default);
 
-        Task<Result<AuthResultModel<AdminDto>>> SignInAdminByEmailAsync(SignInUserByEmailModel model, CancellationToken cancellationToken = default);
+        Task<Result<AuthResultModel<AdminDto>>> SignInAdminByEmailAsync(SignInUserByEmailModel model, CancellationToken cancellationToken, params UserType[] allowedUsersTypes);
 
         Task<Result<CheckResultModel>> EnsureEmailIsUniqueAsync(string email, CancellationToken cancellationToken);
     }

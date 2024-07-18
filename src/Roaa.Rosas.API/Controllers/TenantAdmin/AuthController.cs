@@ -34,7 +34,7 @@ namespace Roaa.Rosas.Framework.Controllers.TenantAdmin
 
         [AllowAnonymous]
         [HttpPost("Signup")]
-        public async Task<IActionResult> SignUpAsync(SignUpUserByEmailModel model, CancellationToken cancellationToken)
+        public async Task<IActionResult> SignUpTenantAdminAsync(SignUpUserByEmailModel model, CancellationToken cancellationToken)
         {
             if (!CheckClientId(AdminPanelClientId))
             {
@@ -42,6 +42,20 @@ namespace Roaa.Rosas.Framework.Controllers.TenantAdmin
             }
 
             var result = await _authService.SignUpUserByEmailAsync(model, UserType.TenantAdmin, cancellationToken);
+
+            return ItemResult(result);
+        }
+
+
+        [HttpPost("Signin")]
+        public async Task<IActionResult> SignInTenantAdminAsync(SignInUserByEmailModel model, CancellationToken cancellationToken)
+        {
+            if (!CheckClientId(AdminPanelClientId))
+            {
+                return InvalidRequest();
+            }
+
+            var result = await _authService.SignInAdminByEmailAsync(model, cancellationToken, UserType.TenantAdmin);
 
             return ItemResult(result);
         }
