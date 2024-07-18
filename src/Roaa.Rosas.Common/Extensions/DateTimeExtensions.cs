@@ -1,6 +1,6 @@
 ﻿namespace Roaa.Rosas.Common.Extensions
 {
-    public static class DateTimeExtentions
+    public static class DateTimeExtensions
     {
         public static double TimeStamp(this DateTime date)
         {
