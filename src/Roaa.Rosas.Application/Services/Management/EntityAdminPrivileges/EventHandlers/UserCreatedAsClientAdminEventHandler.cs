@@ -57,7 +57,7 @@ namespace Roaa.Rosas.Application.Services.Management.EntityAdminPrivileges.Event
             models.Add(new CreateEntityAdminPrivilegeModel
             {
                 EntityId = @event.ClientId,
-                EntityType = EntityType.Client,
+                EntityType = EntityType.ProductOwner,
                 UserId = @event.User.Id,
                 UserType = @event.User.UserType,
                 IsMajor = @event.IsMajor,

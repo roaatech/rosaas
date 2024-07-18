@@ -75,7 +75,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
             {
                 Email = model.Email,
                 EntityId = clientId,
-                EntityType = EntityType.Client,
+                EntityType = EntityType.ProductOwner,
                 IsMajor = model.IsMajor,
             }, cancellationToken);
 
