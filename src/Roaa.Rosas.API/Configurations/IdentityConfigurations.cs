@@ -21,6 +21,10 @@ namespace Roaa.Rosas.Framework.Configurations
             })
             .AddEntityFrameworkStores<RosasDbContext>()
             .AddDefaultTokenProviders();
+
+            //configure identity tokens expiry life-time
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+                options.TokenLifespan = TimeSpan.FromMinutes(60));
         }
 
 
