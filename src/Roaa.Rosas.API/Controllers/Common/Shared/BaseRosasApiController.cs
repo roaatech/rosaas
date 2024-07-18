@@ -11,6 +11,7 @@ namespace Roaa.Rosas.Framework.Controllers.Common
         public const string SuperAdminMainApiRout = $"{PrefixSuperAdminMainApiRoute}/[controller]";
         public const string PrefixSuperAdminMainApiRoute = "api/management/sadmin/v1";
         public const string PublicApiRoute = "api/public/v1";
+        public const string IdentityApiRout = "api/identity/v1/[controller]";
 
 
     }

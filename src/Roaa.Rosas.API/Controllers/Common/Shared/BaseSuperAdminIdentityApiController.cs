@@ -3,7 +3,12 @@
 namespace Roaa.Rosas.Framework.Controllers.Common
 {
     [Route(SuperAdminIdentityApiRout)]
+    public abstract class BaseSuperAdminIdentityApiController : BaseRosasApiController
+    {
+    }
+
+    [Route(IdentityApiRout)]
     public abstract class BaseIdentityApiController : BaseRosasApiController
-    { 
+    {
     }
 }

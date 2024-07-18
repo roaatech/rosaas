@@ -1,4 +1,4 @@
-﻿namespace Roaa.Rosas.Application.Services.Identity.Accounts.Models
+﻿namespace Roaa.Rosas.Application.Services.Identity.Accounts.Models.Password
 {
     public record ChangeMyPasswordModel
     {

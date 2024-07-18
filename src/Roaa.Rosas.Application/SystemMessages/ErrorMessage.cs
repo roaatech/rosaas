@@ -34,6 +34,11 @@ namespace Roaa.Rosas.Application.SystemMessages
         UserMustConfirmTheirEmailAccount = 2005,
 
 
+        [Localization(
+            En = "You have already confirmed your email account",
+            Ar = "لقد قمت بتوثيق حساب بريدك الإلكتروني مسبقأ")]
+        UserAlreadyConfirmedEmailAccount = 2006,
+
 
         [Localization(
                En = "The name is already used",

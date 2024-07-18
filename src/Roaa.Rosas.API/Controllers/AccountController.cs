@@ -2,16 +2,17 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.Services.Identity.Accounts;
+using Roaa.Rosas.Application.Services.Identity.Accounts.Models;
 using Roaa.Rosas.Application.Services.Identity.Accounts.Models.Password;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Domain.Models;
 using Roaa.Rosas.Framework.Controllers.Common;
 
-namespace Roaa.Rosas.Controllers.Admin
+namespace Roaa.Rosas.API.Controllers
 {
 
     [Authorize(Policy = AuthPolicy.Identity.Account, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
-    public class AccountController : BaseSuperAdminIdentityApiController
+    public class AccountController : BaseIdentityApiController
     {
         #region Props 
         private readonly ILogger<AccountController> _logger;
@@ -53,18 +54,41 @@ namespace Roaa.Rosas.Controllers.Admin
             return ItemResult(result);
         }
 
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateUserProfileAsync([FromBody] UserProfileModel model, CancellationToken cancellationToken)
+        {
+            return EmptyResult(await _accountService.UpdateUserProfileAsync(_identityContextService.UserId, model, cancellationToken));
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmailAsync(ConfirmEmailModel model, CancellationToken cancellationToken)
+        {
+            return EmptyResult(await _accountService.ConfirmEmailAsync(model, cancellationToken));
+        }
+
 
         [HttpPost("ChangePassword")]
-        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangeMyPasswordModel model, CancellationToken cancellationToken)
+        public async Task<IActionResult> ChangePasswordAsync(ChangeMyPasswordModel model, CancellationToken cancellationToken)
         {
             return EmptyResult(await _accountService.ChangePasswordAsync(model, cancellationToken));
         }
 
 
-        [HttpPut("profile")]
-        public async Task<IActionResult> UpdateUserProfileAsync([FromBody] UserProfileModel model, CancellationToken cancellationToken)
+        [AllowAnonymous]
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordModel model, CancellationToken cancellationToken = default)
         {
-            return EmptyResult(await _accountService.UpdateUserProfileAsync(_identityContextService.UserId, model, cancellationToken));
+            return EmptyResult(await _accountService.ForgotPasswordAsync(model, cancellationToken));
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordModel model, CancellationToken cancellationToken)
+        {
+            return EmptyResult(await _accountService.ResetPasswordAsync(model, cancellationToken));
         }
 
         #endregion

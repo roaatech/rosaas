@@ -3,13 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Roaa.Rosas.Application.IdentityServer4;
 using Roaa.Rosas.Application.Services.Identity.Auth;
 using Roaa.Rosas.Application.Services.Identity.Auth.Models;
-using Roaa.Rosas.Common.Enums;
 using Roaa.Rosas.Framework.Controllers.Common;
 
 namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
-    public class AuthController : BaseIdentityApiController
+    public class AuthController : BaseSuperAdminIdentityApiController
     {
         #region Props 
         private readonly ILogger<AuthController> _logger;
@@ -41,7 +40,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
                 return InvalidRequest();
             }
 
-            var result = await _authService.SignInAdminByEmailAsync(model, cancellationToken, UserType.SuperAdmin);
+            var result = await _authService.SignInAdminByEmailAsync(model, cancellationToken);
 
             return ItemResult(result);
         }

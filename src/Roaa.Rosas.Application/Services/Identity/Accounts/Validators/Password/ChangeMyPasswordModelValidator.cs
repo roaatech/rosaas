@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using Roaa.Rosas.Application.Services.Identity.Accounts.Models;
+using Roaa.Rosas.Application.Services.Identity.Accounts.Models.Password;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Extensions;
 using Roaa.Rosas.Common.SystemMessages;
 
-namespace Roaa.Rosas.Application.Services.Identity.Accounts.Validators
+namespace Roaa.Rosas.Application.Services.Identity.Accounts.Validators.Password
 {
     public class ChangeMyPasswordModelValidator : AbstractValidator<ChangeMyPasswordModel>
     {

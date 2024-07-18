@@ -10,7 +10,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
 
-    public class UsersController : BaseIdentityApiController
+    public class UsersController : BaseSuperAdminIdentityApiController
     {
         #region Props 
         private readonly ILogger<UsersController> _logger;

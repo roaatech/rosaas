@@ -12,7 +12,7 @@ namespace Roaa.Rosas.Framework.Controllers.Admin
 {
 
     [Authorize(Policy = AuthPolicy.Identity.ClientCredential, AuthenticationSchemes = IdentityServerAuthenticationDefaults.AuthenticationScheme)]
-    public class ClientCredentialController : BaseIdentityApiController
+    public class ClientCredentialController : BaseSuperAdminIdentityApiController
     {
         #region Props 
         private readonly ILogger<ClientCredentialController> _logger;

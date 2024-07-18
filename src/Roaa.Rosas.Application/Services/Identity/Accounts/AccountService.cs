@@ -1,18 +1,24 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Roaa.Rosas.Application.Constatns;
 using Roaa.Rosas.Application.Extensions;
 using Roaa.Rosas.Application.Interfaces.DbContexts;
 using Roaa.Rosas.Application.Services.Identity.Accounts.Models;
+using Roaa.Rosas.Application.Services.Identity.Accounts.Models.Password;
 using Roaa.Rosas.Application.Services.Identity.Accounts.Validators;
+using Roaa.Rosas.Application.Services.Identity.Accounts.Validators.Password;
 using Roaa.Rosas.Application.Services.Management.GenericAttributes;
 using Roaa.Rosas.Application.SystemMessages;
 using Roaa.Rosas.Authorization.Utilities;
 using Roaa.Rosas.Common.Models.Results;
+using Roaa.Rosas.Common.SystemMessages;
 using Roaa.Rosas.Domain.Entities.Identity;
 using Roaa.Rosas.Domain.Events.Management;
 using Roaa.Rosas.Domain.Models;
+using System.Text;
+using IdentityError = Roaa.Rosas.Application.SystemMessages.IdentityError;
 
 namespace Roaa.Rosas.Application.Services.Identity.Accounts
 {
@@ -114,6 +120,40 @@ namespace Roaa.Rosas.Application.Services.Identity.Accounts
             return Result.Successful();
         }
 
+
+
+        public async Task<Result> ConfirmEmailAsync(ConfirmEmailModel model, CancellationToken cancellationToken = default)
+        {
+            #region Validation
+
+            var uoValidation = new ConfirmEmailValidator(_identityContextService).Validate(model);
+            if (!uoValidation.IsValid)
+            {
+                return Result.New().WithErrors(uoValidation.Errors);
+            }
+
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user.EmailConfirmed)
+            {
+                return Result.Fail(ErrorMessage.UserAlreadyConfirmedEmailAccount, _identityContextService.Locale);
+            }
+
+            #endregion
+
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Code));
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            if (!result.Succeeded)
+            {
+                return result.FailResult(IdentityError.InvalidToken, IdentityError.InvalidConfirmationToken,
+                    _identityContextService.Locale);
+            }
+
+            return Result.Successful();
+        }
+
+
         public async Task<Result> ChangePasswordAsync(ChangeMyPasswordModel model, CancellationToken cancellationToken = default)
         {
             #region Validation
@@ -141,6 +181,94 @@ namespace Roaa.Rosas.Application.Services.Identity.Accounts
             }
 
             return Result.Successful();
+        }
+
+
+        public async Task<Result> ForgotPasswordAsync(ForgotPasswordModel model, CancellationToken cancellationToken = default)
+        {
+            #region Validation
+
+            var uoValidation = new ForgotPasswordModelValidator(_identityContextService).Validate(model);
+            if (!uoValidation.IsValid)
+            {
+                return Result.New().WithErrors(uoValidation.Errors);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            var userResult = ValidateUser(user);
+
+            if (!userResult.Success)
+            {
+                return Result.Successful();
+            }
+
+            #endregion
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+            user.AddDomainEvent(new UserForgotPasswordMessageEvent(user, encodedCode));
+
+            await _dbContext.DispatchDomainEvents();
+
+            return Result.Successful();
+        }
+
+        public async Task<Result> ResetPasswordAsync(ResetPasswordModel model, CancellationToken cancellationToken = default)
+        {
+            #region Validation
+
+            var uoValidation = new ResetPasswordModelValidator(_identityContextService).Validate(model);
+            if (!uoValidation.IsValid)
+            {
+                return Result.New().WithErrors(uoValidation.Errors);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            var userResult = ValidateUser(user);
+
+            if (!userResult.Success)
+            {
+                return Result.Successful();
+            }
+
+            #endregion
+
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Code));
+
+            var result = await _userManager.ResetPasswordAsync(user, code, model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                return result.FailResult(_identityContextService.Locale);
+            }
+
+            if (!user.EmailConfirmed)
+            {
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                result = await _userManager.ConfirmEmailAsync(user, token);
+            }
+
+            return Result.Successful();
+        }
+
+        private Result<User> ValidateUser(User? user)
+        {
+            if (user == null)
+            {
+                return Result<User>.Fail(CommonErrorKeys.UserNotExistByAliasMsg, _identityContextService.Locale);
+            }
+
+            if (!user.IsActive)
+            {
+                return Result<User>.Fail(ErrorMessage.UserAccountNotActive, _identityContextService.Locale);
+            }
+
+            return Result<User>.Successful(user);
         }
 
         #endregion
