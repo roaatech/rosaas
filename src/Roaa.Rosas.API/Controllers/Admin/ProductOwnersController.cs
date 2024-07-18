@@ -77,7 +77,8 @@ namespace Roaa.Rosas.API.Controllers.Admin
         [HttpGet("is-registered")]
         public async Task<IActionResult> IsProductOwnerRegisteredAsync(CancellationToken cancellationToken = default)
         {
-            var result = await _productOwnerService.IsProductOwnerRegisteredAsync(cancellationToken);
+            var userId = _identityContextService.UserId;
+            var result = await _productOwnerService.GetProductOwnerProfileByCreatorUserIdAsync(userId, cancellationToken);
             return ItemResult(result);
         }
 
